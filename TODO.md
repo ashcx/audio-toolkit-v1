@@ -1,6 +1,6 @@
 # Audio Toolkit TODO roadmap
 
-Prepared 2026-10-29. Implementation resumed on 2026-10-29. Under the latest user instructions, work directly on main and push completed, verified increments. Existing GitHub Pages automation deploys main. The user can perform real-device acceptance. Sprints 1–7 are complete within their scope; Sprint 8 is next from [the checkpoint](todo/RESUME.md). [Feature requirements](todo/audio-toolkit-plan.md) remain authoritative and unchecked until evidence exists.
+Prepared 2026-10-29. Implementation resumed on 2026-10-29. Under the latest user instructions, work directly on main and push completed, verified increments. Existing GitHub Pages automation deploys main. The user can perform real-device acceptance. Sprints 1–7 are complete within their scope; Work is paused at the user's request before Sprint 8; resume from [the checkpoint](todo/RESUME.md). [Feature requirements](todo/audio-toolkit-plan.md) remain authoritative and unchecked until evidence exists.
 
 The user confirmed the public repository `ashcx/audio-toolkit-v1`. Production path is `/audio-toolkit-v1/`; the current page returned HTTP 200 and deployment run40858999659 succeeded. This verifies hosting, not unfinished app functionality. Future sprints deliver verified main commits; historical PR links remain evidence.
 
