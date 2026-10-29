@@ -13,6 +13,6 @@
 | Done self-review and decision trail | Owning sprint log, timestamp and rounding fixes, decisions.tsv | VERIFIED |
 | Done independent interrogate | interrogate.md | VERIFIED after reproduced fixes and refreshed independent review |
 | Done relevant real-world evidence | No processing/inference change; actual devices/listening remain in authorized later gates | Actual device/listening NOT VERIFIED; early deferral VERIFIED |
-| PR delivery and actual CI state | Owning sprint references/log and roadmap | NOT VERIFIED until delivery |
+| PR delivery and actual CI state | Owning sprint references/log and roadmap | VERIFIED: PR #4 open/ready; no configured CI checks |
 
 No app deployment or merge is authorized. Ordinary fixture/browser checks make no live network calls. Full streaming, DSP, isolation, large-output and ZIP resource claims remain later acceptance.

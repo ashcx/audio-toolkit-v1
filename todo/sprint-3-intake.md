@@ -4,7 +4,7 @@
 
 Inspect mixed audio and video batches. Owns feature-plan sections 6,7; cross-cutting requirements remain binding.
 
-Status: In progress. Technical delivery: Intake implemented and locally verified. Agent-verified acceptance: NOT VERIFIED.
+Status: Complete. Technical delivery: Intake implemented and locally verified. Agent-verified acceptance: VERIFIED for inspection scope.
 
 ## Entry criteria
 
@@ -57,8 +57,8 @@ One-week timebox. First two stories commit 6 SP. Third story is 3 SP required st
 
 After the preceding gates pass, deliver this sprint's single PR. PR creation is a delivery step, not a prerequisite to reviewing the increment.
 
-- [ ] Commit, push and open/update one sprint PR linking plans, exact checks, captures, evidence, review verdict, gaps and dependency revisions.
-- [ ] Verify PR URL and CI state; record URL in References, Execution log and TODO.md, then push bookkeeping.
+- [x] Commit, push and open/update one sprint PR linking plans, exact checks, captures, evidence, review verdict, gaps and dependency revisions.
+- [x] Verify PR URL and CI state; record URL in References, Execution log and TODO.md, then push bookkeeping.
 
 Complete only when all gates pass. Qualified last-resort exceptions keep boxes unchecked and status In progress with `sprint-3-unfinished.md`. Merge and deployment follow actual authorized scope.
 
@@ -77,7 +77,7 @@ Source sections 23–24 deferred features and exclusions. Hub/image implementati
 - [Scrum policy](redesign-scrum-plan.md).
 - [Feature requirements](audio-toolkit-plan.md).
 - Decision trail: `docs/sprint-evidence/decisions.tsv`.
-- Sprint PR: not created.
+- Sprint PR: [#4](https://github.com/ashcx/audio-toolkit-v1/pull/4).
 
 ## Execution log
 
@@ -104,3 +104,7 @@ Added generated unsupported-WMA and unequal-audio/video fixtures with independen
 ### 2026-10-29 - Review and retrospective
 
 Refreshed independent review ran the full intake check successfully and found no outstanding verified defects. Current source/fixtures/contracts satisfy inspected acceptance. Retrospective: per-track APIs can still return container-level values; include unequal-track fixtures. Viewport tests do not prove touch interaction; exercise actual tap/file-chooser journeys. Next action is the single sprint PR.
+
+### 2026-10-29 - PR delivery
+
+PR #4 is open/ready, stacked on PR #3 at eefe899. Reviewed snapshot committed as49e91b2. No configured GitHub checks exist; no remote CI pass is claimed. Final bookkeeping preserves reviewed behavior. All inspection gates pass; no unfinished carry-forward. Next eligible sprint is 4.
