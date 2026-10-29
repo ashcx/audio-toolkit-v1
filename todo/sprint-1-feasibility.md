@@ -4,7 +4,7 @@
 
 Verify the local processing foundation. Owns feature-plan sections 2,7,13,20,21,22; cross-cutting requirements remain binding.
 
-Status: In progress. Technical delivery: Synthetic feasibility verified. Agent-verified acceptance: NOT VERIFIED.
+Status: Complete. Technical delivery: Synthetic feasibility verified. Agent-verified acceptance: NOT VERIFIED.
 
 ## Entry criteria
 
@@ -57,8 +57,8 @@ One-week timebox. First two stories commit 6 SP. Third story is 3 SP required st
 
 After the preceding gates pass, deliver this sprint's single PR. PR creation is a delivery step, not a prerequisite to reviewing the increment.
 
-- [ ] Commit, push and open/update one sprint PR linking plans, exact checks, captures, evidence, review verdict, gaps and dependency revisions.
-- [ ] Verify PR URL and CI state; record URL in References, Execution log and TODO.md, then push bookkeeping.
+- [x] Commit, push and open/update one sprint PR linking plans, exact checks, captures, evidence, review verdict, gaps and dependency revisions.
+- [x] Verify PR URL and CI state; record URL in References, Execution log and TODO.md, then push bookkeeping.
 
 Complete only when all gates pass. Qualified last-resort exceptions keep boxes unchecked and status In progress with `sprint-1-unfinished.md`. Merge and deployment follow actual authorized scope.
 
@@ -77,7 +77,7 @@ Source sections 23–24 deferred features and exclusions. Hub/image implementati
 - [Scrum policy](redesign-scrum-plan.md).
 - [Feature requirements](audio-toolkit-plan.md).
 - Decision trail: `docs/sprint-evidence/decisions.tsv`.
-- Sprint PR: not created.
+- Sprint PR: [#2](https://github.com/ashcx/audio-toolkit-v1/pull/2).
 
 ## Execution log
 
@@ -98,3 +98,7 @@ Self-review checked source preservation, exact probe results, local base path, r
 ### 2026-10-29 - Retrospective
 
 Add explicit measurement budgets before making feasibility claims. Verify original-author model permission rather than relying on a marketing label or asset hash. Next action is deliver the single sprint PR and enter Sprint 2 against these artifacts.
+
+### 2026-10-29 - PR delivery
+
+PR #2 is open and ready, based on planning PR #1 branch at 88ab84a. Reviewed implementation is a2c4064; notice-whitespace follow-up a5b428b changes no behavior or license wording. GitHub reports no configured checks, not passing CI. Technical and independent synthetic-feasibility acceptance passed; real-device/listening and production-distribution obligations remain in their owning later gates. Progress to Sprint 2 is eligible.

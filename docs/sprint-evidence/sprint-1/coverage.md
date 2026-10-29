@@ -17,6 +17,6 @@ Source is `todo/sprint-1-feasibility.md`. No prior sprint or carry-forward exist
 | Self-review and trail | Documented setup regressions/fixes and docs/sprint-evidence/decisions.tsv | VERIFIED task artifacts and self-review; independent review passed |
 | Independent interrogate | interrogate.md | VERIFIED after reproduced findings and refreshed independent review |
 | Real-world evidence | Explicit user-authorized early physical-device and real-listening deferrals; bounded synthetic inference is in resource-probe.json and real listening stays Sprint 9/12 | Deferral VERIFIED; actual listening/device observations NOT VERIFIED |
-| PR delivery and URL/CI bookkeeping | Sprint References and TODO.md | NOT VERIFIED until delivered |
+| PR delivery and URL/CI bookkeeping | Sprint References and TODO.md | VERIFIED: PR #2 open/ready, no configured CI checks |
 
 Feasibility verdict only permits building against demonstrated paths. It does not certify bounded isolation memory, long inputs, full codec/container matrix, listening quality, Safari hardware or production deployment. Those remain required in their owning sprints. Current encoder outputs are build artifacts in ignored dist; exact corresponding-source delivery must be resolved before production distribution, and no deployment is authorized.

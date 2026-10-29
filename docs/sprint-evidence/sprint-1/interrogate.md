@@ -13,3 +13,5 @@ Fresh review covered the changed acceptance rows, resource evidence and primary-
 Dropped hypotheses: no demonstrated Chromium codec or path defect; physical-device absence is explicitly authorized early. Exact AAC source distribution can remain a release gate while no production build is distributed. Distinct compact model conversion is attributed upstream rather than falsely regenerated.
 
 Final technical verdict: VERIFIED within authorized synthetic feasibility scope. PR delivery and actual CI-state observation are subsequent delivery steps. No independent-review result is inferred from passing local tests alone. Documentation-only PR bookkeeping preserves reviewed behavior.
+
+Delivery: PR #2 (https://github.com/ashcx/audio-toolkit-v1/pull/2) is open/ready. Base88ab84a, reviewed implementation a2c4064, license-whitespace follow-up a5b428b. Final sprint-status/PR bookkeeping changes no code or reviewed acceptance. GitHub reports no configured checks; no remote CI pass is claimed.
