@@ -35,4 +35,4 @@ Read [orchestration](todo/orchestration-plan.md), [Scrum policy](todo/redesign-s
 
 ## Planning delivery
 
-Planning validation and independent review are in [planning evidence](docs/sprint-evidence/planning/validation.md). The decision trail is [decisions.tsv](docs/sprint-evidence/planning/decisions.tsv). Planning PR: pending. This PR is separate from all future implementation sprint PRs.
+Planning validation and independent review are in [planning evidence](docs/sprint-evidence/planning/validation.md). The decision trail is [decisions.tsv](docs/sprint-evidence/planning/decisions.tsv). Planning PR: [#1](https://github.com/ashcx/audio-toolkit-v1/pull/1). This PR is separate from all future implementation sprint PRs.
