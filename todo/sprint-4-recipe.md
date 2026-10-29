@@ -4,7 +4,7 @@
 
 Configure ordered recipes and per-file trim overrides. Owns feature-plan sections 8,10; cross-cutting requirements remain binding.
 
-Status: In progress. Technical delivery: implemented, tested and independently verified; PR delivery pending. Agent-verified acceptance: NOT VERIFIED until review and PR delivery.
+Status: Complete. Technical delivery: PR #5 open/ready. Agent-verified acceptance: VERIFIED within this sprint scope.
 
 ## Entry criteria
 
@@ -57,8 +57,8 @@ One-week timebox. First two stories commit 6 SP. Third story is 3 SP required st
 
 After the preceding gates pass, deliver this sprint's single PR. PR creation is a delivery step, not a prerequisite to reviewing the increment.
 
-- [ ] Commit, push and open/update one sprint PR linking plans, exact checks, captures, evidence, review verdict, gaps and dependency revisions.
-- [ ] Verify PR URL and CI state; record URL in References, Execution log and TODO.md, then push bookkeeping.
+- [x] Commit, push and open/update one sprint PR linking plans, exact checks, captures, evidence, review verdict, gaps and dependency revisions.
+- [x] Verify PR URL and CI state; record URL in References, Execution log and TODO.md, then push bookkeeping.
 
 Complete only when all gates pass. Qualified last-resort exceptions keep boxes unchecked and status In progress with `sprint-4-unfinished.md`. Merge and deployment follow actual authorized scope.
 
@@ -77,7 +77,7 @@ Source sections 23–24 deferred features and exclusions. Hub/image implementati
 - [Scrum policy](redesign-scrum-plan.md).
 - [Feature requirements](audio-toolkit-plan.md).
 - Decision trail: `docs/sprint-evidence/decisions.tsv`.
-- Sprint PR: not created.
+- Sprint PR: [#5](https://github.com/ashcx/audio-toolkit-v1/pull/5).
 
 ## Execution log
 
@@ -96,3 +96,7 @@ Exact checks: `npm run build`, `npm run typecheck`, `node --experimental-strip-t
 Self-review corrected null-start/end-zero validation and made schema objects strict after unit tests exposed both gaps. Cancelled trim removal preserves focus and custom ranges. Checked final mobile dark capture directly. Copy eligibility, DSP and actual exports are later sprint scope. Next: independent integrated interrogate, then PR delivery.
 
 Independent Terra high interrogate found four defects in simultaneous error visibility, repeated-step error identification, reorder focus and per-file error association. Reproduced/confirmed, fixed sequentially and refreshed independently. Final unit4/4 and sequential recipe/workspace/intake suites passed in both engines. No carry-forward. Retrospective: test overlapping invalid states and assert usable focus after movement, not only order. PR delivery follows.
+
+### 2026-10-29 - Delivery
+
+Reviewed implementation committed as 6c22ac9, pushed and opened PR [#5](https://github.com/ashcx/audio-toolkit-v1/pull/5) targeting sprint/3-intake at51da1c8. PR observed open/ready; no configured remote CI checks. Documentation-only delivery bookkeeping follows on the same branch. No merge/deployment. Sprint 4 Complete; Sprint 5 is next.

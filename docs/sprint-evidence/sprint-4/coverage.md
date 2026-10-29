@@ -14,6 +14,6 @@
 | Done self-review and decisions | execution log, strict-object and zero-end fixes, decisions.tsv | VERIFIED |
 | Done independent interrogate | interrogate.md; four reproduced findings fixed, refreshed independent checks and full final regression | VERIFIED |
 | Done relevant audio/resource evidence | Recipe-only increment does not process audio; S1 feasibility unchanged, listening/device gates remain S9/12 | VERIFIED scope; later observations NOT VERIFIED |
-| Delivery PR and CI state | Pending independent gate | NOT VERIFIED |
+| Delivery PR and CI state | PR #5 https://github.com/ashcx/audio-toolkit-v1/pull/5; open/ready, no configured checks | VERIFIED |
 
 Deterministic tests use checked-in local synthetic fixtures, with no live network calls. Copy/planner, DSP, isolation, output retention and large-batch memory claims remain later acceptance.
