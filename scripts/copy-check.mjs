@@ -127,16 +127,17 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   const retryEntries=await page.evaluate(async()=>{const root=await navigator.storage.getDirectory();const dir=await root.getDirectoryHandle('audio-toolkit-v1');const entries=[];for await(const name of dir.keys())entries.push(name);return entries.length;});assert.equal(retryEntries,2,'Retries replace retained output and discard failed partials');
   await page.evaluate(()=>{window.__pauseWrites=true;});
   await page.getByRole('button',{name:'Export',exact:true}).tap();
-  await page.waitForFunction(()=>[...document.querySelectorAll('.file-result')].some(e=>e.textContent.includes('Copying…')));
-  await page.getByLabel('Add step',{exact:true}).selectOption('gain');await page.getByLabel('Gain (dB)',{exact:true}).fill('1');
+  await page.waitForFunction(()=>[...document.querySelectorAll('.file-result')].some(e=>e.textContent.includes('Extracting…')));
+  assert.equal(await page.getByLabel('Add step',{exact:true}).isDisabled(),true,'Recipe edits are locked during the run');
   await page.evaluate(()=>{window.__pauseWrites=false;});
   await page.waitForFunction(()=>document.querySelectorAll('.file-result a[download]').length===2);
-  assert.equal(await page.getByText('Previous settings',{exact:true}).count(),2,'Mid-run edits do not relabel old snapshots as current');
+  await page.getByLabel('Add step',{exact:true}).selectOption('gain');await page.getByLabel('Gain (dB)',{exact:true}).fill('1');
+  assert.equal(await page.getByText('Previous settings',{exact:true}).count(),2,'Later edits do not relabel old snapshots as current');
   await page.getByRole('button',{name:'Remove Gain',exact:true}).click();assert.equal(await page.getByText('Previous settings',{exact:true}).count(),0);
   await page.getByRole('button',{name:'Remove tone.wav',exact:true}).first().tap();await page.getByRole('button',{name:'Remove tone.wav',exact:true}).tap();
   const remaining=await page.evaluate(async()=>{const root=await navigator.storage.getDirectory();const dir=await root.getDirectoryHandle('audio-toolkit-v1');for(let i=0;i<50;i++){const entries=[];for await(const name of dir.keys())entries.push(name);if(!entries.length)return entries;await new Promise(resolve=>setTimeout(resolve,20));}return [...await Array.fromAsync(dir.keys())];});
   assert.deepEqual(remaining,[],'Removed outputs leave no owned OPFS entries');assert.deepEqual(errors,[]);
-  records.push({browser:name,persistentContext:true,files:downloads,codecCalls,maxWrite,cleanup:true,originalRejectsSignalChanges:true,touchDownloadAndExport:true,storageFailureRecovery:true,quotaFailureIsolation:true,retryReplacesOutputs:true,midRunSnapshotLabel:true,errors});
+  records.push({browser:name,persistentContext:true,files:downloads,codecCalls,maxWrite,cleanup:true,originalRejectsSignalChanges:true,touchDownloadAndExport:true,storageFailureRecovery:true,quotaFailureIsolation:true,retryReplacesOutputs:true,lockedRunAndSnapshotLabel:true,errors});
  }finally{await context.close();}
 }
 await writeFile(`${root}/copy-check.json`,JSON.stringify(records,null,2)+'\n');console.log('PASS: all copy paths preserve encoded packets/config; FFmpeg reads audio-only outputs; zero codec constructions, bounded writes, distinct names and OPFS cleanup in Chromium/WebKit.');

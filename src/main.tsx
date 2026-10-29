@@ -63,6 +63,7 @@ function App() {
   });
   const trim = draft.steps.find((step) => step.kind === "trim");
   const changeRecipe = (next: RecipeDraft) => {
+    if (exports.busy) return false;
     if (trim && !next.steps.some((step) => step.kind === "trim")) {
       if (overrides.size > 0 && !confirm("Remove trim and individual ranges?"))
         return false;
@@ -215,7 +216,10 @@ function App() {
                     entry={entry}
                     trim={trim?.range}
                     plan={plans.get(entry.id) ?? null}
-                    result={exports.results.get(entry.id)}
+                    job={exports.jobs.get(entry.id)}
+                    busy={exports.busy || exports.cleanupCount > 0}
+                    onCancel={() => exports.cancel(entry.id)}
+                    onRetry={() => exports.retry(entry.id)}
                     override={overrides.get(entry.id)}
                     onOverride={(range) =>
                       setOverrides((previous) =>
@@ -244,6 +248,7 @@ function App() {
               </ul>
             )}
           </section>
+          <fieldset class="recipe-lock" disabled={exports.busy}>
           <RecipeEditor
             value={draft}
             onChange={changeRecipe}
@@ -254,16 +259,32 @@ function App() {
                 : parsedRecipe.error.issues[0].message
             }
           />
+          </fieldset>
         </div>
         <div class="run-actions">
           <button
             class="button primary"
             type="button"
-            disabled={exports.busy || !jobs.length}
+            disabled={exports.busy || exports.cleanupCount > 0 || !jobs.length}
             onClick={() => void exports.run(jobs)}
           >
-            {exports.busy ? "Exporting…" : "Export"}
+            Export
           </button>
+          {exports.busy && <button type="button" onClick={exports.cancelAll}>Cancel all</button>}
+          {!exports.busy && exports.cleanupCount === 0 && [...exports.jobs.values()].some(job => job.state.kind === "failed") &&
+            <button type="button" onClick={() => exports.retry()}>Retry failed</button>}
+          {exports.cleanupCount > 0 && <>
+            <span role="status">Temporary files need cleanup.</span>
+            <button type="button" disabled={exports.busy} onClick={() => void exports.retryCleanup()}>Retry cleanup</button>
+          </>}
+          {exports.jobs.size > 0 && <span role="status">{[
+            ["done", "done"], ["running", "active"], ["waiting", "waiting"],
+            ["cancelling", "cancelling"], ["failed", "failed"], ["cancelled", "cancelled"],
+          ].flatMap(([kind, label]) => {
+            const count = [...exports.jobs.values()].filter(job => job.state.kind === kind).length;
+            return count ? [`${count} ${label}`] : [];
+          }).join(" · ")}</span>}
+          {exports.busy && <small>{exports.cleaning ? "Cleaning up…" : "Keep this page open. Cancellation waits for cleanup."}</small>}
         </div>
       </main>
       <footer>

@@ -1,0 +1,10 @@
+[
+  {
+    "engine": "chromium",
+    "settledTheme": true
+  },
+  {
+    "engine": "webkit",
+    "settledTheme": true
+  }
+]

@@ -39,10 +39,12 @@ async function execute({
     signal: controller.signal,
     onNormalizationLimit: () => stats.limitedNormalizations++,
     checkpoint: () => {
+      report({ kind: "phase", phase: "Normalizing" });
       stats.normalizationPasses++;
       return checkpoint(client);
     },
   };
+  report({ kind: "phase", phase: "Decoding" });
   let stream: PcmStream = decodePcm(
     file,
     plan.snapshot.source,
@@ -109,10 +111,12 @@ async function execute({
       if (invalidSize) throw new Error(invalidSize);
       stats.maxBlockFrames = Math.max(stats.maxBlockFrames, frames);
       if (!rate) {
+        report({ kind: "phase", phase: "Processing" });
         rate = block.rate;
         count = block.planes.length;
         stats.encoder = await prepareEncoder(settings, { rate, channels: count });
         await output.start();
+        report({ kind: "phase", phase: "Processing / encoding" });
       }
       if (rate !== block.rate || count !== block.planes.length)
         throw new Error("The processed audio format changes unexpectedly.");
@@ -171,6 +175,7 @@ async function execute({
       });
       try { await audio.add(padding); } finally { padding.close(); }
     }
+    report({ kind: "phase", phase: "Encoding" });
     audio.close();
     await output.finalize();
     if (settings.format === "mp3") {
@@ -184,6 +189,7 @@ async function execute({
       await client.write(outputId, page.position, page.data);
       await client.truncate(outputId, page.length);
     }
+    report({ kind: "phase", phase: "Saving" });
     await client.finish(outputId);
     stats.decodePasses = decodeStats.passes;
     stats.maxDecodedFrames = decodeStats.maxDecodedFrames;

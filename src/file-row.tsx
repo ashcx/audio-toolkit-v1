@@ -3,12 +3,15 @@ import type { FileEntry } from "./media";
 import { formatBytes, describeAudio } from "./format";
 import { resolveTrim, type TrimRangeDraft } from "./recipe";
 import type { ExecutionPlan } from "./planner";
-import type { ExportResult } from "./use-export";
+import type { BatchJob } from "./batch";
 import { TrimFields } from "./trim-fields";
 export function FileRow({
   entry,
   plan,
-  result: exported,
+  job,
+  busy,
+  onCancel,
+  onRetry,
   trim,
   override,
   onOverride,
@@ -17,7 +20,10 @@ export function FileRow({
 }: {
   entry: FileEntry;
   plan: ExecutionPlan | null;
-  result: ExportResult | undefined;
+  job: BatchJob | undefined;
+  busy: boolean;
+  onCancel: () => void;
+  onRetry: () => void;
   trim: TrimRangeDraft | undefined;
   override: TrimRangeDraft | undefined;
   onOverride: (range: TrimRangeDraft) => void;
@@ -25,6 +31,7 @@ export function FileRow({
   onRemove: () => void;
 }) {
   const [editing, setEditing] = useState(false);
+  const exported = job?.state;
   const result =
     trim && entry.inspection.kind === "ready"
       ? resolveTrim(override ?? trim, entry.inspection.metadata.duration)
@@ -32,13 +39,13 @@ export function FileRow({
   const previousSettings =
     exported &&
     (!plan || plan.kind === "failed" ||
-      JSON.stringify(plan.snapshot.recipe) !== JSON.stringify(exported.recipe));
+      JSON.stringify(plan.snapshot.recipe) !== JSON.stringify(job?.spec.plan.snapshot.recipe));
   const errorId =
     result?.kind === "failed" ? `trim-error-${entry.id}` : undefined;
   const effective = result?.kind === "ready" ? result.trim : null;
   const short = (seconds: number) => Number(seconds.toFixed(3));
   return (
-    <li data-file-id={entry.id} data-inspection={entry.inspection.kind}>
+    <li data-file-id={entry.id} data-inspection={entry.inspection.kind} data-job-state={exported?.kind}>
       <span class="file-name">
         {entry.file.name}
         <small>
@@ -83,6 +90,7 @@ export function FileRow({
         {trim && entry.inspection.kind === "ready" && (
           <button
             type="button"
+            disabled={busy}
             aria-label={`Trim ${entry.file.name}`}
             aria-describedby={errorId}
             aria-expanded={editing}
@@ -104,10 +112,17 @@ export function FileRow({
       {exported && (
         <div class="file-result" role="status">
           {previousSettings && <small>Previous settings</small>}
-          {exported.kind === "running" ? (
-            `${exported.operation}…`
-          ) : exported.kind === "failed" ? (
-            exported.message
+          {exported.kind === "waiting" || exported.kind === "running" || exported.kind === "cancelling" ? (
+            <>
+              <progress aria-label={`Export ${entry.file.name}`} />
+              <span>{exported.kind === "running" ? `${exported.operation}…` : exported.kind === "waiting" ? "Waiting" : "Cancelling…"}</span>
+              {exported.kind !== "cancelling" && <button type="button" aria-label={`Cancel ${entry.file.name}`} onClick={onCancel}>Cancel</button>}
+            </>
+          ) : exported.kind === "failed" || exported.kind === "cancelled" ? (
+            <>
+              <span>{exported.kind === "failed" ? exported.message : "Cancelled"}</span>
+              <button type="button" disabled={busy} aria-label={`Retry ${entry.file.name}`} onClick={onRetry}>Retry</button>
+            </>
           ) : (
             <>
               {exported.report.kind === "pcm" &&
@@ -134,7 +149,8 @@ export function FileRow({
         </div>
       )}
       {trim && editing && (
-        <div
+        <fieldset
+          disabled={busy}
           class="file-trim"
           role="group"
           aria-label={`Trim range for ${entry.file.name}`}
@@ -152,7 +168,7 @@ export function FileRow({
           ) : (
             <small class="range-origin">Batch range</small>
           )}
-        </div>
+        </fieldset>
       )}
     </li>
   );

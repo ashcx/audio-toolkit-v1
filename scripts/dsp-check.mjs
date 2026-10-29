@@ -166,7 +166,7 @@ for(const [engine, browserType] of [['chromium',chromium], ['webkit',webkit]]) {
     await assertEventually(async()=>assert.equal(await storeCount(page),0));
     await exportFile('retry');await remove('signal.wav');
     await setup(signal,[['normalize',-6]]);await page.evaluate(()=>window.__pauseWrites=true);
-    await page.getByRole('button',{name:'Export',exact:true}).click();await page.getByText('Processing…',{exact:true}).waitFor();
+    await page.getByRole('button',{name:'Export',exact:true}).click();await page.locator('[data-job-state=running]').waitFor();
     await page.getByRole('button',{name:'Remove signal.wav',exact:true}).click();await page.evaluate(()=>window.__pauseWrites=false);
     await assertEventually(async()=>assert.equal(await storeCount(page),0));
     assert.equal(await page.getByRole('link',{name:'Download',exact:true}).count(),0);

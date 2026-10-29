@@ -1,0 +1,172 @@
+TAP version 13
+# Subtest: capability policy never assumes memory and caps parallel work at two
+ok 1 - capability policy never assumes memory and caps parallel work at two
+  ---
+  duration_ms: 0.678858
+  type: 'test'
+  ...
+# Subtest: cancelled late success is released before dispatch; waiting cancel never starts
+ok 2 - cancelled late success is released before dispatch; waiting cancel never starts
+  ---
+  duration_ms: 8.457675
+  type: 'test'
+  ...
+# Subtest: failure is isolated and retry retains exact snapshot/name and unrelated success
+ok 3 - failure is isolated and retry retains exact snapshot/name and unrelated success
+  ---
+  duration_ms: 1.7209
+  type: 'test'
+  ...
+# Subtest: cancel all stops dispatch; remove/dispose reject stale attempts and free outputs
+ok 4 - cancel all stops dispatch; remove/dispose reject stale attempts and free outputs
+  ---
+  duration_ms: 1.83514
+  type: 'test'
+  ...
+# Subtest: new run names cannot collide with retained output names
+ok 5 - new run names cannot collide with retained output names
+  ---
+  duration_ms: 3.958528
+  type: 'test'
+  ...
+# Subtest: one failed old-output cleanup cannot fail unrelated new jobs
+ok 6 - one failed old-output cleanup cannot fail unrelated new jobs
+  ---
+  duration_ms: 5.542036
+  type: 'test'
+  ...
+# Subtest: failed cancellation cleanup stays owned after removal and blocks exports until recovery
+ok 7 - failed cancellation cleanup stays owned after removal and blocks exports until recovery
+  ---
+  duration_ms: 1.68098
+  type: 'test'
+  ...
+# Subtest: cleanup attempts every owner and retries only failed actions
+ok 8 - cleanup attempts every owner and retries only failed actions
+  ---
+  duration_ms: 0.556987
+  type: 'test'
+  ...
+# Subtest: removing a completed output stays busy until deletion settles
+ok 9 - removing a completed output stays busy until deletion settles
+  ---
+  duration_ms: 1.127409
+  type: 'test'
+  ...
+# Subtest: recovering old-output deletion clears its prerequisite before retry
+ok 10 - recovering old-output deletion clears its prerequisite before retry
+  ---
+  duration_ms: 0.86386
+  type: 'test'
+  ...
+# Subtest: actual dependency expands fixed, Xiph and EBML lacing without losing final discard padding
+ok 11 - actual dependency expands fixed, Xiph and EBML lacing without losing final discard padding
+  ---
+  duration_ms: 2.667249
+  type: 'test'
+  ...
+# Subtest: a real laced Opus file exposes a short final duration instead of silently adding padding
+ok 12 - a real laced Opus file exposes a short final duration instead of silently adding padding
+  ---
+  duration_ms: 15.559817
+  type: 'test'
+  ...
+# Subtest: trim retains half-open source positions; gain and mono/stereo mappings are deterministic
+ok 13 - trim retains half-open source positions; gain and mono/stereo mappings are deterministic
+  ---
+  duration_ms: 11.025968
+  type: 'test'
+  ...
+# Subtest: normalization at its actual position changes trim results; silence is finite and checkpoints always close
+ok 14 - normalization at its actual position changes trim results; silence is finite and checkpoints always close
+  ---
+  duration_ms: 23.167191
+  type: 'test'
+  ...
+# Subtest: streaming sinc resampling preserves rate, duration, passband and arbitrary block boundaries
+ok 15 - streaming sinc resampling preserves rate, duration, passband and arbitrary block boundaries
+  ---
+  duration_ms: 251.007275
+  type: 'test'
+  ...
+# Subtest: downsampling rejects out-of-band aliases and preserves the source clock through repeated conversion before trim
+ok 16 - downsampling rejects out-of-band aliases and preserves the source clock through repeated conversion before trim
+  ---
+  duration_ms: 61.575635
+  type: 'test'
+  ...
+# Subtest: original audio resolves valid audio-only containers per codec; unsupported never transcodes
+ok 17 - original audio resolves valid audio-only containers per codec; unsupported never transcodes
+  ---
+  duration_ms: 4.366109
+  type: 'test'
+  ...
+# Subtest: only real no-ops disappear and original audio rejects every signal change
+ok 18 - only real no-ops disappear and original audio rejects every signal change
+  ---
+  duration_ms: 3.560413
+  type: 'test'
+  ...
+# Subtest: PCM plan preserves processor order and export intent without freezing mutable drafts
+ok 19 - PCM plan preserves processor order and export intent without freezing mutable drafts
+  ---
+  duration_ms: 1.18324
+  type: 'test'
+  ...
+# Subtest: a return to the source channel count or rate still runs after an earlier change
+ok 20 - a return to the source channel count or rate still runs after an earlier change
+  ---
+  duration_ms: 0.230122
+  type: 'test'
+  ...
+# Subtest: copy filenames avoid collisions even when codec extensions converge
+ok 21 - copy filenames avoid collisions even when codec extensions converge
+  ---
+  duration_ms: 0.379761
+  type: 'test'
+  ...
+# Subtest: known oversized WAVs fail before processing and trim/rate/channel changes can recover
+ok 22 - known oversized WAVs fail before processing and trim/rate/channel changes can recover
+  ---
+  duration_ms: 0.373672
+  type: 'test'
+  ...
+# Subtest: WAV byte guard prevents RIFF wrap at the actual PCM16 mono and stereo boundaries
+ok 23 - WAV byte guard prevents RIFF wrap at the actual PCM16 mono and stereo boundaries
+  ---
+  duration_ms: 0.299451
+  type: 'test'
+  ...
+# Subtest: ordered serializable recipes preserve repeatable stages and separate terminal export
+ok 24 - ordered serializable recipes preserve repeatable stages and separate terminal export
+  ---
+  duration_ms: 5.217942
+  type: 'test'
+  ...
+# Subtest: invalid ranges, duplicate singleton steps and invalid encoding settings cannot become execution recipes
+ok 25 - invalid ranges, duplicate singleton steps and invalid encoding settings cannot become execution recipes
+  ---
+  duration_ms: 2.560919
+  type: 'test'
+  ...
+# Subtest: per-file overrides and clamping do not mutate the shared recipe
+ok 26 - per-file overrides and clamping do not mutate the shared recipe
+  ---
+  duration_ms: 0.90942
+  type: 'test'
+  ...
+# Subtest: one invalid file range stays isolated; reset restores inheritance
+ok 27 - one invalid file range stays isolated; reset restores inheritance
+  ---
+  duration_ms: 0.33382
+  type: 'test'
+  ...
+1..27
+# tests 27
+# suites 0
+# pass 27
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 454.336579

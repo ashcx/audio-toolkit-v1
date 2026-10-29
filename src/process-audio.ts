@@ -1,3 +1,5 @@
+import { cleanupAll } from "./cleanup";
+import type { JobPhase } from "./batch";
 import { createOutputStore, type StoredOutput } from "./output-store";
 import type {
   DspStats,
@@ -17,6 +19,7 @@ export function processAudio(
   plan: PcmPlan,
   signal: AbortSignal,
   name: string,
+  phase: (value: JobPhase) => void = () => undefined,
 ): Promise<ProcessedOutput> {
   signal.throwIfAborted();
   return new Promise((resolve, reject) => {
@@ -28,7 +31,7 @@ export function processAudio(
       settled = false;
     const cleanup = async () => {
       await serial;
-      for (const entry of stores.values()) await entry.store.discard();
+      await cleanupAll([...stores.values()].map(entry => () => entry.store.discard()));
       stores.clear();
     };
     const stop = () => {
@@ -72,7 +75,8 @@ export function processAudio(
     };
     worker.onmessage = ({ data }: MessageEvent<WorkerResult>) => {
       if (settled) return;
-      if (data.kind === "storage") {
+      if (data.kind === "phase") phase(data.phase);
+      else if (data.kind === "storage") {
         serial = serial.then(async () => {
           let reply: StorageReply;
           try {
@@ -109,7 +113,7 @@ export function processAudio(
         void cleanup().then(
           () => resolve({ output: entry.output, stats: data.stats }),
           async (error) => {
-            await entry.output.release();
+            await cleanupAll([() => entry.output.release()]);
             reject(error);
           },
         );

@@ -1,3 +1,5 @@
+import { cleanupAll } from "./cleanup";
+import type { JobPhase } from "./batch";
 import {
   ALL_FORMATS,
   Mp3InputFormat,
@@ -43,6 +45,7 @@ export async function copyAudio(
   plan: CopyPlan,
   signal: AbortSignal,
   name: string,
+  phase: (value: JobPhase) => void = () => undefined,
 ): Promise<StoredOutput> {
   signal.throwIfAborted();
   const store = await createOutputStore(name, plan.target.mime);
@@ -70,6 +73,7 @@ export async function copyAudio(
   let finished = false;
   try {
     signal.throwIfAborted();
+    phase("Reading");
     const track = await input.getPrimaryAudioTrack();
     if (!track || (await track.getCodec()) !== plan.codec)
       throw new Error("The source audio no longer matches the recipe.");
@@ -87,6 +91,7 @@ export async function copyAudio(
       (await input.getTracks()).length === 1 &&
       plan.snapshot.sourceStartTime === 0
     ) {
+      phase("Extracting");
       for (let offset = 0; offset < file.size; offset += 1024 * 1024) {
         signal.throwIfAborted();
         await store.write(
@@ -97,6 +102,7 @@ export async function copyAudio(
         );
       }
       signal.throwIfAborted();
+      phase("Saving");
       const result = await store.finish();
       signal.throwIfAborted();
       finished = true;
@@ -108,6 +114,7 @@ export async function copyAudio(
     const source = new EncodedAudioPacketSource(plan.codec);
     output.addAudioTrack(source);
     await output.start();
+    phase("Extracting");
     let packets = 0;
     for await (const packet of new EncodedPacketSink(track).packets()) {
       signal.throwIfAborted();
@@ -123,6 +130,7 @@ export async function copyAudio(
     source.close();
     await output.finalize();
     signal.throwIfAborted();
+    phase("Saving");
     const result = await store.finish();
     signal.throwIfAborted();
     finished = true;
@@ -137,7 +145,7 @@ export async function copyAudio(
     input.dispose();
     if (!finished) {
       await output.cancel().catch(() => undefined);
-      await store.discard();
+      await cleanupAll([() => store.discard()]);
     }
   }
 }
