@@ -18,4 +18,4 @@ Baseline main38ca16e, merged pause PR8. Working increment is not delivered until
 | Independent integrated interrogate | interrogate.md; one reused independent Terra high reviewer, cleanup6 cases, batch2 engines,27 units, hashes and captures | VERIFIED, F01/F02/F03 resolved |
 | Resource/listening scope | bounded blocks/writes unchanged; actual job slots checked; no subjective isolation claim | VERIFIED named bounds; workload RSS Sprint11, real listening Sprint9 |
 | Physical devices | User-authorized final Sprint12 gate | NOT VERIFIED |
-| Main/Pages delivery | No Sprint8 commit/push yet | NOT VERIFIED |
+| Main/Pages delivery | main312c673, Pages40927620132 success, live-smoke.json actual cancellation/retry and valid MP3 downloads | VERIFIED |

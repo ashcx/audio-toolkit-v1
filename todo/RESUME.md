@@ -1,3 +1,7 @@
+# Current work, 2026-10-30
+
+User resumed. Main312c673 delivers Sprint8 cancellable batches and recoverable cleanup; independent integrated review passed after three reproduced fixes. Pages40927620132 succeeded and actual live cancellation/retry/MP3 smoke passed. All27 unit checks, cleanup6 browser cases, integrated batch, copy, DSP58, format96 and inherited UI checks passed. See Sprint8 coverage/interrogate/live-smoke. Continue Sprint9 isolation; real listening and device gates remain open. Work directly on main under the current AGENTS workflow; PR8 is merged. Older pause records below are historical.
+
 # Paused after Sprint 7, 2026-10-29
 
 User explicitly requested pause, save and PR because credits ran out. Do not continue implementation until the user resumes. The checkpoint branch is `codex/pause-after-sprint-7`, targeting `main`. No merge is requested during the pause. The previous instruction to push verified increments directly to main remains the default after resume unless the user changes it.

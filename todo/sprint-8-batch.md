@@ -4,7 +4,7 @@
 
 Run cancellable fault-isolated batches. Owns feature-plan sections 16,19; cross-cutting requirements remain binding.
 
-Status: In progress. Technical acceptance and independent review pass; main/Pages delivery remains open.
+Status: Complete within Sprint8 scope. Technical acceptance, independent review and main/Pages delivery verified.
 
 ## Entry criteria
 
@@ -57,8 +57,8 @@ One-week timebox. First two stories commit 6 SP. Third story is 3 SP required st
 
 After the preceding gates pass, commit and push this increment directly to main under the updated user instructions. Record the resulting automatic Pages deployment separately from technical acceptance.
 
-- [ ] Commit and push verified changes to main, retaining plans, exact checks, captures, evidence, review verdict, gaps and starting/ending revisions.
-- [ ] Verify the main commit and Pages workflow status; record observed URLs/status in References, Execution log and TODO.md.
+- [x] Commit and push verified changes to main, retaining plans, exact checks, captures, evidence, review verdict, gaps and starting/ending revisions.
+- [x] Verify the main commit and Pages workflow status; record observed URLs/status in References, Execution log and TODO.md.
 
 Complete only when all gates pass. Qualified last-resort exceptions keep boxes unchecked and status In progress with `sprint-8-unfinished.md`. Merge and deployment follow actual authorized scope.
 
@@ -96,3 +96,7 @@ All three stories implemented sequentially in the main instance; story reports r
 ### 2026-10-30 - Final technical review
 
 One reused independent Terra high reviewer passed the integrated increment after three cleanup findings were reproduced and fixed. Final independent cleanup6 scenarios, batch2 engines,27 unit checks, hashes and four captures pass. One synthetic-worker hypothesis lacked a real-worker path and was dropped explicitly. Comment/suppression lens counts zero. Parent final affected batch/copy checks, DSP58, format96 and inherited workspace/intake/recipe checks pass. Findings and exact reproductions are in evidence. No carry-forward. Retrospective: failed deletion is recoverable owned work, and resolved cleanup must replace rejected job prerequisites. Delivery remains next.
+
+### 2026-10-30 - Main and Pages delivery
+
+Implementation312c6739b8dd7b0be3dbaacfe9eaabaa1bfd1263 pushed directly to main. Pages40927620132 succeeded. Live Chromium cancelled then retried a20-second normalization/MP3 job while a second file completed; both downloads independently decoded to their expected960000/96000 stereo48kHz frames. HTTP200 and matching index-ArBEG0u5.js recorded in live-smoke.json. No PR/branch created under direct-main workflow. Closure is metadata only and preserves reviewed-code hashes. Sprint9 is next.

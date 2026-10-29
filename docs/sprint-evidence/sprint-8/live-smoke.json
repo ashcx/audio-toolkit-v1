@@ -1,0 +1,22 @@
+{
+  "url": "https://ashcx.github.io/audio-toolkit-v1/",
+  "http": 200,
+  "script": "/audio-toolkit-v1/assets/index-ArBEG0u5.js",
+  "cancelledThenRetried": true,
+  "rows": [
+    {
+      "download": "long.audio.mp3",
+      "codec_name": "mp3",
+      "sample_rate": "48000",
+      "channels": 2,
+      "decodedFrames": 960000
+    },
+    {
+      "download": "tone.audio.mp3",
+      "codec_name": "mp3",
+      "sample_rate": "48000",
+      "channels": 2,
+      "decodedFrames": 96000
+    }
+  ]
+}

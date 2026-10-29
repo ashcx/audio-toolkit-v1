@@ -21,3 +21,5 @@ A synthetic worker sent done while retaining an extra unfinished store and expos
 ## Limits
 
 This sprint validates named job-slot/storage/cleanup/audio/UI cases. Full RSS/retention/ZIP workload limits, total nested codec threads, physical devices, isolation listening and the final transitive license audit retain later gates. Abrupt page termination and background completion are not promised. Main/Pages delivery is recorded separately after this technical verdict.
+
+Delivery observed after final technical verdict: main312c673, Pages40927620132 success, actual live cancellation/retry and two valid MP3 downloads, HTTP200/matching asset. Metadata-only closure preserves reviewed-code hashes.
