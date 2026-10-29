@@ -1,0 +1,64 @@
+{
+  "version": "1.63.0",
+  "reason": "Preserve positive Opus Matroska DiscardPadding in packet duration; reject unsupported padding instead of silently lengthening audio. Source and ESM runtime are covered; project uses ESM only. MPL-2.0 original copyright retained.",
+  "files": [
+    {
+      "path": "src/matroska/matroska-demuxer.ts",
+      "before": "005ba885cc3ec9858ee686b3b23303dc3614be5f734de36628c364fccebaa4b5",
+      "after": "50e7daeaddb948f5515274d3f838b5997873e4203f258ee60794f83bf02950a7",
+      "replacements": [
+        [
+          "\textractAv1CodecInfoFromPacket,",
+          "\tparseOpusTocByte,\n\textractAv1CodecInfoFromPacket,"
+        ],
+        [
+          "\treadUnsignedBigInt,",
+          "\treadSignedInt,\n\treadUnsignedBigInt,"
+        ],
+        [
+          "type ClusterBlock = {\n",
+          "type ClusterBlock = {\n\tdiscardPaddingSeconds?: number;\n"
+        ],
+        [
+          "\t\t\tcase EBMLId.BlockDuration: {",
+          "\t\t\tcase 0x75a2: { // Matroska DiscardPadding, nanoseconds.\n\t\t\t\tif (this.currentBlock) this.currentBlock.discardPaddingSeconds = readSignedInt(slice, size) / 1e9;\n\t\t\t}; break;\n\n\t\t\tcase EBMLId.BlockDuration: {"
+        ],
+        [
+          "\t\tconst duration = block.duration / segment.timestampFactor;",
+          "\t\tlet duration = block.duration / segment.timestampFactor;\n\t\tif (block.discardPaddingSeconds) {\n\t\t\tif (this.internalTrack.info?.type !== 'audio' || this.internalTrack.info.codec !== 'opus' || block.discardPaddingSeconds < 0) {\n\t\t\t\tthrow new Error('This Matroska padding cannot be preserved without re-encoding.');\n\t\t\t}\n\t\t\tduration = parseOpusTocByte(block.data).durationInSamples / OPUS_SAMPLE_RATE - block.discardPaddingSeconds;\n\t\t\tif (duration <= 0) throw new Error('This Matroska padding cannot be preserved without re-encoding.');\n\t\t}"
+        ],
+        [
+          "\t\t\t\t\tmainAdditional: originalBlock.mainAdditional,",
+          "\t\t\t\t\tmainAdditional: originalBlock.mainAdditional,\n\t\t\t\t\tdiscardPaddingSeconds: i === frameCount - 1 ? originalBlock.discardPaddingSeconds : undefined,"
+        ]
+      ]
+    },
+    {
+      "path": "dist/modules/src/matroska/matroska-demuxer.js",
+      "before": "a58449bed37d39200b115f3f57b9efaf42403dbb36f3d3d71632de87218a9684",
+      "after": "b5c726059a03194cd9b8c3318573ba45a7c01adb27155531b6b475136700667f",
+      "replacements": [
+        [
+          "import { extractAv1CodecInfoFromPacket,",
+          "import { parseOpusTocByte, extractAv1CodecInfoFromPacket,"
+        ],
+        [
+          " readUnsignedBigInt,",
+          " readSignedInt, readUnsignedBigInt,"
+        ],
+        [
+          "            case EBMLId.BlockDuration:",
+          "            case 0x75a2: // Matroska DiscardPadding, nanoseconds.\n                if (this.currentBlock) this.currentBlock.discardPaddingSeconds = readSignedInt(slice, size) / 1e9;\n                break;\n            case EBMLId.BlockDuration:"
+        ],
+        [
+          "        const duration = block.duration / segment.timestampFactor;",
+          "        let duration = block.duration / segment.timestampFactor;\n        if (block.discardPaddingSeconds) {\n            if (this.internalTrack.info?.type !== 'audio' || this.internalTrack.info.codec !== 'opus' || block.discardPaddingSeconds < 0) {\n                throw new Error('This Matroska padding cannot be preserved without re-encoding.');\n            }\n            duration = parseOpusTocByte(block.data).durationInSamples / OPUS_SAMPLE_RATE - block.discardPaddingSeconds;\n            if (duration <= 0) throw new Error('This Matroska padding cannot be preserved without re-encoding.');\n        }"
+        ],
+        [
+          "                    mainAdditional: originalBlock.mainAdditional,",
+          "                    mainAdditional: originalBlock.mainAdditional,\n                    discardPaddingSeconds: i === frameCount - 1 ? originalBlock.discardPaddingSeconds : undefined,"
+        ]
+      ]
+    }
+  ]
+}

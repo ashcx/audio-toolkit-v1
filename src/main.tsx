@@ -4,6 +4,9 @@ import "./style.css";
 import { useFiles } from "./use-files";
 import { formatBytes } from "./format";
 import { FileRow } from "./file-row";
+import { useCopy } from "./use-copy";
+import { compilePlan } from "./planner";
+import { snapshotForFile } from "./recipe";
 import { RecipeEditor } from "./recipe-editor";
 import {
   newRecipe,
@@ -26,11 +29,33 @@ function initialTheme(): Theme {
 function App() {
   const [theme, setTheme] = useState<Theme>(initialTheme);
   const { entries: files, add, remove } = useFiles();
+  const exports = useCopy(files);
   const [dragging, setDragging] = useState(false);
   const dragDepth = useRef(0);
   const [draft, setDraft] = useState<RecipeDraft>(newRecipe);
   const [overrides, setOverrides] = useState(new Map<FileId, TrimRangeDraft>());
   const parsedRecipe = recipeSchema.safeParse(draft);
+  const plans = new Map(
+    files.map((entry) => {
+      if (!parsedRecipe.success || entry.inspection.kind !== "ready")
+        return [entry.id, null] as const;
+      const effective = snapshotForFile(
+        parsedRecipe.data,
+        entry,
+        overrides.get(entry.id),
+      );
+      return [
+        entry.id,
+        effective.kind === "ready"
+          ? compilePlan(effective.snapshot, entry.inspection.metadata)
+          : effective,
+      ] as const;
+    }),
+  );
+  const copyJobs = files.flatMap((entry) => {
+    const plan = plans.get(entry.id);
+    return plan?.kind === "copy" ? [{ entry, plan }] : [];
+  });
   const trim = draft.steps.find((step) => step.kind === "trim");
   const changeRecipe = (next: RecipeDraft) => {
     if (trim && !next.steps.some((step) => step.kind === "trim")) {
@@ -184,6 +209,8 @@ function App() {
                     key={entry.id}
                     entry={entry}
                     trim={trim?.range}
+                    plan={plans.get(entry.id) ?? null}
+                    result={exports.results.get(entry.id)}
                     override={overrides.get(entry.id)}
                     onOverride={(range) =>
                       setOverrides((previous) =>
@@ -199,6 +226,7 @@ function App() {
                     }
                     onRemove={() => {
                       pendingFocus.current = index;
+                      exports.clear(entry.id);
                       remove(entry.id);
                       setOverrides((previous) => {
                         const next = new Map(previous);
@@ -221,6 +249,16 @@ function App() {
                 : parsedRecipe.error.issues[0].message
             }
           />
+        </div>
+        <div class="run-actions">
+          <button
+            class="button primary"
+            type="button"
+            disabled={exports.busy || !copyJobs.length}
+            onClick={() => void exports.run(copyJobs)}
+          >
+            {exports.busy ? "Exporting…" : "Export"}
+          </button>
         </div>
       </main>
       <footer>

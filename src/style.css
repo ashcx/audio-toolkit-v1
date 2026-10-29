@@ -446,3 +446,22 @@ input[type="number"] {
 .step-settings[hidden] {
   display: none;
 }
+
+.run-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+.file-result {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+.file-result small {
+  color: var(--muted-strong);
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
