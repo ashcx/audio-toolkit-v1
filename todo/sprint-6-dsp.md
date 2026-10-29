@@ -77,7 +77,7 @@ Source sections 23–24 deferred features and exclusions. Hub/image implementati
 - [Scrum policy](redesign-scrum-plan.md).
 - [Feature requirements](audio-toolkit-plan.md).
 - Decision trail: `docs/sprint-evidence/decisions.tsv`.
-- Sprint PR: not created.
+- Sprint PR: [#7 draft checkpoint](https://github.com/ashcx/audio-toolkit-v1/pull/7); incomplete, paused, technical gates open.
 
 ## Execution log
 
@@ -88,3 +88,5 @@ Stories and initial estimates drafted from requirements. No implementation, Read
 ### 2026-10-29 - User-requested pause
 
 Sprint5 delivered PR6 with finalbf88058 and reviewed implementationa74b9f4. Began read-only Sprint6 design/probing; no production DSP implementation. Two permitted read-only design perspectives (Terra low/Luna low) and bounded decoder-worker probe are retained in docs/sprint-evidence/sprint-6/design-checkpoint.md and adjacent artifacts. Worker timing/presentation behavior remains unresolved; no task/Done claim. All agents stopped and no decoder probe remains running. Resume with the decoder observations and contract freeze, then sequential stories. No implementation carry-forward exception is being used, no dependent sprint started. This incomplete checkpoint is saved to the sprint branch and draft PR solely to honor the user's pause/close-out request; technical acceptance and independent sprint review stay open.
+
+Paused checkpoint committed12dc3f9 and pushed. Draft [PR7](https://github.com/ashcx/audio-toolkit-v1/pull/7) observed open/draft, no configured checks. This records incomplete work only; no sprint Done gate was asserted.

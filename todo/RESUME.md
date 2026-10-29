@@ -7,8 +7,8 @@ User explicitly paused on2026-10-29 because their token allowance ran out. Do no
 - Repo /home/user/audio-toolkit, public ashcx/audio-toolkit-v1.
 - Sprints1–5 Complete in scope, all PRs open and stacked, none merged. PR1 planning; PR2 feasibility; PR3 workspace/minimal-copy cleanup; PR4 intake; PR5 recipe; PR6 original-audio export.
 - PR5: https://github.com/ashcx/audio-toolkit-v1/pull/5. Sprint4 final34e102c.
-- PR6: https://github.com/ashcx/audio-toolkit-v1/pull/6. Reviewed implementationa74b9f4, finalbf88058. Open/ready/mergeable with no configured CI checks observed. Host PR attachment was attempted twice but did not return; retry attachment on resume, do not create another PR6.
-- Current branch sprint/6-dsp, based onbf88058. Only saved incomplete design/probe evidence; no production DSP code added. Draft checkpoint PR belongs to Sprint6; reuse it rather than creating a duplicate.
+- PR6: https://github.com/ashcx/audio-toolkit-v1/pull/6. Reviewed implementationa74b9f4, finalbf88058. Open/ready/mergeable with no configured CI checks observed. Host PR attachment requests for PR6/7 were attempted; inspect current attachments on resume if the host did not return a response. Do not create another PR6.
+- Current branch sprint/6-dsp, based onbf88058. Only saved incomplete design/probe evidence; no production DSP code added. Draft checkpoint [PR7](https://github.com/ashcx/audio-toolkit-v1/pull/7) belongs to Sprint6; reuse it rather than creating a duplicate.
 - Production preview remains at127.0.0.1:4173/audio-toolkit-v1/ for user inspection. Existing dev server5173 served root-relative dev paths during exploratory probes. Verify actual server state before use; do not treat dev paths as production proof.
 
 ## Next work
