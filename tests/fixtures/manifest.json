@@ -1,0 +1,370 @@
+{
+  "provenance": "Locally generated sine waves and black video; no third-party or personal media",
+  "generator": "scripts/generate-fixtures.mjs",
+  "ffmpeg": "ffmpeg version 6.1.1-3ubuntu5 Copyright (c) 2000-2023 the FFmpeg developers",
+  "fixtures": [
+    {
+      "name": "tone.wav",
+      "reference": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "pcm_s16le",
+            "codec_type": "audio",
+            "sample_rate": "48000",
+            "channels": 2,
+            "duration": "2.000000"
+          }
+        ],
+        "format": {
+          "format_name": "wav",
+          "duration": "2.000000"
+        }
+      }
+    },
+    {
+      "name": "tone.mp3",
+      "reference": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "mp3",
+            "codec_type": "audio",
+            "sample_rate": "48000",
+            "channels": 2,
+            "start_time": "0.023021",
+            "duration": "2.040000"
+          }
+        ],
+        "format": {
+          "format_name": "mp3",
+          "duration": "2.040000"
+        }
+      }
+    },
+    {
+      "name": "tone.aac",
+      "reference": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "sample_rate": "48000",
+            "channels": 2,
+            "duration": "2.035142"
+          }
+        ],
+        "format": {
+          "format_name": "aac",
+          "duration": "2.035142"
+        }
+      }
+    },
+    {
+      "name": "tone.m4a",
+      "reference": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "sample_rate": "48000",
+            "channels": 2,
+            "start_time": "0.000000",
+            "duration": "2.000000"
+          }
+        ],
+        "format": {
+          "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+          "duration": "2.000000"
+        }
+      }
+    },
+    {
+      "name": "tone.flac",
+      "reference": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "flac",
+            "codec_type": "audio",
+            "sample_rate": "48000",
+            "channels": 2,
+            "start_time": "0.000000",
+            "duration": "2.000000"
+          }
+        ],
+        "format": {
+          "format_name": "flac",
+          "duration": "2.000000"
+        }
+      }
+    },
+    {
+      "name": "tone.ogg",
+      "reference": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "vorbis",
+            "codec_type": "audio",
+            "sample_rate": "48000",
+            "channels": 2,
+            "start_time": "0.000000",
+            "duration": "2.000000"
+          }
+        ],
+        "format": {
+          "format_name": "ogg",
+          "duration": "2.000000"
+        }
+      }
+    },
+    {
+      "name": "tone.opus",
+      "reference": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "opus",
+            "codec_type": "audio",
+            "sample_rate": "48000",
+            "channels": 2,
+            "start_time": "0.000000",
+            "duration": "2.006500"
+          }
+        ],
+        "format": {
+          "format_name": "ogg",
+          "duration": "2.006500"
+        }
+      }
+    },
+    {
+      "name": "audio.webm",
+      "reference": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "opus",
+            "codec_type": "audio",
+            "sample_rate": "48000",
+            "channels": 2,
+            "start_time": "-0.007000"
+          }
+        ],
+        "format": {
+          "format_name": "matroska,webm",
+          "duration": "2.008000"
+        }
+      }
+    },
+    {
+      "name": "video.mp4",
+      "reference": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "start_time": "0.000000",
+            "duration": "2.000000"
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "sample_rate": "48000",
+            "channels": 2,
+            "start_time": "0.000000",
+            "duration": "2.000000"
+          }
+        ],
+        "format": {
+          "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+          "duration": "2.000000"
+        }
+      }
+    },
+    {
+      "name": "video.mov",
+      "reference": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "start_time": "0.000000",
+            "duration": "2.000000"
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "sample_rate": "48000",
+            "channels": 2,
+            "start_time": "0.000000",
+            "duration": "2.000000"
+          }
+        ],
+        "format": {
+          "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+          "duration": "2.000000"
+        }
+      }
+    },
+    {
+      "name": "video.mkv",
+      "reference": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "vp9",
+            "codec_type": "video",
+            "start_time": "0.000000"
+          },
+          {
+            "codec_name": "opus",
+            "codec_type": "audio",
+            "sample_rate": "48000",
+            "channels": 2,
+            "start_time": "-0.007000"
+          }
+        ],
+        "format": {
+          "format_name": "matroska,webm",
+          "duration": "2.008000"
+        }
+      }
+    },
+    {
+      "name": "video.webm",
+      "reference": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "vp9",
+            "codec_type": "video",
+            "start_time": "0.000000"
+          },
+          {
+            "codec_name": "opus",
+            "codec_type": "audio",
+            "sample_rate": "48000",
+            "channels": 2,
+            "start_time": "-0.007000"
+          }
+        ],
+        "format": {
+          "format_name": "matroska,webm",
+          "duration": "2.008000"
+        }
+      }
+    },
+    {
+      "name": "offset.mp4",
+      "reference": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "start_time": "5.000000",
+            "duration": "2.000000"
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "sample_rate": "48000",
+            "channels": 2,
+            "start_time": "4.978000",
+            "duration": "2.021333"
+          }
+        ],
+        "format": {
+          "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+          "duration": "2.022000"
+        }
+      }
+    },
+    {
+      "name": "unsupported.mkv",
+      "reference": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "wmav2",
+            "codec_type": "audio",
+            "sample_rate": "44100",
+            "channels": 1,
+            "start_time": "-0.046000"
+          }
+        ],
+        "format": {
+          "format_name": "matroska,webm",
+          "duration": "1.999000"
+        }
+      }
+    },
+    {
+      "name": "long-video.webm",
+      "reference": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "vp8",
+            "codec_type": "video",
+            "start_time": "0.000000"
+          },
+          {
+            "codec_name": "opus",
+            "codec_type": "audio",
+            "sample_rate": "48000",
+            "channels": 1,
+            "start_time": "-0.007000"
+          }
+        ],
+        "format": {
+          "format_name": "matroska,webm",
+          "duration": "10.000000"
+        }
+      }
+    },
+    {
+      "name": "no-audio.mp4",
+      "reference": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "start_time": "0.000000",
+            "duration": "1.000000"
+          }
+        ],
+        "format": {
+          "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+          "duration": "1.000000"
+        }
+      }
+    },
+    {
+      "name": "misnamed.mp3",
+      "reference": {
+        "programs": [],
+        "streams": [
+          {
+            "codec_name": "pcm_s16le",
+            "codec_type": "audio",
+            "sample_rate": "48000",
+            "channels": 2,
+            "duration": "2.000000"
+          }
+        ],
+        "format": {
+          "format_name": "wav",
+          "duration": "2.000000"
+        }
+      }
+    }
+  ]
+}

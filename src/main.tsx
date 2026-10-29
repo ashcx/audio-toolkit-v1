@@ -1,6 +1,8 @@
 import { render } from "preact";
 import { useLayoutEffect, useRef, useState } from "preact/hooks";
 import "./style.css";
+import { useFiles } from "./use-files";
+import { formatBytes, describeAudio } from "./format";
 
 type Theme = "system" | "light" | "dark";
 function initialTheme(): Theme {
@@ -14,7 +16,9 @@ function initialTheme(): Theme {
 
 function App() {
   const [theme, setTheme] = useState<Theme>(initialTheme);
-  const [files, setFiles] = useState<File[]>([]);
+  const { entries: files, add, remove } = useFiles();
+  const [dragging, setDragging] = useState(false);
+  const dragDepth = useRef(0);
   const [format, setFormat] = useState("mp3");
   const picker = useRef<HTMLInputElement>(null);
   const fileList = useRef<HTMLUListElement>(null);
@@ -97,9 +101,34 @@ function App() {
           <section class="panel files-panel" aria-labelledby="files-title">
             <div class="panel-heading">
               <h2 id="files-title">Files</h2>
-              {files.length > 0 && <span class="count">{files.length}</span>}
+              {files.length > 0 && (
+                <span class="count">
+                  {files.length} ·{" "}
+                  {formatBytes(
+                    files.reduce((total, entry) => total + entry.file.size, 0),
+                  )}
+                </span>
+              )}
             </div>
-            <label class="dropzone">
+            <label
+              class={`dropzone${dragging ? " dropzone-active" : ""}`}
+              onDragEnter={(event) => {
+                event.preventDefault();
+                dragDepth.current++;
+                setDragging(true);
+              }}
+              onDragOver={(event) => event.preventDefault()}
+              onDragLeave={() => {
+                dragDepth.current = Math.max(0, dragDepth.current - 1);
+                if (!dragDepth.current) setDragging(false);
+              }}
+              onDrop={(event) => {
+                event.preventDefault();
+                dragDepth.current = 0;
+                setDragging(false);
+                add(Array.from(event.dataTransfer?.files ?? []));
+              }}
+            >
               <input
                 ref={picker}
                 type="file"
@@ -107,29 +136,54 @@ function App() {
                 accept="audio/*,video/*,.mkv,.flac,.opus,.ogg,.m4a,.aac"
                 aria-label="Choose audio or video files"
                 onChange={(event) => {
-                  setFiles(Array.from(event.currentTarget.files ?? []));
+                  add(Array.from(event.currentTarget.files ?? []));
                   event.currentTarget.value = "";
                 }}
               />
               <span class="button primary">Choose files</span>
-              <small>Audio and video</small>
+              <small>or drop audio or video</small>
             </label>
             {files.length > 0 && (
+              <p class="sr-only" role="status">
+                {files.some(
+                  (entry) =>
+                    entry.inspection.kind === "waiting" ||
+                    entry.inspection.kind === "reading",
+                )
+                  ? "Inspecting files."
+                  : "File inspection complete."}
+              </p>
+            )}
+            {files.length > 0 && (
               <ul ref={fileList} class="file-list" aria-label="Selected files">
-                {files.map((file, index) => (
-                  <li key={index}>
+                {files.map((entry, index) => (
+                  <li
+                    key={entry.id}
+                    data-file-id={entry.id}
+                    data-inspection={entry.inspection.kind}
+                  >
                     <span class="file-name">
-                      {file.name}
-                      <small>{(file.size / 1024 / 1024).toFixed(1)} MB</small>
+                      {entry.file.name}
+                      <small>
+                        {formatBytes(entry.file.size)}
+                        {entry.inspection.kind === "ready"
+                          ? ` · ${describeAudio(entry.inspection.metadata)}`
+                          : entry.inspection.kind === "failed"
+                            ? ""
+                            : ` · ${entry.inspection.kind === "reading" ? "Reading…" : "Waiting"}`}
+                      </small>
+                      {entry.inspection.kind === "failed" && (
+                        <small class="file-error" role="status">
+                          {entry.inspection.message}
+                        </small>
+                      )}
                     </span>
                     <button
                       class="icon-button"
-                      aria-label={`Remove ${file.name}`}
+                      aria-label={`Remove ${entry.file.name}`}
                       onClick={() => {
                         pendingFocus.current = index;
-                        setFiles((previous) =>
-                          previous.filter((_, i) => i !== index),
-                        );
+                        remove(entry.id);
                       }}
                     >
                       ×

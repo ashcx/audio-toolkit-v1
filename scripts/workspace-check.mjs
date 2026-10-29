@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import {chromium,webkit} from 'playwright';
-import {writeFile} from 'node:fs/promises';
+import {writeFile,mkdir} from 'node:fs/promises';
+const root=process.env.WORKSPACE_EVIDENCE_DIR??'.artifacts/workspace-check';
+await mkdir(`${root}/captures`,{recursive:true});
 const records=[];
 for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
  const browser=await type.launch();
@@ -19,7 +21,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
     await page.waitForFunction(expected=>document.documentElement.dataset.theme===expected,theme);
     assert.equal(await page.locator('html').getAttribute('data-theme'),theme);
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'No horizontal overflow');
-    await page.screenshot({path:`docs/sprint-evidence/sprint-2/captures/${name}-${viewport.width}-${theme}.png`,fullPage:true,animations:'disabled'});
+    await page.screenshot({path:`${root}/captures/${name}-${viewport.width}-${theme}.png`,fullPage:true,animations:'disabled'});
    }
   }
   await page.getByLabel('Appearance').selectOption('system');
@@ -58,5 +60,5 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   const iosPage=await iosFirefox.newPage();await iosPage.goto('http://127.0.0.1:4173/audio-toolkit-v1/');await iosPage.getByText('Firefox is unsupported.',{exact:false}).waitFor();await iosFirefox.close();
  }finally{await browser.close();}
 }
-await writeFile('docs/sprint-evidence/sprint-2/workspace-check.json',JSON.stringify(records,null,2)+'\n');
+await writeFile(`${root}/workspace-check.json`,JSON.stringify(records,null,2)+'\n');
 console.log('PASS: Chromium/WebKit desktop/mobile, all themes, live system changes, keyboard removal, long names, base path/reload, privacy/lazy assets and capability recovery notices.');

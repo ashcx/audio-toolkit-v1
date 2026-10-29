@@ -1,0 +1,7 @@
+# Intake contract
+
+FileEntry owns a stable UUID FileId, original browser File and discriminated Inspection. Waiting/reading are transient; ready holds AudioMetadata and failed holds a concise per-file message. IDs survive appended selections, duplicate names and inspections. Removing an ID aborts its active probe; callbacks update matching IDs only and cannot recreate removed rows. At most two probes execute concurrently. All Input instances are disposed after terminal completion, error or abort.
+
+AudioMetadata exposes detected container, recognized authoritative AudioCodec, nullable duration/rate/channels, positive source startTime and hasVideo. startTime is max(0, first primary-track timestamp); track end time minus that origin gives the displayed available duration. Matroska/WebM segment-level metadata cannot establish audio-track duration, so those formats use the last audio packet instead. Metadata is not a decoding or copy-eligibility guarantee. An unrecognized codec yields an unsupported-codec failure. Missing duration/rate/channels remain nullable rather than corrupt-file diagnoses. Later planner and accurate processing gates must validate actual capabilities and time ranges, especially when duration is unknown.
+
+Content probing uses BlobSource with 1 MiB cache and range reads. No AudioSampleSink, AudioDecoder or Web Audio context is used by the inspector. Only the primary audio track is selected. No-audio video fails that file; unrelated entries continue. No object URL, output storage or media upload is introduced.
