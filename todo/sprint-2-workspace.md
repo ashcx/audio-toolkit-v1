@@ -4,7 +4,7 @@
 
 Open a responsive accessible audio workspace. Owns feature-plan sections 2,5,22; cross-cutting requirements remain binding.
 
-Status: In progress. Technical delivery: Workspace implemented and locally checked. Agent-verified acceptance: NOT VERIFIED.
+Status: Complete. Technical delivery: Workspace implemented and locally checked. Agent-verified acceptance: VERIFIED for workspace scope.
 
 ## Entry criteria
 
@@ -57,8 +57,8 @@ One-week timebox. First two stories commit 6 SP. Third story is 3 SP required st
 
 After the preceding gates pass, deliver this sprint's single PR. PR creation is a delivery step, not a prerequisite to reviewing the increment.
 
-- [ ] Commit, push and open/update one sprint PR linking plans, exact checks, captures, evidence, review verdict, gaps and dependency revisions.
-- [ ] Verify PR URL and CI state; record URL in References, Execution log and TODO.md, then push bookkeeping.
+- [x] Commit, push and open/update one sprint PR linking plans, exact checks, captures, evidence, review verdict, gaps and dependency revisions.
+- [x] Verify PR URL and CI state; record URL in References, Execution log and TODO.md, then push bookkeeping.
 
 Complete only when all gates pass. Qualified last-resort exceptions keep boxes unchecked and status In progress with `sprint-2-unfinished.md`. Merge and deployment follow actual authorized scope.
 
@@ -77,7 +77,7 @@ Source sections 23–24 deferred features and exclusions. Hub/image implementati
 - [Scrum policy](redesign-scrum-plan.md).
 - [Feature requirements](audio-toolkit-plan.md).
 - Decision trail: `docs/sprint-evidence/decisions.tsv`.
-- Sprint PR: not created.
+- Sprint PR: [#3](https://github.com/ashcx/audio-toolkit-v1/pull/3).
 
 ## Execution log
 
@@ -104,3 +104,7 @@ Independent review also reproduced keyboard-focus loss after removal and missed 
 ### 2026-10-29 - Independent review and retrospective
 
 Independent Terra high review found focus/FxiOS issues and, after minimal-copy redesign, a missing required first-use download disclosure. Fixed all three and reran the actual affected journeys. Full and affected review refreshes found no outstanding verified findings. Retain the single short footer disclosure, avoiding duplicate paragraphs. Final build/type/browser checks passed. Retrospective: start with action labels and add context only when needed; preserve keyboard focus after list mutations. Next action is the one sprint PR.
+
+### 2026-10-29 - PR delivery
+
+PR #3 open/ready, stacked on Sprint 1 PR #2 at34fc333. Reviewed implementation committed as fd223d0. GitHub shows no configured checks, not passing remote CI. Bookkeeping preserves reviewed behavior. No merge/deployment. Next eligible work is Sprint 3.

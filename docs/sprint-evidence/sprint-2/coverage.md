@@ -14,6 +14,6 @@
 | Done: separate self-review/trail | Execution log and shared decisions.tsv | VERIFIED |
 | Done: interrogate | interrogate.md | VERIFIED after full and affected review refreshes |
 | Done: real-world evidence | No audio engine change; earlier user-authorized device/listening deferrals remain required later | Deferral VERIFIED; actual observations NOT VERIFIED |
-| Delivery | Single PR and actual remote check state | NOT VERIFIED until delivery |
+| Delivery | Single PR and actual remote check state | VERIFIED: PR #3 open/ready; no configured CI checks |
 
 No processing, codec-support, large-file or audio-quality claim is made by this shell increment. No merge or deployment is authorized.
