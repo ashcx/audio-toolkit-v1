@@ -1,0 +1,1 @@
+PASS: ordered recipes, inheritance/override/reset, clamping/per-file failures, validation recovery, collapse, keyboard/drag/touch reorder, terminal export and trim-clear confirmation on Chromium/WebKit.

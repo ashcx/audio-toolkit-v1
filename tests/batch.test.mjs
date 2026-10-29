@@ -1,14 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Batch,batchConcurrency} from '../src/batch.ts';
-import {newRecipe,newExport,recipeSchema,snapshotForFile} from '../src/recipe.ts';
+import {newRecipe,newExport,newStep,recipeSchema,snapshotForFile} from '../src/recipe.ts';
 import {createFileId} from '../src/media.ts';
 import {compilePlan} from '../src/planner.ts';
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
-function spec(name='tone.wav'){
+function spec(name='tone.wav',steps=[]){
  const metadata={container:'wav',codec:'pcm-s16',duration:2,startTime:0,sampleRate:48000,channels:2,hasVideo:false};
  const entry={id:createFileId(),file:new File(['data'],name),inspection:{kind:'ready',metadata}};
- const snapshot=snapshotForFile(recipeSchema.parse({...newRecipe(),export:newExport('wav')}),entry);
+ const snapshot=snapshotForFile(recipeSchema.parse({...newRecipe(),steps,export:newExport('wav')}),entry);
  return {entry,plan:compilePlan(snapshot.snapshot,metadata)};
 }
 function harness(slots=1){
@@ -26,7 +26,7 @@ test('cancelled late success is released before dispatch; waiting cancel never s
  const {batch,calls,released,finish}=harness();const [a,b,c]=[spec(),spec(),spec()];batch.start([a,b,c]);await tick();
  assert.equal(calls.length,1);batch.cancel(a.entry.id);batch.cancel(b.entry.id);
  assert.equal(batch.snapshot.jobs.get(a.entry.id).state.kind,'cancelling');assert.equal(batch.snapshot.busy,true);
- calls[0].phase('Saving');assert.equal(batch.snapshot.jobs.get(a.entry.id).state.kind,'cancelling');
+ calls[0].phase({kind:'phase',phase:'Saving'});assert.equal(batch.snapshot.jobs.get(a.entry.id).state.kind,'cancelling');
  finish(0);await tick();assert.deepEqual(released,[0]);assert.equal(calls.length,2);assert.equal(calls[1].job.entry.id,c.entry.id);
  assert.equal(batch.snapshot.jobs.get(a.entry.id).state.kind,'cancelled');finish(1);await tick();batch.dispose();
 });
@@ -77,4 +77,9 @@ test('recovering old-output deletion clears its prerequisite before retry',async
  const item=spec();let fails=1,runs=0;
  const batch=new Batch(async job=>{runs++;return {report:{kind:'copy'},output:{file:new File(['x'],job.name),name:job.name,mime:'audio/wav',release:async()=>{if(fails-->0)throw new Error('One-time deletion failure');}}};},1);
  batch.start([item]);await tick();batch.start([item]);await tick();assert.equal(batch.snapshot.cleanupCount,1);assert.equal(runs,1);await batch.retryCleanup();assert.equal(batch.snapshot.cleanupCount,0);batch.retry(item.entry.id);await tick();assert.equal(runs,2);assert.equal(batch.snapshot.jobs.get(item.entry.id).state.kind,'done');batch.dispose();
+});
+
+test('isolation has an exclusive slot and queued inference never overlaps cleanup',async()=>{
+ const {batch,calls,finish}=harness(2);const a=spec('a.wav',[newStep('isolation')]),b=spec('b.wav',[newStep('isolation')]),c=spec('c.wav');
+ batch.start([a,b,c]);await tick();assert.equal(calls.length,1);assert.equal(calls[0].job.entry.id,a.entry.id);batch.cancel(a.entry.id);assert.equal(calls.length,1);finish(0);await tick();assert.equal(calls.length,2);assert.equal(calls[1].job.entry.id,b.entry.id);finish(1);await tick();assert.equal(calls.length,3);assert.equal(calls[2].job.entry.id,c.entry.id);finish(2);await tick();batch.dispose();
 });

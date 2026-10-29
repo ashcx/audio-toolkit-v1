@@ -1,0 +1,35 @@
+{
+  "claim": "Diagnostic native SwiftShader WebGPU dispatch only; software CPU adapter, not physical GPU support",
+  "diagnostics": [
+    {
+      "kind": "phase",
+      "phase": "Loading model",
+      "dispatches": 0
+    },
+    {
+      "kind": "first-native-dispatch",
+      "dispatches": 1
+    },
+    {
+      "kind": "phase",
+      "phase": "Separating",
+      "dispatches": 15
+    }
+  ],
+  "console": [
+    "gpu-diagnostic {\"kind\":\"phase\",\"phase\":\"Loading model\",\"dispatches\":0}",
+    "gpu-diagnostic {\"kind\":\"first-native-dispatch\",\"dispatches\":1}",
+    "gpu-diagnostic {\"kind\":\"phase\",\"phase\":\"Separating\",\"dispatches\":15}"
+  ],
+  "adapter": {
+    "vendor": "google",
+    "architecture": "swiftshader",
+    "isFallbackAdapter": true
+  },
+  "memory": {
+    "peakSampledOwnedBrowserRssBytes": 897572864,
+    "samples": 8,
+    "budgetBytes": 2147483648,
+    "budgetExceeded": false
+  }
+}

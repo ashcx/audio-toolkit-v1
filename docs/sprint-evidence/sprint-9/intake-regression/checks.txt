@@ -1,0 +1,1 @@
+PASS: all required audio/video input targets inspected on Chromium/WebKit; corrupt/no-audio isolated; wrong extensions detected by content; append/drop/duplicates stable; no decoder/audio-context construction; mobile layout passed.

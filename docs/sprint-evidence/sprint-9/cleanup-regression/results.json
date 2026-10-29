@@ -1,0 +1,50 @@
+[
+  {
+    "engine": "chromium",
+    "removeFile": false,
+    "activeStores": 4,
+    "remainingAfterFailure": 1,
+    "deletionAttempts": 2,
+    "persistentFailureVisible": true,
+    "recoveredStores": 0
+  },
+  {
+    "engine": "chromium",
+    "removeFile": true,
+    "activeStores": 4,
+    "remainingAfterFailure": 1,
+    "deletionAttempts": 2,
+    "persistentFailureVisible": true,
+    "recoveredStores": 0
+  },
+  {
+    "engine": "chromium",
+    "completedRemovalLocked": true,
+    "replacementCleanupRetry": true,
+    "recoveredStores": 0
+  },
+  {
+    "engine": "webkit",
+    "removeFile": false,
+    "activeStores": 2,
+    "remainingAfterFailure": 1,
+    "deletionAttempts": 2,
+    "persistentFailureVisible": true,
+    "recoveredStores": 0
+  },
+  {
+    "engine": "webkit",
+    "removeFile": true,
+    "activeStores": 2,
+    "remainingAfterFailure": 1,
+    "deletionAttempts": 2,
+    "persistentFailureVisible": true,
+    "recoveredStores": 0
+  },
+  {
+    "engine": "webkit",
+    "completedRemovalLocked": true,
+    "replacementCleanupRetry": true,
+    "recoveredStores": 0
+  }
+]

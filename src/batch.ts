@@ -1,3 +1,4 @@
+import type { JobEvent } from "./job-events";
 import { cleanupAll, CleanupFailure } from "./cleanup.ts";
 import type { FileEntry, FileId } from "./media";
 import { outputName, type ExecutionPlan } from "./planner.ts";
@@ -5,7 +6,6 @@ import { exportDescriptor } from "./export-format.ts";
 import type { StoredOutput } from "./output-store";
 import type { DspStats } from "./pcm/protocol";
 
-export type JobPhase = "Preparing" | "Reading" | "Extracting" | "Decoding" | "Processing" | "Normalizing" | "Separating" | "Processing / encoding" | "Encoding" | "Saving";
 export type JobSpec = Readonly<{
   entry: FileEntry;
   plan: Exclude<ExecutionPlan, { kind: "failed" }>;
@@ -18,7 +18,7 @@ export type JobOutput = {
 type Attempt = Readonly<{ controller: AbortController }>;
 export type JobState =
   | { kind: "waiting" }
-  | { kind: "running"; attempt: Attempt; operation: JobPhase }
+  | { kind: "running"; attempt: Attempt; operation: JobEvent }
   | { kind: "cancelling"; attempt: Attempt }
   | { kind: "cancelled" }
   | { kind: "failed"; message: string }
@@ -26,7 +26,7 @@ export type JobState =
 type OwnedJob = { readonly spec: JobSpec; state: JobState; ready: Promise<void> };
 export type BatchJob = Readonly<Pick<OwnedJob, "spec" | "state">>;
 export type BatchSnapshot = { jobs: ReadonlyMap<FileId, BatchJob>; busy: boolean; cleanupCount: number; cleaning: boolean };
-export type JobRunner = (spec: JobSpec, signal: AbortSignal, phase: (value: JobPhase) => void) => Promise<JobOutput>;
+export type JobRunner = (spec: JobSpec, signal: AbortSignal, phase: (value: JobEvent) => void) => Promise<JobOutput>;
 
 export function batchConcurrency(capabilities: {
   cores: number;
@@ -42,6 +42,7 @@ export class Batch {
   private jobs = new Map<FileId, OwnedJob>();
   private listeners = new Set<(snapshot: BatchSnapshot) => void>();
   private occupied = 0;
+  private isolating = false;
   private disposed = false;
   private cleaning = false;
   private releasing = 0;
@@ -154,10 +155,13 @@ export class Batch {
   private pump() {
     if (!this.disposed) {
       for (const job of this.jobs.values()) {
-        if (this.occupied >= this.concurrency) break;
+        if (this.occupied >= this.concurrency || this.isolating) break;
         if (job.state.kind !== "waiting") continue;
+        const isolation = job.spec.plan.kind === "pcm" && job.spec.plan.steps.some(step => step.kind === "isolation");
+        if (isolation && this.occupied > 0) continue;
+        this.isolating = isolation;
         const attempt = { controller: new AbortController() };
-        job.state = { kind: "running", attempt, operation: "Preparing" };
+        job.state = { kind: "running", attempt, operation: { kind: "phase", phase: "Preparing" } };
         this.occupied++;
         void this.execute(job, attempt);
       }
@@ -188,6 +192,7 @@ export class Batch {
       };
     } finally {
       if (current() && signal.aborted) job.state = { kind: "cancelled" };
+      if (job.spec.plan.kind === "pcm" && job.spec.plan.steps.some(step => step.kind === "isolation")) this.isolating = false;
       this.occupied--;
       this.pump();
     }

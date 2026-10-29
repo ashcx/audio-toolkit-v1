@@ -1,0 +1,90 @@
+[
+  {
+    "engine": "chromium",
+    "claim": "5 full fixed-window calls in runner mode; single-run resource-bound observation, not a speed comparison or phone limit",
+    "inputFramesPerCall": 485100,
+    "calls": 5,
+    "sessionLoads": 5,
+    "mode": "runner",
+    "retainedResultFrames": 0,
+    "peakOwnedBrowserProcessRssBytes": 1897349120,
+    "samples": 266,
+    "rssBudgetBytes": 2147483648,
+    "failures": 0,
+    "errors": [],
+    "result": {
+      "type": "done",
+      "summaries": [
+        {
+          "voiceFrames": 485100,
+          "finite": true,
+          "backend": "wasm"
+        },
+        {
+          "voiceFrames": 485100,
+          "finite": true,
+          "backend": "wasm"
+        },
+        {
+          "voiceFrames": 485100,
+          "finite": true,
+          "backend": "wasm"
+        },
+        {
+          "voiceFrames": 485100,
+          "finite": true,
+          "backend": "wasm"
+        },
+        {
+          "voiceFrames": 485100,
+          "finite": true,
+          "backend": "wasm"
+        }
+      ]
+    }
+  },
+  {
+    "engine": "webkit",
+    "claim": "5 full fixed-window calls in runner mode; single-run resource-bound observation, not a speed comparison or phone limit",
+    "inputFramesPerCall": 485100,
+    "calls": 5,
+    "sessionLoads": 5,
+    "mode": "runner",
+    "retainedResultFrames": 0,
+    "peakOwnedBrowserProcessRssBytes": 1991929856,
+    "samples": 286,
+    "rssBudgetBytes": 2147483648,
+    "failures": 0,
+    "errors": [],
+    "result": {
+      "type": "done",
+      "summaries": [
+        {
+          "voiceFrames": 485100,
+          "finite": true,
+          "backend": "wasm"
+        },
+        {
+          "voiceFrames": 485100,
+          "finite": true,
+          "backend": "wasm"
+        },
+        {
+          "voiceFrames": 485100,
+          "finite": true,
+          "backend": "wasm"
+        },
+        {
+          "voiceFrames": 485100,
+          "finite": true,
+          "backend": "wasm"
+        },
+        {
+          "voiceFrames": 485100,
+          "finite": true,
+          "backend": "wasm"
+        }
+      ]
+    }
+  }
+]

@@ -1,0 +1,48 @@
+[
+  {
+    "engine": "chromium",
+    "frames": 96000,
+    "stats": {
+      "encoder": "pcm",
+      "decodePasses": 1,
+      "maxDecodedFrames": 2048,
+      "maxBlockFrames": 4096,
+      "encodedFrames": 96000,
+      "terminalEncoders": 1,
+      "isolationPasses": 1,
+      "isolationWindows": 1,
+      "maxIsolationFrames": 88200,
+      "isolationLoads": 1,
+      "isolationBackends": [
+        "wasm"
+      ],
+      "normalizationPasses": 0,
+      "limitedNormalizations": 0,
+      "clippedSamples": 0
+    },
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "frames": 96000,
+    "stats": {
+      "encoder": "pcm",
+      "decodePasses": 1,
+      "maxDecodedFrames": 2048,
+      "maxBlockFrames": 4096,
+      "encodedFrames": 96000,
+      "terminalEncoders": 1,
+      "isolationPasses": 1,
+      "isolationWindows": 1,
+      "maxIsolationFrames": 88200,
+      "isolationLoads": 1,
+      "isolationBackends": [
+        "wasm"
+      ],
+      "normalizationPasses": 0,
+      "limitedNormalizations": 0,
+      "clippedSamples": 0
+    },
+    "errors": []
+  }
+]

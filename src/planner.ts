@@ -83,10 +83,6 @@ export function compilePlan(
       current.channels = step.channels === "mono" ? 1 : 2;
     if (step.kind === "resample" && step.rateHz !== "original")
       current.sampleRate = step.rateHz;
-    if (step.kind === "isolation") {
-      current.channels = null;
-      current.sampleRate = null;
-    }
     return changed;
   });
   if (snapshot.recipe.export.format === "original") {

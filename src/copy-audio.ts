@@ -1,5 +1,5 @@
 import { cleanupAll } from "./cleanup";
-import type { JobPhase } from "./batch";
+import type { JobEvent, JobPhase } from "./job-events";
 import {
   ALL_FORMATS,
   Mp3InputFormat,
@@ -45,9 +45,10 @@ export async function copyAudio(
   plan: CopyPlan,
   signal: AbortSignal,
   name: string,
-  phase: (value: JobPhase) => void = () => undefined,
+  event: (value: JobEvent) => void = () => undefined,
 ): Promise<StoredOutput> {
   signal.throwIfAborted();
+  const phase = (value: JobPhase) => event({ kind: "phase", phase: value });
   const store = await createOutputStore(name, plan.target.mime);
   const input = new Input({
     source: new BlobSource(file, {

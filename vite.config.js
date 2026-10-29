@@ -7,7 +7,7 @@ export default defineConfig({
     rolldownOptions: {
       output: {
         codeSplitting: {
-          groups: [{ name: "worker-media", test: /node_modules\/mediabunny\// }],
+          groups: [{ name: "worker-media", test: /node_modules\/mediabunny\// }, { name: "isolation-runtime", test: /vendor\/neural\// }],
         },
       },
     },

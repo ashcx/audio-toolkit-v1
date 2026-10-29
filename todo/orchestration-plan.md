@@ -6,7 +6,7 @@ Convert the feature plan into a TODO roadmap and sequential sprint plan. The ini
 
 ## Execute in dependency order
 
-Follow [TODO.md](../TODO.md), one sprint, story and task at a time in the main instance. Verify predecessor artifacts directly. No parallel implementation. The latest user instructions supersede the original PR workflow. Work directly on main, verify each increment and push main. Existing Pages automation deploys those pushes. Do not create new branches or PRs without a new explicit request. Record starting/ending revisions and refresh affected verification after changes. Independent technical review and truthful acceptance gates remain binding.
+Follow [TODO.md](../TODO.md), one sprint, story and task at a time in the main instance. Verify predecessor artifacts directly. No parallel implementation. The latest user instructions restore PR delivery. Create working branches for reviewed sprint PRs targeting main. Do not commit/push directly to main or merge without explicit user permission. Pages deployment follows an authorized merge, not branch delivery. Record starting/ending revisions and refresh affected verification after changes. Independent technical review and truthful acceptance gates remain binding.
 
 ## Freeze contracts before consumers
 

@@ -1,0 +1,12 @@
+{
+  "claim": "Diagnostic pre-encode capture; discarded earlier capture had no tapped messages and yielded invalid zero-filled files",
+  "frames": 573437,
+  "maxPreEncodeReconstructionError": 0.0006704106344841421,
+  "badSampleCountAbove1eMinus6": 224,
+  "badFrameOffsetsModulo2048": [
+    0
+  ],
+  "voiceEncoderMaxErrorLsb": 0.4999990463256836,
+  "musicEncoderMaxErrorLsb": 0.5,
+  "traceSource": ".artifacts/vite-pcm-trace.config.mjs, .artifacts/s9-pcm-tap"
+}

@@ -1,3 +1,5 @@
+import { isolate } from "./pcm/isolate";
+import { InferenceClient } from "./inference/client";
 import {
   AudioSample,
   AudioSampleSource,
@@ -17,6 +19,7 @@ import { opusTail } from "./pcm/opus-tail";
 const report = (message: WorkerResult, transfer: Transferable[] = []) =>
   self.postMessage(message, { transfer });
 const client = new StorageClient(report);
+const inference = new InferenceClient(report);
 async function execute({
   file,
   plan,
@@ -30,6 +33,11 @@ async function execute({
       maxBlockFrames: 0,
       encodedFrames: 0,
       terminalEncoders: 0,
+      isolationPasses: 0,
+      isolationWindows: 0,
+      maxIsolationFrames: 0,
+      isolationLoads: 0,
+      isolationBackends: [],
       normalizationPasses: 0,
       limitedNormalizations: 0,
       clippedSamples: 0,
@@ -70,7 +78,15 @@ async function execute({
         stream = normalize(stream, step.targetDbfs, context);
         break;
       case "isolation":
-        throw new Error("Voice / music processing is not available yet.");
+        stream = isolate(stream, step.keep, {
+          signal: controller.signal, checkpoint: () => checkpoint(client), event: report,
+          infer: async planes => {
+            const result = await inference.run(planes);
+            report({ kind: "phase", phase: "Processing / encoding" });
+            return result;
+          }, stats,
+        });
+        break;
       default: {
         const unreachable: never = step;
         throw new Error(String(unreachable));
@@ -201,6 +217,7 @@ async function execute({
 }
 self.onmessage = ({ data }: MessageEvent<WorkerInput>) => {
   if (data.kind === "storage") client.receive(data.sequence, data.reply);
+  else if (data.kind === "inference") inference.receive(data.sequence, data.reply);
   else
     void execute(data).catch((error) =>
       report({

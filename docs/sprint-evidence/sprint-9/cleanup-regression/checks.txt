@@ -1,0 +1,6 @@
+chromium cancelled-file cleanup recovery passed
+chromium removed-file cleanup recovery passed
+chromium completed removal and replacement recovery passed
+webkit cancelled-file cleanup recovery passed
+webkit removed-file cleanup recovery passed
+webkit completed removal and replacement recovery passed

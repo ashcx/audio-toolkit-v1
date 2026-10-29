@@ -56,8 +56,7 @@ function App() {
     const plan = plans.get(entry.id);
     return plan &&
       (plan.kind === "copy" ||
-        (plan.kind === "pcm" &&
-          !plan.steps.some((step) => step.kind === "isolation")))
+        plan.kind === "pcm")
       ? [{ entry, plan }]
       : [];
   });

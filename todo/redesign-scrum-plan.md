@@ -1,3 +1,5 @@
+> Current delivery override, 2026-10-30. The user restored working branches and PRs targeting main. Do not commit/push directly to main or merge without explicit permission. The explicit Sprint9 PR request permits delivery of its reviewed CPU scope with missing listening/GPU observations disclosed; the overall sprint remains In progress. Earlier direct-main delivery records below are historical.
+
 > Current delivery override, 2026-10-29. The user replaced the Git workflow with direct main work and verified pushes, and enabled automatic GitHub Pages deployment. All independent review and evidence gates below remain required. References to one PR per sprint apply to historical deliveries; future increments record main commits and observed deployment status.
 
 # Audio Toolkit Scrum delivery policy

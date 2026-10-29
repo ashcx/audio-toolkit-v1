@@ -151,6 +151,7 @@ function StepFields({
       );
     case "isolation":
       return (
+        <>
         <label class="field">
           Keep
           <select
@@ -167,6 +168,8 @@ function StepFields({
             <option value="music">Music</option>
           </select>
         </label>
+        <small class="panel-description">Some voice, music or reverb may remain. Isolation uses more memory and can be slow on phones.</small>
+        </>
       );
     default: {
       const unreachable: never = step;
