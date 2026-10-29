@@ -1,0 +1,38 @@
+# Audio Toolkit TODO roadmap
+
+Prepared 2026-10-29. This request authorizes planning only. Application implementation has not started. [Feature requirements](todo/audio-toolkit-plan.md) remain authoritative and unchecked until evidence exists.
+
+The user confirmed the public repository `ashcx/audio-toolkit-v1`. Intended production path is `/audio-toolkit-v1/`; deployment and live operation remain unverified. Each sprint owns one PR and depends cumulatively on its predecessor.
+
+## Sprint sequence
+
+| Sprint | Observable outcome | Requirement sections | Status |
+| --- | --- | --- | --- |
+| [1](todo/sprint-1-feasibility.md) | Verify the local processing foundation | 2,7,13,20,21,22 | Not started |
+| [2](todo/sprint-2-workspace.md) | Open a responsive accessible audio workspace | 2,5,22 | Not started |
+| [3](todo/sprint-3-intake.md) | Inspect mixed audio and video batches | 6,7 | Not started |
+| [4](todo/sprint-4-recipe.md) | Configure ordered recipes and per-file trim overrides | 8,10 | Not started |
+| [5](todo/sprint-5-copy-export.md) | Extract original audio without encoding | 9,14,15 | Not started |
+| [6](todo/sprint-6-dsp.md) | Process accurate trims and basic audio changes | 10,11,12,15,19 | Not started |
+| [7](todo/sprint-7-formats.md) | Export all required encoded formats | 14,21,22 | Not started |
+| [8](todo/sprint-8-batch.md) | Run cancellable fault-isolated batches | 16,19 | Not started |
+| [9](todo/sprint-9-isolation.md) | Keep voice or music locally in the recipe | 13,15,19,22 | Not started |
+| [10](todo/sprint-10-preview-presets.md) | Test one file and reuse the result in the batch | 17 | Not started |
+| [11](todo/sprint-11-downloads-limits.md) | Download retained results within measured limits | 18,19 | Not started |
+| [12](todo/sprint-12-release-readiness.md) | Verify the complete static audio product | 3,4,20,22,25,26,27 | Not started |
+
+## Final acceptance
+
+- [ ] All required source features and section 26 have evidence, including isolation and all required exports.
+- [ ] Every sprint has passed independent interrogate and delivered its PR. No required stretch or carry-forward remains unresolved.
+- [ ] Browser, audio correctness, privacy, accessibility and measured resource matrices pass.
+- [ ] Production deployment is authorized and observed before claiming the live app works.
+- [ ] Hub/image work has a separate handoff; this workspace does not claim those sites delivered.
+
+## Start here
+
+Read [orchestration](todo/orchestration-plan.md), [Scrum policy](todo/redesign-scrum-plan.md) and [Sprint 1](todo/sprint-1-feasibility.md). Implementation begins on a later explicit instruction. Section 25 is the cross-sprint verification inventory. Sections 23 and 24 remain deferred/excluded.
+
+## Planning delivery
+
+Planning validation and independent review are in [planning evidence](docs/sprint-evidence/planning/validation.md). The decision trail is [decisions.tsv](docs/sprint-evidence/planning/decisions.tsv). Planning PR: [#1](https://github.com/ashcx/audio-toolkit-v1/pull/1). This PR is separate from all future implementation sprint PRs.

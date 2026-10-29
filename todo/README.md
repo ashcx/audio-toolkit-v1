@@ -1,10 +1,11 @@
-# Media Toolkit audio plan
+# Media Toolkit audio planning
 
-Recorded on 2026-10-29. This folder contains planning documents only. No application has been implemented or validated.
+Recorded 2026-10-29. Planning documents only. No application has been implemented or validated.
 
-- [Feature plan and acceptance criteria](audio-toolkit-plan.md) records the product scope, discussion decisions, complete feature inventory, and definition of done.
-- [Original discussion brief](original-audio-pipeline-brief.md) preserves the supplied brief verbatim for reference. Its external technical and licensing claims still require verification.
+- [TODO roadmap](../TODO.md) sequences the sprints.
+- [Orchestration](orchestration-plan.md) owns dependencies and contract freezes.
+- [Scrum policy](redesign-scrum-plan.md) defines evidence, reviews and delivery.
+- [Feature plan](audio-toolkit-plan.md) preserves complete scope and acceptance.
+- [Original brief](original-audio-pipeline-brief.md) preserves the initial discussion and unverified upstream claims.
 
-The feature plan incorporates the user's later decisions. It takes precedence where the original brief conflicts with those decisions. Everything remains unchecked until implementation evidence establishes completion.
-
-This is a requirements inventory, not an implementation sequence. Work packages, estimates, milestones, and delivery order will be defined later.
+Feature requirements take precedence over conflicting historical brief details. Start [Sprint 1](sprint-1-feasibility.md) when implementation is authorized. Everything remains unchecked until evidence exists.
