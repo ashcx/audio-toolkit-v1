@@ -45,3 +45,7 @@ Use [Scrum policy](redesign-scrum-plan.md). Keep unfinished tasks in the owning 
 The user explicitly authorized automated Chromium/WebKit checks in early sprints, leaving real Safari/Android claims unverified until user device testing at final acceptance. Apply this to early entry/exit checks without claiming physical-device support. Sprint 12 retains the real-device gate. This does not waive licensing, correctness, resource or independent review requirements.
 
 The user also explicitly authorized synthetic early isolation feasibility, with real music/live listening in the isolation sprint before final acceptance. Early tests must still establish bounded candidate execution and honest quality/reference budgets; actual listening remains a required later gate.
+
+## 2026-10-29 - Minimal interface direction
+
+The user explicitly requested the image compressor's low-copy approach. Keep concise action/field labels and only necessary context. Remove decorative icons, promotional headings, repeated privacy statements, redundant badges and empty result explanations. Show contextual help when a setting or failure needs it. Results appear when outputs exist. Apply this direction to all later audio UI.
