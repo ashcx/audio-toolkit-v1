@@ -1,0 +1,53 @@
+{
+  "browser": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+  "isolated": false,
+  "native": {
+    "aac": false,
+    "mp3": false,
+    "flac": false,
+    "opus": true,
+    "pcm-s16": true
+  },
+  "formats": {
+    "mp3": {
+      "bytes": 16874,
+      "codec": "mp3",
+      "duration": 1.0448979591836736,
+      "decodedFrames": 46080,
+      "fallback": false
+    },
+    "m4a": {
+      "bytes": 16199,
+      "codec": "aac",
+      "duration": 1.0216780045351475,
+      "decodedFrames": 46080,
+      "fallback": false
+    },
+    "flac": {
+      "bytes": 12700,
+      "codec": "flac",
+      "duration": 1,
+      "decodedFrames": 44100,
+      "fallback": false
+    },
+    "wav": {
+      "bytes": 88244,
+      "codec": "pcm-s16",
+      "duration": 1,
+      "decodedFrames": 44100,
+      "fallback": false
+    },
+    "opus": {
+      "bytes": 16634,
+      "codec": "opus",
+      "duration": 0.9935,
+      "decodedFrames": 47688,
+      "fallback": false
+    }
+  },
+  "copy": {
+    "valid": true,
+    "bytes": 16199
+  },
+  "isolation": null
+}
