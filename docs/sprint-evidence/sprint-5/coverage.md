@@ -14,7 +14,7 @@
 | Done self-review/decisions | gapless metadata, Matroska tail-padding and shape traversal fixes; decision trail | VERIFIED |
 | Done independent integrated interrogate | interrogate.md: reproduced behavior fixes, refreshed integrated and evidence review | VERIFIED |
 | Done audio/resource evidence | Independent decoded float PCM hashes equal across14fixtures; maxWrite <=1MiB; no process-memory/long-file claim | VERIFIED for fixtures; long-file resource/device gates remain later; listening NOT VERIFIED (copy identity uses exact decoded PCM) |
-| Delivery PR and actual CI state | Pending independent gate | NOT VERIFIED |
+| Delivery PR and actual CI state | PR #6 https://github.com/ashcx/audio-toolkit-v1/pull/6, open/ready, no configured checks | VERIFIED |
 
 Deterministic checks use checked-in synthetic media and local browser assets; no live network calls. PCM processing/export, cancellation UI, isolation, preview, ZIP and final device acceptance remain their owning sprints. Existing AAC corresponding-source release gate remains open; no release/deployment claim.
 

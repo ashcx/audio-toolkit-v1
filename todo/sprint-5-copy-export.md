@@ -4,7 +4,7 @@
 
 Extract original audio without encoding. Owns feature-plan sections 9,14,15; cross-cutting requirements remain binding.
 
-Status: In progress. Technical delivery: implemented, tested and independently verified; PR delivery pending. Agent-verified acceptance: NOT VERIFIED.
+Status: Complete. Technical delivery: PR #6 open/ready. Agent-verified acceptance: VERIFIED within this sprint scope.
 
 ## Entry criteria
 
@@ -57,8 +57,8 @@ One-week timebox. First two stories commit 6 SP. Third story is 3 SP required st
 
 After the preceding gates pass, deliver this sprint's single PR. PR creation is a delivery step, not a prerequisite to reviewing the increment.
 
-- [ ] Commit, push and open/update one sprint PR linking plans, exact checks, captures, evidence, review verdict, gaps and dependency revisions.
-- [ ] Verify PR URL and CI state; record URL in References, Execution log and TODO.md, then push bookkeeping.
+- [x] Commit, push and open/update one sprint PR linking plans, exact checks, captures, evidence, review verdict, gaps and dependency revisions.
+- [x] Verify PR URL and CI state; record URL in References, Execution log and TODO.md, then push bookkeeping.
 
 Complete only when all gates pass. Qualified last-resort exceptions keep boxes unchecked and status In progress with `sprint-5-unfinished.md`. Merge and deployment follow actual authorized scope.
 
@@ -77,7 +77,7 @@ Source sections 23–24 deferred features and exclusions. Hub/image implementati
 - [Scrum policy](redesign-scrum-plan.md).
 - [Feature requirements](audio-toolkit-plan.md).
 - Decision trail: `docs/sprint-evidence/decisions.tsv`.
-- Sprint PR: not created.
+- Sprint PR: [#6](https://github.com/ashcx/audio-toolkit-v1/pull/6).
 
 ## Execution log
 
@@ -111,3 +111,7 @@ Fresh integrated reviewer independently passed11unit tests and14fixtures per eng
 
 
 Independent evidence-only Terra high refresh verified both remaining documentation gates: six-processor capabilities table and exact11test/14fixture records. No further discrepancy. All technical gates pass within stated scope; actual listening NOT VERIFIED, with exact decoded copy identity as relevant audio evidence. Retrospective: independently decode copied audio rather than trusting encoded-byte preservation alone; retain golden source construction when a reference demux has a proven defect. PR delivery next.
+
+### 2026-10-29 - Delivery
+
+Reviewed implementation committed a74b9f4 and pushed; PR [#6](https://github.com/ashcx/audio-toolkit-v1/pull/6) targets Sprint4 final34e102c. Observed open/ready, mergeable, no configured remote CI checks. Documentation-only delivery record pushed on same branch. No merge/deployment. Sprint5 Complete; Sprint6 next.
