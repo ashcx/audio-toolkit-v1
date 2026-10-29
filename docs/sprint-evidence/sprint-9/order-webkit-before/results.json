@@ -1,0 +1,28 @@
+[
+  {
+    "engine": "webkit",
+    "isolationFirst": true,
+    "rate": 16000,
+    "channels": 1,
+    "frames": 8000,
+    "stats": {
+      "encoder": "pcm",
+      "decodePasses": 1,
+      "maxDecodedFrames": 2048,
+      "maxBlockFrames": 4096,
+      "encodedFrames": 8000,
+      "terminalEncoders": 1,
+      "isolationPasses": 1,
+      "isolationWindows": 1,
+      "maxIsolationFrames": 88200,
+      "isolationLoads": 1,
+      "isolationBackends": [
+        "wasm"
+      ],
+      "normalizationPasses": 1,
+      "limitedNormalizations": 0,
+      "clippedSamples": 0
+    },
+    "ownedStoresAfterRemoval": 0
+  }
+]

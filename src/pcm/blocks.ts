@@ -6,9 +6,10 @@ export type PcmBlock = Readonly<{
   planes: readonly Float32Array[];
 }>;
 export type PcmStream = AsyncIterable<PcmBlock>;
+export type PcmReplay = Readonly<{ read: () => PcmStream }>;
 export interface PcmCheckpoint {
   append(block: PcmBlock): Promise<void>;
-  seal(): Promise<PcmStream>;
+  seal(): Promise<PcmReplay>;
   discard(): Promise<void>;
 }
 export type PcmContext = Readonly<{
@@ -90,7 +91,7 @@ export async function* normalize(
     const requested = peak === 0 ? 1 : 10 ** (dbfs / 20) / peak;
     const factor = peak <= 1e-6 ? 1 : Math.min(1000, requested);
     if (peak > 0 && factor < requested) context.onNormalizationLimit?.();
-    for await (const block of gain(replay, factor)) {
+    for await (const block of gain(replay.read(), factor)) {
       context.signal.throwIfAborted();
       yield block;
     }

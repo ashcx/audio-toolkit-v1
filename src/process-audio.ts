@@ -1,5 +1,6 @@
+import { InferenceRunner } from "./inference/runner";
 import { cleanupAll } from "./cleanup";
-import type { JobPhase } from "./batch";
+import type { JobEvent } from "./job-events";
 import { createOutputStore, type StoredOutput } from "./output-store";
 import type {
   DspStats,
@@ -19,23 +20,27 @@ export function processAudio(
   plan: PcmPlan,
   signal: AbortSignal,
   name: string,
-  phase: (value: JobPhase) => void = () => undefined,
+  phase: (value: JobEvent) => void = () => undefined,
 ): Promise<ProcessedOutput> {
   signal.throwIfAborted();
   return new Promise((resolve, reject) => {
     const worker = new Worker(new URL("./pcm-worker.ts", import.meta.url), {
       type: "module",
     });
+    const inference = new InferenceRunner();
+    let inferenceTask = Promise.resolve();
     const stores = new Map<string, Entry>();
     let serial = Promise.resolve(),
       settled = false;
     const cleanup = async () => {
       await serial;
+      await inferenceTask;
       await cleanupAll([...stores.values()].map(entry => () => entry.store.discard()));
       stores.clear();
     };
     const stop = () => {
       worker.terminate();
+      inference.stop(signal.reason);
       signal.removeEventListener("abort", abort);
     };
     const fail = (error: unknown) => {
@@ -75,8 +80,13 @@ export function processAudio(
     };
     worker.onmessage = ({ data }: MessageEvent<WorkerResult>) => {
       if (settled) return;
-      if (data.kind === "phase") phase(data.phase);
-      else if (data.kind === "storage") {
+      if (data.kind === "phase" || data.kind === "model-download") phase(data);
+      else if (data.kind === "inference") {
+        inferenceTask = inference.run(data.planes, phase).then(
+          reply => { if (!settled) worker.postMessage({ kind: "inference", sequence: data.sequence, reply } satisfies WorkerInput, reply.planes.map(plane => plane.buffer)); },
+          error => { if (!settled) worker.postMessage({ kind: "inference", sequence: data.sequence, reply: { kind: "error", message: error instanceof Error ? error.message : "Isolation failed." } } satisfies WorkerInput); },
+        );
+      } else if (data.kind === "storage") {
         serial = serial.then(async () => {
           let reply: StorageReply;
           try {

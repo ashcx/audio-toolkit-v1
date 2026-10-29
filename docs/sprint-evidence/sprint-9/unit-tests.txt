@@ -1,0 +1,244 @@
+TAP version 13
+# Subtest: capability policy never assumes memory and caps parallel work at two
+ok 1 - capability policy never assumes memory and caps parallel work at two
+  ---
+  duration_ms: 1.689021
+  type: 'test'
+  ...
+# Subtest: cancelled late success is released before dispatch; waiting cancel never starts
+ok 2 - cancelled late success is released before dispatch; waiting cancel never starts
+  ---
+  duration_ms: 30.795255
+  type: 'test'
+  ...
+# Subtest: failure is isolated and retry retains exact snapshot/name and unrelated success
+ok 3 - failure is isolated and retry retains exact snapshot/name and unrelated success
+  ---
+  duration_ms: 5.61673
+  type: 'test'
+  ...
+# Subtest: cancel all stops dispatch; remove/dispose reject stale attempts and free outputs
+ok 4 - cancel all stops dispatch; remove/dispose reject stale attempts and free outputs
+  ---
+  duration_ms: 2.043364
+  type: 'test'
+  ...
+# Subtest: new run names cannot collide with retained output names
+ok 5 - new run names cannot collide with retained output names
+  ---
+  duration_ms: 4.269809
+  type: 'test'
+  ...
+# Subtest: one failed old-output cleanup cannot fail unrelated new jobs
+ok 6 - one failed old-output cleanup cannot fail unrelated new jobs
+  ---
+  duration_ms: 2.577454
+  type: 'test'
+  ...
+# Subtest: failed cancellation cleanup stays owned after removal and blocks exports until recovery
+ok 7 - failed cancellation cleanup stays owned after removal and blocks exports until recovery
+  ---
+  duration_ms: 17.554619
+  type: 'test'
+  ...
+# Subtest: cleanup attempts every owner and retries only failed actions
+ok 8 - cleanup attempts every owner and retries only failed actions
+  ---
+  duration_ms: 0.801034
+  type: 'test'
+  ...
+# Subtest: removing a completed output stays busy until deletion settles
+ok 9 - removing a completed output stays busy until deletion settles
+  ---
+  duration_ms: 18.504406
+  type: 'test'
+  ...
+# Subtest: recovering old-output deletion clears its prerequisite before retry
+ok 10 - recovering old-output deletion clears its prerequisite before retry
+  ---
+  duration_ms: 2.300713
+  type: 'test'
+  ...
+# Subtest: isolation has an exclusive slot and queued inference never overlaps cleanup
+ok 11 - isolation has an exclusive slot and queued inference never overlaps cleanup
+  ---
+  duration_ms: 7.326346
+  type: 'test'
+  ...
+# Subtest: sealed PCM gives independent replay readers over immutable recorded samples
+ok 12 - sealed PCM gives independent replay readers over immutable recorded samples
+  ---
+  duration_ms: 2.99174
+  type: 'test'
+  ...
+# Subtest: GPU-session failure closes its worker before CPU fallback and keeps bounded input
+ok 13 - GPU-session failure closes its worker before CPU fallback and keeps bounded input
+  ---
+  duration_ms: 8.765968
+  type: 'test'
+  ...
+# Subtest: cancellation between GPU rejection and fallback cannot launch another worker
+ok 14 - cancellation between GPU rejection and fallback cannot launch another worker
+  ---
+  duration_ms: 0.896011
+  type: 'test'
+  ...
+# Subtest: model verification errors do not retry an unrelated backend
+ok 15 - model verification errors do not retry an unrelated backend
+  ---
+  duration_ms: 0.392099
+  type: 'test'
+  ...
+# Subtest: both modes reconstruct the reference and retain rate/frame/source-time grids
+ok 16 - both modes reconstruct the reference and retain rate/frame/source-time grids
+  ---
+  duration_ms: 2359.591838
+  type: 'test'
+  ...
+# Subtest: final grid correction can drop samples spanning a block boundary
+ok 17 - final grid correction can drop samples spanning a block boundary
+  ---
+  duration_ms: 1.105042
+  type: 'test'
+  ...
+# Subtest: inference failure discards the analysis checkpoint
+ok 18 - inference failure discards the analysis checkpoint
+  ---
+  duration_ms: 1.739785
+  type: 'test'
+  ...
+# Subtest: music retains source frequencies above the model band
+ok 19 - music retains source frequencies above the model band
+  ---
+  duration_ms: 390.51485
+  type: 'test'
+  ...
+# Subtest: weak stereo isolation preserves every sample across long replay block boundaries
+ok 20 - weak stereo isolation preserves every sample across long replay block boundaries
+  ---
+  duration_ms: 2384.385149
+  type: 'test'
+  ...
+# Subtest: weighted windows perfectly reconstruct short/full/overlapping/tail source grids
+ok 21 - weighted windows perfectly reconstruct short/full/overlapping/tail source grids
+  ---
+  duration_ms: 3093.174789
+  type: 'test'
+  ...
+# Subtest: window boundaries do not depend on decoder chunk boundaries
+ok 22 - window boundaries do not depend on decoder chunk boundaries
+  ---
+  duration_ms: 1711.246707
+  type: 'test'
+  ...
+# Subtest: actual dependency expands fixed, Xiph and EBML lacing without losing final discard padding
+ok 23 - actual dependency expands fixed, Xiph and EBML lacing without losing final discard padding
+  ---
+  duration_ms: 2.041161
+  type: 'test'
+  ...
+# Subtest: a real laced Opus file exposes a short final duration instead of silently adding padding
+ok 24 - a real laced Opus file exposes a short final duration instead of silently adding padding
+  ---
+  duration_ms: 58.664456
+  type: 'test'
+  ...
+# Subtest: trim retains half-open source positions; gain and mono/stereo mappings are deterministic
+ok 25 - trim retains half-open source positions; gain and mono/stereo mappings are deterministic
+  ---
+  duration_ms: 70.77571
+  type: 'test'
+  ...
+# Subtest: normalization at its actual position changes trim results; silence is finite and checkpoints always close
+ok 26 - normalization at its actual position changes trim results; silence is finite and checkpoints always close
+  ---
+  duration_ms: 26.651777
+  type: 'test'
+  ...
+# Subtest: streaming sinc resampling preserves rate, duration, passband and arbitrary block boundaries
+ok 27 - streaming sinc resampling preserves rate, duration, passband and arbitrary block boundaries
+  ---
+  duration_ms: 856.867066
+  type: 'test'
+  ...
+# Subtest: downsampling rejects out-of-band aliases and preserves the source clock through repeated conversion before trim
+ok 28 - downsampling rejects out-of-band aliases and preserves the source clock through repeated conversion before trim
+  ---
+  duration_ms: 189.728712
+  type: 'test'
+  ...
+# Subtest: original audio resolves valid audio-only containers per codec; unsupported never transcodes
+ok 29 - original audio resolves valid audio-only containers per codec; unsupported never transcodes
+  ---
+  duration_ms: 7.679465
+  type: 'test'
+  ...
+# Subtest: only real no-ops disappear and original audio rejects every signal change
+ok 30 - only real no-ops disappear and original audio rejects every signal change
+  ---
+  duration_ms: 6.043321
+  type: 'test'
+  ...
+# Subtest: PCM plan preserves processor order and export intent without freezing mutable drafts
+ok 31 - PCM plan preserves processor order and export intent without freezing mutable drafts
+  ---
+  duration_ms: 2.108662
+  type: 'test'
+  ...
+# Subtest: a return to the source channel count or rate still runs after an earlier change
+ok 32 - a return to the source channel count or rate still runs after an earlier change
+  ---
+  duration_ms: 0.41733
+  type: 'test'
+  ...
+# Subtest: copy filenames avoid collisions even when codec extensions converge
+ok 33 - copy filenames avoid collisions even when codec extensions converge
+  ---
+  duration_ms: 0.60762
+  type: 'test'
+  ...
+# Subtest: known oversized WAVs fail before processing and trim/rate/channel changes can recover
+ok 34 - known oversized WAVs fail before processing and trim/rate/channel changes can recover
+  ---
+  duration_ms: 0.756465
+  type: 'test'
+  ...
+# Subtest: WAV byte guard prevents RIFF wrap at the actual PCM16 mono and stereo boundaries
+ok 35 - WAV byte guard prevents RIFF wrap at the actual PCM16 mono and stereo boundaries
+  ---
+  duration_ms: 0.561148
+  type: 'test'
+  ...
+# Subtest: ordered serializable recipes preserve repeatable stages and separate terminal export
+ok 36 - ordered serializable recipes preserve repeatable stages and separate terminal export
+  ---
+  duration_ms: 62.953315
+  type: 'test'
+  ...
+# Subtest: invalid ranges, duplicate singleton steps and invalid encoding settings cannot become execution recipes
+ok 37 - invalid ranges, duplicate singleton steps and invalid encoding settings cannot become execution recipes
+  ---
+  duration_ms: 37.735596
+  type: 'test'
+  ...
+# Subtest: per-file overrides and clamping do not mutate the shared recipe
+ok 38 - per-file overrides and clamping do not mutate the shared recipe
+  ---
+  duration_ms: 7.086412
+  type: 'test'
+  ...
+# Subtest: one invalid file range stays isolated; reset restores inheritance
+ok 39 - one invalid file range stays isolated; reset restores inheritance
+  ---
+  duration_ms: 0.78861
+  type: 'test'
+  ...
+1..39
+# tests 39
+# suites 0
+# pass 39
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5629.463854

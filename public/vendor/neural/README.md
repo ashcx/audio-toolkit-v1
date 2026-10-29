@@ -1,3 +1,9 @@
+# Local isolation assets
+
+The application bundles pinned neural JavaScript from `vendor/neural/` into lazy worker chunks. This directory serves the unchanged model, ONNX WASM loaders/binaries and notices on the application's own origin. Source revision and exact hashes are in `vendor/neural/provenance.json`; every build checks them. GPU assets are included for capability-driven use, not a claim of verified physical-GPU support.
+
+The upstream record below describes the original AudioTools.dev packaging. Its whole-input worker is adapted to bounded windows here. The served model is13184191 bytes with the3f049 digest below; the separate copied model card also discusses another compact build, whose digest is not used by this application.
+
 # Source separation runtime (Vocal Remover)
 
 Used by `/vocal-remover/separate-worker.js`. Everything here runs in the browser.

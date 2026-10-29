@@ -1,0 +1,50 @@
+[
+  {
+    "engine": "webkit",
+    "claim": "5 full fixed-window calls in worker mode; single-run resource-bound observation, not a speed comparison or phone limit",
+    "inputFramesPerCall": 485100,
+    "calls": 5,
+    "sessionLoads": 5,
+    "mode": "worker",
+    "retainedResultFrames": 0,
+    "peakOwnedBrowserProcessRssBytes": 2016899072,
+    "samples": 261,
+    "rssBudgetBytes": 2147483648,
+    "failures": 0,
+    "errors": [],
+    "result": {
+      "type": "done",
+      "hash": "3f049a0e4ce3c08264a6212a50445ba77f02a517cd4c6dc86cbe1ca130176d67",
+      "voiceFrames": 485100,
+      "musicFrames": 485100,
+      "finite": true,
+      "summaries": [
+        {
+          "voiceFrames": 485100,
+          "musicFrames": 485100,
+          "finite": true
+        },
+        {
+          "voiceFrames": 485100,
+          "musicFrames": 485100,
+          "finite": true
+        },
+        {
+          "voiceFrames": 485100,
+          "musicFrames": 485100,
+          "finite": true
+        },
+        {
+          "voiceFrames": 485100,
+          "musicFrames": 485100,
+          "finite": true
+        },
+        {
+          "voiceFrames": 485100,
+          "musicFrames": 485100,
+          "finite": true
+        }
+      ]
+    }
+  }
+]

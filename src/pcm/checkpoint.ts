@@ -59,7 +59,8 @@ export async function checkpoint(
       position += record.length;
     },
     async seal() {
-      return replay(await client.finish(id));
+      const file = await client.finish(id);
+      return { read: () => replay(file) };
     },
     async discard() {
       await client.discard(id);

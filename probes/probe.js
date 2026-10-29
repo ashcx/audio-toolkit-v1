@@ -50,10 +50,12 @@ window.runProbe = async () => {
   document.querySelector('#result').textContent=JSON.stringify(result,null,2);
   return result;
 };
-window.runIsolationProbe = () => new Promise((resolve,reject)=>{
-  const worker=new Worker(import.meta.env.BASE_URL+'probes/isolation-worker.js',{type:'module'});
+window.runIsolationProbe = (options={}) => new Promise((resolve,reject)=>{
+  const worker=new Worker(new URL("./isolation-worker.ts",import.meta.url),{type:"module"});
   const timeout=setTimeout(()=>{worker.terminate();reject(Error('isolation probe timed out after 180 seconds'));},180000);
-  worker.onmessage=({data})=>{if(data.type==='done'||data.type==='error'){clearTimeout(timeout);worker.terminate();resolve(data);}};
+  worker.onmessage=({data})=>{if(data.type==='part')console.log('isolation-part',data.index);if(data.type==='done'||data.type==='error'){clearTimeout(timeout);worker.terminate();resolve(data);}};
   worker.onerror=e=>{clearTimeout(timeout);worker.terminate();reject(Error(e.message));};
-  worker.postMessage({});
+  worker.postMessage(options);
 });
+window.runInferenceProbe = options => import('./inference-probe.ts').then(module => module.runInferenceProbe(options));
+window.runReconstructionProbe = () => import('./reconstruction-probe.ts').then(module => module.runReconstructionProbe());

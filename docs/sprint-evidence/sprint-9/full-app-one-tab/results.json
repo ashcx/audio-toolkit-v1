@@ -1,0 +1,74 @@
+[
+  {
+    "engine": "webkit",
+    "mode": "voice",
+    "frames": 573437,
+    "stats": {
+      "encoder": "pcm",
+      "decodePasses": 1,
+      "maxDecodedFrames": 2048,
+      "maxBlockFrames": 4096,
+      "encodedFrames": 573437,
+      "terminalEncoders": 1,
+      "isolationPasses": 1,
+      "isolationWindows": 4,
+      "maxIsolationFrames": 485100,
+      "isolationLoads": 4,
+      "isolationBackends": [
+        "wasm"
+      ],
+      "normalizationPasses": 0,
+      "limitedNormalizations": 0,
+      "clippedSamples": 0
+    },
+    "counters": {
+      "models": 0,
+      "pcm": 0,
+      "maxModels": 1,
+      "maxPcm": 1
+    },
+    "progressEvents": 52,
+    "onlyCompletedStore": true
+  },
+  {
+    "engine": "webkit",
+    "mode": "music",
+    "frames": 573437,
+    "stats": {
+      "encoder": "pcm",
+      "decodePasses": 1,
+      "maxDecodedFrames": 2048,
+      "maxBlockFrames": 2048,
+      "encodedFrames": 573437,
+      "terminalEncoders": 1,
+      "isolationPasses": 1,
+      "isolationWindows": 4,
+      "maxIsolationFrames": 485100,
+      "isolationLoads": 4,
+      "isolationBackends": [
+        "wasm"
+      ],
+      "normalizationPasses": 0,
+      "limitedNormalizations": 0,
+      "clippedSamples": 0
+    },
+    "counters": {
+      "models": 0,
+      "pcm": 0,
+      "maxModels": 1,
+      "maxPcm": 1
+    },
+    "progressEvents": 4,
+    "onlyCompletedStore": true
+  },
+  {
+    "engine": "webkit",
+    "memory": {
+      "peakSampledOwnedBrowserRssBytes": 2124193792,
+      "samples": 505,
+      "budgetBytes": 2147483648,
+      "budgetExceeded": false
+    },
+    "claim": "Single-run sampled owned-browser aggregate RSS, not PSS, throughput or phone support"
+  }
+]

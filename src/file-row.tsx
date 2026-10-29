@@ -114,8 +114,8 @@ export function FileRow({
           {previousSettings && <small>Previous settings</small>}
           {exported.kind === "waiting" || exported.kind === "running" || exported.kind === "cancelling" ? (
             <>
-              <progress aria-label={`Export ${entry.file.name}`} />
-              <span>{exported.kind === "running" ? `${exported.operation}…` : exported.kind === "waiting" ? "Waiting" : "Cancelling…"}</span>
+              <progress aria-label={`Export ${entry.file.name}`} value={exported.kind === "running" && exported.operation.kind === "model-download" ? exported.operation.loaded : undefined} max={exported.kind === "running" && exported.operation.kind === "model-download" ? exported.operation.total : undefined} />
+              <span>{exported.kind === "running" ? exported.operation.kind === "phase" ? `${exported.operation.phase}…` : `Loading model ${formatBytes(exported.operation.loaded)} / ${formatBytes(exported.operation.total)}` : exported.kind === "waiting" ? "Waiting" : "Cancelling…"}</span>
               {exported.kind !== "cancelling" && <button type="button" aria-label={`Cancel ${entry.file.name}`} onClick={onCancel}>Cancel</button>}
             </>
           ) : exported.kind === "failed" || exported.kind === "cancelled" ? (

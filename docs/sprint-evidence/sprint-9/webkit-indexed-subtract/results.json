@@ -1,0 +1,286 @@
+[
+  {
+    "engine": "webkit",
+    "mode": "voice",
+    "frames": 573437,
+    "stats": {
+      "encoder": "pcm",
+      "decodePasses": 1,
+      "maxDecodedFrames": 2048,
+      "maxBlockFrames": 4096,
+      "encodedFrames": 573437,
+      "terminalEncoders": 1,
+      "isolationPasses": 1,
+      "isolationWindows": 4,
+      "maxIsolationFrames": 485100,
+      "isolationLoads": 4,
+      "isolationBackends": [
+        "wasm"
+      ],
+      "normalizationPasses": 0,
+      "limitedNormalizations": 0,
+      "clippedSamples": 0
+    },
+    "counters": {
+      "models": 0,
+      "pcm": 0,
+      "maxModels": 1,
+      "maxPcm": 1
+    },
+    "modelTrace": [
+      {
+        "input": [
+          {
+            "frames": 485100,
+            "hash": 2336467370
+          },
+          {
+            "frames": 485100,
+            "hash": 3616694230
+          }
+        ]
+      },
+      {
+        "output": [
+          {
+            "frames": 485100,
+            "hash": 540265160
+          },
+          {
+            "frames": 485100,
+            "hash": 3218824691
+          }
+        ]
+      },
+      {
+        "input": [
+          {
+            "frames": 485100,
+            "hash": 2379556793
+          },
+          {
+            "frames": 485100,
+            "hash": 3013123037
+          }
+        ]
+      },
+      {
+        "output": [
+          {
+            "frames": 485100,
+            "hash": 3049969990
+          },
+          {
+            "frames": 485100,
+            "hash": 1727968702
+          }
+        ]
+      },
+      {
+        "input": [
+          {
+            "frames": 485100,
+            "hash": 1903189326
+          },
+          {
+            "frames": 485100,
+            "hash": 2723310757
+          }
+        ]
+      },
+      {
+        "output": [
+          {
+            "frames": 485100,
+            "hash": 103471729
+          },
+          {
+            "frames": 485100,
+            "hash": 506798640
+          }
+        ]
+      },
+      {
+        "input": [
+          {
+            "frames": 330887,
+            "hash": 3158043596
+          },
+          {
+            "frames": 330887,
+            "hash": 4166580270
+          }
+        ]
+      },
+      {
+        "output": [
+          {
+            "frames": 330887,
+            "hash": 1863306311
+          },
+          {
+            "frames": 330887,
+            "hash": 1712338601
+          }
+        ]
+      }
+    ],
+    "progressEvents": 49,
+    "onlyCompletedStore": true
+  },
+  {
+    "engine": "webkit",
+    "mode": "music",
+    "frames": 573437,
+    "stats": {
+      "encoder": "pcm",
+      "decodePasses": 1,
+      "maxDecodedFrames": 2048,
+      "maxBlockFrames": 2048,
+      "encodedFrames": 573437,
+      "terminalEncoders": 1,
+      "isolationPasses": 1,
+      "isolationWindows": 4,
+      "maxIsolationFrames": 485100,
+      "isolationLoads": 4,
+      "isolationBackends": [
+        "wasm"
+      ],
+      "normalizationPasses": 0,
+      "limitedNormalizations": 0,
+      "clippedSamples": 0
+    },
+    "counters": {
+      "models": 0,
+      "pcm": 0,
+      "maxModels": 1,
+      "maxPcm": 1
+    },
+    "modelTrace": [
+      {
+        "input": [
+          {
+            "frames": 485100,
+            "hash": 2336467370
+          },
+          {
+            "frames": 485100,
+            "hash": 3616694230
+          }
+        ]
+      },
+      {
+        "output": [
+          {
+            "frames": 485100,
+            "hash": 540265160
+          },
+          {
+            "frames": 485100,
+            "hash": 3218824691
+          }
+        ]
+      },
+      {
+        "input": [
+          {
+            "frames": 485100,
+            "hash": 2379556793
+          },
+          {
+            "frames": 485100,
+            "hash": 3013123037
+          }
+        ]
+      },
+      {
+        "output": [
+          {
+            "frames": 485100,
+            "hash": 3049969990
+          },
+          {
+            "frames": 485100,
+            "hash": 1727968702
+          }
+        ]
+      },
+      {
+        "input": [
+          {
+            "frames": 485100,
+            "hash": 1903189326
+          },
+          {
+            "frames": 485100,
+            "hash": 2723310757
+          }
+        ]
+      },
+      {
+        "output": [
+          {
+            "frames": 485100,
+            "hash": 103471729
+          },
+          {
+            "frames": 485100,
+            "hash": 506798640
+          }
+        ]
+      },
+      {
+        "input": [
+          {
+            "frames": 330887,
+            "hash": 3158043596
+          },
+          {
+            "frames": 330887,
+            "hash": 4166580270
+          }
+        ]
+      },
+      {
+        "output": [
+          {
+            "frames": 330887,
+            "hash": 1863306311
+          },
+          {
+            "frames": 330887,
+            "hash": 1712338601
+          }
+        ]
+      }
+    ],
+    "progressEvents": 4,
+    "onlyCompletedStore": true
+  },
+  {
+    "engine": "webkit",
+    "voicePlusMusicMaxError": 0.000030517578125,
+    "rmse": 3.6381953430032886e-7
+  },
+  {
+    "engine": "webkit",
+    "hashFailureRetry": true,
+    "cancelDownload": true,
+    "cancelInference": true,
+    "ownedStoresAfterCleanup": 0,
+    "pageErrors": [],
+    "networkMethods": [
+      "GET"
+    ]
+  },
+  {
+    "engine": "webkit",
+    "memory": {
+      "peakSampledOwnedBrowserRssBytes": 2126729216,
+      "samples": 597,
+      "budgetBytes": 2147483648,
+      "budgetExceeded": false
+    },
+    "claim": "Single-run sampled owned-browser aggregate RSS, not PSS, throughput or phone support"
+  }
+]

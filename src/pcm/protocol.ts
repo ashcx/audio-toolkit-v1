@@ -1,4 +1,5 @@
-import type { JobPhase } from "../batch";
+import type { InferenceRequest, InferenceReply } from "../inference/protocol";
+import type { JobEvent } from "../job-events";
 import type { ExecutionPlan } from "../planner";
 export type PcmPlan = Extract<ExecutionPlan, { kind: "pcm" }>;
 export type StoreOperation =
@@ -26,15 +27,22 @@ export type DspStats = {
   maxBlockFrames: number;
   encodedFrames: number;
   terminalEncoders: number;
+  isolationPasses: number;
+  isolationWindows: number;
+  maxIsolationFrames: number;
+  isolationLoads: number;
+  isolationBackends: ("wasm" | "webgpu+wasm")[];
   normalizationPasses: number;
   limitedNormalizations: number;
   clippedSamples: number;
 };
 export type WorkerResult =
   | StorageRequest
-  | { kind: "phase"; phase: JobPhase }
+  | InferenceRequest
+  | JobEvent
   | { kind: "done"; outputId: string; stats: DspStats }
   | { kind: "error"; message: string };
 export type WorkerInput =
   | { kind: "start"; file: File; plan: PcmPlan; name: string }
-  | { kind: "storage"; sequence: number; reply: StorageReply };
+  | { kind: "storage"; sequence: number; reply: StorageReply }
+  | { kind: "inference"; sequence: number; reply: InferenceReply };

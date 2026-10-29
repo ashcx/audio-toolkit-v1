@@ -1,0 +1,17 @@
+{
+  "claim": "Diagnostic native SwiftShader WebGPU dispatch only; software CPU adapter, not physical GPU support",
+  "diagnostics": [],
+  "adapter": {
+    "vendor": "google",
+    "architecture": "swiftshader",
+    "isFallbackAdapter": true
+  },
+  "verified": false,
+  "error": "Error: page.evaluate: Error: GPU diagnostic exceeded 180 seconds\n    at eval (eval at evaluate (:370:30), <anonymous>:1:116)",
+  "memory": {
+    "peakSampledOwnedBrowserRssBytes": 2086293504,
+    "samples": 678,
+    "budgetBytes": 2147483648,
+    "budgetExceeded": false
+  }
+}

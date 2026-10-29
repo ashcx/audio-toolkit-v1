@@ -1,6 +1,14 @@
 # Current work, 2026-10-30
 
-User resumed. Main312c673 delivers Sprint8 cancellable batches and recoverable cleanup; independent integrated review passed after three reproduced fixes. Pages40927620132 succeeded and actual live cancellation/retry/MP3 smoke passed. All27 unit checks, cleanup6 browser cases, integrated batch, copy, DSP58, format96 and inherited UI checks passed. See Sprint8 coverage/interrogate/live-smoke. Continue Sprint9 isolation; real listening and device gates remain open. Work directly on main under the current AGENTS workflow; PR8 is merged. Older pause records below are historical.
+User resumed full build under poteto/scrum. Sprints1–8 are complete within their scope; main e9aef30 is the Sprint8 closure. Main312c673/Pages40927620132 are verified live. Current user instructions require a working branch and PR targeting main, with no merge without explicit permission. The user explicitly requested Sprint9 PR delivery with its unfinished factual gates disclosed. Working branch codex/sprint-9-isolation.
+
+Sprint9 bounded voice/music isolation is implemented locally at http://localhost:4174/audio-toolkit-v1/. Parent current39 unit checks, build, both-engine full CPU isolation, four order cases, inherited DSP58, copy28sources, formats96, batch/cleanup and all UI suites pass. A real WebKit music boundary issue was reproduced, localized before encoding, and corrected by indexed loops. Exact failures/results and source snapshot are in docs/sprint-evidence/sprint-9/coverage.md, findings.md and reviewed-code.sha256.
+
+Remaining factual gates: actual lawful music/live listening (asynchronous user observations requested, no response yet); complete GPU SCNet execution (host physical GPU unavailable; forced software diagnostic observed native dispatch then exceeded the2GiB guard before completed inference); independent review is now complete for the named CPU/numerical scope: reused Terra high sprint6_refresh passed current hashes/unit39 and its actual WebKit driver; overall Done remains open for factual observations. Sprint9 [PR #9](https://github.com/ashcx/audio-toolkit-v1/pull/9) is open against main at source implementation a6ecb1a. No merge/deployment or overall acceptance claim. Do not ship or enter dependent Sprints10–12 without their gates or an independently verified exception. No exception exists.
+
+Current processes: production preview4174 remains for user listening; temporary diagnostic previews4176/4177 were stopped. All parent browser/diagnostic runs and independent browser tests have finished. Production4174 remains for the user; verify actual process before using it. Independent reviewers do not implement or rebuild shared dist. Follow current user routing, never Astra. Physical-device tests remain deferred to Sprint12. Keep UI text/icons minimal.
+
+Historical records below are superseded only for current status; their old pause instructions and check results describe earlier checkpoints.
 
 # Paused after Sprint 7, 2026-10-29
 

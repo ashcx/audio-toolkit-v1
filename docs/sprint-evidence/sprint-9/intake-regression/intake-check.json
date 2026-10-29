@@ -1,0 +1,246 @@
+[
+  {
+    "browser": "chromium",
+    "touchAddAndRemove": true,
+    "rows": [
+      {
+        "id": "b441cdd2-cb52-4d08-99dc-cb5c1a9bba65",
+        "status": "ready",
+        "name": "tone.wav",
+        "text": "tone.wav375.1 KB · 0:02 · WAV · PCM-S16 · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "80342c6c-0503-4b20-b2a1-ee0345492d96",
+        "status": "ready",
+        "name": "tone.mp3",
+        "text": "tone.mp332.3 KB · 0:02 · MP3 · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "32644d8a-d548-46c4-a98e-970dd12d7ff3",
+        "status": "ready",
+        "name": "tone.aac",
+        "text": "tone.aac32.2 KB · Duration unknown · ADTS · AAC · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "a1165498-6889-48ba-b45a-5b8ab997b31f",
+        "status": "ready",
+        "name": "tone.m4a",
+        "text": "tone.m4a32.7 KB · 0:02 · MP4 · AAC · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "29582686-b8cf-402a-a1f4-ddd61ee3f92f",
+        "status": "ready",
+        "name": "tone.flac",
+        "text": "tone.flac34.5 KB · 0:02 · FLAC · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "ee1169fb-83a2-47fc-8337-a7fd1145e65b",
+        "status": "ready",
+        "name": "tone.ogg",
+        "text": "tone.ogg10.2 KB · 0:02 · Ogg · VORBIS · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "7538c219-8eb0-4e70-9a7e-ff9f569e7fc3",
+        "status": "ready",
+        "name": "tone.opus",
+        "text": "tone.opus28.9 KB · 0:02 · Ogg · OPUS · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "fc74b4ec-3f18-462b-a2e1-5009cecc2edb",
+        "status": "ready",
+        "name": "audio.webm",
+        "text": "audio.webm29.7 KB · 0:02 · WebM · OPUS · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "a4f06e2e-e074-4ba8-a7b7-4bd09f2a8403",
+        "status": "ready",
+        "name": "video.mp4",
+        "text": "video.mp434.6 KB · 0:02 · MP4 · AAC · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "e9dac96d-cc1a-4bba-8b09-63b524065067",
+        "status": "ready",
+        "name": "video.mov",
+        "text": "video.mov34.6 KB · 0:02 · MOV · AAC · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "a87053fc-8a7a-4db9-928e-61b07ec56b58",
+        "status": "ready",
+        "name": "video.mkv",
+        "text": "video.mkv33.3 KB · 0:02 · Matroska · OPUS · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "dc37af0f-1f95-420b-b40f-a9489c294c39",
+        "status": "ready",
+        "name": "video.webm",
+        "text": "video.webm33.2 KB · 0:02 · WebM · OPUS · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "329feb67-ec62-41f1-9b54-a790e473aa9d",
+        "status": "ready",
+        "name": "offset.mp4",
+        "text": "offset.mp434.6 KB · 0:02 · MP4 · AAC · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "698c2c8b-4c88-414e-9af3-621bff6c1dad",
+        "status": "failed",
+        "name": "unsupported.mkv",
+        "text": "unsupported.mkv32.8 KBUnsupported audio codec.×"
+      },
+      {
+        "id": "79152900-3397-4584-87ea-d4224ebce5d1",
+        "status": "ready",
+        "name": "long-video.webm",
+        "text": "long-video.webm20.0 KB · 0:02 · WebM · OPUS · Mono · 48 kHzRe-encode×"
+      },
+      {
+        "id": "f70eb2e6-0555-4a3b-8f8f-ccf10f0e07b5",
+        "status": "failed",
+        "name": "no-audio.mp4",
+        "text": "no-audio.mp41.6 KBNo audio track.×"
+      },
+      {
+        "id": "a29756fc-3dec-4741-9f4a-733ee4a2c57a",
+        "status": "ready",
+        "name": "misnamed.mp3",
+        "text": "misnamed.mp3375.1 KB · 0:02 · WAV · PCM-S16 · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "c08e3aab-369c-44cd-ba0c-6d1865548dd0",
+        "status": "failed",
+        "name": "corrupt.wav",
+        "text": "corrupt.wav22 BUnsupported or unreadable media.×"
+      }
+    ],
+    "duplicateIdentityAndRemoval": true,
+    "appendAndDrop": true,
+    "stressFiles": 40,
+    "removedDuringInspection": 5,
+    "peakReading": 2,
+    "decoderConstructions": 0,
+    "mobileOverflow": false,
+    "errors": []
+  },
+  {
+    "browser": "webkit",
+    "touchAddAndRemove": true,
+    "rows": [
+      {
+        "id": "88dad823-110c-4a8a-9f23-0952b580c9ea",
+        "status": "ready",
+        "name": "tone.wav",
+        "text": "tone.wav375.1 KB · 0:02 · WAV · PCM-S16 · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "da4085a2-61e0-4bb7-a41f-1db470b424b4",
+        "status": "ready",
+        "name": "tone.mp3",
+        "text": "tone.mp332.3 KB · 0:02 · MP3 · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "2245ca97-3c1d-4593-8f22-fa9510dd8662",
+        "status": "ready",
+        "name": "tone.aac",
+        "text": "tone.aac32.2 KB · Duration unknown · ADTS · AAC · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "64ac843a-1a6a-479a-8f8a-ccaa07610e42",
+        "status": "ready",
+        "name": "tone.m4a",
+        "text": "tone.m4a32.7 KB · 0:02 · MP4 · AAC · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "16a79bd4-f7f5-49c9-ae65-3a1661b5819f",
+        "status": "ready",
+        "name": "tone.flac",
+        "text": "tone.flac34.5 KB · 0:02 · FLAC · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "809a32b6-f71f-43dd-b0ea-e04535b1c326",
+        "status": "ready",
+        "name": "tone.ogg",
+        "text": "tone.ogg10.2 KB · 0:02 · Ogg · VORBIS · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "d00301bc-20ea-4ca4-bfd8-587d22294823",
+        "status": "ready",
+        "name": "tone.opus",
+        "text": "tone.opus28.9 KB · 0:02 · Ogg · OPUS · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "41fca363-f779-40c8-b08e-270d08281eba",
+        "status": "ready",
+        "name": "audio.webm",
+        "text": "audio.webm29.7 KB · 0:02 · WebM · OPUS · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "edc47941-d4c3-424a-bfc6-7c934f2823b0",
+        "status": "ready",
+        "name": "video.mp4",
+        "text": "video.mp434.6 KB · 0:02 · MP4 · AAC · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "f3108fc9-06b5-4084-9d37-e8fc0f6e2e63",
+        "status": "ready",
+        "name": "video.mov",
+        "text": "video.mov34.6 KB · 0:02 · MOV · AAC · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "08fe2cb2-a4ac-4b92-afb3-b7acdc8c6809",
+        "status": "ready",
+        "name": "video.mkv",
+        "text": "video.mkv33.3 KB · 0:02 · Matroska · OPUS · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "11ef4c96-962f-407a-bf52-35a7710f01e3",
+        "status": "ready",
+        "name": "video.webm",
+        "text": "video.webm33.2 KB · 0:02 · WebM · OPUS · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "6378c0fd-c284-48a5-81f3-ba03c7f69d4f",
+        "status": "ready",
+        "name": "offset.mp4",
+        "text": "offset.mp434.6 KB · 0:02 · MP4 · AAC · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "250a47ed-bf7a-40c0-a225-b82b259af1b9",
+        "status": "failed",
+        "name": "unsupported.mkv",
+        "text": "unsupported.mkv32.8 KBUnsupported audio codec.×"
+      },
+      {
+        "id": "6a4b1d31-db4f-4a2a-9291-b1e12bad18fe",
+        "status": "ready",
+        "name": "long-video.webm",
+        "text": "long-video.webm20.0 KB · 0:02 · WebM · OPUS · Mono · 48 kHzRe-encode×"
+      },
+      {
+        "id": "fbf6aec9-bc9a-4456-a8e4-24dc9870ef7f",
+        "status": "failed",
+        "name": "no-audio.mp4",
+        "text": "no-audio.mp41.6 KBNo audio track.×"
+      },
+      {
+        "id": "c8b83f44-58b4-4e0e-81bf-3067028bdb85",
+        "status": "ready",
+        "name": "misnamed.mp3",
+        "text": "misnamed.mp3375.1 KB · 0:02 · WAV · PCM-S16 · Stereo · 48 kHzRe-encode×"
+      },
+      {
+        "id": "c423a9b1-cd56-42c8-9572-f155b2df464c",
+        "status": "failed",
+        "name": "corrupt.wav",
+        "text": "corrupt.wav22 BUnsupported or unreadable media.×"
+      }
+    ],
+    "duplicateIdentityAndRemoval": true,
+    "appendAndDrop": true,
+    "stressFiles": 40,
+    "removedDuringInspection": 5,
+    "peakReading": 2,
+    "decoderConstructions": 0,
+    "mobileOverflow": false,
+    "errors": []
+  }
+]

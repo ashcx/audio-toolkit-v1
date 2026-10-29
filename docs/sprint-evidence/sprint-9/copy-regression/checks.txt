@@ -1,0 +1,1 @@
+PASS: all copy paths preserve encoded packets/config; FFmpeg reads audio-only outputs; zero codec constructions, bounded writes, distinct names and OPFS cleanup in Chromium/WebKit.
