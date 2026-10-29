@@ -4,12 +4,12 @@
 
 Process accurate trims and basic audio changes. Owns feature-plan sections 10,11,12,15,19; cross-cutting requirements remain binding.
 
-Status: Not started. Technical delivery: Not started. Agent-verified acceptance: NOT VERIFIED.
+Status: Paused at user request. Technical delivery: incomplete design/probe checkpoint only. Agent-verified acceptance: NOT VERIFIED.
 
 ## Entry criteria
 
 - [ ] Verify source requirements and actual predecessor artifacts, PR state and independent review.
-- [ ] Required contracts, fixtures, dependencies and browser/device access exist.
+- [ ] Required contracts, fixtures and dependencies exist; automated Chromium/WebKit access is available. User-authorized physical-device checks remain reserved for Sprint 12.
 - [ ] Recheck any carry-forward independence against this sprint's consumers.
 
 ## Depends on
@@ -53,7 +53,7 @@ One-week timebox. First two stories commit 6 SP. Third story is 3 SP required st
 - [ ] Affected UI is inspected on desktop/mobile, keyboard, touch, labels, themes and recovery states; non-UI exceptions have an explicit reason.
 - [ ] Separate self-review and affected reruns pass; evidence and decision trail are current.
 - [ ] Independent interrogate covers the integrated increment, requirements, all acceptance rows, contracts, revisions, captures and unfinished-work claims. Save reproductions, fixes/reruns, dropped claims and verdict in `docs/sprint-evidence/sprint-6/interrogate.md`.
-- [ ] Relevant real-device, audio/listening and resource evidence exists. Missing observations stay NOT VERIFIED.
+- [ ] Relevant audio/listening and resource evidence exists. Physical-device evidence is deferred to Sprint 12 by explicit user authorization; other missing observations stay NOT VERIFIED.
 
 After the preceding gates pass, deliver this sprint's single PR. PR creation is a delivery step, not a prerequisite to reviewing the increment.
 
@@ -77,10 +77,16 @@ Source sections 23–24 deferred features and exclusions. Hub/image implementati
 - [Scrum policy](redesign-scrum-plan.md).
 - [Feature requirements](audio-toolkit-plan.md).
 - Decision trail: `docs/sprint-evidence/decisions.tsv`.
-- Sprint PR: not created.
+- Sprint PR: [#7 draft checkpoint](https://github.com/ashcx/audio-toolkit-v1/pull/7); incomplete, paused, technical gates open.
 
 ## Execution log
 
 ### 2026-10-29 - Planning draft
 
 Stories and initial estimates drafted from requirements. No implementation, Ready verification, tests, device observations or sprint review occurred. Next action is to verify Entry criteria after an implementation instruction.
+
+### 2026-10-29 - User-requested pause
+
+Sprint5 delivered PR6 with finalbf88058 and reviewed implementationa74b9f4. Began read-only Sprint6 design/probing; no production DSP implementation. Two permitted read-only design perspectives (Terra low/Luna low) and bounded decoder-worker probe are retained in docs/sprint-evidence/sprint-6/design-checkpoint.md and adjacent artifacts. Worker timing/presentation behavior remains unresolved; no task/Done claim. All agents stopped and no decoder probe remains running. Resume with the decoder observations and contract freeze, then sequential stories. No implementation carry-forward exception is being used, no dependent sprint started. This incomplete checkpoint is saved to the sprint branch and draft PR solely to honor the user's pause/close-out request; technical acceptance and independent sprint review stay open.
+
+Paused checkpoint committed12dc3f9 and pushed. Draft [PR7](https://github.com/ashcx/audio-toolkit-v1/pull/7) observed open/draft, no configured checks. This records incomplete work only; no sprint Done gate was asserted.

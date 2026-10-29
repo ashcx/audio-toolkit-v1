@@ -1,0 +1,6 @@
+import { Input, BlobSource, ALL_FORMATS, AudioSampleSink } from 'mediabunny';
+self.onmessage=async({data:file})=>{
+ const input=new Input({source:new BlobSource(file,{maxCacheSize:1024*1024,useStreamReader:false}),formats:ALL_FORMATS});
+ try{const track=await input.getPrimaryAudioTrack();let frames=0,samples=0,first=null,last=null,max=0;for await(const sample of new AudioSampleSink(track).samples()){first??=sample.timestamp;frames+=sample.numberOfFrames;samples++;last=sample.timestamp+sample.duration;max=Math.max(max,sample.numberOfFrames);sample.close();}self.postMessage({file:file.name,codec:await track.getCodec(),frames,samples,first,last,max,AudioDecoder:typeof AudioDecoder,AudioContext:typeof AudioContext});}
+ catch(error){self.postMessage({file:file.name,error:String(error),AudioDecoder:typeof AudioDecoder,AudioContext:typeof AudioContext});}finally{input.dispose();}
+};

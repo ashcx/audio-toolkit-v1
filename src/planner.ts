@@ -1,0 +1,134 @@
+import type { AudioCodec } from "mediabunny";
+import type { AudioMetadata } from "./media";
+import type { EffectiveRecipe, Recipe } from "./recipe";
+
+export type CopyTarget = Readonly<{
+  container: "m4a" | "mp3" | "ogg" | "flac" | "wav";
+  mime: string;
+}>;
+const COPY_TARGETS: Partial<Record<AudioCodec, CopyTarget>> = {
+  aac: { container: "m4a", mime: "audio/mp4" },
+  mp3: { container: "mp3", mime: "audio/mpeg" },
+  opus: { container: "ogg", mime: "audio/ogg" },
+  vorbis: { container: "ogg", mime: "audio/ogg" },
+  flac: { container: "flac", mime: "audio/flac" },
+  "pcm-s16": { container: "wav", mime: "audio/wav" },
+  "pcm-s24": { container: "wav", mime: "audio/wav" },
+  "pcm-s32": { container: "wav", mime: "audio/wav" },
+  "pcm-f32": { container: "wav", mime: "audio/wav" },
+  "pcm-f64": { container: "wav", mime: "audio/wav" },
+  "pcm-u8": { container: "wav", mime: "audio/wav" },
+};
+export type CopyPlan = Readonly<{
+  kind: "copy";
+  snapshot: EffectiveRecipe;
+  codec: AudioCodec;
+  target: CopyTarget;
+}>;
+export type ExecutionPlan =
+  | CopyPlan
+  | Readonly<{
+      kind: "pcm";
+      snapshot: EffectiveRecipe;
+      steps: readonly Recipe["steps"][number][];
+      reason: string;
+    }>
+  | Readonly<{ kind: "failed"; message: string }>;
+
+function changesSignal(
+  step: Recipe["steps"][number],
+  source: AudioMetadata,
+): boolean {
+  switch (step.kind) {
+    case "trim":
+      return (
+        (step.range.start ?? 0) !== 0 ||
+        (step.range.end !== null && step.range.end !== source.duration)
+      );
+    case "gain":
+      return step.db !== 0;
+    case "channels":
+      return (
+        step.channels !== "original" &&
+        (step.channels === "mono" ? 1 : 2) !== source.channels
+      );
+    case "resample":
+      return step.rateHz !== "original" && step.rateHz !== source.sampleRate;
+    case "normalize":
+    case "isolation":
+      return true;
+    default: {
+      const unreachable: never = step;
+      return unreachable;
+    }
+  }
+}
+const PCM_REASONS = {
+  trim: "Accurate trimming requires re-encoding.",
+  gain: "Gain requires re-encoding.",
+  normalize: "Normalization requires re-encoding.",
+  channels: "Changing channels requires re-encoding.",
+  resample: "Changing sample rate requires re-encoding.",
+  isolation: "Voice / music isolation requires re-encoding.",
+} satisfies Record<Recipe["steps"][number]["kind"], string>;
+export function compilePlan(
+  snapshot: EffectiveRecipe,
+  source: AudioMetadata,
+): ExecutionPlan {
+  const current = { ...source };
+  const steps = snapshot.recipe.steps.filter((step) => {
+    const changed = changesSignal(step, current);
+    if (step.kind === "channels" && step.channels !== "original")
+      current.channels = step.channels === "mono" ? 1 : 2;
+    if (step.kind === "resample" && step.rateHz !== "original")
+      current.sampleRate = step.rateHz;
+    if (step.kind === "isolation") {
+      current.channels = null;
+      current.sampleRate = null;
+    }
+    return changed;
+  });
+  if (snapshot.recipe.export.format === "original") {
+    if (steps.length)
+      return {
+        kind: "failed",
+        message: `${PCM_REASONS[steps[0].kind]} Choose another format.`,
+      };
+    const target = COPY_TARGETS[source.codec];
+    if (!target)
+      return {
+        kind: "failed",
+        message:
+          "This codec has no supported original-audio container. Choose another format.",
+      };
+    return Object.freeze({
+      kind: "copy",
+      snapshot,
+      codec: source.codec,
+      target,
+    });
+  }
+  return Object.freeze({
+    kind: "pcm",
+    snapshot,
+    steps: Object.freeze(steps),
+    reason: steps.length
+      ? PCM_REASONS[steps[0].kind]
+      : "Selected format requires encoding.",
+  });
+}
+
+export function copyOutputName(
+  fileName: string,
+  plan: CopyPlan,
+  used: Set<string>,
+): string {
+  const stem = fileName.replace(/\.[^.]+$/, "") || "audio";
+  const extension = plan.target.container;
+  let name = `${stem}.audio.${extension}`;
+  let count = 2;
+  while (used.has(name.toLowerCase()))
+    name = `${stem}.audio (${count++}).${extension}`;
+  used.add(name.toLowerCase());
+  return name;
+}

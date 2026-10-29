@@ -1,0 +1,36 @@
+[
+  {
+    "browser": "chromium",
+    "inheritOverrideReset": true,
+    "clampAndPerFileFailure": true,
+    "invalidGainRecovery": true,
+    "cardCollapse": true,
+    "keyboardReorder": true,
+    "desktopDragReorder": true,
+    "touchReorderRemove": true,
+    "terminalExport": true,
+    "removeTrimConfirmation": true,
+    "mobileNoOverflow": true,
+    "simultaneousErrors": true,
+    "repeatedStepErrorLabels": true,
+    "reorderFocus": true,
+    "errors": []
+  },
+  {
+    "browser": "webkit",
+    "inheritOverrideReset": true,
+    "clampAndPerFileFailure": true,
+    "invalidGainRecovery": true,
+    "cardCollapse": true,
+    "keyboardReorder": true,
+    "desktopDragReorder": true,
+    "touchReorderRemove": true,
+    "terminalExport": true,
+    "removeTrimConfirmation": true,
+    "mobileNoOverflow": true,
+    "simultaneousErrors": true,
+    "repeatedStepErrorLabels": true,
+    "reorderFocus": true,
+    "errors": []
+  }
+]

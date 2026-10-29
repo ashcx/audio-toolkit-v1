@@ -9,7 +9,7 @@ Status: Not started. Technical delivery: Not started. Agent-verified acceptance:
 ## Entry criteria
 
 - [ ] Verify source requirements and actual predecessor artifacts, PR state and independent review.
-- [ ] Required contracts, fixtures, dependencies and browser/device access exist.
+- [ ] Required contracts, fixtures and dependencies exist; automated Chromium/WebKit access is available. User-authorized physical-device checks remain reserved for Sprint 12.
 - [ ] Recheck any carry-forward independence against this sprint's consumers.
 
 ## Depends on
@@ -53,7 +53,7 @@ One-week timebox. First two stories commit 6 SP. Third story is 3 SP required st
 - [ ] Affected UI is inspected on desktop/mobile, keyboard, touch, labels, themes and recovery states; non-UI exceptions have an explicit reason.
 - [ ] Separate self-review and affected reruns pass; evidence and decision trail are current.
 - [ ] Independent interrogate covers the integrated increment, requirements, all acceptance rows, contracts, revisions, captures and unfinished-work claims. Save reproductions, fixes/reruns, dropped claims and verdict in `docs/sprint-evidence/sprint-7/interrogate.md`.
-- [ ] Relevant real-device, audio/listening and resource evidence exists. Missing observations stay NOT VERIFIED.
+- [ ] Relevant audio/listening and resource evidence exists. Physical-device evidence is deferred to Sprint 12 by explicit user authorization; other missing observations stay NOT VERIFIED.
 
 After the preceding gates pass, deliver this sprint's single PR. PR creation is a delivery step, not a prerequisite to reviewing the increment.
 

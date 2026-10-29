@@ -1,0 +1,38 @@
+[
+  {
+    "browser": "chromium",
+    "viewports": [
+      1440,
+      390
+    ],
+    "themes": [
+      "light",
+      "dark",
+      "system live change"
+    ],
+    "keyboardRemove": true,
+    "longNames": true,
+    "basePathAndReload": true,
+    "noExternalRequests": true,
+    "noEagerModel": true,
+    "errors": []
+  },
+  {
+    "browser": "webkit",
+    "viewports": [
+      1440,
+      390
+    ],
+    "themes": [
+      "light",
+      "dark",
+      "system live change"
+    ],
+    "keyboardRemove": true,
+    "longNames": true,
+    "basePathAndReload": true,
+    "noExternalRequests": true,
+    "noEagerModel": true,
+    "errors": []
+  }
+]
