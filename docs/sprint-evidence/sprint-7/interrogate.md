@@ -9,3 +9,5 @@ The reviewer ran `FORMAT_FULL_GRID=1 FORMAT_EVIDENCE_DIR=.artifacts/s7-review/fo
 The reviewer verified the reviewed-code hashes, AAC artifact/source hashes and source archive contents. Desktop/mobile error captures in both engines are readable. The comment lens found zero scoped deletions, suppressions, holds or must-kill flags. No new proven behavioral finding and no dropped behavioral hypothesis. Two stale story notes describing completed checks as pending were corrected by the parent before closure.
 
 Scoped technical verdict PASS. Physical devices (Sprint12), workload RSS (Sprint11), isolation listening (Sprint9), native AAC on other platforms and the final transitive licensing audit remain unverified at their owning gates. This is not full-app acceptance or legal certification. Main/Pages delivery is recorded separately after this verdict.
+
+Delivery after verdict: main5a61da3 and Pages40889990911 success. Actual live Chromium MP3/AAC/Opus downloads pass codec inspection, HTTP200 and matching built asset. Closure changes only evidence/status; reviewed-code hashes remain unchanged.

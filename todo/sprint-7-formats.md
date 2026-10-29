@@ -4,7 +4,7 @@
 
 Export all required encoded formats. Owns feature-plan sections 14,21,22; cross-cutting requirements remain binding.
 
-Status: In progress. Technical acceptance and independent review pass; main delivery remains open.
+Status: Complete within Sprint7 scope. Technical acceptance, independent review and main/Pages delivery verified.
 
 ## Entry criteria
 
@@ -57,8 +57,8 @@ One-week timebox. First two stories commit 6 SP. Third story is 3 SP required st
 
 After the preceding gates pass, commit and push this increment directly to main under the updated user instructions. Record the resulting automatic Pages deployment separately from technical acceptance.
 
-- [ ] Commit and push verified changes to main, retaining plans, exact checks, captures, evidence, review verdict, gaps and starting/ending revisions.
-- [ ] Verify the main commit and Pages workflow status; record observed URLs/status in References, Execution log and TODO.md.
+- [x] Commit and push verified changes to main, retaining plans, exact checks, captures, evidence, review verdict, gaps and starting/ending revisions.
+- [x] Verify the main commit and Pages workflow status; record observed URLs/status in References, Execution log and TODO.md.
 
 Complete only when all gates pass. Qualified last-resort exceptions keep boxes unchecked and status In progress with `sprint-7-unfinished.md`. Merge and deployment follow actual authorized scope.
 
@@ -96,3 +96,7 @@ Sequential main implementation complete. See three story reports, architecture.m
 ### 2026-10-29 - Independent review
 
 Integrated technical verdict PASS from one independent non-implementing Terra high reviewer. A fresh dispatch hit the thread limit; explicit poteto exception permitted reuse of the completed reviewer with full current brief. Independent224 downloads plus8kHz Opus edge check, source hashes and desktop/mobile captures pass. No new proven behavior findings; two stale documentation statements corrected. Comment lens found no scoped suppressions/deletions. Final transitive audit, workload limits and user device/listening gates retain later ownership. Retrospective: final timing must be checked by independent decoding, and source provenance must match the actual bundled runtime. Main delivery remains next.
+
+### 2026-10-29 - Main and Pages delivery
+
+Implementation5a61da33cbe14106d6e7f14a4b9011a9ec62cb21 pushed directly to main. Pages run40889990911 succeeded. Actual live Chromium MP3, M4A and Opus exports downloaded successfully; FFprobe confirms codecs/rate/channels, HTTP200 and matching asset index-D8mAmIJf.js. live-smoke.json records observations. Metadata-only closure retains reviewed-code hashes. No PR or branch created under updated instructions. Next Sprint8 is eligible.

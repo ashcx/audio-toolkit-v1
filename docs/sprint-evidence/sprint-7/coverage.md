@@ -18,6 +18,6 @@ Baseline main518799a. Integrated technical acceptance and independent review pas
 | Independent integrated interrogate | interrogate.md; independent224 downloads, extra8kHz Opus, source/hash and capture checks | VERIFIED, one reused non-implementing Terra high reviewer under thread-limit exception |
 | Relevant audio/resource observations | Independent decode/reference and481/48037/1440037 input-frame cases, block/write caps | VERIFIED named cases; RSS NOT VERIFIED (Sprint11) |
 | Physical devices/listening | User-authorized device Sprint12 and real isolation listening Sprint9 | NOT VERIFIED, owning later gates |
-| Main/Pages delivery | No Sprint7 commit/push yet | NOT VERIFIED |
+| Main/Pages delivery | main5a61da3, Pages40889990911 success, live-smoke.json actual MP3/AAC/Opus downloads and asset | VERIFIED |
 
 Final parent checks: npm ci (0 vulnerabilities, dependency patch reproduced), npm run build (source hashes and worker-cycle guard pass), node --test tests/*.test.mjs17/17; FORMAT_FULL_GRID=1 FORMAT_EVIDENCE_DIR=docs/sprint-evidence/sprint-7/full-grid node scripts/format-check.mjs224 downloads; DSP_EVIDENCE_DIR=docs/sprint-evidence/sprint-7/dsp-regression node scripts/dsp-check.mjs58 observations; workspace/intake/recipe/copy regression scripts all pass in both engines using their own Sprint7 subfolders. profile-bitrate-check.json separately verifies50 AAC-LC outputs and62 MP3 bitrates. Actual subjective listening/physical devices remain unverified and at their agreed gates.
