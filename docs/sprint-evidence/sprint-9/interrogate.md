@@ -17,3 +17,7 @@ US01's completed actual GPU provider path remains NOT VERIFIED. US02's lawful mu
 ## Parent verification of the final report
 
 Parent read the actual independent report and results, checked the matching source snapshot, exact573437-frame outputs, one-LSB error, zero stores/workers/page errors and near-budget sampled RSS. The independent artifacts/captures are retained in independent-isolation/. Current Chromium and WebKit parent captures were inspected on desktop and mobile. The final independent technical review covers the integrated S9 code, requirements/Ready/Done, frozen contracts, original failures, corrections, acceptance rows, decision trail and missing facts. It is a scoped CPU/numerical PASS, with overall Sprint9 NOT DONE. No defect is waived; the hardware/provider/listening gaps are not converted into passed observations. Parent delivery remains withheld pending the sprint's required factual gates.
+
+## Subsequent user-requested delivery
+
+The user explicitly requested PR delivery with the above factual gaps disclosed. Source implementation a6ecb1a preserves every reviewed product/source hash. PR #9 is open against main from codex/sprint-9-isolation. Delivery/workflow records changed after review, without changing product behavior or claiming the missing observations. No merge or deployment.

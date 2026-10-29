@@ -57,8 +57,8 @@ One-week timebox. First two stories commit 6 SP. Third story is 3 SP required st
 
 Current delivery instruction, 2026-10-30: the user explicitly requested the Sprint 9 PR with its remaining acceptance observations disclosed. Commit and push the working branch and open a PR targeting main. Do not merge or deploy without explicit user permission. PR delivery does not mark the unfinished stories or overall sprint complete.
 
-- [ ] Commit and push the reviewed Sprint 9 implementation to its PR branch, retaining plans, exact checks, captures, evidence, review verdict, gaps and starting/ending revisions.
-- [ ] Verify the PR branch/head and open PR targeting main; record the actual URL/status. Merge and Pages deployment remain separate, unauthorized actions.
+- [x] Commit and push the reviewed Sprint 9 implementation to its PR branch, retaining plans, exact checks, captures, evidence, review verdict, gaps and starting/ending revisions.
+- [x] Verify the PR branch/head and open PR targeting main; record the actual URL/status. Merge and Pages deployment remain separate, unauthorized actions.
 
 Complete only when all gates pass. Qualified last-resort exceptions keep boxes unchecked and status In progress with `sprint-9-unfinished.md`. Merge and deployment follow actual authorized scope.
 
@@ -77,7 +77,7 @@ Source sections 23–24 deferred features and exclusions. Hub/image implementati
 - [Scrum policy](redesign-scrum-plan.md).
 - [Feature requirements](audio-toolkit-plan.md).
 - Decision trail: `docs/sprint-evidence/decisions.tsv`.
-- Delivery: codex/sprint-9-isolation PR targeting main, explicitly requested with open listening/GPU facts; PR creation in progress.
+- Sprint PR: [#9](https://github.com/ashcx/audio-toolkit-v1/pull/9), open against main from codex/sprint-9-isolation. Listening/GPU observations remain open; no merge or deployment.
 
 ## Execution log
 
@@ -102,3 +102,7 @@ A forced unsupported SwiftShader adapter dispatched native GPU work but exceeded
 ### 2026-10-30 - User-requested PR delivery
 
 The user replaced the direct-main Git workflow with working branches and PRs targeting main, prohibited merging without explicit permission, and explicitly requested this Sprint 9 PR. Deliver the reviewed CPU implementation with its current evidence and remaining real-listening/GPU observations visible. This request overrides withholding PR creation until overall sprint acceptance. It does not establish missing observations or mark Sprint 9 Done. No product code changed after the reviewed source snapshot.
+
+### 2026-10-30 - PR opened and verified
+
+Implementation a6ecb1a5722824c8dc7fb1a39958cf788a98786c pushed to codex/sprint-9-isolation. [PR #9](https://github.com/ashcx/audio-toolkit-v1/pull/9) is OPEN, non-draft, targeting main. GitHub readback confirms the branch/head. No PR CI checks are configured by the existing main-only Pages workflow; local verification and independent review are recorded separately. Reviewed product/source hashes remain unchanged. Sprint9 remains In progress for real listening and complete GPU-path observations. No merge or deployment performed. This bookkeeping change is documentation only.

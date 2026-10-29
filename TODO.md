@@ -16,7 +16,7 @@ The user confirmed the public repository `ashcx/audio-toolkit-v1`. Production pa
 | [6](todo/sprint-6-dsp.md) | Process accurate trims and basic audio changes | 10,11,12,15,19 | Complete, main9f50c82, [Pages success](https://github.com/ashcx/audio-toolkit-v1/actions/runs/40877444915), live WAV smoke passed |
 | [7](todo/sprint-7-formats.md) | Export all required encoded formats | 14,21,22 | Complete, main5a61da3, [Pages success](https://github.com/ashcx/audio-toolkit-v1/actions/runs/40889990911), live MP3/AAC/Opus smoke passed |
 | [8](todo/sprint-8-batch.md) | Run cancellable fault-isolated batches | 16,19 | Complete, main312c673, [Pages success](https://github.com/ashcx/audio-toolkit-v1/actions/runs/40927620132), live cancellation/retry and MP3 downloads passed |
-| [9](todo/sprint-9-isolation.md) | Keep voice or music locally in the recipe | 13,15,19,22 | In progress; CPU checks/review pass, listening and GPU facts open |
+| [9](todo/sprint-9-isolation.md) | Keep voice or music locally in the recipe | 13,15,19,22 | In progress; [PR #9](https://github.com/ashcx/audio-toolkit-v1/pull/9) open, CPU checks/review pass, listening and GPU facts open |
 | [10](todo/sprint-10-preview-presets.md) | Test one file and reuse the result in the batch | 17 | Not started |
 | [11](todo/sprint-11-downloads-limits.md) | Download retained results within measured limits | 18,19 | Not started |
 | [12](todo/sprint-12-release-readiness.md) | Verify the complete static audio product | 3,4,20,22,25,26,27 | Not started |
