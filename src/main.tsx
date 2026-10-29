@@ -2,7 +2,16 @@ import { render } from "preact";
 import { useLayoutEffect, useRef, useState } from "preact/hooks";
 import "./style.css";
 import { useFiles } from "./use-files";
-import { formatBytes, describeAudio } from "./format";
+import { formatBytes } from "./format";
+import { FileRow } from "./file-row";
+import { RecipeEditor } from "./recipe-editor";
+import {
+  newRecipe,
+  recipeSchema,
+  type RecipeDraft,
+  type TrimRangeDraft,
+} from "./recipe";
+import type { FileId } from "./media";
 
 type Theme = "system" | "light" | "dark";
 function initialTheme(): Theme {
@@ -19,7 +28,19 @@ function App() {
   const { entries: files, add, remove } = useFiles();
   const [dragging, setDragging] = useState(false);
   const dragDepth = useRef(0);
-  const [format, setFormat] = useState("mp3");
+  const [draft, setDraft] = useState<RecipeDraft>(newRecipe);
+  const [overrides, setOverrides] = useState(new Map<FileId, TrimRangeDraft>());
+  const parsedRecipe = recipeSchema.safeParse(draft);
+  const trim = draft.steps.find((step) => step.kind === "trim");
+  const changeRecipe = (next: RecipeDraft) => {
+    if (trim && !next.steps.some((step) => step.kind === "trim")) {
+      if (overrides.size > 0 && !confirm("Remove trim and individual ranges?"))
+        return false;
+      setOverrides(new Map());
+    }
+    setDraft(next);
+    return true;
+  };
   const picker = useRef<HTMLInputElement>(null);
   const fileList = useRef<HTMLUListElement>(null);
   const pendingFocus = useRef<number | null>(null);
@@ -33,7 +54,9 @@ function App() {
     const index = pendingFocus.current;
     if (index === null) return;
     pendingFocus.current = null;
-    const buttons = fileList.current?.querySelectorAll("button");
+    const buttons = fileList.current?.querySelectorAll<HTMLButtonElement>(
+      "button[data-remove-file]",
+    );
     const target = buttons?.[Math.min(index, files.length - 1)];
     if (target) target.focus();
     else picker.current?.focus();
@@ -157,65 +180,47 @@ function App() {
             {files.length > 0 && (
               <ul ref={fileList} class="file-list" aria-label="Selected files">
                 {files.map((entry, index) => (
-                  <li
+                  <FileRow
                     key={entry.id}
-                    data-file-id={entry.id}
-                    data-inspection={entry.inspection.kind}
-                  >
-                    <span class="file-name">
-                      {entry.file.name}
-                      <small>
-                        {formatBytes(entry.file.size)}
-                        {entry.inspection.kind === "ready"
-                          ? ` · ${describeAudio(entry.inspection.metadata)}`
-                          : entry.inspection.kind === "failed"
-                            ? ""
-                            : ` · ${entry.inspection.kind === "reading" ? "Reading…" : "Waiting"}`}
-                      </small>
-                      {entry.inspection.kind === "failed" && (
-                        <small class="file-error" role="status">
-                          {entry.inspection.message}
-                        </small>
-                      )}
-                    </span>
-                    <button
-                      class="icon-button"
-                      aria-label={`Remove ${entry.file.name}`}
-                      onClick={() => {
-                        pendingFocus.current = index;
-                        remove(entry.id);
-                      }}
-                    >
-                      ×
-                    </button>
-                  </li>
+                    entry={entry}
+                    trim={trim?.range}
+                    override={overrides.get(entry.id)}
+                    onOverride={(range) =>
+                      setOverrides((previous) =>
+                        new Map(previous).set(entry.id, range),
+                      )
+                    }
+                    onReset={() =>
+                      setOverrides((previous) => {
+                        const next = new Map(previous);
+                        next.delete(entry.id);
+                        return next;
+                      })
+                    }
+                    onRemove={() => {
+                      pendingFocus.current = index;
+                      remove(entry.id);
+                      setOverrides((previous) => {
+                        const next = new Map(previous);
+                        next.delete(entry.id);
+                        return next;
+                      });
+                    }}
+                  />
                 ))}
               </ul>
             )}
           </section>
-          <section class="panel recipe-panel" aria-labelledby="recipe-title">
-            <div class="panel-heading">
-              <h2 id="recipe-title">Recipe</h2>
-            </div>
-            <p class="panel-description">Applied to all files.</p>
-            <div class="export-card">
-              <h3>Export</h3>
-              <label class="field">
-                Format
-                <select
-                  value={format}
-                  onChange={(event) => setFormat(event.currentTarget.value)}
-                >
-                  <option value="mp3">MP3</option>
-                  <option value="m4a">M4A · AAC</option>
-                  <option value="wav">WAV</option>
-                  <option value="flac">FLAC</option>
-                  <option value="opus">OGG · Opus</option>
-                  <option value="original">Original audio</option>
-                </select>
-              </label>
-            </div>
-          </section>
+          <RecipeEditor
+            value={draft}
+            onChange={changeRecipe}
+            error={
+              parsedRecipe.success ||
+              parsedRecipe.error.issues[0].path[0] === "steps"
+                ? undefined
+                : parsedRecipe.error.issues[0].message
+            }
+          />
         </div>
       </main>
       <footer>
