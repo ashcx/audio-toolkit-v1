@@ -1,6 +1,6 @@
 # Audio Toolkit TODO roadmap
 
-Prepared 2026-10-29. Implementation authorized on 2026-10-29. Build, test and deliver PRs only; do not merge or deploy. The user can perform real-device acceptance. Sprints 1–5 are complete within their scope; Sprint 6 is next. [Feature requirements](todo/audio-toolkit-plan.md) remain authoritative and unchecked until evidence exists.
+Prepared 2026-10-29. Implementation authorized on 2026-10-29. Build, test and deliver PRs only; do not merge or deploy. The user can perform real-device acceptance. Sprints 1–5 are complete within their scope; Sprint 6 is paused at the user’s request; resume from [the checkpoint](todo/RESUME.md). [Feature requirements](todo/audio-toolkit-plan.md) remain authoritative and unchecked until evidence exists.
 
 The user confirmed the public repository `ashcx/audio-toolkit-v1`. Intended production path is `/audio-toolkit-v1/`; deployment and live operation remain unverified. Each sprint owns one PR and depends cumulatively on its predecessor.
 
@@ -13,7 +13,7 @@ The user confirmed the public repository `ashcx/audio-toolkit-v1`. Intended prod
 | [3](todo/sprint-3-intake.md) | Inspect mixed audio and video batches | 6,7 | Complete, [PR #4](https://github.com/ashcx/audio-toolkit-v1/pull/4) |
 | [4](todo/sprint-4-recipe.md) | Configure ordered recipes and per-file trim overrides | 8,10 | Complete, [PR #5](https://github.com/ashcx/audio-toolkit-v1/pull/5) |
 | [5](todo/sprint-5-copy-export.md) | Extract original audio without encoding | 9,14,15 | Complete, [PR #6](https://github.com/ashcx/audio-toolkit-v1/pull/6) |
-| [6](todo/sprint-6-dsp.md) | Process accurate trims and basic audio changes | 10,11,12,15,19 | Not started |
+| [6](todo/sprint-6-dsp.md) | Process accurate trims and basic audio changes | 10,11,12,15,19 | Paused at user request; design/probe checkpoint, acceptance NOT VERIFIED |
 | [7](todo/sprint-7-formats.md) | Export all required encoded formats | 14,21,22 | Not started |
 | [8](todo/sprint-8-batch.md) | Run cancellable fault-isolated batches | 16,19 | Not started |
 | [9](todo/sprint-9-isolation.md) | Keep voice or music locally in the recipe | 13,15,19,22 | Not started |

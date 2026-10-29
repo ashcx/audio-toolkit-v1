@@ -1,0 +1,183 @@
+[
+  {
+    "browser": "chromium",
+    "file": "tone.wav",
+    "codec": "pcm-s16",
+    "frames": 96000,
+    "samples": 47,
+    "first": 0,
+    "last": 1.9999999999999991,
+    "max": 2048,
+    "AudioDecoder": "function",
+    "AudioContext": "undefined"
+  },
+  {
+    "browser": "chromium",
+    "file": "tone.m4a",
+    "codec": "aac",
+    "frames": 97280,
+    "samples": 95,
+    "first": -0.021333333333333333,
+    "last": 2.005333333333333,
+    "max": 1024,
+    "AudioDecoder": "function",
+    "AudioContext": "undefined"
+  },
+  {
+    "browser": "chromium",
+    "file": "tone.mp3",
+    "codec": "mp3",
+    "frames": 97920,
+    "samples": 85,
+    "first": 0,
+    "last": 2.04,
+    "max": 1152,
+    "AudioDecoder": "function",
+    "AudioContext": "undefined"
+  },
+  {
+    "browser": "chromium",
+    "file": "tone.opus",
+    "codec": "opus",
+    "frames": 96648,
+    "samples": 101,
+    "first": 0,
+    "last": 2.0135,
+    "max": 960,
+    "AudioDecoder": "function",
+    "AudioContext": "undefined"
+  },
+  {
+    "browser": "chromium",
+    "file": "tone.ogg",
+    "codec": "vorbis",
+    "frames": 96832,
+    "samples": 95,
+    "first": -0.0026666666666666666,
+    "last": 2.014666666666667,
+    "max": 1024,
+    "AudioDecoder": "function",
+    "AudioContext": "undefined"
+  },
+  {
+    "browser": "chromium",
+    "file": "tone.flac",
+    "codec": "flac",
+    "frames": 96000,
+    "samples": 21,
+    "first": 0,
+    "last": 2,
+    "max": 4608,
+    "AudioDecoder": "function",
+    "AudioContext": "undefined"
+  },
+  {
+    "browser": "chromium",
+    "file": "video.mp4",
+    "codec": "aac",
+    "frames": 97280,
+    "samples": 95,
+    "first": -0.021333333333333333,
+    "last": 2.005333333333333,
+    "max": 1024,
+    "AudioDecoder": "function",
+    "AudioContext": "undefined"
+  },
+  {
+    "browser": "chromium",
+    "file": "video.mkv",
+    "codec": "opus",
+    "frames": 96648,
+    "samples": 101,
+    "first": -0.0005,
+    "last": 2.013,
+    "max": 960,
+    "AudioDecoder": "function",
+    "AudioContext": "undefined"
+  },
+  {
+    "browser": "chromium",
+    "file": "offset.mp4",
+    "codec": "aac",
+    "frames": 97280,
+    "samples": 95,
+    "first": 4.978,
+    "last": 7.004666666666667,
+    "max": 1024,
+    "AudioDecoder": "function",
+    "AudioContext": "undefined"
+  },
+  {
+    "browser": "webkit",
+    "file": "tone.wav",
+    "codec": "pcm-s16",
+    "frames": 96000,
+    "samples": 47,
+    "first": 0,
+    "last": 1.9999999999999991,
+    "max": 2048,
+    "AudioDecoder": "function",
+    "AudioContext": "undefined"
+  },
+  {
+    "browser": "webkit",
+    "file": "tone.m4a",
+    "codec": "aac",
+    "frames": 97280,
+    "samples": 95,
+    "first": -0.021333333333333333,
+    "last": 1.9626666666666668,
+    "max": 1024,
+    "AudioDecoder": "function",
+    "AudioContext": "undefined"
+  },
+  {
+    "browser": "webkit",
+    "file": "tone.mp3",
+    "codec": "mp3",
+    "frames": 97920,
+    "samples": 85,
+    "first": 0,
+    "last": 2.04,
+    "max": 1152,
+    "AudioDecoder": "function",
+    "AudioContext": "undefined"
+  },
+  {
+    "browser": "webkit",
+    "file": "tone.opus",
+    "codec": "opus",
+    "frames": 96960,
+    "samples": 101,
+    "first": 0,
+    "last": 2.02,
+    "max": 960,
+    "AudioDecoder": "function",
+    "AudioContext": "undefined"
+  },
+  {
+    "browser": "webkit",
+    "file": "tone.ogg",
+    "error": "Worker decode timeout (5s)"
+  },
+  {
+    "browser": "webkit",
+    "file": "tone.flac",
+    "error": "Worker decode timeout (5s)"
+  },
+  {
+    "browser": "webkit",
+    "file": "video.mp4",
+    "error": "Worker decode timeout (5s)"
+  },
+  {
+    "browser": "webkit",
+    "file": "video.mkv",
+    "error": "Worker decode timeout (5s)"
+  },
+  {
+    "browser": "webkit",
+    "file": "offset.mp4",
+    "error": "Worker decode timeout (5s)"
+  }
+]

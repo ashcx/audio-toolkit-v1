@@ -4,7 +4,7 @@
 
 Process accurate trims and basic audio changes. Owns feature-plan sections 10,11,12,15,19; cross-cutting requirements remain binding.
 
-Status: Not started. Technical delivery: Not started. Agent-verified acceptance: NOT VERIFIED.
+Status: Paused at user request. Technical delivery: incomplete design/probe checkpoint only. Agent-verified acceptance: NOT VERIFIED.
 
 ## Entry criteria
 
@@ -84,3 +84,7 @@ Source sections 23–24 deferred features and exclusions. Hub/image implementati
 ### 2026-10-29 - Planning draft
 
 Stories and initial estimates drafted from requirements. No implementation, Ready verification, tests, device observations or sprint review occurred. Next action is to verify Entry criteria after an implementation instruction.
+
+### 2026-10-29 - User-requested pause
+
+Sprint5 delivered PR6 with finalbf88058 and reviewed implementationa74b9f4. Began read-only Sprint6 design/probing; no production DSP implementation. Two permitted read-only design perspectives (Terra low/Luna low) and bounded decoder-worker probe are retained in docs/sprint-evidence/sprint-6/design-checkpoint.md and adjacent artifacts. Worker timing/presentation behavior remains unresolved; no task/Done claim. All agents stopped and no decoder probe remains running. Resume with the decoder observations and contract freeze, then sequential stories. No implementation carry-forward exception is being used, no dependent sprint started. This incomplete checkpoint is saved to the sprint branch and draft PR solely to honor the user's pause/close-out request; technical acceptance and independent sprint review stay open.
