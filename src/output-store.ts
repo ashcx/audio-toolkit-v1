@@ -38,6 +38,9 @@ export async function createOutputStore(name: string, mime: string) {
     async write(position: number, data: Uint8Array<ArrayBuffer>) {
       await writer.write({ type: "write", position, data });
     },
+    async truncate(length: number) {
+      await writer.truncate(length);
+    },
     async finish(): Promise<StoredOutput> {
       await writer.close();
       closed = true;

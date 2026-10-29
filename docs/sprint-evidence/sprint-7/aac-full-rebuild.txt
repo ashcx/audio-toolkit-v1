@@ -1,0 +1,107 @@
+Resolving SDK version '3.1.74' to 'sdk-releases-c2655005234810c7c42e02a18e4696554abe0352-64bit'
+Installing SDK 'sdk-releases-c2655005234810c7c42e02a18e4696554abe0352-64bit'..
+Skipped installing node-20.18.0-64bit, already installed.
+Skipped installing releases-c2655005234810c7c42e02a18e4696554abe0352-64bit, already installed.
+All SDK components already installed: 'sdk-releases-c2655005234810c7c42e02a18e4696554abe0352-64bit'.
+Resolving SDK version '3.1.74' to 'sdk-releases-c2655005234810c7c42e02a18e4696554abe0352-64bit'
+Setting the following tools as active:
+   node-20.18.0-64bit
+   releases-c2655005234810c7c42e02a18e4696554abe0352-64bit
+
+Next steps:
+- To conveniently access emsdk tools from the command line,
+  consider adding the following directories to your PATH:
+    /home/user/audio-toolkit/.upstream/emsdk
+    /home/user/audio-toolkit/.upstream/emsdk/upstream/emscripten
+- This can be done for the current shell by running:
+    source "/home/user/audio-toolkit/.upstream/emsdk/emsdk_env.sh"
+- Configure emsdk in your shell startup scripts by running:
+    echo 'source "/home/user/audio-toolkit/.upstream/emsdk/emsdk_env.sh"' >> $HOME/.bash_profile
+Setting up EMSDK environment (suppress these messages with EMSDK_QUIET=1)
+Adding directories to PATH:
+PATH += /home/user/audio-toolkit/.upstream/emsdk
+PATH += /home/user/audio-toolkit/.upstream/emsdk/upstream/emscripten
+
+Setting environment variables:
+PATH = /home/user/audio-toolkit/.upstream/emsdk:/home/user/audio-toolkit/.upstream/emsdk/upstream/emscripten:/home/user/.codex/packages/standalone/releases/0.162.1-x86_64-unknown-linux-musl/codex-path:/home/user/.npm-global/bin:/home/user/.local/bin:/home/user/.codex/tmp/arg0/codex-arg0cg6quH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+EMSDK = /home/user/audio-toolkit/.upstream/emsdk
+EMSDK_NODE = /home/user/audio-toolkit/.upstream/emsdk/node/20.18.0_64bit/bin/node
+configure: ./configure --target-os=none --arch=x86_32 --enable-cross-compile --disable-asm --disable-x86asm --disable-inline-asm --disable-programs --disable-doc --disable-debug --disable-all --disable-everything --disable-autodetect --disable-pthreads --disable-runtime-cpudetect --enable-avcodec --enable-encoder=aac --cc=emcc --cxx=em++ --ar=emar --ranlib=emranlib "--extra-cflags=-DNDEBUG -Oz -flto -msimd128" "--extra-ldflags=-Oz -flto"
+nm: /tmp/ffconf.wQFaHHyN/test.o: file format not recognized
+install prefix            /usr/local
+source path               .
+C compiler                emcc
+C library                 
+host C compiler           gcc
+host C library            glibc
+ARCH                      c (generic)
+big-endian                no
+runtime cpu detection     no
+debug symbols             no
+strip symbols             yes
+optimize for size         no
+optimizations             yes
+static                    yes
+shared                    no
+network support           no
+threading support         no
+safe bitstream reader     yes
+texi2html enabled         no
+perl enabled              yes
+pod2man enabled           yes
+makeinfo enabled          no
+makeinfo supports HTML    no
+xmllint enabled           no
+
+External libraries:
+iconv
+
+External libraries providing hardware acceleration:
+
+Libraries:
+avcodec                 avutil
+
+Programs:
+
+Enabled decoders:
+
+Enabled encoders:
+aac
+
+Enabled hwaccels:
+
+Enabled parsers:
+
+Enabled demuxers:
+
+Enabled muxers:
+
+Enabled protocols:
+
+Enabled filters:
+
+Enabled bsfs:
+
+Enabled indevs:
+
+Enabled outdevs:
+
+License: LGPL version 2.1 or later
+
+WARNING: pkg-config not found, library detection may fail.
+WARNING: Threading support was disabled or is not available on the target platform. This means that not only is this build not multi-threaded, but also that the libraries from this build MUST NOT be used in a multi-threaded environment.
+config.h is unchanged
+config_components.h is unchanged
+libavutil/avconfig.h is unchanged
+libavfilter/filter_list.c is unchanged
+libavcodec/codec_list.c is unchanged
+libavcodec/parser_list.c is unchanged
+libavcodec/bsf_list.c is unchanged
+libavformat/demuxer_list.c is unchanged
+libavformat/muxer_list.c is unchanged
+libavdevice/indev_list.c is unchanged
+libavdevice/outdev_list.c is unchanged
+libavformat/protocol_list.c is unchanged
+ffbuild/config.sh is unchanged
+make: make -j4
+Built AAC runtime from pinned FFmpeg source and retained source archive.

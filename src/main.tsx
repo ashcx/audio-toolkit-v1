@@ -57,7 +57,6 @@ function App() {
     return plan &&
       (plan.kind === "copy" ||
         (plan.kind === "pcm" &&
-          plan.snapshot.recipe.export.format === "wav" &&
           !plan.steps.some((step) => step.kind === "isolation")))
       ? [{ entry, plan }]
       : [];
@@ -269,6 +268,7 @@ function App() {
       </main>
       <footer>
         <span>Files stay on your device. Tools download when needed.</span>
+        <a href={`${import.meta.env.BASE_URL}third-party/`}>Licenses</a>
         <a href="https://ashcx.github.io/image-compressor-v1/">Image Toolkit</a>
       </footer>
     </div>

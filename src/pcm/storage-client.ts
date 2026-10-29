@@ -37,6 +37,9 @@ export class StorageClient {
     if (reply.op !== "finish") throw new Error("Unexpected storage reply.");
     return reply.file;
   }
+  async truncate(id: string, length: number) {
+    await this.request({ op: "truncate", id, length });
+  }
   async discard(id: string) {
     await this.request({ op: "discard", id });
   }

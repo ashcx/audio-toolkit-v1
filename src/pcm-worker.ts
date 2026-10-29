@@ -3,7 +3,6 @@ import {
   AudioSampleSource,
   Output,
   StreamTarget,
-  WavOutputFormat,
 } from "mediabunny";
 import { decodePcm } from "./pcm/decode";
 import { gain, trim, channels, normalize, type PcmStream } from "./pcm/blocks";
@@ -11,6 +10,10 @@ import { resample } from "./pcm/resample";
 import { checkpoint } from "./pcm/checkpoint";
 import { StorageClient } from "./pcm/storage-client";
 import type { DspStats, WorkerInput, WorkerResult } from "./pcm/protocol";
+import { exportDescriptor, wavSizeError } from "./export-format";
+import { encoderSettings, prepareEncoder } from "./pcm/encode";
+import { mp3GaplessHeader } from "./pcm/mp3-gapless";
+import { opusTail } from "./pcm/opus-tail";
 const report = (message: WorkerResult, transfer: Transferable[] = []) =>
   self.postMessage(message, { transfer });
 const client = new StorageClient(report);
@@ -21,6 +24,7 @@ async function execute({
 }: Extract<WorkerInput, { kind: "start" }>) {
   const controller = new AbortController(),
     stats: DspStats = {
+      encoder: "pcm",
       decodePasses: 0,
       maxDecodedFrames: 0,
       maxBlockFrames: 0,
@@ -71,11 +75,16 @@ async function execute({
       }
     }
   }
-  if (plan.snapshot.recipe.export.format !== "wav")
-    throw new Error("Choose WAV for audio processing.");
-  const outputId = await client.create(name, "audio/wav");
+  const settings = plan.snapshot.recipe.export;
+  const headers: { data: Uint8Array; position: number }[] = [];
+  const opus = opusTail();
+  const encoding = encoderSettings(settings, {
+    onXingFrame: (data, position) => headers.push({ data: new Uint8Array(data), position }),
+    onPage: opus.onPage,
+  });
+  const outputId = await client.create(name, exportDescriptor(settings).mime);
   const output = new Output({
-    format: new WavOutputFormat(),
+    format: encoding.format,
     target: new StreamTarget(
       new WritableStream({
         async write(chunk) {
@@ -85,25 +94,25 @@ async function execute({
       { chunked: true, chunkSize: 1024 * 1024 },
     ),
   });
-  const audio = new AudioSampleSource({ codec: "pcm-s16" });
+  const audio = new AudioSampleSource(encoding.config);
   stats.terminalEncoders++;
   output.addAudioTrack(audio);
-  await output.start();
   let rate = 0,
     count = 0,
     lastSourceTime: number | null = null;
   try {
     for await (const block of stream) {
       const frames = block.planes[0].length;
-      if (
-        (stats.encodedFrames + frames) * block.planes.length * 2 + 4096 >=
-        0xffffffff
-      )
-        throw new Error("Processed WAV output must be smaller than 4 GB.");
+      const invalidSize = settings.format === "wav"
+        ? wavSizeError(stats.encodedFrames + frames, block.planes.length)
+        : null;
+      if (invalidSize) throw new Error(invalidSize);
       stats.maxBlockFrames = Math.max(stats.maxBlockFrames, frames);
       if (!rate) {
         rate = block.rate;
         count = block.planes.length;
+        stats.encoder = await prepareEncoder(settings, { rate, channels: count });
+        await output.start();
       }
       if (rate !== block.rate || count !== block.planes.length)
         throw new Error("The processed audio format changes unexpectedly.");
@@ -128,24 +137,53 @@ async function execute({
           data[channel * frames + frame] = Math.max(-1, Math.min(1, value));
         }
       });
-      const sample = new AudioSample({
-        data,
+      const quantum = settings.format === "m4a" ? 1024 : frames;
+      for (let offset = 0; offset < frames; offset += quantum) {
+        const length = Math.min(quantum, frames - offset);
+        const part = length === frames ? data : new Float32Array(length * count);
+        if (part !== data)
+          for (let channel = 0; channel < count; channel++)
+            part.set(data.subarray(channel * frames + offset, channel * frames + offset + length), channel * length);
+        const sample = new AudioSample({
+          data: part,
+          format: "f32-planar",
+          numberOfChannels: count,
+          sampleRate: rate,
+          timestamp: stats.encodedFrames / rate,
+        });
+        try {
+          await audio.add(sample);
+          stats.encodedFrames += length;
+        } finally {
+          sample.close();
+        }
+      }
+    }
+    if (!stats.encodedFrames)
+      throw new Error("The selected range contains no audio.");
+    if (settings.format === "opus") {
+      const padding = new AudioSample({
+        data: new Float32Array(Math.ceil(rate * .02) * count),
         format: "f32-planar",
         numberOfChannels: count,
         sampleRate: rate,
         timestamp: stats.encodedFrames / rate,
       });
-      try {
-        await audio.add(sample);
-        stats.encodedFrames += frames;
-      } finally {
-        sample.close();
-      }
+      try { await audio.add(padding); } finally { padding.close(); }
     }
-    if (!stats.encodedFrames)
-      throw new Error("The selected range contains no audio.");
     audio.close();
     await output.finalize();
+    if (settings.format === "mp3") {
+      const header = headers[0];
+      if (!header) throw new Error("MP3 timing metadata is unavailable.");
+      await client.write(outputId, header.position, mp3GaplessHeader(header.data, stats.encodedFrames));
+    }
+    if (settings.format === "opus") {
+      const page = opus.finish(stats.encodedFrames, rate);
+      if (page.head) await client.write(outputId, page.head.position, page.head.data);
+      await client.write(outputId, page.position, page.data);
+      await client.truncate(outputId, page.length);
+    }
     await client.finish(outputId);
     stats.decodePasses = decodeStats.passes;
     stats.maxDecodedFrames = decodeStats.maxDecodedFrames;

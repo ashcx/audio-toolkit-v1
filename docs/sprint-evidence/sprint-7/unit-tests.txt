@@ -1,0 +1,112 @@
+TAP version 13
+# Subtest: actual dependency expands fixed, Xiph and EBML lacing without losing final discard padding
+ok 1 - actual dependency expands fixed, Xiph and EBML lacing without losing final discard padding
+  ---
+  duration_ms: 2.003483
+  type: 'test'
+  ...
+# Subtest: a real laced Opus file exposes a short final duration instead of silently adding padding
+ok 2 - a real laced Opus file exposes a short final duration instead of silently adding padding
+  ---
+  duration_ms: 35.888041
+  type: 'test'
+  ...
+# Subtest: trim retains half-open source positions; gain and mono/stereo mappings are deterministic
+ok 3 - trim retains half-open source positions; gain and mono/stereo mappings are deterministic
+  ---
+  duration_ms: 27.249017
+  type: 'test'
+  ...
+# Subtest: normalization at its actual position changes trim results; silence is finite and checkpoints always close
+ok 4 - normalization at its actual position changes trim results; silence is finite and checkpoints always close
+  ---
+  duration_ms: 40.136427
+  type: 'test'
+  ...
+# Subtest: streaming sinc resampling preserves rate, duration, passband and arbitrary block boundaries
+ok 5 - streaming sinc resampling preserves rate, duration, passband and arbitrary block boundaries
+  ---
+  duration_ms: 540.225263
+  type: 'test'
+  ...
+# Subtest: downsampling rejects out-of-band aliases and preserves the source clock through repeated conversion before trim
+ok 6 - downsampling rejects out-of-band aliases and preserves the source clock through repeated conversion before trim
+  ---
+  duration_ms: 114.918275
+  type: 'test'
+  ...
+# Subtest: original audio resolves valid audio-only containers per codec; unsupported never transcodes
+ok 7 - original audio resolves valid audio-only containers per codec; unsupported never transcodes
+  ---
+  duration_ms: 8.438529
+  type: 'test'
+  ...
+# Subtest: only real no-ops disappear and original audio rejects every signal change
+ok 8 - only real no-ops disappear and original audio rejects every signal change
+  ---
+  duration_ms: 7.068457
+  type: 'test'
+  ...
+# Subtest: PCM plan preserves processor order and export intent without freezing mutable drafts
+ok 9 - PCM plan preserves processor order and export intent without freezing mutable drafts
+  ---
+  duration_ms: 2.254151
+  type: 'test'
+  ...
+# Subtest: a return to the source channel count or rate still runs after an earlier change
+ok 10 - a return to the source channel count or rate still runs after an earlier change
+  ---
+  duration_ms: 0.443911
+  type: 'test'
+  ...
+# Subtest: copy filenames avoid collisions even when codec extensions converge
+ok 11 - copy filenames avoid collisions even when codec extensions converge
+  ---
+  duration_ms: 0.723441
+  type: 'test'
+  ...
+# Subtest: known oversized WAVs fail before processing and trim/rate/channel changes can recover
+ok 12 - known oversized WAVs fail before processing and trim/rate/channel changes can recover
+  ---
+  duration_ms: 0.840145
+  type: 'test'
+  ...
+# Subtest: WAV byte guard prevents RIFF wrap at the actual PCM16 mono and stereo boundaries
+ok 13 - WAV byte guard prevents RIFF wrap at the actual PCM16 mono and stereo boundaries
+  ---
+  duration_ms: 0.660065
+  type: 'test'
+  ...
+# Subtest: ordered serializable recipes preserve repeatable stages and separate terminal export
+ok 14 - ordered serializable recipes preserve repeatable stages and separate terminal export
+  ---
+  duration_ms: 13.032027
+  type: 'test'
+  ...
+# Subtest: invalid ranges, duplicate singleton steps and invalid encoding settings cannot become execution recipes
+ok 15 - invalid ranges, duplicate singleton steps and invalid encoding settings cannot become execution recipes
+  ---
+  duration_ms: 6.636827
+  type: 'test'
+  ...
+# Subtest: per-file overrides and clamping do not mutate the shared recipe
+ok 16 - per-file overrides and clamping do not mutate the shared recipe
+  ---
+  duration_ms: 1.876732
+  type: 'test'
+  ...
+# Subtest: one invalid file range stays isolated; reset restores inheritance
+ok 17 - one invalid file range stays isolated; reset restores inheritance
+  ---
+  duration_ms: 0.79088
+  type: 'test'
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 864.345001

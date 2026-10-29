@@ -1,4 +1,4 @@
-function packetFrames(data: Uint8Array): number {
+export function packetFrames(data: Uint8Array): number {
   if (!data.length) throw new Error("Empty Opus packet.");
   const config = data[0] >> 3;
   const code = data[0] & 3;

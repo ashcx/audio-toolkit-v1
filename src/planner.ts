@@ -1,6 +1,7 @@
 import type { AudioCodec } from "mediabunny";
 import type { AudioMetadata } from "./media";
 import type { EffectiveRecipe, Recipe } from "./recipe";
+import { exportShapeError, wavSizeError } from "./export-format.ts";
 
 export type CopyTarget = Readonly<{
   container: "m4a" | "mp3" | "ogg" | "flac" | "wav";
@@ -107,6 +108,13 @@ export function compilePlan(
       codec: source.codec,
       target,
     });
+  }
+  const invalidRate = exportShapeError(snapshot.recipe.export, { rate: current.sampleRate, channels: current.channels });
+  if (invalidRate) return { kind: "failed", message: invalidRate };
+  const duration = snapshot.trim?.duration ?? source.duration;
+  if (snapshot.recipe.export.format === "wav" && duration !== null && current.sampleRate !== null && current.channels !== null) {
+    const invalidSize = wavSizeError(Math.round(duration * current.sampleRate), current.channels);
+    if (invalidSize) return { kind: "failed", message: invalidSize };
   }
   return Object.freeze({
     kind: "pcm",

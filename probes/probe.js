@@ -1,7 +1,7 @@
 import { decoder as createFlacDecoder } from '@audio/decode-flac';
 import { Input, Output, Conversion, BufferSource, BufferTarget, ALL_FORMATS, AudioSample, AudioSampleSource, WavOutputFormat, Mp3OutputFormat, Mp4OutputFormat, FlacOutputFormat, OggOutputFormat, canEncodeAudio, AudioSampleSink } from 'mediabunny';
 import { registerMp3Encoder } from '@mediabunny/mp3-encoder';
-import { registerAacEncoder } from '@mediabunny/aac-encoder';
+import { registerAacEncoder } from '../vendor/aac/encoder.mjs';
 import { registerFlacEncoder } from '@mediabunny/flac-encoder';
 
 window.runProbe = async () => {

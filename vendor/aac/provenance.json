@@ -1,0 +1,24 @@
+{
+  "ffmpeg": {
+    "tag": "n8.0",
+    "revision": "140fd653aed8cad774f991ba083e2d01e86420c7",
+    "archive": "third-party/ffmpeg-n8.0-source.zip",
+    "sha256": "5678b4e36e7401481a64c1432e00db25a92ca5ba144e2a3c984e4bdb953ec287"
+  },
+  "emscripten": {
+    "version": "3.1.74",
+    "sdkRevision": "3d6d8ee910466516a53e665b86458faa81dae9ba"
+  },
+  "wrapper": {
+    "package": "@mediabunny/aac-encoder",
+    "version": "1.63.0",
+    "originalBundleSha256": "26d2b597a4ae66d6542bf6dcb4d17a52400f00099eb17a84b22b9eed2b9025f5"
+  },
+  "artifacts": {
+    "aac-runtime.js": "c2f8ddfaa0bb70392697772c9058e7991767d059cf2f2319cb7256c0bdf11493",
+    "aac-worker.js": "866692fd744ae5728776e9d64b74df33af0c6bc561630e007919960c0dc04128",
+    "encoder.mjs": "42cdf93a282607093c0d3c670a698a59584211cf8af637e1e392ca3af7840520",
+    "source/bridge.c": "a04e07961c47ca113710398ac8e2ea39b21e2eb1bd109685cd909a3e09f937dc",
+    "source/encode.worker.ts": "96d970b9bf6887b0ee8e707a08cb7be2d3c73259ec442874bfdf2d3747c3f5e7"
+  }
+}

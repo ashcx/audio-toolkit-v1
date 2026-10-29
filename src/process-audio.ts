@@ -62,6 +62,10 @@ export function processAudio(
         await entry.store.write(request.position, request.data);
         return { op: "write" };
       }
+      if (request.op === "truncate") {
+        await entry.store.truncate(request.length);
+        return { op: "truncate" };
+      }
       const output = await entry.store.finish();
       stores.set(request.id, { kind: "closed", store: entry.store, output });
       return { op: "finish", file: output.file };

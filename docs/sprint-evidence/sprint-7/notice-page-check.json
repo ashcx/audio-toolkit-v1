@@ -1,0 +1,101 @@
+{
+  "relativeLinks": [
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/Mediabunny-MPL-2.0.txt",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/FFmpeg-LGPL-2.1.txt",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/ffmpeg-n8.0-source.zip",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/aac-build.json",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/LAME-LGPL.txt",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/FLAC-BSD.txt",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/audio-decode-flac-MIT.txt",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/audio-decode-vorbis-MIT.txt",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/Vorbis-BSD.txt",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/Ogg-BSD.txt",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/wasm-audio-decoders-MIT.txt",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/codec-parser-LGPL-3.0.txt",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/GPL-3.0.txt",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/codec-parser-2.5.0-source.zip",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/Preact-MIT.txt",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/Zod-MIT.txt",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/Emscripten-MIT-NCSA.txt",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/Musl-COPYRIGHT.txt",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/neural-NOTICE.txt",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/ONNXRuntime-MIT.txt",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/SCNet-MIT.txt",
+      "status": 200
+    },
+    {
+      "url": "http://127.0.0.1:4174/audio-toolkit-v1/third-party/SCNet-author-MIT.txt",
+      "status": 200
+    }
+  ],
+  "sourceArchive": {
+    "bytes": 21504172,
+    "sha256": "5678b4e36e7401481a64c1432e00db25a92ca5ba144e2a3c984e4bdb953ec287",
+    "contentType": "application/zip"
+  }
+}

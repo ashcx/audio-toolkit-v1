@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "build": "tsc --noEmit && vite build",
+    "build": "node scripts/verify-aac.mjs && tsc --noEmit && vite build && node scripts/check-worker-imports.mjs",
     "preview": "vite preview --host 127.0.0.1",
     "probe": "node scripts/browser-probe.mjs",
     "typecheck": "tsc --noEmit",

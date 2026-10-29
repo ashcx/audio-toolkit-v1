@@ -1,0 +1,38 @@
+import {readFile,writeFile,mkdir,copyFile} from 'node:fs/promises';
+import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import path from 'node:path';
+import {transform} from 'rolldown/utils';
+
+const ffmpeg=path.resolve('.upstream/ffmpeg-aac'),sdk=path.resolve('.upstream/emsdk');
+const sourceRevision='140fd653aed8cad774f991ba083e2d01e86420c7';
+const revision=execFileSync('git',['-C',ffmpeg,'rev-parse','HEAD'],{encoding:'utf8'}).trim();
+if(revision!==sourceRevision)throw new Error('Use the pinned FFmpeg n8.0 source revision.');
+if(execFileSync('git',['-C',ffmpeg,'status','--porcelain','--untracked-files=no'],{encoding:'utf8'}).trim())throw new Error('FFmpeg tracked source differs from the pinned revision.');
+const packageRoot=path.resolve('node_modules/@mediabunny/aac-encoder');
+const packageJson=JSON.parse(await readFile(`${packageRoot}/package.json`,'utf8'));
+if(packageJson.version!=='1.63.0')throw new Error('Review the AAC wrapper before upgrading.');
+const destination=path.resolve('vendor/aac');await mkdir(`${destination}/source`,{recursive:true});await mkdir('public/third-party',{recursive:true});
+await copyFile(`${packageRoot}/src/bridge.c`,`${destination}/source/bridge.c`);
+await copyFile(`${packageRoot}/src/encode.worker.ts`,`${destination}/source/encode.worker.ts`);
+const flags=[`${destination}/source/bridge.c`,`${ffmpeg}/libavcodec/libavcodec.a`,`${ffmpeg}/libavutil/libavutil.a`,`-I${ffmpeg}`,
+ '-s','MODULARIZE=1','-s','EXPORT_ES6=1','-s','SINGLE_FILE=1','-s','ALLOW_MEMORY_GROWTH=1','-s','ENVIRONMENT=web,worker','-s','FILESYSTEM=0','-s','MALLOC=emmalloc','-s','SUPPORT_LONGJMP=0','-s','WASM_BIGINT=1','-s','EXPORTED_RUNTIME_METHODS=cwrap,HEAPU8','-s','EXPORTED_FUNCTIONS=_malloc,_free','-msimd128','-flto','-Oz','-o',`${destination}/aac-runtime.js`];
+execFileSync(`${sdk}/upstream/emscripten/emcc`,flags,{stdio:'inherit',env:{...process.env,EM_CONFIG:`${sdk}/.emscripten`,PATH:`${sdk}/upstream/emscripten:${process.env.PATH}`}});
+const original=await readFile(`${packageRoot}/dist/bundles/mediabunny-aac-encoder.mjs`,'utf8');
+if(createHash('sha256').update(original).digest('hex')!=='26d2b597a4ae66d6542bf6dcb4d17a52400f00099eb17a84b22b9eed2b9025f5')throw new Error('AAC wrapper source differs from the reviewed pinned package.');
+const start=original.indexOf('// inline-worker:__inline-worker');
+const end=original.indexOf('// packages/aac-encoder/src/encoder.ts',start);
+if(start<0||end<start)throw new Error('AAC wrapper worker boundary changed.');
+const wrapper=original.slice(0,start)+'function Worker2() {\n  return new Worker(new URL("./aac-worker.js", import.meta.url), { type: "module" });\n}\n\n'+original.slice(end);
+await writeFile(`${destination}/encoder.mjs`,wrapper);
+await writeFile(`${destination}/encoder.d.mts`,'export declare function registerAacEncoder(): void;\n');
+const workerSource=(await readFile(`${destination}/source/encode.worker.ts`,'utf8')).replace("'../build/aac'","'./aac-runtime.js'");
+const worker=await transform('aac-worker.ts',workerSource,{lang:'ts'});await writeFile(`${destination}/aac-worker.js`,worker.code);
+const archive=execFileSync('git',['-C',ffmpeg,'archive','--format=zip',sourceRevision],{maxBuffer:64*1024*1024});
+await writeFile('public/third-party/ffmpeg-n8.0-source.zip',archive);
+const sha=value=>createHash('sha256').update(value).digest('hex');
+const manifest={ffmpeg:{tag:'n8.0',revision:sourceRevision,archive:'third-party/ffmpeg-n8.0-source.zip',sha256:sha(archive)},emscripten:{version:'3.1.74',sdkRevision:execFileSync('git',['-C',sdk,'rev-parse','HEAD'],{encoding:'utf8'}).trim()},wrapper:{package:'@mediabunny/aac-encoder',version:packageJson.version,originalBundleSha256:sha(original)},artifacts:{}};
+for(const name of ['aac-runtime.js','aac-worker.js','encoder.mjs','source/bridge.c','source/encode.worker.ts'])manifest.artifacts[name]=sha(await readFile(`${destination}/${name}`));
+await writeFile(`${destination}/provenance.json`,JSON.stringify(manifest,null,2)+'\n');
+await writeFile('public/third-party/aac-build.json',JSON.stringify(manifest,null,2)+'\n');
+console.log('Built AAC runtime from pinned FFmpeg source and retained source archive.');

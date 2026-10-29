@@ -1,0 +1,64 @@
+configure: ./configure --target-os=none --arch=x86_32 --enable-cross-compile --disable-asm --disable-x86asm --disable-inline-asm --disable-programs --disable-doc --disable-debug --disable-all --disable-everything --disable-autodetect --disable-pthreads --disable-runtime-cpudetect --enable-avcodec --enable-encoder=aac --cc=emcc --cxx=em++ --ar=emar --ranlib=emranlib "--extra-cflags=-DNDEBUG -Oz -flto -msimd128" "--extra-ldflags=-Oz -flto"
+nm: /tmp/ffconf.oavQUxvZ/test.o: file format not recognized
+install prefix            /usr/local
+source path               .
+C compiler                emcc
+C library                 
+host C compiler           gcc
+host C library            glibc
+ARCH                      c (generic)
+big-endian                no
+runtime cpu detection     no
+debug symbols             no
+strip symbols             yes
+optimize for size         no
+optimizations             yes
+static                    yes
+shared                    no
+network support           no
+threading support         no
+safe bitstream reader     yes
+texi2html enabled         no
+perl enabled              yes
+pod2man enabled           yes
+makeinfo enabled          no
+makeinfo supports HTML    no
+xmllint enabled           no
+
+External libraries:
+iconv
+
+External libraries providing hardware acceleration:
+
+Libraries:
+avcodec                 avutil
+
+Programs:
+
+Enabled decoders:
+
+Enabled encoders:
+aac
+
+Enabled hwaccels:
+
+Enabled parsers:
+
+Enabled demuxers:
+
+Enabled muxers:
+
+Enabled protocols:
+
+Enabled filters:
+
+Enabled bsfs:
+
+Enabled indevs:
+
+Enabled outdevs:
+
+License: LGPL version 2.1 or later
+
+WARNING: pkg-config not found, library detection may fail.
+WARNING: Threading support was disabled or is not available on the target platform. This means that not only is this build not multi-threaded, but also that the libraries from this build MUST NOT be used in a multi-threaded environment.

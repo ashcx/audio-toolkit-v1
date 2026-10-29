@@ -1,0 +1,39 @@
+npm notice run audio-toolkit-v1@0.1.0 build
+npm notice run node scripts/verify-aac.mjs && tsc --noEmit && vite build && node scripts/check-worker-imports.mjs
+Verified AAC runtime, wrapper, worker, bridge and corresponding-source hashes.
+vite v8.3.5 building client environment for production...
+transforming...
+[plugin rolldown:vite-resolve] Module "worker_threads" has been externalized for browser compatibility, imported by "/home/user/audio-toolkit/vendor/aac/aac-worker.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin rolldown:vite-resolve] Module "worker_threads" has been externalized for browser compatibility, imported by "/home/user/audio-toolkit/vendor/aac/aac-worker.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+✓ 195 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/probes/index.html                             0.63 kB │ gzip:   0.29 kB
+dist/index.html                                    0.72 kB │ gzip:   0.40 kB
+dist/assets/rolldown-runtime-FCrsKEuO.js           1.00 kB
+dist/assets/encoder-CEJRxdog.js                    7.48 kB
+dist/assets/pcm-worker-JmZ_nI3N.js                15.38 kB
+dist/assets/decode-flac-CMwG4B86.js               78.06 kB
+dist/assets/decode-vorbis-BrtLKzcr.js            107.48 kB
+dist/assets/mediabunny-mp3-encoder-BhayXZrY.js   311.54 kB
+dist/assets/mediabunny-flac-encoder-oNnKgB2f.js  323.02 kB
+dist/assets/worker-media-CWWPAkHJ.js             516.01 kB
+dist/assets/aac-worker-Dwe6-uhw.js               701.73 kB
+dist/assets/index-BCoK9-Rd.css                     6.99 kB │ gzip:   2.17 kB
+dist/assets/output-store-BlIK7XKG.js               0.84 kB │ gzip:   0.47 kB
+dist/assets/__vite-browser-external-BVMaDFzg.js    1.14 kB │ gzip:   0.64 kB
+dist/assets/process-audio-BOeYwZF0.js              1.91 kB │ gzip:   0.98 kB
+dist/assets/preload-helper-Cqd02Gxk.js             2.21 kB │ gzip:   1.08 kB
+dist/assets/copy-audio-o5BIXV5-.js                 2.35 kB │ gzip:   1.08 kB
+dist/assets/index-D8mAmIJf.js                    129.28 kB │ gzip:  40.15 kB
+dist/assets/output-CyrZfyFQ.js                   132.18 kB │ gzip:  33.55 kB
+dist/assets/src-CfjxdX3Y.js                      445.20 kB │ gzip: 113.95 kB
+dist/assets/index-DqSz3FM3.js                    753.86 kB │ gzip: 274.85 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 497ms
+Encoder chunks do not import the PCM worker entry.

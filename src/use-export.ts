@@ -5,6 +5,7 @@ import type { Recipe } from "./recipe";
 import type { StoredOutput } from "./output-store";
 
 import type { DspStats } from "./pcm/protocol";
+import { exportDescriptor } from "./export-format";
 
 export type ExportResult = { recipe: Recipe } & (
   | { kind: "running"; operation: "Copying" | "Processing" }
@@ -73,7 +74,9 @@ export function useExport(files: readonly FileEntry[]) {
       ...job,
       name: outputName(
         job.entry.file.name,
-        job.plan.kind === "copy" ? job.plan.target.container : "wav",
+        job.plan.kind === "copy"
+          ? job.plan.target.container
+          : exportDescriptor(job.plan.snapshot.recipe.export).extension,
         usedNames,
       ),
     }));

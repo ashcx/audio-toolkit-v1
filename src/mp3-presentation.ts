@@ -40,7 +40,7 @@ export async function readMp3Presentation(
     if (version === 1 || layer !== 1 || rateIndex === 3) continue;
     const mono = bytes[start + 3] >> 6 === 3;
     const side = version === 3 ? (mono ? 17 : 32) : mono ? 9 : 17;
-    const xing = start + 4 + side + (bytes[start + 1] & 1 ? 0 : 2);
+    const xing = start + 4 + side;
     if (!["Xing", "Info"].includes(text(xing, 4))) continue;
     const flags = view.getUint32(xing + 4);
     if (!(flags & 1)) return null;

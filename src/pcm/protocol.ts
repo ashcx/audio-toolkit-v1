@@ -3,11 +3,13 @@ export type PcmPlan = Extract<ExecutionPlan, { kind: "pcm" }>;
 export type StoreOperation =
   | { op: "create"; name: string; mime: string }
   | { op: "write"; id: string; position: number; data: Uint8Array<ArrayBuffer> }
+  | { op: "truncate"; id: string; length: number }
   | { op: "finish"; id: string }
   | { op: "discard"; id: string };
 export type StorageReply =
   | { op: "create"; id: string }
   | { op: "write" }
+  | { op: "truncate" }
   | { op: "finish"; file: File }
   | { op: "discard" }
   | { op: "error"; message: string };
@@ -17,6 +19,7 @@ export type StorageRequest = {
   request: StoreOperation;
 };
 export type DspStats = {
+  encoder: "pcm" | "native" | "wasm";
   decodePasses: number;
   maxDecodedFrames: number;
   maxBlockFrames: number;
