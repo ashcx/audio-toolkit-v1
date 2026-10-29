@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { FileEntry, FileId } from "./media";
+import type { AudioMetadata, FileEntry, FileId } from "./media";
 
 const sourceSeconds = z
   .number({ error: "Enter a valid timestamp." })
@@ -219,6 +219,7 @@ export type EffectiveRecipe = Readonly<{
   fileId: FileId;
   recipe: Recipe;
   sourceStartTime: number;
+  source: Readonly<AudioMetadata>;
   trim: Readonly<{
     start: number;
     end: number | null;
@@ -250,6 +251,7 @@ export function snapshotForFile(
         fileId: entry.id,
         recipe,
         sourceStartTime: meta.startTime,
+        source: Object.freeze({ ...meta }),
         trim: null,
       }),
     };
@@ -268,6 +270,7 @@ export function snapshotForFile(
       fileId: entry.id,
       recipe: perFile,
       sourceStartTime: meta.startTime,
+      source: Object.freeze({ ...meta }),
       trim: resolved.trim,
     }),
   };

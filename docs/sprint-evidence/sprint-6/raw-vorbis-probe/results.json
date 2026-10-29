@@ -1,0 +1,57 @@
+[
+  {
+    "browser": "chromium",
+    "file": "tone.ogg",
+    "kind": "result",
+    "frames": 96832,
+    "packets": 96,
+    "nativeError": null,
+    "traces": [
+      {
+        "kind": "trace",
+        "phase": "track"
+      },
+      {
+        "kind": "trace",
+        "phase": "capability",
+        "codec": "vorbis",
+        "sampleRate": 48000,
+        "channels": 2,
+        "descriptionBytes": 3929,
+        "supported": true
+      },
+      {
+        "kind": "trace",
+        "phase": "flush",
+        "packets": 96,
+        "queued": 96
+      }
+    ]
+  },
+  {
+    "browser": "webkit",
+    "file": "tone.ogg",
+    "error": "Probe deadline (5s)",
+    "traces": [
+      {
+        "kind": "trace",
+        "phase": "track"
+      },
+      {
+        "kind": "trace",
+        "phase": "capability",
+        "codec": "vorbis",
+        "sampleRate": 48000,
+        "channels": 2,
+        "descriptionBytes": 3929,
+        "supported": true
+      },
+      {
+        "kind": "trace",
+        "phase": "flush",
+        "packets": 96,
+        "queued": 96
+      }
+    ]
+  }
+]

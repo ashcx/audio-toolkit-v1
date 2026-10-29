@@ -4,7 +4,7 @@ import "./style.css";
 import { useFiles } from "./use-files";
 import { formatBytes } from "./format";
 import { FileRow } from "./file-row";
-import { useCopy } from "./use-copy";
+import { useExport } from "./use-export";
 import { compilePlan } from "./planner";
 import { snapshotForFile } from "./recipe";
 import { RecipeEditor } from "./recipe-editor";
@@ -29,7 +29,7 @@ function initialTheme(): Theme {
 function App() {
   const [theme, setTheme] = useState<Theme>(initialTheme);
   const { entries: files, add, remove } = useFiles();
-  const exports = useCopy(files);
+  const exports = useExport(files);
   const [dragging, setDragging] = useState(false);
   const dragDepth = useRef(0);
   const [draft, setDraft] = useState<RecipeDraft>(newRecipe);
@@ -52,9 +52,15 @@ function App() {
       ] as const;
     }),
   );
-  const copyJobs = files.flatMap((entry) => {
+  const jobs = files.flatMap((entry) => {
     const plan = plans.get(entry.id);
-    return plan?.kind === "copy" ? [{ entry, plan }] : [];
+    return plan &&
+      (plan.kind === "copy" ||
+        (plan.kind === "pcm" &&
+          plan.snapshot.recipe.export.format === "wav" &&
+          !plan.steps.some((step) => step.kind === "isolation")))
+      ? [{ entry, plan }]
+      : [];
   });
   const trim = draft.steps.find((step) => step.kind === "trim");
   const changeRecipe = (next: RecipeDraft) => {
@@ -254,8 +260,8 @@ function App() {
           <button
             class="button primary"
             type="button"
-            disabled={exports.busy || !copyJobs.length}
-            onClick={() => void exports.run(copyJobs)}
+            disabled={exports.busy || !jobs.length}
+            onClick={() => void exports.run(jobs)}
           >
             {exports.busy ? "Exporting…" : "Export"}
           </button>

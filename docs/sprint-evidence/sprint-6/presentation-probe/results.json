@@ -1,0 +1,274 @@
+[
+  {
+    "browser": "chromium",
+    "file": "tone.wav",
+    "frames": 96000,
+    "stats": {
+      "passes": 1,
+      "maxDecodedFrames": 2048
+    },
+    "metadata": {
+      "container": "WAVE",
+      "codec": "pcm-s16",
+      "duration": 2,
+      "startTime": 0,
+      "sampleRate": 48000,
+      "channels": 2,
+      "hasVideo": false,
+      "presentation": null
+    },
+    "referenceFrames": 96000,
+    "rmse": 0,
+    "maxError": 0
+  },
+  {
+    "browser": "chromium",
+    "file": "tone.mp3",
+    "frames": 96000,
+    "stats": {
+      "passes": 1,
+      "maxDecodedFrames": 1152
+    },
+    "metadata": {
+      "container": "MP3",
+      "codec": "mp3",
+      "duration": 2,
+      "startTime": 0,
+      "sampleRate": 48000,
+      "channels": 2,
+      "hasVideo": false,
+      "presentation": {
+        "delay": 1105,
+        "frames": 96000,
+        "rate": 48000
+      }
+    },
+    "referenceFrames": 96000,
+    "rmse": 3.3563148100278684e-8,
+    "maxError": 1.7881393432617188e-7
+  },
+  {
+    "browser": "chromium",
+    "file": "tone.m4a",
+    "frames": 96000,
+    "stats": {
+      "passes": 1,
+      "maxDecodedFrames": 1024
+    },
+    "metadata": {
+      "container": "MP4",
+      "codec": "aac",
+      "duration": 1.9999999999999998,
+      "startTime": 0,
+      "sampleRate": 48000,
+      "channels": 2,
+      "hasVideo": false,
+      "presentation": null
+    },
+    "referenceFrames": 96256,
+    "rmse": 0,
+    "maxError": 0
+  },
+  {
+    "browser": "chromium",
+    "file": "tone.flac",
+    "frames": 96000,
+    "stats": {
+      "passes": 1,
+      "maxDecodedFrames": 4608
+    },
+    "metadata": {
+      "container": "FLAC",
+      "codec": "flac",
+      "duration": 2,
+      "startTime": 0,
+      "sampleRate": 48000,
+      "channels": 2,
+      "hasVideo": false,
+      "presentation": null
+    },
+    "referenceFrames": 96000,
+    "rmse": 0,
+    "maxError": 0
+  },
+  {
+    "browser": "chromium",
+    "file": "tone.ogg",
+    "frames": 96000,
+    "stats": {
+      "passes": 1,
+      "maxDecodedFrames": 48704
+    },
+    "metadata": {
+      "container": "Ogg",
+      "codec": "vorbis",
+      "duration": null,
+      "startTime": 0,
+      "sampleRate": 48000,
+      "channels": 2,
+      "hasVideo": false,
+      "presentation": null
+    },
+    "referenceFrames": 96000,
+    "rmse": 8.868821408401425e-9,
+    "maxError": 3.3527612686157227e-8
+  },
+  {
+    "browser": "chromium",
+    "file": "tone.opus",
+    "frames": 96648,
+    "stats": {
+      "passes": 1,
+      "maxDecodedFrames": 960
+    },
+    "metadata": {
+      "container": "Ogg",
+      "codec": "opus",
+      "duration": null,
+      "startTime": 0,
+      "sampleRate": 48000,
+      "channels": 2,
+      "hasVideo": false,
+      "presentation": null
+    },
+    "referenceFrames": 96000,
+    "rmse": 8.015730199010233e-9,
+    "maxError": 2.2351741790771484e-8
+  },
+  {
+    "browser": "webkit",
+    "file": "tone.wav",
+    "frames": 96000,
+    "stats": {
+      "passes": 1,
+      "maxDecodedFrames": 2048
+    },
+    "metadata": {
+      "container": "WAVE",
+      "codec": "pcm-s16",
+      "duration": 2,
+      "startTime": 0,
+      "sampleRate": 48000,
+      "channels": 2,
+      "hasVideo": false,
+      "presentation": null
+    },
+    "referenceFrames": 96000,
+    "rmse": 0,
+    "maxError": 0
+  },
+  {
+    "browser": "webkit",
+    "file": "tone.mp3",
+    "frames": 96000,
+    "stats": {
+      "passes": 1,
+      "maxDecodedFrames": 1152
+    },
+    "metadata": {
+      "container": "MP3",
+      "codec": "mp3",
+      "duration": 2,
+      "startTime": 0,
+      "sampleRate": 48000,
+      "channels": 2,
+      "hasVideo": false,
+      "presentation": {
+        "delay": 1105,
+        "frames": 96000,
+        "rate": 48000
+      }
+    },
+    "referenceFrames": 96000,
+    "rmse": 3.7112553693225677e-8,
+    "maxError": 2.2351741790771484e-7
+  },
+  {
+    "browser": "webkit",
+    "file": "tone.m4a",
+    "frames": 96256,
+    "stats": {
+      "passes": 1,
+      "maxDecodedFrames": 1024
+    },
+    "metadata": {
+      "container": "MP4",
+      "codec": "aac",
+      "duration": 1.9999999999999998,
+      "startTime": 0,
+      "sampleRate": 48000,
+      "channels": 2,
+      "hasVideo": false,
+      "presentation": null
+    },
+    "referenceFrames": 96256,
+    "rmse": 0.08528357438455714,
+    "maxError": 0.1755949929356575
+  },
+  {
+    "browser": "webkit",
+    "file": "tone.flac",
+    "frames": 96000,
+    "stats": {
+      "passes": 1,
+      "maxDecodedFrames": 4608
+    },
+    "metadata": {
+      "container": "FLAC",
+      "codec": "flac",
+      "duration": 2,
+      "startTime": 0,
+      "sampleRate": 48000,
+      "channels": 2,
+      "hasVideo": false,
+      "presentation": null
+    },
+    "referenceFrames": 96000,
+    "rmse": 0,
+    "maxError": 0
+  },
+  {
+    "browser": "webkit",
+    "file": "tone.ogg",
+    "frames": 96000,
+    "stats": {
+      "passes": 1,
+      "maxDecodedFrames": 48704
+    },
+    "metadata": {
+      "container": "Ogg",
+      "codec": "vorbis",
+      "duration": null,
+      "startTime": 0,
+      "sampleRate": 48000,
+      "channels": 2,
+      "hasVideo": false,
+      "presentation": null
+    },
+    "referenceFrames": 96000,
+    "rmse": 8.868821408401425e-9,
+    "maxError": 3.3527612686157227e-8
+  },
+  {
+    "browser": "webkit",
+    "file": "tone.opus",
+    "frames": 96960,
+    "stats": {
+      "passes": 1,
+      "maxDecodedFrames": 960
+    },
+    "metadata": {
+      "container": "Ogg",
+      "codec": "opus",
+      "duration": null,
+      "startTime": 0,
+      "sampleRate": 48000,
+      "channels": 2,
+      "hasVideo": false,
+      "presentation": null
+    },
+    "referenceFrames": 96000,
+    "rmse": 0.08800251093850085,
+    "maxError": 0.17504218965768814
+  }
+]

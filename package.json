@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@audio/decode-flac": "2.0.0",
+    "@audio/decode-vorbis": "1.3.4",
     "@mediabunny/aac-encoder": "1.63.0",
     "@mediabunny/flac-encoder": "1.63.0",
     "@mediabunny/mp3-encoder": "1.63.0",

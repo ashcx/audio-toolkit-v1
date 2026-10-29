@@ -1,0 +1,302 @@
+[
+  {
+    "browser": "chromium",
+    "file": "tone.m4a",
+    "kind": "result",
+    "frames": 97280,
+    "packets": 95,
+    "nativeError": null,
+    "times": [
+      {
+        "timestamp": 0,
+        "frames": 1024,
+        "rate": 48000
+      },
+      {
+        "timestamp": 21333,
+        "frames": 1024,
+        "rate": 48000
+      },
+      {
+        "timestamp": 42666,
+        "frames": 1024,
+        "rate": 48000
+      },
+      {
+        "timestamp": 64000,
+        "frames": 1024,
+        "rate": 48000
+      },
+      {
+        "timestamp": 85333,
+        "frames": 1024,
+        "rate": 48000
+      },
+      {
+        "timestamp": 106666,
+        "frames": 1024,
+        "rate": 48000
+      },
+      {
+        "timestamp": 128000,
+        "frames": 1024,
+        "rate": 48000
+      },
+      {
+        "timestamp": 149333,
+        "frames": 1024,
+        "rate": 48000
+      }
+    ],
+    "traces": [
+      {
+        "kind": "trace",
+        "phase": "track"
+      },
+      {
+        "kind": "trace",
+        "phase": "capability",
+        "codec": "aac",
+        "sampleRate": 48000,
+        "channels": 2,
+        "descriptionBytes": 5,
+        "supported": true
+      },
+      {
+        "kind": "trace",
+        "phase": "flush",
+        "packets": 95,
+        "queued": 95
+      }
+    ],
+    "alignment": {
+      "shift": 1024,
+      "rmse": 0
+    }
+  },
+  {
+    "browser": "chromium",
+    "file": "tone.opus",
+    "kind": "result",
+    "frames": 96648,
+    "packets": 101,
+    "nativeError": null,
+    "times": [
+      {
+        "timestamp": 0,
+        "frames": 648,
+        "rate": 48000
+      },
+      {
+        "timestamp": 13500,
+        "frames": 960,
+        "rate": 48000
+      },
+      {
+        "timestamp": 33500,
+        "frames": 960,
+        "rate": 48000
+      },
+      {
+        "timestamp": 53500,
+        "frames": 960,
+        "rate": 48000
+      },
+      {
+        "timestamp": 73500,
+        "frames": 960,
+        "rate": 48000
+      },
+      {
+        "timestamp": 93500,
+        "frames": 960,
+        "rate": 48000
+      },
+      {
+        "timestamp": 113500,
+        "frames": 960,
+        "rate": 48000
+      },
+      {
+        "timestamp": 133500,
+        "frames": 960,
+        "rate": 48000
+      }
+    ],
+    "traces": [
+      {
+        "kind": "trace",
+        "phase": "track"
+      },
+      {
+        "kind": "trace",
+        "phase": "capability",
+        "codec": "opus",
+        "sampleRate": 48000,
+        "channels": 2,
+        "descriptionBytes": 19,
+        "supported": true
+      },
+      {
+        "kind": "trace",
+        "phase": "flush",
+        "packets": 101,
+        "queued": 101
+      }
+    ],
+    "alignment": {
+      "shift": 0,
+      "rmse": 6.940133221099952e-9
+    }
+  },
+  {
+    "browser": "webkit",
+    "file": "tone.m4a",
+    "kind": "result",
+    "frames": 97280,
+    "packets": 95,
+    "nativeError": null,
+    "times": [
+      {
+        "timestamp": 0,
+        "frames": 1024,
+        "rate": 48000
+      },
+      {
+        "timestamp": 21333,
+        "frames": 1024,
+        "rate": 48000
+      },
+      {
+        "timestamp": 42666,
+        "frames": 1024,
+        "rate": 48000
+      },
+      {
+        "timestamp": 64000,
+        "frames": 1024,
+        "rate": 48000
+      },
+      {
+        "timestamp": 85333,
+        "frames": 1024,
+        "rate": 48000
+      },
+      {
+        "timestamp": 106666,
+        "frames": 1024,
+        "rate": 48000
+      },
+      {
+        "timestamp": 128000,
+        "frames": 1024,
+        "rate": 48000
+      },
+      {
+        "timestamp": 149333,
+        "frames": 1024,
+        "rate": 48000
+      }
+    ],
+    "traces": [
+      {
+        "kind": "trace",
+        "phase": "track"
+      },
+      {
+        "kind": "trace",
+        "phase": "capability",
+        "codec": "aac",
+        "sampleRate": 48000,
+        "channels": 2,
+        "descriptionBytes": 5,
+        "supported": true
+      },
+      {
+        "kind": "trace",
+        "phase": "flush",
+        "packets": 95,
+        "queued": 95
+      }
+    ],
+    "alignment": {
+      "shift": 1024,
+      "rmse": 0
+    }
+  },
+  {
+    "browser": "webkit",
+    "file": "tone.opus",
+    "kind": "result",
+    "frames": 96960,
+    "packets": 101,
+    "nativeError": null,
+    "times": [
+      {
+        "timestamp": 0,
+        "frames": 960,
+        "rate": 48000
+      },
+      {
+        "timestamp": 20000,
+        "frames": 960,
+        "rate": 48000
+      },
+      {
+        "timestamp": 40000,
+        "frames": 960,
+        "rate": 48000
+      },
+      {
+        "timestamp": 60000,
+        "frames": 960,
+        "rate": 48000
+      },
+      {
+        "timestamp": 80000,
+        "frames": 960,
+        "rate": 48000
+      },
+      {
+        "timestamp": 100000,
+        "frames": 960,
+        "rate": 48000
+      },
+      {
+        "timestamp": 120000,
+        "frames": 960,
+        "rate": 48000
+      },
+      {
+        "timestamp": 140000,
+        "frames": 960,
+        "rate": 48000
+      }
+    ],
+    "traces": [
+      {
+        "kind": "trace",
+        "phase": "track"
+      },
+      {
+        "kind": "trace",
+        "phase": "capability",
+        "codec": "opus",
+        "sampleRate": 48000,
+        "channels": 2,
+        "descriptionBytes": 19,
+        "supported": true
+      },
+      {
+        "kind": "trace",
+        "phase": "flush",
+        "packets": 101,
+        "queued": 101
+      }
+    ],
+    "alignment": {
+      "shift": 312,
+      "rmse": 0.000008844861546027827
+    }
+  }
+]

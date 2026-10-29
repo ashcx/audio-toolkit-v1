@@ -1,17 +1,24 @@
 import { useLayoutEffect, useRef, useState } from "preact/hooks";
 import type { FileEntry, FileId } from "./media";
-import { copyOutputName, type CopyPlan } from "./planner";
+import { outputName, type ExecutionPlan } from "./planner";
 import type { Recipe } from "./recipe";
 import type { StoredOutput } from "./output-store";
 
-export type CopyResult = { recipe: Recipe } & (
-  | { kind: "copying" }
+import type { DspStats } from "./pcm/protocol";
+
+export type ExportResult = { recipe: Recipe } & (
+  | { kind: "running"; operation: "Copying" | "Processing" }
   | { kind: "failed"; message: string }
-  | { kind: "done"; output: StoredOutput; url: string }
+  | {
+      kind: "done";
+      output: StoredOutput;
+      url: string;
+      report: { kind: "copy" } | { kind: "pcm"; stats: DspStats };
+    }
 );
-type Completed = Extract<CopyResult, { kind: "done" }>;
-export function useCopy(files: readonly FileEntry[]) {
-  const [results, setResults] = useState(new Map<FileId, CopyResult>());
+type Completed = Extract<ExportResult, { kind: "done" }>;
+export function useExport(files: readonly FileEntry[]) {
+  const [results, setResults] = useState(new Map<FileId, ExportResult>());
   const [busy, setBusy] = useState(false);
   const running = useRef(false);
   const mounted = useRef(true);
@@ -48,35 +55,64 @@ export function useCopy(files: readonly FileEntry[]) {
       return next;
     });
   };
-  const run = async (jobs: readonly { entry: FileEntry; plan: CopyPlan }[]) => {
+  const run = async (
+    jobs: readonly {
+      entry: FileEntry;
+      plan: Exclude<ExecutionPlan, { kind: "failed" }>;
+    }[],
+  ) => {
     if (running.current) return;
     running.current = true;
     setBusy(true);
-    const update = (id: FileId, result: CopyResult) => {
+    const update = (id: FileId, result: ExportResult) => {
       if (mounted.current && fileIds.current.has(id))
         setResults((previous) => new Map(previous).set(id, result));
     };
     const usedNames = new Set<string>();
     const namedJobs = jobs.map((job) => ({
       ...job,
-      name: copyOutputName(job.entry.file.name, job.plan, usedNames),
+      name: outputName(
+        job.entry.file.name,
+        job.plan.kind === "copy" ? job.plan.target.container : "wav",
+        usedNames,
+      ),
     }));
     try {
-      const { copyAudio } = await import("./copy-audio");
       for (const { entry, plan, name } of namedJobs) {
         if (!mounted.current) break;
         if (!fileIds.current.has(entry.id)) continue;
         const controller = new AbortController();
         active.current = { id: entry.id, controller };
-        update(entry.id, { kind: "copying", recipe: plan.snapshot.recipe });
+        update(entry.id, {
+          kind: "running",
+          operation: plan.kind === "copy" ? "Copying" : "Processing",
+          recipe: plan.snapshot.recipe,
+        });
         try {
           await release(entry.id);
-          const output = await copyAudio(
-            entry.file,
-            plan,
-            controller.signal,
-            name,
-          );
+          const completed =
+            plan.kind === "copy"
+              ? {
+                  output: await import("./copy-audio").then(({ copyAudio }) =>
+                    copyAudio(entry.file, plan, controller.signal, name),
+                  ),
+                  report: { kind: "copy" as const },
+                }
+              : await import("./process-audio").then(
+                  async ({ processAudio }) => {
+                    const result = await processAudio(
+                      entry.file,
+                      plan,
+                      controller.signal,
+                      name,
+                    );
+                    return {
+                      output: result.output,
+                      report: { kind: "pcm" as const, stats: result.stats },
+                    };
+                  },
+                );
+          const { output, report } = completed;
           if (
             !mounted.current ||
             !fileIds.current.has(entry.id) ||
@@ -87,6 +123,7 @@ export function useCopy(files: readonly FileEntry[]) {
           }
           const result: Completed = {
             kind: "done",
+            report,
             recipe: plan.snapshot.recipe,
             output,
             url: URL.createObjectURL(output.file),

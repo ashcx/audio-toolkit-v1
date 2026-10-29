@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {chromium,webkit} from 'playwright';
+const appUrl=process.env.APP_URL??'http://127.0.0.1:4173/audio-toolkit-v1/';
 const root=process.env.RECIPE_EVIDENCE_DIR??'.artifacts/recipe-check';await mkdir(`${root}/captures`,{recursive:true});
 const payload=await readFile('tests/fixtures/tone.wav');
 const records=[];
@@ -8,7 +9,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
  const browser=await type.launch();
  try{
   const page=await browser.newPage({viewport:{width:1440,height:1100}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('http://127.0.0.1:4173/audio-toolkit-v1/');
+  await page.goto(appUrl);
   await page.getByLabel('Choose audio or video files').setInputFiles(['one.wav','two.wav'].map(name=>({name,mimeType:'audio/wav',buffer:payload})));
   await page.waitForFunction(()=>document.querySelectorAll('[data-inspection=ready]').length===2);
   await page.getByLabel('Add step',{exact:true}).selectOption('trim');
@@ -68,7 +69,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   await badInput.fill('-6');assert.equal(await badInput.getAttribute('aria-invalid'),'false');
   await badTrim.fill('0.5');assert.equal(await badTrim.getAttribute('aria-invalid'),'false');
   assert.deepEqual(errors,[]);
-  const touch=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});const mobile=await touch.newPage();await mobile.goto('http://127.0.0.1:4173/audio-toolkit-v1/');
+  const touch=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});const mobile=await touch.newPage();await mobile.goto(appUrl);
   await mobile.getByLabel('Add step',{exact:true}).selectOption('trim');await mobile.getByLabel('Add step',{exact:true}).selectOption('gain');await mobile.getByRole('button',{name:'Move Gain up',exact:true}).tap();
   assert.deepEqual(await mobile.locator('.step-toggle>span').allTextContents(),['Gain','Trim']);await mobile.getByRole('button',{name:'Remove Gain',exact:true}).tap();assert.equal(await mobile.getByRole('article',{name:'Gain',exact:true}).count(),0);await touch.close();
   records.push({browser:name,inheritOverrideReset:true,clampAndPerFileFailure:true,invalidGainRecovery:true,cardCollapse:true,keyboardReorder:true,desktopDragReorder:true,touchReorderRemove:true,terminalExport:true,removeTrimConfirmation:true,mobileNoOverflow:true,simultaneousErrors:true,repeatedStepErrorLabels:true,reorderFocus:true,errors});

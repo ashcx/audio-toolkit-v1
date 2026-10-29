@@ -3,7 +3,7 @@ import type { FileEntry } from "./media";
 import { formatBytes, describeAudio } from "./format";
 import { resolveTrim, type TrimRangeDraft } from "./recipe";
 import type { ExecutionPlan } from "./planner";
-import type { CopyResult } from "./use-copy";
+import type { ExportResult } from "./use-export";
 import { TrimFields } from "./trim-fields";
 export function FileRow({
   entry,
@@ -17,7 +17,7 @@ export function FileRow({
 }: {
   entry: FileEntry;
   plan: ExecutionPlan | null;
-  result: CopyResult | undefined;
+  result: ExportResult | undefined;
   trim: TrimRangeDraft | undefined;
   override: TrimRangeDraft | undefined;
   onOverride: (range: TrimRangeDraft) => void;
@@ -31,7 +31,7 @@ export function FileRow({
       : null;
   const previousSettings =
     exported &&
-    (plan?.kind !== "copy" ||
+    (!plan || plan.kind === "failed" ||
       JSON.stringify(plan.snapshot.recipe) !== JSON.stringify(exported.recipe));
   const errorId =
     result?.kind === "failed" ? `trim-error-${entry.id}` : undefined;
@@ -104,12 +104,20 @@ export function FileRow({
       {exported && (
         <div class="file-result" role="status">
           {previousSettings && <small>Previous settings</small>}
-          {exported.kind === "copying" ? (
-            "Copying…"
+          {exported.kind === "running" ? (
+            `${exported.operation}…`
           ) : exported.kind === "failed" ? (
             exported.message
           ) : (
             <>
+              {exported.report.kind === "pcm" &&
+                exported.report.stats.limitedNormalizations > 0 && (
+                  <small>Normalization limited.</small>
+                )}
+              {exported.report.kind === "pcm" &&
+                exported.report.stats.clippedSamples > 0 && (
+                  <small class="file-error">Clipped samples.</small>
+                )}
               <a
                 class="button"
                 href={exported.url}

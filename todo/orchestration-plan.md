@@ -6,7 +6,7 @@ Convert the feature plan into a TODO roadmap and sequential sprint plan. The ini
 
 ## Execute in dependency order
 
-Follow [TODO.md](../TODO.md), one sprint, story and task at a time in the main instance. Verify predecessor artifacts directly. No parallel implementation. Each sprint has one PR. Downstream PRs target their actual unmerged predecessor where needed. Record base/head and refresh affected verification after base changes. Green checks grant no merge/deployment authority.
+Follow [TODO.md](../TODO.md), one sprint, story and task at a time in the main instance. Verify predecessor artifacts directly. No parallel implementation. The latest user instructions supersede the original PR workflow. Work directly on main, verify each increment and push main. Existing Pages automation deploys those pushes. Do not create new branches or PRs without a new explicit request. Record starting/ending revisions and refresh affected verification after changes. Independent technical review and truthful acceptance gates remain binding.
 
 ## Freeze contracts before consumers
 
@@ -49,3 +49,7 @@ The user also explicitly authorized synthetic early isolation feasibility, with 
 ## 2026-10-29 - Minimal interface direction
 
 The user explicitly requested the image compressor's low-copy approach. Keep concise action/field labels and only necessary context. Remove decorative icons, promotional headings, repeated privacy statements, redundant badges and empty result explanations. Show contextual help when a setting or failure needs it. Results appear when outputs exist. Apply this direction to all later audio UI.
+
+## 2026-10-29 - Resume on live main
+
+The user integrated the earlier branches, enabled Pages and resumed work. Starting main3c29c0f includes checkpoint3f7e408. Deployment40858999659 succeeded; live page returned200. Follow the replacement AGENTS workflow directly on main. Earlier no-deploy and one-PR-per-sprint statements describe historical scope; current verified main pushes intentionally trigger the user's Pages workflow. Do not treat hosting success as processor or device acceptance.

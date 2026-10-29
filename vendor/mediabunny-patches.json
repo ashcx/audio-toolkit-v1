@@ -1,11 +1,11 @@
 {
   "version": "1.63.0",
-  "reason": "Preserve positive Opus Matroska DiscardPadding in packet duration; reject unsupported padding instead of silently lengthening audio. Source and ESM runtime are covered; project uses ESM only. MPL-2.0 original copyright retained.",
+  "reason": "Retain Matroska Opus padding/lacing and fractional codec delay; normalize native decoder input timestamps; own Opus pre-skip consistently across native implementations. Source and ESM runtime patches only, MPL-2.0 headers retained.",
   "files": [
     {
       "path": "src/matroska/matroska-demuxer.ts",
       "before": "005ba885cc3ec9858ee686b3b23303dc3614be5f734de36628c364fccebaa4b5",
-      "after": "50e7daeaddb948f5515274d3f838b5997873e4203f258ee60794f83bf02950a7",
+      "after": "62d6d20801cae102ed6cfbb3e11dad3077c817a026408b9c1255065219cf936d",
       "replacements": [
         [
           "\textractAv1CodecInfoFromPacket,",
@@ -30,13 +30,17 @@
         [
           "\t\t\t\t\tmainAdditional: originalBlock.mainAdditional,",
           "\t\t\t\t\tmainAdditional: originalBlock.mainAdditional,\n\t\t\t\t\tdiscardPaddingSeconds: i === frameCount - 1 ? originalBlock.discardPaddingSeconds : undefined,"
+        ],
+        [
+          "track.codecDelay = Math.round((this.currentSegment.timestampFactor * track.codecDelayNs) / 1e9);",
+          "track.codecDelay = (this.currentSegment.timestampFactor * track.codecDelayNs) / 1e9;"
         ]
       ]
     },
     {
       "path": "dist/modules/src/matroska/matroska-demuxer.js",
       "before": "a58449bed37d39200b115f3f57b9efaf42403dbb36f3d3d71632de87218a9684",
-      "after": "b5c726059a03194cd9b8c3318573ba45a7c01adb27155531b6b475136700667f",
+      "after": "63b007bab83d55414ce9fe88202684edb9bdec59beacdaf982c0e1c1c5faabcb",
       "replacements": [
         [
           "import { extractAv1CodecInfoFromPacket,",
@@ -57,6 +61,48 @@
         [
           "                    mainAdditional: originalBlock.mainAdditional,",
           "                    mainAdditional: originalBlock.mainAdditional,\n                    discardPaddingSeconds: i === frameCount - 1 ? originalBlock.discardPaddingSeconds : undefined,"
+        ],
+        [
+          "track.codecDelay = Math.round((this.currentSegment.timestampFactor * track.codecDelayNs) / 1e9);",
+          "track.codecDelay = (this.currentSegment.timestampFactor * track.codecDelayNs) / 1e9;"
+        ]
+      ]
+    },
+    {
+      "path": "src/media-sink.ts",
+      "before": "d37d2bb53496114d2a164c6c85e75daf38b120afaa9bc35ee80796cc4e784a34",
+      "after": "2de67add7a7b779f67dab8570e4daaa8459f52379e9ef36bcd6c8ed4ca2280bf",
+      "replacements": [
+        [
+          "this.expectedFirstTimestamp + opusPreSkip - sampleTimestamp",
+          "this.expectedFirstTimestamp + (this.customDecoder ? opusPreSkip : 0) - sampleTimestamp"
+        ],
+        [
+          "this.decoder.decode(packet.toEncodedAudioChunk());",
+          "this.decoder.decode(packet.clone({ timestamp: packet.timestamp - this.expectedFirstTimestamp }).toEncodedAudioChunk());"
+        ],
+        [
+          "\t\tthis.onError(error);\n\t\t\t\t},\n\t\t\t});\n\t\t\tthis.decoder.addEventListener('dequeue', () => {\n\t\t\t\tthis.onDequeue?.();\n\t\t\t});\n\t\t\tthis.decoder.configure(decoderConfig);",
+          "\t\tthis.onError(error);\n\t\t\t\t},\n\t\t\t});\n\t\t\tthis.decoder.addEventListener('dequeue', () => {\n\t\t\t\tthis.onDequeue?.();\n\t\t\t});\n\t\t\tconst nativeConfig = { ...decoderConfig };\n\t\t\tif (codec === 'opus' && decoderConfig.description) {\n\t\t\t    const description = toUint8Array(decoderConfig.description).slice();\n\t\t\t    description[10] = 0;\n\t\t\t    description[11] = 0;\n\t\t\t    nativeConfig.description = description;\n\t\t\t}\n\t\t\tthis.decoder.configure(nativeConfig);"
+        ]
+      ]
+    },
+    {
+      "path": "dist/modules/src/media-sink.js",
+      "before": "7b917ec5c1dc220a4c89c723219242452b1e39dbc3e6f38ef2d82e50639dbd33",
+      "after": "657d6c7e54ec1155fa9a09d3944bccf0ae70c359dfb530ddad78ef494ba9ac6e",
+      "replacements": [
+        [
+          "this.expectedFirstTimestamp + opusPreSkip - sampleTimestamp",
+          "this.expectedFirstTimestamp + (this.customDecoder ? opusPreSkip : 0) - sampleTimestamp"
+        ],
+        [
+          "this.decoder.decode(packet.toEncodedAudioChunk());",
+          "this.decoder.decode(packet.clone({ timestamp: packet.timestamp - this.expectedFirstTimestamp }).toEncodedAudioChunk());"
+        ],
+        [
+          "   });\n            this.decoder.addEventListener('dequeue', () => {\n                this.onDequeue?.();\n            });\n            this.decoder.configure(decoderConfig);",
+          "   });\n            this.decoder.addEventListener('dequeue', () => {\n                this.onDequeue?.();\n            });\n            const nativeConfig = { ...decoderConfig };\n            if (codec === 'opus' && decoderConfig.description) {\n                const description = toUint8Array(decoderConfig.description).slice();\n                description[10] = 0;\n                description[11] = 0;\n                nativeConfig.description = description;\n            }\n            this.decoder.configure(nativeConfig);"
         ]
       ]
     }

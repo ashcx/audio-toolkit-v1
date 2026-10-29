@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {chromium,webkit} from 'playwright';
 import {writeFile,mkdir} from 'node:fs/promises';
+const appUrl=process.env.APP_URL??'http://127.0.0.1:4173/audio-toolkit-v1/';
 const root=process.env.WORKSPACE_EVIDENCE_DIR??'.artifacts/workspace-check';
 await mkdir(`${root}/captures`,{recursive:true});
 const records=[];
@@ -11,7 +12,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   const errors=[];const requests=[];
   page.on('pageerror',error=>errors.push(error.message));
   page.on('request',request=>requests.push(request.url()));
-  await page.goto('http://127.0.0.1:4173/audio-toolkit-v1/');
+  await page.goto(appUrl);
   await page.getByRole('heading',{name:'Audio Toolkit'}).waitFor();
   assert.equal(await page.getByRole('link',{name:'Back to Media Toolkit'}).getAttribute('href'),'https://ashcx.github.io/media-toolkit/');
   for(const viewport of [{width:1440,height:1000},{width:390,height:844}]){
@@ -50,14 +51,14 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   const limited=await browser.newContext({userAgent:'Mozilla/5.0 Firefox/145.0'});
   await limited.addInitScript(()=>{Object.defineProperty(window,'AudioDecoder',{value:undefined});Object.defineProperty(navigator,'storage',{value:undefined});Object.defineProperty(window,'Worker',{value:undefined});});
   const unsupported=await limited.newPage();
-  await unsupported.goto('http://127.0.0.1:4173/audio-toolkit-v1/');
+  await unsupported.goto(appUrl);
   await unsupported.getByText('Firefox is unsupported.',{exact:false}).waitFor();
   await unsupported.getByText('Temporary storage is unavailable.',{exact:false}).waitFor();
   await unsupported.getByText('Audio workers are unavailable.',{exact:false}).waitFor();
   await unsupported.getByText('Some formats need a compatibility component.',{exact:false}).waitFor();
   await limited.close();
   const iosFirefox=await browser.newContext({userAgent:'Mozilla/5.0 (iPhone) AppleWebKit/605.1.15 FxiOS/131.0 Mobile/15E148 Safari/605.1.15'});
-  const iosPage=await iosFirefox.newPage();await iosPage.goto('http://127.0.0.1:4173/audio-toolkit-v1/');await iosPage.getByText('Firefox is unsupported.',{exact:false}).waitFor();await iosFirefox.close();
+  const iosPage=await iosFirefox.newPage();await iosPage.goto(appUrl);await iosPage.getByText('Firefox is unsupported.',{exact:false}).waitFor();await iosFirefox.close();
  }finally{await browser.close();}
 }
 await writeFile(`${root}/workspace-check.json`,JSON.stringify(records,null,2)+'\n');

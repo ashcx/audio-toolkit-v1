@@ -1,0 +1,100 @@
+TAP version 13
+# Subtest: actual dependency expands fixed, Xiph and EBML lacing without losing final discard padding
+ok 1 - actual dependency expands fixed, Xiph and EBML lacing without losing final discard padding
+  ---
+  duration_ms: 1.317504
+  type: 'test'
+  ...
+# Subtest: a real laced Opus file exposes a short final duration instead of silently adding padding
+ok 2 - a real laced Opus file exposes a short final duration instead of silently adding padding
+  ---
+  duration_ms: 20.574654
+  type: 'test'
+  ...
+# Subtest: trim retains half-open source positions; gain and mono/stereo mappings are deterministic
+ok 3 - trim retains half-open source positions; gain and mono/stereo mappings are deterministic
+  ---
+  duration_ms: 14.782431
+  type: 'test'
+  ...
+# Subtest: normalization at its actual position changes trim results; silence is finite and checkpoints always close
+ok 4 - normalization at its actual position changes trim results; silence is finite and checkpoints always close
+  ---
+  duration_ms: 17.575338
+  type: 'test'
+  ...
+# Subtest: streaming sinc resampling preserves rate, duration, passband and arbitrary block boundaries
+ok 5 - streaming sinc resampling preserves rate, duration, passband and arbitrary block boundaries
+  ---
+  duration_ms: 236.133249
+  type: 'test'
+  ...
+# Subtest: downsampling rejects out-of-band aliases and preserves the source clock through repeated conversion before trim
+ok 6 - downsampling rejects out-of-band aliases and preserves the source clock through repeated conversion before trim
+  ---
+  duration_ms: 59.667781
+  type: 'test'
+  ...
+# Subtest: original audio resolves valid audio-only containers per codec; unsupported never transcodes
+ok 7 - original audio resolves valid audio-only containers per codec; unsupported never transcodes
+  ---
+  duration_ms: 5.136503
+  type: 'test'
+  ...
+# Subtest: only real no-ops disappear and original audio rejects every signal change
+ok 8 - only real no-ops disappear and original audio rejects every signal change
+  ---
+  duration_ms: 4.373261
+  type: 'test'
+  ...
+# Subtest: PCM plan preserves processor order and export intent without freezing mutable drafts
+ok 9 - PCM plan preserves processor order and export intent without freezing mutable drafts
+  ---
+  duration_ms: 1.941153
+  type: 'test'
+  ...
+# Subtest: a return to the source channel count or rate still runs after an earlier change
+ok 10 - a return to the source channel count or rate still runs after an earlier change
+  ---
+  duration_ms: 0.264353
+  type: 'test'
+  ...
+# Subtest: copy filenames avoid collisions even when codec extensions converge
+ok 11 - copy filenames avoid collisions even when codec extensions converge
+  ---
+  duration_ms: 0.418736
+  type: 'test'
+  ...
+# Subtest: ordered serializable recipes preserve repeatable stages and separate terminal export
+ok 12 - ordered serializable recipes preserve repeatable stages and separate terminal export
+  ---
+  duration_ms: 5.159212
+  type: 'test'
+  ...
+# Subtest: invalid ranges, duplicate singleton steps and invalid encoding settings cannot become execution recipes
+ok 13 - invalid ranges, duplicate singleton steps and invalid encoding settings cannot become execution recipes
+  ---
+  duration_ms: 2.516995
+  type: 'test'
+  ...
+# Subtest: per-file overrides and clamping do not mutate the shared recipe
+ok 14 - per-file overrides and clamping do not mutate the shared recipe
+  ---
+  duration_ms: 0.913157
+  type: 'test'
+  ...
+# Subtest: one invalid file range stays isolated; reset restores inheritance
+ok 15 - one invalid file range stays isolated; reset restores inheritance
+  ---
+  duration_ms: 0.363748
+  type: 'test'
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 416.519781

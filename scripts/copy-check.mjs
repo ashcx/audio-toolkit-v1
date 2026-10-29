@@ -4,6 +4,7 @@ import {execFileSync} from 'node:child_process';
 import {createHash,randomUUID} from 'node:crypto';
 import {chromium,webkit} from 'playwright';
 import {Input,FilePathSource,ALL_FORMATS,EncodedPacketSink} from 'mediabunny';
+const appUrl=process.env.APP_URL??'http://127.0.0.1:4173/audio-toolkit-v1/';
 const root=process.env.COPY_EVIDENCE_DIR??'.artifacts/copy-check';await mkdir(`${root}/captures`,{recursive:true});
 const files=['tone.m4a','tone.mp3','tone.opus','tone.ogg','tone.flac','tone.wav','tone.aac','video.mp4','video.mov','video.mkv','video.webm','offset.mp4','long-video.webm','laced-opus.mka'];
 async function packets(path){
@@ -70,7 +71,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
     writer.write=async data=>{while(window.__pauseWrites)await new Promise(resolve=>setTimeout(resolve,10));if(window.__failWrite){window.__failWrite=false;throw new DOMException('Full','QuotaExceededError');}window.__maxWrite=Math.max(window.__maxWrite,data?.data?.byteLength??data?.byteLength??0);return write(data);};return writer;
    };
   });
-  await page.goto('http://127.0.0.1:4173/audio-toolkit-v1/');
+  await page.goto(appUrl);
   await page.getByLabel('Choose audio or video files').setInputFiles(files.map(file=>`tests/fixtures/${file}`));
   await page.waitForFunction(count=>document.querySelectorAll('li[data-inspection=ready]').length===count,files.length);
   await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('original');

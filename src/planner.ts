@@ -118,13 +118,12 @@ export function compilePlan(
   });
 }
 
-export function copyOutputName(
+export function outputName(
   fileName: string,
-  plan: CopyPlan,
+  extension: string,
   used: Set<string>,
 ): string {
   const stem = fileName.replace(/\.[^.]+$/, "") || "audio";
-  const extension = plan.target.container;
   let name = `${stem}.audio.${extension}`;
   let count = 2;
   while (used.has(name.toLowerCase()))

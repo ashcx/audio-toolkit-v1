@@ -1,3 +1,8 @@
+import {
+  readMp3Presentation,
+  type Mp3Presentation,
+} from "./mp3-presentation.ts";
+import { opusDuration } from "./opus-duration.ts";
 import type { AudioCodec } from "mediabunny";
 export type FileId = string & { readonly __brand: "FileId" };
 function isFileId(value: string): value is FileId {
@@ -18,6 +23,7 @@ export type AudioMetadata = {
   sampleRate: number | null;
   channels: number | null;
   hasVideo: boolean;
+  presentation: Mp3Presentation | null;
 };
 export type InspectionResult =
   | { kind: "ready"; metadata: AudioMetadata }
@@ -32,9 +38,15 @@ export async function inspectMedia(
   file: File,
   signal: AbortSignal,
 ): Promise<InspectionResult> {
-  const { Input, BlobSource, ALL_FORMATS, MatroskaInputFormat } = await import(
-    "mediabunny"
-  );
+  const {
+    Input,
+    BlobSource,
+    ALL_FORMATS,
+    MatroskaInputFormat,
+    OggInputFormat,
+    EncodedPacketSink,
+    Mp3InputFormat,
+  } = await import("mediabunny");
   signal.throwIfAborted();
   const input = new Input({
     source: new BlobSource(file, {
@@ -68,10 +80,33 @@ export async function inspectMedia(
     signal.throwIfAborted();
     if (codec === null)
       return { kind: "failed", message: "Unsupported audio codec." };
+    const presentation =
+      format instanceof Mp3InputFormat
+        ? await readMp3Presentation(file, signal)
+        : null;
     const duration =
-      format instanceof MatroskaInputFormat
+      format instanceof MatroskaInputFormat || format instanceof OggInputFormat
         ? await track.computeDuration({ skipLiveWait: true })
         : metadataEnd;
+    let preciseOpusDuration: number | null = null;
+    if (codec === "opus" && format instanceof MatroskaInputFormat) {
+      const config = await track.getDecoderConfig();
+      const description = config?.description;
+      if (!description) throw new Error("Opus configuration is unavailable.");
+      const bytes = ArrayBuffer.isView(description)
+        ? new Uint8Array(
+            description.buffer,
+            description.byteOffset,
+            description.byteLength,
+          )
+        : new Uint8Array(description);
+      const preSkip = bytes[10] | (bytes[11] << 8);
+      preciseOpusDuration = await opusDuration(
+        new EncodedPacketSink(track).packets(),
+        preSkip,
+        signal,
+      );
+    }
     signal.throwIfAborted();
     const positive = (value: number | null) =>
       value !== null && Number.isFinite(value) && value > 0 ? value : null;
@@ -81,15 +116,19 @@ export async function inspectMedia(
         container: format.name,
         codec,
         duration:
-          duration === null
-            ? null
-            : positive(duration - Math.max(0, firstTimestamp)),
+          preciseOpusDuration ??
+          (presentation
+            ? presentation.frames / presentation.rate
+            : duration === null
+              ? null
+              : positive(duration - Math.max(0, firstTimestamp))),
         startTime: Number.isFinite(firstTimestamp)
           ? Math.max(0, firstTimestamp)
           : 0,
         sampleRate: positive(sampleRate),
         channels: positive(channels),
         hasVideo: video !== null,
+        presentation,
       },
     };
   } catch (error) {

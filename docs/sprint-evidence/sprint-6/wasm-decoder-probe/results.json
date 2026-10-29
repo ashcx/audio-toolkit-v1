@@ -1,0 +1,94 @@
+[
+  {
+    "browser": "chromium",
+    "file": "tone.ogg",
+    "kind": "result",
+    "codec": "vorbis",
+    "frames": 96000,
+    "maxBurst": 48704,
+    "traces": [
+      {
+        "kind": "trace",
+        "phase": "track"
+      },
+      {
+        "kind": "trace",
+        "phase": "capability",
+        "codec": "vorbis",
+        "sampleRate": 48000,
+        "channels": 2,
+        "descriptionBytes": 3929,
+        "supported": true
+      }
+    ]
+  },
+  {
+    "browser": "chromium",
+    "file": "tone.flac",
+    "kind": "result",
+    "codec": "flac",
+    "frames": 96000,
+    "maxBurst": 13824,
+    "traces": [
+      {
+        "kind": "trace",
+        "phase": "track"
+      },
+      {
+        "kind": "trace",
+        "phase": "capability",
+        "codec": "flac",
+        "sampleRate": 48000,
+        "channels": 2,
+        "descriptionBytes": 42,
+        "supported": true
+      }
+    ]
+  },
+  {
+    "browser": "webkit",
+    "file": "tone.ogg",
+    "kind": "result",
+    "codec": "vorbis",
+    "frames": 96000,
+    "maxBurst": 48704,
+    "traces": [
+      {
+        "kind": "trace",
+        "phase": "track"
+      },
+      {
+        "kind": "trace",
+        "phase": "capability",
+        "codec": "vorbis",
+        "sampleRate": 48000,
+        "channels": 2,
+        "descriptionBytes": 3929,
+        "supported": true
+      }
+    ]
+  },
+  {
+    "browser": "webkit",
+    "file": "tone.flac",
+    "kind": "result",
+    "codec": "flac",
+    "frames": 96000,
+    "maxBurst": 13824,
+    "traces": [
+      {
+        "kind": "trace",
+        "phase": "track"
+      },
+      {
+        "kind": "trace",
+        "phase": "capability",
+        "codec": "flac",
+        "sampleRate": 48000,
+        "channels": 2,
+        "descriptionBytes": 42,
+        "supported": true
+      }
+    ]
+  }
+]

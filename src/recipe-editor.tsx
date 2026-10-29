@@ -24,7 +24,9 @@ function summary(step: StepDraft): string {
         return "Set range";
       return `${step.range.start ?? 0} s to ${step.range.end === null ? "end" : `${step.range.end} s`}`;
     case "gain":
-      return Number.isFinite(step.db) ? `${step.db} dB` : "Set gain";
+      return Number.isFinite(step.db)
+        ? `${step.db} dB${step.db > 0 ? " · May clip" : ""}`
+        : "Set gain";
     case "normalize":
       return Number.isFinite(step.targetDbfs)
         ? `${step.targetDbfs} dBFS`

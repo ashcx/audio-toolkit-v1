@@ -31,6 +31,6 @@ test('a return to the source channel count or rate still runs after an earlier c
  const p=plan('aac',steps,'wav');assert.equal(p.kind,'pcm');assert.deepEqual(p.steps.map(s=>s.id),steps.map(s=>s.id));
 });
 test('copy filenames avoid collisions even when codec extensions converge',async()=>{
- const {copyOutputName}=await import('../src/planner.ts');const p=plan('opus');const used=new Set();
- assert.equal(copyOutputName('tone.opus',p,used),'tone.audio.ogg');assert.equal(copyOutputName('tone.ogg',p,used),'tone.audio (2).ogg');assert.equal(copyOutputName('tone.opus',p,used),'tone.audio (3).ogg');
+ const {outputName}=await import('../src/planner.ts');const p=plan('opus');const used=new Set();
+ assert.equal(outputName('tone.opus',p.target.container,used),'tone.audio.ogg');assert.equal(outputName('tone.ogg',p.target.container,used),'tone.audio (2).ogg');assert.equal(outputName('tone.opus',p.target.container,used),'tone.audio (3).ogg');
 });

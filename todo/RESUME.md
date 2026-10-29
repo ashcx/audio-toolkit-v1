@@ -1,3 +1,9 @@
+# Current resume, 2026-10-29
+
+User resumed work and replaced Git instructions. Work directly on main; verify and push completed increments, automatically deploying through the existing Pages workflow. Earlier pause/branch/PR restrictions below are historical. Current starting main3c29c0f contains paused checkpoint3f7e408. PR7 is closed. Continue Sprint6, preserve all unfinished acceptance gates and minimal UI direction. Hosting returns200; this is not proof of unfinished DSP/device support.
+
+## Historical paused checkpoint
+
 # Resume Audio Toolkit
 
 User explicitly paused on2026-10-29 because their token allowance ran out. Do not continue until requested. No merge or deployment authorized. Continue the existing build/test/PR objective when resumed, using scrum-mode and poteto-mode. Keep the webpage's minimal text and purposeful controls matching image-compressor-v1.

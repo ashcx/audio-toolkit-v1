@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {chromium,webkit} from 'playwright';
+const appUrl=process.env.APP_URL??'http://127.0.0.1:4173/audio-toolkit-v1/';
 const root=process.env.INTAKE_EVIDENCE_DIR??'.artifacts/intake-check';await mkdir(`${root}/captures`,{recursive:true});
 const manifest=JSON.parse(await readFile('tests/fixtures/manifest.json','utf8'));
 const records=[];
@@ -15,7 +16,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
     const original=window[key];if(original)window[key]=new Proxy(original,{construct(target,args){window.__decodeCalls++;return Reflect.construct(target,args);}});
    }
   });
-  await page.goto('http://127.0.0.1:4173/audio-toolkit-v1/');
+  await page.goto(appUrl);
   const names=[...manifest.fixtures.map(x=>x.name),'corrupt.wav'];
   await page.getByLabel('Choose audio or video files').setInputFiles(names.map(file=>`tests/fixtures/${file}`));
   await page.waitForFunction(count=>document.querySelectorAll('.file-list li').length===count&&[...document.querySelectorAll('.file-list li')].every(row=>['ready','failed'].includes(row.dataset.inspection)),names.length);
@@ -70,7 +71,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   assert.equal(await page.evaluate(()=>window.__decodeCalls),0,'Inspection never constructs a decoder/audio context');
   assert.deepEqual(errors,[]);
   const touchContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
-  const touchPage=await touchContext.newPage();await touchPage.goto('http://127.0.0.1:4173/audio-toolkit-v1/');
+  const touchPage=await touchContext.newPage();await touchPage.goto(appUrl);
   const chooser=touchPage.waitForEvent('filechooser');await touchPage.locator('.dropzone').tap();await (await chooser).setFiles('tests/fixtures/tone.wav');
   await touchPage.getByRole('button',{name:'Remove tone.wav',exact:true}).waitFor();
   await touchPage.getByRole('button',{name:'Remove tone.wav',exact:true}).tap();
