@@ -16,7 +16,7 @@ The append-only show-me-your-work trail is `docs/sprint-evidence/decisions.tsv`,
 
 ## Integrate pstack deliberately
 
-Read installed poteto-mode, Codex mapping and matching leaf instructions before use. This planning run applies multi-phase-plan intent with scrum-mode's schema, paths and acceptance. Its generic skeleton/validator, separate program store, mandatory prototypes, ten-worker fan-out, automation and human approval gates do not apply. Empirical probes are Sprint 1 work and remain NOT VERIFIED now. No product implementation is authorized by planning.
+Read installed poteto-mode, Codex mapping and matching leaf instructions before use. This planning run applies multi-phase-plan intent with scrum-mode's schema, paths and acceptance. Its generic skeleton/validator, separate program store, mandatory prototypes, ten-worker fan-out, automation and human approval gates do not apply. Empirical probes are Sprint 1 work and remain NOT VERIFIED now. Planning itself did not authorize implementation. The user authorized complete implementation on 2026-10-29, limited to build, test and PR delivery. Actual-device observations will be supplied by the user before release acceptance.
 
 Route grounding to how, material contract choices to architect, cheap clear regression targets to tdd, measurements to benchmark-checklist, decision trails to show-me-your-work, prose to technical-writing/unslop and sprint review to interrogate. Read each leaf before applying. Do not modify installed skills or global configuration.
 
@@ -31,3 +31,9 @@ Give reviewers intent, base/head and working snapshot, requirements, every Ready
 No routine human acceptance or next-sprint checkbox applies. Complete requires all stories including stretch, verified exits, independent review and PR delivery. Deliver the one PR after technical/review gates; include plans, exact checks, captures, gaps and dependency revisions. Record verified URL in sprint References/log and roadmap, push bookkeeping and observe CI state. Merge and deployment follow actual authorization.
 
 Last-resort progression requires exhausted distinct viable fixes, actual functional evidence, no safety/correctness/shared-contract compromise and proven downstream independence. Use scrum-mode's unfinished template at `todo/sprint-N-unfinished.md`. Interrogate must verify the exception. Leave unfinished boxes unchecked and sprint In progress. Missing review cannot qualify. Recheck independence at each subsequent entry; full completion requires all required outcomes or explicit user rescoping.
+
+## 2026-10-29 - Authorized device-gate adjustment
+
+The user explicitly authorized automated Chromium/WebKit checks in early sprints, leaving real Safari/Android claims unverified until user device testing at final acceptance. Apply this to early entry/exit checks without claiming physical-device support. Sprint 12 retains the real-device gate. This does not waive licensing, correctness, resource or independent review requirements.
+
+The user also explicitly authorized synthetic early isolation feasibility, with real music/live listening in the isolation sprint before final acceptance. Early tests must still establish bounded candidate execution and honest quality/reference budgets; actual listening remains a required later gate.

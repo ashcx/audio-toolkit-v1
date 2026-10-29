@@ -1,6 +1,6 @@
 # Audio Toolkit TODO roadmap
 
-Prepared 2026-10-29. This request authorizes planning only. Application implementation has not started. [Feature requirements](todo/audio-toolkit-plan.md) remain authoritative and unchecked until evidence exists.
+Prepared 2026-10-29. Implementation authorized on 2026-10-29. Build, test and deliver PRs only; do not merge or deploy. The user can perform real-device acceptance. Sprint 1 synthetic feasibility is complete; Sprint 2 is next. [Feature requirements](todo/audio-toolkit-plan.md) remain authoritative and unchecked until evidence exists.
 
 The user confirmed the public repository `ashcx/audio-toolkit-v1`. Intended production path is `/audio-toolkit-v1/`; deployment and live operation remain unverified. Each sprint owns one PR and depends cumulatively on its predecessor.
 
@@ -8,7 +8,7 @@ The user confirmed the public repository `ashcx/audio-toolkit-v1`. Intended prod
 
 | Sprint | Observable outcome | Requirement sections | Status |
 | --- | --- | --- | --- |
-| [1](todo/sprint-1-feasibility.md) | Verify the local processing foundation | 2,7,13,20,21,22 | Not started |
+| [1](todo/sprint-1-feasibility.md) | Verify the local processing foundation | 2,7,13,20,21,22 | Complete, [PR #2](https://github.com/ashcx/audio-toolkit-v1/pull/2) |
 | [2](todo/sprint-2-workspace.md) | Open a responsive accessible audio workspace | 2,5,22 | Not started |
 | [3](todo/sprint-3-intake.md) | Inspect mixed audio and video batches | 6,7 | Not started |
 | [4](todo/sprint-4-recipe.md) | Configure ordered recipes and per-file trim overrides | 8,10 | Not started |
@@ -31,7 +31,7 @@ The user confirmed the public repository `ashcx/audio-toolkit-v1`. Intended prod
 
 ## Start here
 
-Read [orchestration](todo/orchestration-plan.md), [Scrum policy](todo/redesign-scrum-plan.md) and [Sprint 1](todo/sprint-1-feasibility.md). Implementation begins on a later explicit instruction. Section 25 is the cross-sprint verification inventory. Sections 23 and 24 remain deferred/excluded.
+Read [orchestration](todo/orchestration-plan.md), [Scrum policy](todo/redesign-scrum-plan.md) and [Sprint 1](todo/sprint-1-feasibility.md). Implementation is now authorized and follows the earliest eligible sprint. Section 25 is the cross-sprint verification inventory. Sections 23 and 24 remain deferred/excluded.
 
 ## Planning delivery
 
