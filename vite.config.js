@@ -1,5 +1,7 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from "vite";
+import preact from "@preact/preset-vite";
 export default defineConfig({
-  base: '/audio-toolkit-v1/',
-  build: { rollupOptions: { input: 'probes/index.html' } },
+  plugins: [preact()],
+  base: "/audio-toolkit-v1/",
+  build: { rollupOptions: { input: ["index.html", "probes/index.html"] } },
 });
