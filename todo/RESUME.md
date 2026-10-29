@@ -1,6 +1,6 @@
 # Current resume, 2026-10-29
 
-User resumed work and replaced Git instructions. Work directly on main; verify and push completed increments, automatically deploying through the existing Pages workflow. Earlier pause/branch/PR restrictions below are historical. Current starting main3c29c0f contains paused checkpoint3f7e408. PR7 is closed. Continue Sprint6, preserve all unfinished acceptance gates and minimal UI direction. Hosting returns200; this is not proof of unfinished DSP/device support.
+User resumed work and replaced Git instructions. Work directly on main; verify and push completed increments, automatically deploying through the existing Pages workflow. Earlier pause/branch/PR restrictions below are historical. Current starting main3c29c0f contains paused checkpoint3f7e408. PR7 is closed. Sprint6 completed at implementation9f50c82 with fresh independent review,58 browser observations, successful Pages run40877444915 and actual live WAV export. Continue Sprint7 formats; preserve minimal UI and remaining gates. The scoped DSP works; complete-app/device readiness is not claimed.
 
 ## Historical paused checkpoint
 

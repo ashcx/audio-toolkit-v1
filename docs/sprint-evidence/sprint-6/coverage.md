@@ -1,6 +1,6 @@
 # Sprint 6 coverage
 
-Base `3c29c0f`; current integrated working tree is under review. Parent and independent acceptance checks pass; main delivery remains pending.
+Base `3c29c0f`; current integrated working tree is under review. Parent and independent acceptance checks pass. Main9f50c82 and Pages run40877444915 delivered; live smoke passed.
 
 | Condition | Evidence | Verdict |
 | --- | --- | --- |
@@ -17,7 +17,7 @@ Base `3c29c0f`; current integrated working tree is under review. Parent and inde
 | Independent interrogate | interrogate.md, Terra high initial finding, parent reproduction/fix | VERIFIED, fresh Terra high integrated run 58 observations |
 | Relevant audio/resource evidence | independent numerical WAV references; 60× duration fixture comparison and bounded block/checkpoint counters | VERIFIED for fixture block/checkpoint behavior; RSS NOT VERIFIED (Sprint 11) |
 | Physical devices/listening | User-approved Sprint 12 devices and Sprint 9 real isolation listening | NOT VERIFIED, deferred by explicit scope |
-| Main delivery/Pages | User-authorized automatic deployment; no current increment pushed yet | NOT VERIFIED |
+| Main delivery/Pages | main9f50c82 pushed, run40877444915 success, matching production asset and live downloaded PCM16 WAV in live-smoke.json | VERIFIED |
 
 No full-app completion claim. Retained output WAVs are rerunnable local artifacts, not committed large binary evidence. Committed results and captures record observations. AAC source release audit remains open; no claim that hosting closes it.
 

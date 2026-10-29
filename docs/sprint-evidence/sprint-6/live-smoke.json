@@ -1,0 +1,15 @@
+{
+  "url": "https://ashcx.github.io/audio-toolkit-v1/",
+  "http": 200,
+  "script": "/audio-toolkit-v1/assets/index-OAsv9wie.js",
+  "download": "tone.audio.wav",
+  "programs": [],
+  "streams": [
+    {
+      "codec_name": "pcm_s16le",
+      "sample_rate": "48000",
+      "channels": 2,
+      "duration": "2.000000"
+    }
+  ]
+}
