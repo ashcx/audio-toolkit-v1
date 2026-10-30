@@ -23,6 +23,8 @@ The user confirmed the public repository `ashcx/audio-toolkit-v1`. Production pa
 | [13](todo/sprint-13-speech-model-evaluation.md) | Compare speech cleanup models and browser processing paths | Speech cleanup | Not started |
 | [14](todo/sprint-14-speech-cleanup.md) | Add Standard and Detailed voice isolation to ordered recipes | Speech cleanup | Not started |
 | [15](todo/sprint-15-speech-acceleration.md) | Assess and deliver proven speech-processing acceleration | Speech cleanup | Not started |
+| [16](todo/sprint-16-isolation-benchmark.md) | Compare music isolation models and processing paths | 13,19 | Not started |
+| [17](todo/sprint-17-isolation-performance.md) | Deliver a measured music isolation improvement | 13,19 | Not started |
 
 ## Final acceptance
 
