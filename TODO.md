@@ -22,7 +22,7 @@ The user confirmed the public repository `ashcx/audio-toolkit-v1`. Production pa
 | [12](todo/sprint-12-release-readiness.md) | Verify the complete static audio product | 3,4,20,22,25,26,27 | [PR #13](https://github.com/ashcx/audio-toolkit-v1/pull/13) open; technical automation/review pass; physical/listening acceptance open |
 | [13](todo/sprint-13-speech-model-evaluation.md) | Compare speech cleanup models and browser processing paths | Speech cleanup | In progress; [CPU research checkpoint](docs/sprint-evidence/sprint-13/coverage.md), acceptance and dependent progression open |
 | [14](todo/sprint-14-speech-cleanup.md) | Add Standard and Detailed voice isolation to ordered recipes | Speech cleanup | [Draft PR16](https://github.com/ashcx/audio-toolkit-v1/pull/16), technical candidate reviewed; release/device/listening acceptance open |
-| [15](todo/sprint-15-speech-acceleration.md) | Assess and deliver proven speech-processing acceleration | Speech cleanup | Not started |
+| [15](todo/sprint-15-speech-acceleration.md) | Assess and deliver proven speech-processing acceleration | Speech cleanup | [Draft PR17](https://github.com/ashcx/audio-toolkit-v1/pull/17), reviewed assessment retains CPU; accelerator/comparison gates unverified |
 | [16](todo/sprint-16-isolation-benchmark.md) | Compare music isolation models and processing paths | 13,19 | Not started |
 | [17](todo/sprint-17-isolation-performance.md) | Deliver a measured music isolation improvement | 13,19 | Not started |
 | [18](todo/sprint-18-workspace-redesign.md) | Simplify the workspace and file results | Redesign, 5,6,17,22 | Not started |

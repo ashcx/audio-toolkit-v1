@@ -50,3 +50,5 @@ Changes to OS or hosting configuration without explicit authorization, model sel
 2026-10-30: Actual Chrome tests on the Mac observe Apple Metal3 GPU availability and both isolated/non-isolated CPU model execution. Both speech models use unshared WASM memory and expose no GPU/thread-provider option. No performance comparison or accelerated path is claimed. See Sprint15 coverage and raw probe JSON. The prospective thresholds are recorded before any future comparative timing.
 
 2026-10-30: Terra/Luna reviewed the assessment and its limitations. Fixed repeat-init observation and invalid-output status defects in the research probe, added an offline boundary regression and regenerated both actual Chrome records. No production processing code changed. Accelerator execution/comparison gates remain unverified; the technical conclusion retains CPU without a speed claim.
+
+2026-10-30: [Draft assessment PR17](https://github.com/ashcx/audio-toolkit-v1/pull/17) targets main at2d3a48f and includes dependency PR16. The assessment is reviewed; actual acceleration/comparison and release gates remain unchecked. No merge/deploy occurred.
