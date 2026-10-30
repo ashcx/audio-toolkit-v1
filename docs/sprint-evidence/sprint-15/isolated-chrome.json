@@ -1,0 +1,44 @@
+{
+  "status": "passed",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+  "cores": 10,
+  "crossOriginIsolated": true,
+  "sharedArrayBuffer": true,
+  "gpu": {
+    "available": true,
+    "info": {
+      "vendor": "apple",
+      "architecture": "metal-3",
+      "device": "",
+      "description": ""
+    }
+  },
+  "models": [
+    {
+      "name": "GTCRN",
+      "frame": 256,
+      "finite": true,
+      "memory": [
+        {
+          "name": "c",
+          "shared": false,
+          "bytes": 17498112
+        }
+      ],
+      "backend": "compiled CPU WASM; no provider or thread-count API exposed"
+    },
+    {
+      "name": "DeepFilterNet3",
+      "frame": 480,
+      "finite": true,
+      "memory": [
+        {
+          "name": "memory",
+          "shared": false,
+          "bytes": 30343168
+        }
+      ],
+      "backend": "compiled CPU WASM; no provider or thread-count API exposed"
+    }
+  ]
+}
