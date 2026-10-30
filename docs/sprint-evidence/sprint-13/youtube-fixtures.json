@@ -1,0 +1,36 @@
+[
+  {
+    "id": "orton",
+    "source": "https://www.youtube.com/watch?v=LprEqnOFpHE",
+    "title": "David Orton, Deep Ecology",
+    "author": "The Green Interview",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+    "licenseEvidence": "https://commons.wikimedia.org/wiki/File:David_Orton,_The_Green_Interview.webm",
+    "youtubeMetadataLicense": null,
+    "downloadedAudioSha256": "f7f574ffebb3526567cd793f877a80a1fca324ed4184cadc421fc250fb8cb8c3",
+    "localFile": ".artifacts/speech-youtube/orton.m4a",
+    "selectedRangeSeconds": [
+      30,
+      50
+    ],
+    "modifications": "Audio extraction, excerpt, mono resampling, optionally seeded added white noise, GTCRN or DeepFilterNet3 processing. Not a clean reference."
+  },
+  {
+    "id": "deverell",
+    "source": "https://www.youtube.com/watch?v=cU6ZNsv4tQU",
+    "title": "SBIFF 2022: NIGHTMARE ALLEY - TAMARA DEVERELL",
+    "author": "Lyn Fairly Media",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+    "licenseEvidence": "https://commons.wikimedia.org/wiki/File:Tamara_Deverell_during_an_interview,_March_2022.jpg",
+    "youtubeMetadataLicense": "Creative Commons Attribution license (reuse allowed)",
+    "downloadedAudioSha256": "2cc8d9ab50c69aaea774dfa10250563c41f6a21e01583915f759d0dba3c61164",
+    "localFile": ".artifacts/speech-youtube/deverell.m4a",
+    "selectedRangeSeconds": [
+      30,
+      50
+    ],
+    "modifications": "Audio extraction, excerpt, mono resampling, optionally seeded added white noise, GTCRN or DeepFilterNet3 processing. Not a clean reference."
+  }
+]

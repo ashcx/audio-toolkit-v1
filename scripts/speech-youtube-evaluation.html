@@ -1,0 +1,66 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>YouTube speech evaluation</title>
+<h1>YouTube speech evaluation</h1>
+<p>Two attributed interview excerpts, 30–50 seconds. Original recordings and deterministic added hiss are separate cases. No clean ground truth or quality ranking.</p>
+<p>Sources are <a href="https://www.youtube.com/watch?v=LprEqnOFpHE">David Orton, Deep Ecology by The Green Interview</a> and <a href="https://www.youtube.com/watch?v=cU6ZNsv4tQU">Tamara Deverell interview by Lyn Fairly Media</a>. <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>. Excerpted, resampled, optionally mixed with synthetic noise, and processed for evaluation. No endorsement implied.</p>
+<a id="attribution" download="speech-evaluation-attribution.txt">Download attribution for these WAVs</a>
+<button id="run">Evaluate excerpts</button><p id="progress" role="status" aria-live="polite">Ready</p><pre id="result">Ready</pre><div id="audio"></div>
+<script type="module">
+import {GtcrnProcessor,loadGtcrnModule} from './speech-upstream/gtcrn/package/dist/index.js';
+import {DeepFilter} from './speech-upstream/dfn/package/dist/index.js';
+const sources=[{id:'orton',file:'./speech-youtube/orton.m4a'},{id:'deverell',file:'./speech-youtube/deverell.m4a'}];
+const attribution='David Orton, Deep Ecology by The Green Interview. https://www.youtube.com/watch?v=LprEqnOFpHE\nTamara Deverell interview by Lyn Fairly Media. https://www.youtube.com/watch?v=cU6ZNsv4tQU\nCC BY 3.0 https://creativecommons.org/licenses/by/3.0/\nChanges: audio extracted; 30-50 second excerpt; mono resampling; optional seeded added white noise; GTCRN or DeepFilterNet3 processing; delay compensation; PCM16 conversion. No endorsement implied.\nLicense evidence: https://commons.wikimedia.org/wiki/File:David_Orton,_The_Green_Interview.webm and https://commons.wikimedia.org/wiki/File:Tamara_Deverell_during_an_interview,_March_2022.jpg\n';
+document.querySelector('#attribution').href=URL.createObjectURL(new Blob([attribution],{type:'text/plain'}));
+const urls=[];
+function addAudio(label,samples,rate){
+ const buffer=new ArrayBuffer(44+samples.length*2),view=new DataView(buffer);
+ const text=(offset,value)=>{for(let i=0;i<value.length;i++)view.setUint8(offset+i,value.charCodeAt(i));};
+ text(0,'RIFF');view.setUint32(4,36+samples.length*2,true);text(8,'WAVE');text(12,'fmt ');
+ view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,1,true);view.setUint32(24,rate,true);view.setUint32(28,rate*2,true);view.setUint16(32,2,true);view.setUint16(34,16,true);text(36,'data');view.setUint32(40,samples.length*2,true);
+ for(let i=0;i<samples.length;i++)view.setInt16(44+i*2,Math.round(Math.max(-1,Math.min(1,samples[i]))*32767),true);
+ const url=URL.createObjectURL(new Blob([buffer],{type:'audio/wav'}));urls.push(url);
+ const section=document.createElement('section'),heading=document.createElement('h2'),audio=document.createElement('audio'),link=document.createElement('a');
+ heading.textContent=label;audio.controls=true;audio.src=url;audio.setAttribute('aria-label',label);link.href=url;link.download=label+'.wav';link.textContent='Download '+label;
+ section.append(heading,audio,link);document.querySelector('#audio').append(section);
+}
+document.querySelector('#run').onclick=async()=>{
+ const button=document.querySelector('#run'),result=document.querySelector('#result'),progress=document.querySelector('#progress');button.disabled=true;progress.textContent='Evaluating excerpts';
+ urls.forEach(url=>URL.revokeObjectURL(url));urls.length=0;document.querySelector('#audio').replaceChildren();
+ const results=[];
+ try{
+  for(const source of sources){
+   const context=new AudioContext();let decoded;
+   try{const response=await fetch(source.file);if(!response.ok)throw Error('Audio HTTP '+response.status);decoded=await context.decodeAudioData(await response.arrayBuffer());}finally{await context.close();}
+   if(decoded.duration<50)throw Error(source.id+' must contain the selected 30–50 second range');
+   for(const condition of ['original','added-hiss']){
+    for(let run=0;run<5;run++)for(const model of ['GTCRN','DeepFilterNet3']){
+     let processor;
+     const start=performance.now();
+     try{
+      const rate=model==='GTCRN'?16000:48000,size=model==='GTCRN'?256:480,delay=model==='GTCRN'?256:1440;
+      const render=new OfflineAudioContext(1,rate*20,rate),node=render.createBufferSource();node.buffer=decoded;node.connect(render.destination);node.start(0,30,20);
+      const input=(await render.startRendering()).getChannelData(0);
+      if(condition==='added-hiss'){
+       let state=12345;const noise=new Float32Array(input.length);let energy=0,noiseEnergy=0;
+       for(let i=0;i<input.length;i++){state=(Math.imul(state,1664525)+1013904223)>>>0;noise[i]=state/2147483648-1;energy+=input[i]**2;noiseEnergy+=noise[i]**2;}
+       const scale=Math.sqrt(energy/(noiseEnergy*10**.5));for(let i=0;i<input.length;i++)input[i]+=noise[i]*scale;
+      }
+      processor=model==='GTCRN'?new GtcrnProcessor(await loadGtcrnModule()):await DeepFilter.create();
+      const raw=new Float32Array(Math.ceil((input.length+delay)/size)*size);let changed=0,energy=0,clipped=0;
+      for(let offset=0;offset<raw.length;offset+=size){
+       const frame=new Float32Array(size);frame.set(input.subarray(offset,offset+size));const out=processor.process(frame);
+       if(out.length!==size||!out.every(Number.isFinite))throw Error('Invalid model output');raw.set(out,offset);
+      }
+      const output=raw.slice(delay,delay+input.length);
+      for(let i=0;i<output.length;i++){changed+=Math.abs(output[i]-input[i]);energy+=output[i]**2;if(Math.abs(output[i])>1)clipped++;}
+      if(!output.length||energy===0||changed===0)throw Error('Empty, silent or unchanged output');
+      results.push({source:source.id,condition,model,run,rate,inputFrames:input.length,outputFrames:output.length,assumedDelay:delay,changed,energy,clipped,elapsedMs:performance.now()-start,status:'executed'});
+      if(run===0){addAudio(source.id+'-'+condition+'-'+model,output,rate);if(model==='DeepFilterNet3')addAudio(source.id+'-'+condition+'-input',input,rate);}
+     }catch(error){results.push({source:source.id,condition,model,run,status:'failed',error:String(error)});}finally{processor?.destroy();}
+     progress.textContent=results.length+' of 40 model runs completed';
+     result.textContent=JSON.stringify({userAgent:navigator.userAgent,crossOriginIsolated,results},null,2);
+    }
+   }
+  }
+ }catch(error){progress.textContent='Evaluation failed';result.textContent=JSON.stringify({status:'failed',error:String(error),results},null,2);}finally{button.disabled=false;}
+};
+</script></html>
