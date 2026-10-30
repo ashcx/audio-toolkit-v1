@@ -1,0 +1,68 @@
+{
+  "app": "http://127.0.0.1:4184/audio-toolkit-v1/",
+  "host": "linux",
+  "checks": [
+    {
+      "name": "workspace",
+      "code": 0,
+      "elapsedMs": 5558
+    },
+    {
+      "name": "intake",
+      "code": 0,
+      "elapsedMs": 10821
+    },
+    {
+      "name": "recipe",
+      "code": 0,
+      "elapsedMs": 10347
+    },
+    {
+      "name": "copy",
+      "code": 0,
+      "elapsedMs": 23359
+    },
+    {
+      "name": "dsp",
+      "code": 0,
+      "elapsedMs": 101691
+    },
+    {
+      "name": "format",
+      "code": 0,
+      "elapsedMs": 133053
+    },
+    {
+      "name": "batch",
+      "code": 0,
+      "elapsedMs": 53416
+    },
+    {
+      "name": "cleanup",
+      "code": 0,
+      "elapsedMs": 5555
+    },
+    {
+      "name": "preview",
+      "code": 0,
+      "elapsedMs": 39568
+    },
+    {
+      "name": "download",
+      "code": 0,
+      "elapsedMs": 6230
+    },
+    {
+      "name": "privacy",
+      "code": 0,
+      "elapsedMs": 31933
+    }
+  ],
+  "previousFailures": [
+    {
+      "name": "privacy",
+      "code": 1,
+      "elapsedMs": 19914
+    }
+  ]
+}

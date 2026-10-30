@@ -1,0 +1,11 @@
+# Privacy and temporary storage
+
+The application reads selected File objects locally and processes media in this browser. There is no app upload endpoint or telemetry integration. Tools, codecs, model and WASM download as static assets from the app origin when needed. The static hosting provider receives normal asset requests and connection metadata. Local-only media processing does not mean network-free startup.
+
+The privacy driver observes real voice inference and ZIP creation in Chromium/WebKit, asserts static GET requests under the same-origin base path plus local object-URL reads, with no bodies or source filenames, checks lazy model loading and served notices, and reloads the workspace. This establishes the observed flows only; it is not a proof about browser extensions, the hosting provider or every possible browser implementation.
+
+Output files and processing checkpoints use origin-private browser storage. In-memory file identities, recipe state, results and object URLs belong to this tab. Remove, Clear results and normal cancellation release owned files; failed cleanup exposes retry and blocks new work that would lose ownership. ZIP has separate ownership and cannot discard successful media results after failure.
+
+Theme preference is stored in localStorage. No media, filenames or recipes are deliberately stored there. Closing/reloading does not restore jobs or downloads. A forced close, crash or mobile process kill may interrupt asynchronous cleanup and leave temporary storage behind. The app does not delete unknown files that might belong to another open tab. To remove all origin data after closing app tabs, use the browser's site-data controls for this origin; that also affects other apps sharing the origin.
+
+The footer links to the media hub, image app and license/source page. Navigation to those external pages follows normal browser behavior; sibling apps are outside this app's processing/privacy evidence.

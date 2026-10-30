@@ -1,0 +1,13 @@
+# Architecture
+
+The static Preact/Vite app runs under `/audio-toolkit-v1/`. `use-files.ts` owns file identities and inspection; `media.ts` identifies content rather than trusting extensions. File objects stay in the browser. A validated ordered recipe plus effective per-file trim becomes an immutable snapshot; `planner.ts` chooses packet copy or PCM processing, explains unsupported operations, and generates safe unique output names.
+
+`Batch` owns attempts, scheduling, completed output files, object URLs and cleanup retry. Ordinary parallelism is one, or at most two when the capability policy permits; isolation has an exclusive slot. Cancellation stops dispatch and waits for cleanup before reusing a slot. Failed inputs do not destroy successful results. Test results belong to the same Batch and may be reused once only for the same File and effective execution plan; accepted recipe/override edits invalidate test eligibility.
+
+`copy-audio.ts` preserves a matching single-track source where possible and otherwise remuxes packets. PCM work runs in a module worker. Blocks and streamed output avoid whole-recording PCM arrays. Ordered processors may create OPFS checkpoints for replay, including peak normalization; terminal encoding runs once. Unsupported decode/encode combinations fail explicitly rather than silently changing recipes.
+
+Isolation resamples bounded overlapping windows for the pinned SCNet model, then reconstructs the requested voice/music output. A fresh inference worker per window bounds retained runtime memory; model initialization may repeat while overall window progress advances. GPU initialization/run failure or stall selects a sticky CPU fallback for the remaining windows. Initialization and inference have deadlines; cancellation terminates active inference. This does not establish GPU behavior or thermals on a physical Mac.
+
+`output-store.ts` writes browser-backed temporary files. `cleanupAll` retains failed release callbacks. `Archive` separately owns one ZIP and URL; it reads only completed Batch outputs, locks source changes during creation, streams 1 MiB slices with CRC32 into stored ZIP64 entries, and invalidates its result when completed source URLs change. A ZIP failure leaves individual results intact. No ZIP recompression or directory-picker requirement is introduced.
+
+Tabs do not share job state. There is no remote server, upload endpoint, persisted recipe/session database or crash-resume mechanism. A forced browser/process termination can bypass asynchronous cleanup; see privacy and acceptance records. See tests and browser drivers for executable lifecycle evidence.
