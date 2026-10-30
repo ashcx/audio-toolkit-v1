@@ -4,7 +4,7 @@
 
 Test one file and reuse the result in the batch. Owns feature-plan sections 17; cross-cutting requirements remain binding.
 
-Status: In progress. Technical delivery: implemented and tested; PR preparation. Agent-verified acceptance: NOT VERIFIED, independent Terra high review blocked by runtime capacity.
+Status: In progress. Technical delivery: implemented and tested; [PR #11](https://github.com/ashcx/audio-toolkit-v1/pull/11) open. Agent-verified acceptance: NOT VERIFIED, independent Terra high review blocked by runtime capacity.
 
 ## Entry criteria
 
@@ -77,7 +77,7 @@ Source sections 23–24 deferred features and exclusions. Hub/image implementati
 - [Scrum policy](redesign-scrum-plan.md).
 - [Feature requirements](audio-toolkit-plan.md).
 - Decision trail: `docs/sprint-evidence/decisions.tsv`.
-- Sprint PR: not created.
+- Sprint PR: [#11](https://github.com/ashcx/audio-toolkit-v1/pull/11), targets main and depends on #10.
 
 ## Execution log
 
