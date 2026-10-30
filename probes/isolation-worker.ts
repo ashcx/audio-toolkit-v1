@@ -9,7 +9,7 @@ self.onmessage = async ({ data }) => {
     const bytes = await response.arrayBuffer();
     const hash = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", bytes)), b => b.toString(16).padStart(2, "0")).join("");
     if (hash !== "3f049a0e4ce3c08264a6212a50445ba77f02a517cd4c6dc86cbe1ca130176d67") throw new Error("Model hash mismatch");
-    session = await load(bytes, { backend: "wasm", wasmPaths: base.href, threads: 1, sessionOptions: { enableCpuMemArena: false, enableMemPattern: false } });
+    session = await load(bytes, { backend: "wasm", wasmPaths: base.href, threads: 1, sessionOptions: { enableCpuMemArena: data.arena ?? false, enableMemPattern: data.arena ?? false } });
     const borrowed = { run: session.run, inputs: session.inputs.map(input => ({ name: input.name })), outputs: session.outputs };
     const summaries = [];
     const frames = data.frames ?? 44100;

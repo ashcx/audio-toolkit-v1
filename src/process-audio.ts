@@ -29,6 +29,7 @@ export function processAudio(
     });
     const inference = new InferenceRunner();
     let inferenceTask = Promise.resolve();
+    let isolating = false;
     const stores = new Map<string, Entry>();
     let serial = Promise.resolve(),
       settled = false;
@@ -80,9 +81,13 @@ export function processAudio(
     };
     worker.onmessage = ({ data }: MessageEvent<WorkerResult>) => {
       if (settled) return;
-      if (data.kind === "phase" || data.kind === "model-download") phase(data);
+      if (data.kind === "isolation-progress") { isolating = data.completed < data.total;phase(data); }
+      else if (data.kind === "phase" || data.kind === "model-download") {
+        if (isolating && data.kind === "phase" && (data.phase === "Processing" || data.phase === "Processing / encoding")) return;
+        isolating = false;phase(data);
+      }
       else if (data.kind === "inference") {
-        inferenceTask = inference.run(data.planes, phase).then(
+        inferenceTask = inference.run(data.planes, value => { if (!isolating) phase(value); }).then(
           reply => { if (!settled) worker.postMessage({ kind: "inference", sequence: data.sequence, reply } satisfies WorkerInput, reply.planes.map(plane => plane.buffer)); },
           error => { if (!settled) worker.postMessage({ kind: "inference", sequence: data.sequence, reply: { kind: "error", message: error instanceof Error ? error.message : "Isolation failed." } } satisfies WorkerInput); },
         );

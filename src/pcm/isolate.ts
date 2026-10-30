@@ -1,6 +1,6 @@
 import { BLOCK_FRAMES, frameTime, type PcmBlock, type PcmCheckpoint, type PcmReplay, type PcmStream } from "./blocks.ts";
 import { resample } from "./resample.ts";
-import { isolationWindows, ISOLATION_RATE } from "./isolation-window.ts";
+import { isolationWindows, isolationWindowCount, ISOLATION_RATE } from "./isolation-window.ts";
 import type { InferenceReply, IsolationMode } from "../inference/protocol";
 import type { JobEvent } from "../job-events";
 import type { DspStats } from "./protocol";
@@ -103,6 +103,9 @@ export async function* isolate(source: PcmStream, keep: IsolationMode, context: 
   context.event({ kind: "phase", phase: "Analyzing for isolation" });
   const audio = await analyze(source, context.checkpoint), windows = { windows: 0, maxWindowFrames: 0 };
   try {
+    const total = isolationWindowCount(audio.frames);
+    let completed = 0;
+    context.event({ kind: "isolation-progress", completed, total });
     const standardized = async function* () {
       for await (const block of audio.originalRate === ISOLATION_RATE ? audio.replay.read() : resample(audio.replay.read(), ISOLATION_RATE)) {
         context.signal.throwIfAborted();
@@ -114,6 +117,7 @@ export async function* isolate(source: PcmStream, keep: IsolationMode, context: 
       const result = await context.infer(planes);
       context.stats.isolationLoads += result.attempts;
       if (!context.stats.isolationBackends.includes(result.backend)) context.stats.isolationBackends.push(result.backend);
+      context.event({ kind: "isolation-progress", completed: ++completed, total });
       return result.planes;
     }, windows);
     const restored = async function* () {
@@ -121,6 +125,7 @@ export async function* isolate(source: PcmStream, keep: IsolationMode, context: 
     };
     const voice = fitIsolationFrames(audio.originalRate === ISOLATION_RATE ? restored() : resample(restored(), audio.originalRate), audio.originalFrames, audio.origin, audio.originalRate);
     yield* keep === "voice" ? voice : subtractVoice(audio.replay.read(), voice);
+    context.event({ kind: "phase", phase: "Processing / encoding" });
     context.stats.isolationWindows += windows.windows;context.stats.maxIsolationFrames = Math.max(context.stats.maxIsolationFrames, windows.maxWindowFrames);
   } finally { await audio.release(); }
 }

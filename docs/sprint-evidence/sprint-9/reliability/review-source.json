@@ -1,0 +1,14 @@
+{
+  "reviewer": "Independent Terra high",
+  "scope": "Integrated isolation product sources; later test-driver extensions were parent-executed.",
+  "verifiedFindingsRemaining": 0,
+  "targetedTestsAtReview": 16,
+  "reviewedSourceSha256": {
+    "src/inference/runner.ts": "5ed516c3d8d676c9caceb9b61e8c043079d74212dc36b2ddde6fbb8924890f1a",
+    "src/inference/worker.ts": "988d670c984870cd148771242e6ab2834e961f36655d63341abf3d77cd2a161f",
+    "src/pcm/isolate.ts": "aaf666f599d2766bcc83364506338b9d0aa054e06fbe2b77f72abc3fe8ec16b2",
+    "src/pcm/isolation-window.ts": "9ee5da496d25c378c87348e6ff913243ca962bb3fc592cb7b2b34abd1fbe272e",
+    "src/process-audio.ts": "fa255a0fdee62d0d6a0e188e80bac19839b35bf80e27ddee8af4cb88c5e155dd",
+    "src/file-row.tsx": "222a72a14da5a49cdf92add6c3daabd1b6503979ef4d76a6552690f1542047a8"
+  }
+}

@@ -4,7 +4,15 @@ import { formatBytes, describeAudio } from "./format";
 import { resolveTrim, type TrimRangeDraft } from "./recipe";
 import type { ExecutionPlan } from "./planner";
 import type { BatchJob } from "./batch";
+import type { JobEvent } from "./job-events";
 import { TrimFields } from "./trim-fields";
+function operationLabel(operation: JobEvent) {
+  switch (operation.kind) {
+    case "phase": return `${operation.phase}…`;
+    case "model-download": return `Loading model ${formatBytes(operation.loaded)} / ${formatBytes(operation.total)}`;
+    case "isolation-progress": return `Separating ${operation.completed} / ${operation.total}`;
+  }
+}
 export function FileRow({
   entry,
   plan,
@@ -32,6 +40,10 @@ export function FileRow({
 }) {
   const [editing, setEditing] = useState(false);
   const exported = job?.state;
+  const operation = exported?.kind === "running" ? exported.operation : null;
+  const progress = operation && operation.kind !== "phase"
+    ? { value: operation.kind === "model-download" ? operation.loaded : operation.completed, max: operation.total }
+    : {};
   const result =
     trim && entry.inspection.kind === "ready"
       ? resolveTrim(override ?? trim, entry.inspection.metadata.duration)
@@ -114,8 +126,8 @@ export function FileRow({
           {previousSettings && <small>Previous settings</small>}
           {exported.kind === "waiting" || exported.kind === "running" || exported.kind === "cancelling" ? (
             <>
-              <progress aria-label={`Export ${entry.file.name}`} value={exported.kind === "running" && exported.operation.kind === "model-download" ? exported.operation.loaded : undefined} max={exported.kind === "running" && exported.operation.kind === "model-download" ? exported.operation.total : undefined} />
-              <span>{exported.kind === "running" ? exported.operation.kind === "phase" ? `${exported.operation.phase}…` : `Loading model ${formatBytes(exported.operation.loaded)} / ${formatBytes(exported.operation.total)}` : exported.kind === "waiting" ? "Waiting" : "Cancelling…"}</span>
+              <progress aria-label={`Export ${entry.file.name}`} {...progress} />
+              <span>{operation ? operationLabel(operation) : exported.kind === "waiting" ? "Waiting" : "Cancelling…"}</span>
               {exported.kind !== "cancelling" && <button type="button" aria-label={`Cancel ${entry.file.name}`} onClick={onCancel}>Cancel</button>}
             </>
           ) : exported.kind === "failed" || exported.kind === "cancelled" ? (

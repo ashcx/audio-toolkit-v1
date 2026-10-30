@@ -4,6 +4,11 @@ export const ISOLATION_RATE = 44100;
 export const ISOLATION_WINDOW = 485100;
 const HOP = ISOLATION_WINDOW / 2;
 const FADE = Math.floor(ISOLATION_WINDOW / 10);
+export function isolationWindowCount(frames: number) {
+  if (!frames) return 0;
+  const total = frames + (frames > 2 * HOP ? 2 * HOP : 0);
+  return 1 + Math.max(0, Math.ceil((total - ISOLATION_WINDOW) / HOP));
+}
 export type WindowStats = { windows: number; maxWindowFrames: number };
 export type WindowInference = (planes: Float32Array[]) => Promise<readonly Float32Array[]>;
 
