@@ -4,7 +4,7 @@
 
 Make recipe editing direct and accessible while preserving audio behavior and precise settings.
 
-Status: Technical implementation and verification recorded. Independent review corrections applied and checked; technical PR ready. Physical-device/screen-reader and full standalone matrix acceptance remain open.
+Status: Technical implementation and verification recorded. Independent review corrections applied and checked; [Draft PR21](https://github.com/ashcx/audio-toolkit-v1/pull/21) submitted. Physical-device/screen-reader and full standalone matrix acceptance remain open.
 
 ## Entry criteria
 
@@ -29,7 +29,7 @@ Execute stories sequentially. For each story, freeze prerequisite contracts; imp
 - [ ] All stories and sequential tasks pass with evidence, including preserved processing, result, and cleanup contracts.
 - [ ] Relevant automated checks and actual desktop/mobile, light/dark, keyboard and touch journeys are recorded with captures. Physical-device or screen-reader evidence not obtained remains NOT VERIFIED.
 - [x] Coverage matrix, decision trail, separate self-review, and independent interrogate against the integrated sprint are recorded; proven findings are resolved and rerun.
-- [ ] One sprint PR targeting main is created after implementation and review pass, linked here and in the roadmap with evidence and any unfinished record. No merge or deployment without explicit permission.
+- [x] One sprint PR targeting main is created after implementation and review pass, linked here and in the roadmap with evidence and any unfinished record. No merge or deployment without explicit permission.
 
 ## Scrum details
 
@@ -50,3 +50,5 @@ Changes to the image compressor, external hub, deployment, or audio-processing s
 2026-10-30: User explicitly resumed18–20. Main instance implemented/verified sequential parameter, ordering and trim stories.67 normal tests, build/static and migrated driver syntax pass. Actual Chrome output grids/peaks and desktop/mobile input evidence are in [coverage](../docs/sprint-evidence/sprint-19/coverage.md). Independent review found invalid range display, unrelated-pointer cleanup, invalid slider aria text and zero-length handle ranges; parent reproduced and corrected each. Physical touch/screen-reader and full standalone matrix remain open.
 
 2026-10-31: Final endpoint correction independently checked by Terra, including sub-ms ranges. [Interrogate](../docs/sprint-evidence/sprint-19/interrogate.md) records both panel rounds, fixes, dropped inherited-user-deletion finding and bounded technical verdict. All code work is sequential; no merge/deploy.
+
+2026-10-31: Draft [PR21](https://github.com/ashcx/audio-toolkit-v1/pull/21) targets main with implementation1647def. No full acceptance/merge/deploy claim. Sprint20 technical work is independently eligible with the recorded gaps.
