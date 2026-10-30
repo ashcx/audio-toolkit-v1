@@ -48,3 +48,5 @@ Removing an option without the user's decision, music-stem separation changes, a
 2026-10-30: User requested both options for evaluation. No implementation yet.
 
 2026-10-30: Implemented strict Standard/Detailed recipe choices and bounded per-channel streaming with exact source-grid restoration.68unit tests and build pass. Actual production-build Chrome exports and independently parsed downloaded WAVs pass the tested1second stereo44.1kHz case. Desktop/mobile-width captures are recorded. Actual UI cancellation reaches Cancelled/Retry. Terra findings on sub-model-sample trim and duplicate speech model states were reproduced and fixed. See Sprint14 coverage for unresolved model rights/transitive notices and unobserved human/physical acceptance.
+
+2026-10-30: Technical candidate [PR16](https://github.com/ashcx/audio-toolkit-v1/pull/16) opened as draft at f6d349a targeting main, with no merge/deployment. Full-interview Detailed retry after cancellation completed in the real workspace. Remaining factual/release gates stay unchecked.
