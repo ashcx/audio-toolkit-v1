@@ -111,3 +111,5 @@ Implementation a6ecb1a5722824c8dc7fb1a39958cf788a98786c pushed to codex/sprint-9
 ## 2026-10-30 reliability follow-up
 
 PR #9 was merged externally while the sprint's listening and GPU observations remained open. A subsequent Mac Chrome report reopened isolation reliability. The deployed app completed an anonymous full song through 40 model workers, reproducing misleading repeated initialization labels. The follow-up fixes file-level progress, sticky CPU fallback, worker deadlines, and callback cancellation. Both latest-build full-song modes, sixteen real-song excerpt exports, 46 unit tests, four browser fault-recovery cases, four recipe-order cases, 96 format checks, and six cleanup cases pass. See [the follow-up evidence](../docs/sprint-evidence/sprint-9/reliability/verification.md). Physical Mac GPU, heat, and subjective listening remain unverified. Sprint 9 remains In progress.
+
+Reliability delivery: [PR #10](https://github.com/ashcx/audio-toolkit-v1/pull/10) is open against main. Product implementation and anonymized evidence were pushed in `58f63924e3492bb6c5b3e84138dd48de4eed9097`. No merge or deployment was performed.
