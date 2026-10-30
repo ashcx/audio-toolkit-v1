@@ -13,6 +13,7 @@ import {
   type StepDraft,
 } from "./recipe";
 import { TrimFields } from "./trim-fields";
+import { PRESETS, presetRecipe, presetSchema } from "./presets";
 
 function summary(step: StepDraft): string {
   switch (step.kind) {
@@ -250,6 +251,14 @@ export function RecipeEditor({
           ))}
         </select>
       </div>
+      <select aria-label="Preset" value="" onChange={event => {
+        const preset = presetSchema.safeParse(event.currentTarget.value);
+        if (preset.success) onChange(presetRecipe(preset.data, value));
+        event.currentTarget.value = "";
+      }}>
+        <option value="" disabled>Preset</option>
+        {Object.entries(PRESETS).map(([key, name]) => <option value={key}>{name}</option>)}
+      </select>
       <p class="panel-description">Applied to all files.</p>
       <div class="recipe-steps">
         {value.steps.map((step, index) => {

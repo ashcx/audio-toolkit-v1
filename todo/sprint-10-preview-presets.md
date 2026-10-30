@@ -4,7 +4,7 @@
 
 Test one file and reuse the result in the batch. Owns feature-plan sections 17; cross-cutting requirements remain binding.
 
-Status: Not started. Technical delivery: Not started. Agent-verified acceptance: NOT VERIFIED.
+Status: In progress. Technical delivery: implemented and tested; [PR #11](https://github.com/ashcx/audio-toolkit-v1/pull/11) open. Agent-verified acceptance: NOT VERIFIED, independent Terra high review blocked by runtime capacity.
 
 ## Entry criteria
 
@@ -22,26 +22,26 @@ One-week timebox. First two stories commit 6 SP. Third story is 3 SP required st
 
 - [ ] **S10-US01 - Test through the same engine**. Priority P0. 3 SP. Committed. Owner: main instance.
   - Given a file has an effective recipe, when Test on one file runs, then playable/downloadable output uses the batch engine and trim override.
-  - [ ] Ground affected sources, capture a baseline and freeze prerequisite contracts.
-  - [ ] Select first or chosen file and show steps, actual size and final format.
-  - [ ] Drive the actual artifact and run meaningful acceptance checks.
-  - [ ] Perform separate self-review, resolve findings, rerun affected checks and log exact results before advancing.
+  - [x] Ground affected sources, capture a baseline and freeze prerequisite contracts.
+  - [x] Select first or chosen file and show steps, actual size and final format.
+  - [x] Drive the actual artifact and run meaningful acceptance checks.
+  - [x] Perform separate self-review, resolve findings, rerun affected checks and log exact results before advancing.
   - Evidence: `docs/sprint-evidence/sprint-10/S10-US01.md`, fixtures/captures and coverage matrix.
 
 - [ ] **S10-US02 - Reuse only matching test outputs**. Priority P0. 3 SP. Committed. Owner: main instance.
   - Given a successful test exists, when the rest of the batch starts or settings change, then matching output is reused once and changed settings/input invalidate reuse.
-  - [ ] Ground affected sources, capture a baseline and freeze prerequisite contracts.
-  - [ ] Freeze effective recipe/input identity and result lifetime; exercise retry and cancellation interactions.
-  - [ ] Drive the actual artifact and run meaningful acceptance checks.
-  - [ ] Perform separate self-review, resolve findings, rerun affected checks and log exact results before advancing.
+  - [x] Ground affected sources, capture a baseline and freeze prerequisite contracts.
+  - [x] Freeze effective recipe/input identity and result lifetime; exercise retry and cancellation interactions.
+  - [x] Drive the actual artifact and run meaningful acceptance checks.
+  - [x] Perform separate self-review, resolve findings, rerun affected checks and log exact results before advancing.
   - Evidence: `docs/sprint-evidence/sprint-10/S10-US02.md`, fixtures/captures and coverage matrix.
 
 - [ ] **S10-US03 - Offer editable presets**. Priority P1. 3 SP. Required stretch. Owner: main instance.
   - Given a recipe and trim overrides exist, when a preset is applied, then summary and actual settings match with explicit override behavior.
-  - [ ] Ground affected sources, capture a baseline and freeze prerequisite contracts.
-  - [ ] Provide original extraction, 192 kbps MP3, speech, voice and karaoke recipes with honest peak-normalization labels.
-  - [ ] Drive the actual artifact and run meaningful acceptance checks.
-  - [ ] Perform separate self-review, resolve findings, rerun affected checks and log exact results before advancing.
+  - [x] Ground affected sources, capture a baseline and freeze prerequisite contracts.
+  - [x] Provide original extraction, 192 kbps MP3, speech, voice and karaoke recipes with honest peak-normalization labels.
+  - [x] Drive the actual artifact and run meaningful acceptance checks.
+  - [x] Perform separate self-review, resolve findings, rerun affected checks and log exact results before advancing.
   - Evidence: `docs/sprint-evidence/sprint-10/S10-US03.md`, fixtures/captures and coverage matrix.
 
 ## Exit criteria
@@ -55,10 +55,10 @@ One-week timebox. First two stories commit 6 SP. Third story is 3 SP required st
 - [ ] Independent interrogate covers the integrated increment, requirements, all acceptance rows, contracts, revisions, captures and unfinished-work claims. Save reproductions, fixes/reruns, dropped claims and verdict in `docs/sprint-evidence/sprint-10/interrogate.md`.
 - [ ] Relevant audio/listening and resource evidence exists. Physical-device evidence is deferred to Sprint 12 by explicit user authorization; other missing observations stay NOT VERIFIED.
 
-After the preceding gates pass, commit and push this increment directly to main under the updated user instructions. Record the resulting automatic Pages deployment separately from technical acceptance.
+Deliver the verified increment on its own working branch with a PR targeting main. Record dependencies on earlier open PRs. The user has authorized PR delivery, not merging or deployment.
 
-- [ ] Commit and push verified changes to main, retaining plans, exact checks, captures, evidence, review verdict, gaps and starting/ending revisions.
-- [ ] Verify the main commit and Pages workflow status; record observed URLs/status in References, Execution log and TODO.md.
+- [ ] Commit and push verified changes to the sprint PR branch, retaining plans, exact checks, captures, evidence, review verdict, gaps and starting/ending revisions.
+- [ ] Verify the sprint PR head and target; keep deployment NOT VERIFIED and record observed URLs/status in References, Execution log and TODO.md.
 
 Complete only when all gates pass. Qualified last-resort exceptions keep boxes unchecked and status In progress with `sprint-10-unfinished.md`. Merge and deployment follow actual authorized scope.
 
@@ -77,10 +77,14 @@ Source sections 23–24 deferred features and exclusions. Hub/image implementati
 - [Scrum policy](redesign-scrum-plan.md).
 - [Feature requirements](audio-toolkit-plan.md).
 - Decision trail: `docs/sprint-evidence/decisions.tsv`.
-- Sprint PR: not created.
+- Sprint PR: [#11](https://github.com/ashcx/audio-toolkit-v1/pull/11), targets main and depends on #10.
 
 ## Execution log
 
 ### 2026-10-29 - Planning draft
 
 Stories and initial estimates drafted from requirements. No implementation, Ready verification, tests, device observations or sprint review occurred. Next action is to verify Entry criteria after an implementation instruction.
+
+### 2026-10-30 - Technical increment
+
+Implemented and verified in the main instance.50 unit checks and both-engine browser journeys pass, including native playback, trim override, one-time reuse, settings revert invalidation, cancellation/retry, preset confirmations and cleanup. Chromium additionally performed actual isolation Test plus batch with two model calls for two files. Required Terra high review is blocked by runtime agent capacity. No Done, merge or deployment claim. See coverage.md and interrogate.md under sprint10 evidence.

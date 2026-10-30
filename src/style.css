@@ -472,3 +472,5 @@ input[type="number"] {
 .file-result progress { width: 4rem; height: .5rem; }
 .run-actions { flex-wrap: wrap; align-items: center; gap: .75rem; }
 .run-actions small { flex-basis: 100%; color: var(--muted); }
+.file-result audio { width: min(100%, 20rem); height: 2.5rem; }
+.run-actions select { max-width: 100%; }

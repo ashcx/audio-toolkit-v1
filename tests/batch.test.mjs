@@ -83,3 +83,12 @@ test('isolation has an exclusive slot and queued inference never overlaps cleanu
  const {batch,calls,finish}=harness(2);const a=spec('a.wav',[newStep('isolation')]),b=spec('b.wav',[newStep('isolation')]),c=spec('c.wav');
  batch.start([a,b,c]);await tick();assert.equal(calls.length,1);assert.equal(calls[0].job.entry.id,a.entry.id);batch.cancel(a.entry.id);assert.equal(calls.length,1);finish(0);await tick();assert.equal(calls.length,2);assert.equal(calls[1].job.entry.id,b.entry.id);finish(1);await tick();assert.equal(calls.length,3);assert.equal(calls[2].job.entry.id,c.entry.id);finish(2);await tick();batch.dispose();
 });
+test('batch consumes a matching test once and reserves its name before other inputs',async()=>{
+ const {batch,calls,released,finish}=harness();const a=spec('same.wav'),b=spec('same.wav');batch.start([b],'test');await tick();finish(0);await tick();const tested=batch.snapshot.jobs.get(b.entry.id).state;batch.start([a,b]);await tick();assert.equal(calls.length,2);assert.equal(batch.snapshot.jobs.get(b.entry.id).state,tested);assert.notEqual(calls[1].job.name,calls[0].job.name);assert.deepEqual(released,[]);finish(1);await tick();batch.start([a,b]);await tick();assert.equal(calls.length,3);finish(2);await tick();finish(3);await tick();assert.equal(calls.length,4);batch.dispose();
+});
+test('settings edits, explicit invalidation and changed File identity prevent test reuse',async()=>{
+ for(const variant of ['plan','invalidate','file']){const {batch,calls,finish}=harness();const a=spec();batch.start([a],'test');await tick();finish(0);await tick();let next=a;if(variant==='plan')next={...a,plan:{...a.plan,snapshot:{...a.plan.snapshot,recipe:{...a.plan.snapshot.recipe,export:{format:'mp3',bitrateKbps:128}}}}};if(variant==='invalidate')batch.invalidateTest(a.entry.id);if(variant==='file')next={...a,entry:{...a.entry,file:new File(['changed'],a.entry.file.name)}};batch.start([next]);await tick();assert.equal(calls.length,2,variant);finish(1);await tick();batch.dispose();}
+});
+test('retry of a cancelled test retains eligibility and unrelated file edits preserve it',async()=>{
+ const {batch,calls,finish}=harness();const a=spec(),b=spec();batch.start([a],'test');await tick();batch.cancel(a.entry.id);calls[0].reject(new DOMException('Cancelled','AbortError'));await tick();batch.retry(a.entry.id);await tick();finish(1);await tick();batch.invalidateTest(b.entry.id);batch.start([a,b]);await tick();assert.equal(calls.length,3);assert.equal(calls[2].job.entry.id,b.entry.id);finish(2);await tick();batch.dispose();
+});

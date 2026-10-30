@@ -55,10 +55,10 @@ One-week timebox. First two stories commit 6 SP. Third story is 3 SP required st
 - [ ] Independent interrogate covers the integrated increment, requirements, all acceptance rows, contracts, revisions, captures and unfinished-work claims. Save reproductions, fixes/reruns, dropped claims and verdict in `docs/sprint-evidence/sprint-11/interrogate.md`.
 - [ ] Relevant audio/listening and resource evidence exists. Physical-device evidence is deferred to Sprint 12 by explicit user authorization; other missing observations stay NOT VERIFIED.
 
-After the preceding gates pass, commit and push this increment directly to main under the updated user instructions. Record the resulting automatic Pages deployment separately from technical acceptance.
+Deliver the verified increment on its own working branch with a PR targeting main. Record dependencies on earlier open PRs. The user has authorized PR delivery, not merging or deployment.
 
-- [ ] Commit and push verified changes to main, retaining plans, exact checks, captures, evidence, review verdict, gaps and starting/ending revisions.
-- [ ] Verify the main commit and Pages workflow status; record observed URLs/status in References, Execution log and TODO.md.
+- [ ] Commit and push verified changes to the sprint PR branch, retaining plans, exact checks, captures, evidence, review verdict, gaps and starting/ending revisions.
+- [ ] Verify the sprint PR head and target; keep deployment NOT VERIFIED and record observed URLs/status in References, Execution log and TODO.md.
 
 Complete only when all gates pass. Qualified last-resort exceptions keep boxes unchecked and status In progress with `sprint-11-unfinished.md`. Merge and deployment follow actual authorized scope.
 

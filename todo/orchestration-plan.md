@@ -53,3 +53,9 @@ The user explicitly requested the image compressor's low-copy approach. Keep con
 ## 2026-10-29 - Resume on live main
 
 The user integrated the earlier branches, enabled Pages and resumed work. Starting main3c29c0f includes checkpoint3f7e408. Deployment40858999659 succeeded; live page returned200. Follow the replacement AGENTS workflow directly on main. Earlier no-deploy and one-PR-per-sprint statements describe historical scope; current verified main pushes intentionally trigger the user's Pages workflow. Do not treat hosting success as processor or device acceptance.
+
+## 2026-10-30 - Authorized Sprints 10 through 12
+
+The user explicitly requested continuation and one PR per sprint after receiving the isolation reliability result. Continue technical work from reliability PR #10, retaining its unverified Mac GPU, thermal and listening observations in Sprint 12. This instruction authorizes progression despite those disclosed observations; it does not mark Sprint 9 Done or waive final release evidence. Each sprint has a branch and a PR targeting main. Later sprint branches include earlier open dependencies; document merge order as PR #10, Sprint 10, Sprint 11, Sprint 12. No merge or deployment is authorized.
+
+Sprint 10 freezes a single Batch owner for both tests and exports, with successful matching test outputs reusable once. File object and effective plan identity govern eligibility. Settings changes invalidate eligibility without deleting the previous downloadable result. Presets preserve trim and stable-file overrides, except original extraction which clears incompatible trim only through the existing confirmation path.
