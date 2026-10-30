@@ -4,7 +4,7 @@
 
 Verify the complete static audio product. Owns feature-plan sections 3,4,20,22,25,26,27; cross-cutting requirements remain binding.
 
-Status: In progress. Technical delivery: verified increment, PR preparation. Full acceptance: NOT VERIFIED (physical devices and listening).
+Status: In progress. Technical delivery: [PR #13](https://github.com/ashcx/audio-toolkit-v1/pull/13) open, targets main. Full acceptance: NOT VERIFIED (physical devices and listening).
 
 ## Entry criteria
 
@@ -77,7 +77,7 @@ Source sections 23–24 deferred features and exclusions. Hub/image implementati
 - [Scrum policy](redesign-scrum-plan.md).
 - [Feature requirements](audio-toolkit-plan.md).
 - Decision trail: `docs/sprint-evidence/decisions.tsv`.
-- Sprint PR: not created.
+- Sprint PR: [#13](https://github.com/ashcx/audio-toolkit-v1/pull/13).
 
 ## Execution log
 
@@ -90,3 +90,5 @@ Stories and initial estimates drafted from requirements. No implementation, Read
 Based on98f1020. Product source/public assets remained unchanged during the maintained production-preview run. 58 deterministic tests, production build and local static audit passed. Eleven sequential real automated Chromium/WebKit suites passed after diagnosing and correcting the privacy driver's handling of local blob URLs; initial failure retained in aggregate evidence. This includes58 DSP observations,96 downloaded format cases, cancellation/failure/cleanup, playback/test/presets/reuse and ZIP. Corrected workload driver selected Original and verified20 copy plans;20 synthetic hour-long1.7MB AAC/M4A files completed and the first download matched the source. A ten-minute encode also completed, combined RSS935MB under2GiB. No hour-long encoding/remux claim follows.
 
 Independent Terra high review assessed code, contracts, full evidence/captures and gaps; static audit and first-copy equality independently rerun. No unresolved blocking technical defect reproduced. Physical browsers/devices, suspension, human listening and thermals remain NOT VERIFIED. See docs/sprint-evidence/sprint-12/coverage.md, reviewer.md and sprint-12-unfinished.md. One PR targets main with explicit dependencies; no merge/deployment.
+
+PR13 created from42a06d7 targeting main. Delivery readback and bookkeeping follow; full acceptance stays open.

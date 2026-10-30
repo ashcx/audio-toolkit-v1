@@ -1,6 +1,6 @@
 # Release acceptance and handoff
 
-Delivery is a stack of open PRs targeting main: reliability #10, Sprint 10 #11, Sprint 11#12, then Sprint 12. Review and merge in that order. No merge or deployment was requested in this workflow. Existing main-based Pages deployment does not publish these branches until separately authorized merges occur.
+Delivery is a stack of open PRs targeting main: reliability #10, Sprint 10 #11, Sprint 11#12, Sprint 12 #13. Review and merge in that order. No merge or deployment was requested in this workflow. Existing main-based Pages deployment does not publish these branches until separately authorized merges occur.
 
 ## Required user device observations
 

@@ -25,7 +25,7 @@ Base98f1020. Product code/public assets remained unchanged throughout Sprint12 b
 | Physical Chrome on Mac, Edge, Safari on Mac/iPhone/iPad, Android Chrome; device versions/suspension/touch/save | docs/release-acceptance.md checklist | NOT VERIFIED |
 | Real music/live-event subjective separation listening, Mac thermals/GPU reliability | earlier full-song/excerpt objective evidence is not a substitute | NOT VERIFIED |
 | Independent Terra high interrogate | reviewer.md and interrogate.md | See verdict |
-| PR delivery | respective sprint PR links recorded after creation | Pending readback |
+| PR delivery | Sprint10 PR11, Sprint11 PR12, Sprint12 PR13, all target main; implementation42a06d7 for Sprint12 | VERIFIED creation; final head readback follows |
 | Candidate merged/deployed/live site running these changes | no merge or deployment authorized/performed | NOT VERIFIED |
 
 ## Failed attempts and corrected measurements
@@ -36,4 +36,4 @@ The initial privacy predicate rejected two same-origin `blob:` GET requests. The
 
 ## Delivery boundary
 
-The technical increment is reviewable. Full Sprint12/release acceptance remains open for real devices, suspension and subjective listening, plus any stated provenance boundary. Automated WebKit is not actual Safari, and a390px viewport is not a physical phone. No unchecked row becomes verified through a PR, source inspection or synthetic fixture. Open PRs target main in order10->11->12->Sprint12 PR; no merges or candidate deployment are claimed.
+The technical increment is reviewable. Full Sprint12/release acceptance remains open for real devices, suspension and subjective listening, plus any stated provenance boundary. Automated WebKit is not actual Safari, and a390px viewport is not a physical phone. No unchecked row becomes verified through a PR, source inspection or synthetic fixture. Open PRs target main in order10->11->12->13; no merges or candidate deployment are claimed.
