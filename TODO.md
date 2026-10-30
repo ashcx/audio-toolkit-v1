@@ -20,6 +20,16 @@ The user confirmed the public repository `ashcx/audio-toolkit-v1`. Production pa
 | [10](todo/sprint-10-preview-presets.md) | Test one file and reuse the result in the batch | 17 | [PR #11](https://github.com/ashcx/audio-toolkit-v1/pull/11) open; technical checks pass, independent technical review passed in Sprint11; device acceptance open |
 | [11](todo/sprint-11-downloads-limits.md) | Download retained results within measured limits | 18,19 | [PR #12](https://github.com/ashcx/audio-toolkit-v1/pull/12) open; technical checks/review pass; measured workload/device limits recorded |
 | [12](todo/sprint-12-release-readiness.md) | Verify the complete static audio product | 3,4,20,22,25,26,27 | [PR #13](https://github.com/ashcx/audio-toolkit-v1/pull/13) open; technical automation/review pass; physical/listening acceptance open |
+| [13](todo/sprint-13-speech-model-evaluation.md) | Compare speech cleanup models and browser processing paths | Speech cleanup | Not started |
+| [14](todo/sprint-14-speech-cleanup.md) | Add Standard and Detailed voice isolation to ordered recipes | Speech cleanup | Not started |
+| [15](todo/sprint-15-speech-acceleration.md) | Assess and deliver proven speech-processing acceleration | Speech cleanup | Not started |
+| [16](todo/sprint-16-isolation-benchmark.md) | Compare music isolation models and processing paths | 13,19 | Not started |
+| [17](todo/sprint-17-isolation-performance.md) | Deliver a measured music isolation improvement | 13,19 | Not started |
+| [18](todo/sprint-18-workspace-redesign.md) | Simplify the workspace and file results | Redesign, 5,6,17,22 | Not started |
+| [19](todo/sprint-19-recipe-interactions.md) | Modernize recipe and trim controls | Redesign, 8,10,11,12 | Not started |
+| [20](todo/sprint-20-output-delivery.md) | Deliver ZIP and supported folder saving | Redesign, 18,19,20 | Not started |
+
+The 2026-10-30 redesign request adds Sprints 18–20 after Sprint 17. It is planning-only; it does not authorize execution in this turn. The [redesign requirements](todo/audio-toolkit-plan.md#28-redesign-direction-2026-10-30) supersede conflicting earlier UI requirements.
 
 ## Final acceptance
 
