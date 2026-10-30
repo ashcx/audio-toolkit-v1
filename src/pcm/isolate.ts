@@ -2,7 +2,7 @@ import { BLOCK_FRAMES, frameTime, type PcmBlock, type PcmCheckpoint, type PcmRep
 import { resample } from "./resample.ts";
 import { isolationWindows, isolationWindowCount, ISOLATION_RATE } from "./isolation-window.ts";
 import type { InferenceReply, IsolationMode } from "../inference/protocol";
-import type { JobEvent } from "../job-events";
+import type { JobOperation } from "../job-events";
 import type { DspStats } from "./protocol";
 
 type Analysis = {
@@ -95,7 +95,7 @@ async function* subtractVoice(original: PcmStream, voice: PcmStream): PcmStream 
 export async function* isolate(source: PcmStream, keep: IsolationMode, context: {
   signal: AbortSignal;
   checkpoint: () => Promise<PcmCheckpoint>;
-  event: (event: JobEvent) => void;
+  event: (event: JobOperation) => void;
   infer: (planes: readonly Float32Array[]) => Promise<Extract<InferenceReply, { kind: "done" }>>;
   stats: Pick<DspStats, "isolationPasses" | "isolationWindows" | "maxIsolationFrames" | "isolationLoads" | "isolationBackends">;
 }): PcmStream {

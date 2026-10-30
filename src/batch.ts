@@ -1,4 +1,4 @@
-import type { JobEvent } from "./job-events";
+import type { JobEvent, JobOperation, IsolationDevice } from "./job-events";
 import { cleanupAll, CleanupFailure } from "./cleanup.ts";
 import type { FileEntry, FileId } from "./media";
 import { outputName, type ExecutionPlan } from "./planner.ts";
@@ -18,13 +18,13 @@ export type JobOutput = {
 type Attempt = Readonly<{ controller: AbortController }>;
 export type JobState =
   | { kind: "waiting" }
-  | { kind: "running"; attempt: Attempt; operation: JobEvent }
+  | { kind: "running"; attempt: Attempt; operation: JobOperation }
   | { kind: "cancelling"; attempt: Attempt }
   | { kind: "cancelled" }
   | { kind: "failed"; message: string }
   | ({ kind: "done"; url: string } & JobOutput);
-type OwnedJob = { readonly spec: JobSpec; state: JobState; ready: Promise<void>; purpose: "test" | "batch" };
-export type BatchJob = Readonly<Pick<OwnedJob, "spec" | "state">>;
+type OwnedJob = { readonly spec: JobSpec; state: JobState; ready: Promise<void>; purpose: "test" | "batch"; device: IsolationDevice | null };
+export type BatchJob = Readonly<Pick<OwnedJob, "spec" | "state" | "device">>;
 export type BatchSnapshot = { jobs: ReadonlyMap<FileId, BatchJob>; busy: boolean; cleanupCount: number; cleaning: boolean };
 export type JobRunner = (spec: JobSpec, signal: AbortSignal, phase: (value: JobEvent) => void) => Promise<JobOutput>;
 
@@ -98,7 +98,7 @@ export class Batch {
       void ready.catch(() => undefined);
       const extension = input.plan.kind === "copy" ? input.plan.target.container : exportDescriptor(input.plan.snapshot.recipe.export).extension;
       const name = outputName(input.entry.file.name, extension, names);
-      this.jobs.set(input.entry.id, { spec: Object.freeze({ ...input, name }), state: { kind: "waiting" }, ready, purpose });
+      this.jobs.set(input.entry.id, { spec: Object.freeze({ ...input, name }), state: { kind: "waiting" }, ready, purpose, device: null });
     }
     this.pump();
   }
@@ -169,6 +169,7 @@ export class Batch {
         const isolation = job.spec.plan.kind === "pcm" && job.spec.plan.steps.some(step => step.kind === "isolation");
         if (isolation && this.occupied > 0) continue;
         this.isolating = isolation;
+        job.device = null;
         const attempt = { controller: new AbortController() };
         job.state = { kind: "running", attempt, operation: { kind: "phase", phase: "Preparing" } };
         this.occupied++;
@@ -186,7 +187,8 @@ export class Batch {
       signal.throwIfAborted();
       const completed = await this.runner(job.spec, signal, operation => {
         if (current() && !signal.aborted) {
-          job.state = { kind: "running", attempt, operation };
+          if (operation.kind === "isolation-device") job.device = operation.device;
+          else job.state = { kind: "running", attempt, operation };
           this.emit();
         }
       });

@@ -1,9 +1,10 @@
-import type { JobEvent } from "../job-events";
+import type { JobEvent, IsolationDevice } from "../job-events";
 import type { InferenceInput, InferenceResult } from "./protocol";
 
 export class InferenceRunner {
   private backend: InferenceInput["backend"] = "auto";
   private stopped = false;
+  private device: IsolationDevice | null = null;
   private stopReason: unknown = new DOMException("Cancelled", "AbortError");
   private active: { worker: Worker; reject: (reason: unknown) => void } | null = null;
   stop(reason: unknown = new DOMException("Cancelled", "AbortError")) {
@@ -38,7 +39,11 @@ export class InferenceRunner {
       this.active = { worker, reject: reason => { clearTimeout(timer);reject(reason); } };
       worker.onmessage = ({ data }: MessageEvent<InferenceResult>) => {
         if (this.active?.worker !== worker) return;
-        if (data.kind === "backend") selectedBackend = data.backend;
+        if (data.kind === "backend") {
+          selectedBackend = data.backend;
+          this.device = selectedBackend === "webgpu+wasm" ? (this.device === "gpu" ? "gpu" : "preparing-gpu") : this.device === "cpu-fallback" ? "cpu-fallback" : "cpu";
+          event({ kind: "isolation-device", device: this.device });
+        }
         else if (data.kind === "phase" || data.kind === "model-download") {
           if (data.kind === "phase" && data.phase === "Loading model") stage = "session";
           if (data.kind === "phase" && data.phase === "Separating" && !separating) { stage = "run";separating = true;clearTimeout(timer);timer = deadline(300_000); }
@@ -56,9 +61,15 @@ export class InferenceRunner {
     });
     let attempts = 1;
     let result = await attempt(this.backend);
-    if (result.kind === "error" && result.backend === "webgpu+wasm" && result.stage !== "model") { this.backend = "wasm";attempts++;result = await attempt(this.backend); }
+    if (result.kind === "error" && result.backend === "webgpu+wasm" && result.stage !== "model") { this.backend = "wasm";this.device = "cpu-fallback";attempts++;
+      event({ kind: "isolation-device", device: "cpu-fallback" });
+      result = await attempt(this.backend);
+    }
     if (result.kind === "error") throw new Error(result.message);
     if (result.backend === "wasm") this.backend = "wasm";
+    this.device = result.backend === "webgpu+wasm" ? "gpu" : this.device === "cpu-fallback" ? "cpu-fallback" : "cpu";
+    event({ kind: "isolation-device", device: this.device });
+    if (this.stopped) throw this.stopReason;
     return { ...result, attempts };
   }
 }
