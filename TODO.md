@@ -20,6 +20,9 @@ The user confirmed the public repository `ashcx/audio-toolkit-v1`. Production pa
 | [10](todo/sprint-10-preview-presets.md) | Test one file and reuse the result in the batch | 17 | [PR #11](https://github.com/ashcx/audio-toolkit-v1/pull/11) open; technical checks pass, independent technical review passed in Sprint11; device acceptance open |
 | [11](todo/sprint-11-downloads-limits.md) | Download retained results within measured limits | 18,19 | [PR #12](https://github.com/ashcx/audio-toolkit-v1/pull/12) open; technical checks/review pass; measured workload/device limits recorded |
 | [12](todo/sprint-12-release-readiness.md) | Verify the complete static audio product | 3,4,20,22,25,26,27 | [PR #13](https://github.com/ashcx/audio-toolkit-v1/pull/13) open; technical automation/review pass; physical/listening acceptance open |
+| [13](todo/sprint-13-speech-model-evaluation.md) | Compare speech cleanup models and browser processing paths | Speech cleanup | Not started |
+| [14](todo/sprint-14-speech-cleanup.md) | Add Standard and Detailed voice isolation to ordered recipes | Speech cleanup | Not started |
+| [15](todo/sprint-15-speech-acceleration.md) | Assess and deliver proven speech-processing acceleration | Speech cleanup | Not started |
 
 ## Final acceptance
 

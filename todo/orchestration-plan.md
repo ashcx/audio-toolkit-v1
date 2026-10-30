@@ -6,6 +6,8 @@ Convert the feature plan into a TODO roadmap and sequential sprint plan. The ini
 
 ## Execute in dependency order
 
+On 2026-10-30 the user authorized three speech-cleanup sprints and a new Voice isolation recipe with Standard (GTCRN) and Detailed (DeepFilterNet3) options for comparison. These are distinct from voice/music separation. Sprint 13 compares models and execution paths, Sprint 14 implements both options, and Sprint 15 pursues acceleration only when measurements justify it. Retain both for user evaluation; the user will decide their final inclusion. All PRs target main and require explicit user permission to merge.
+
 Follow [TODO.md](../TODO.md), one sprint, story and task at a time in the main instance. Verify predecessor artifacts directly. No parallel implementation. The latest user instructions restore PR delivery. Create working branches for reviewed sprint PRs targeting main. Do not commit/push directly to main or merge without explicit user permission. Pages deployment follows an authorized merge, not branch delivery. Record starting/ending revisions and refresh affected verification after changes. Independent technical review and truthful acceptance gates remain binding.
 
 ## Freeze contracts before consumers

@@ -506,13 +506,22 @@ Definition of done for any promoted enhancement: define its acceptance criteria,
 
 ## 24. Explicit exclusions
 
-- Background-noise removal in V1.
+- Other background-noise processing beyond the speech cleanup planned in Sprints 13–15.
 - Four-stem or instrument-specific separation.
 - Simultaneous voice and instrumental export from one input.
 - Branching pipelines or node editors.
 - Multi-track mixing or DAW-style editing.
 - Arbitrary FFmpeg commands.
 - Complex EQ or dynamic-range compressor interfaces.
+
+## 24a. Speech voice isolation
+
+- [ ] Provide a separate Voice isolation recipe step for speech and ordinary background noise, distinct from voice/music stem separation.
+- [ ] Offer Standard with GTCRN and Detailed with DeepFilterNet3 for user comparison. Verify the requested faster and higher-quality descriptions against representative results before making those claims in the interface.
+- [ ] Run both locally and load their models only when needed. Preserve ordered recipes, cancellation, progress, output duration and resource cleanup.
+- [ ] Record any sample-rate, bandwidth and channel limitations before exposing each model.
+- [ ] Compare browser CPU, threaded CPU and WebGPU paths where feasible. Verify actual backend execution, audio quality, memory, latency and end-to-end speed before enabling accelerated paths.
+- [ ] Retain a functional CPU fallback and document hosting and browser requirements. The user decides final model inclusion after reviewing the results.
 - Server-side media processing.
 - Per-file overrides for every recipe parameter in V1. Trimming is the agreed exception.
 - Image-processing implementation or media-hub application code in this workspace.
