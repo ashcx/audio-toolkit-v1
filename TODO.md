@@ -25,6 +25,11 @@ The user confirmed the public repository `ashcx/audio-toolkit-v1`. Production pa
 | [15](todo/sprint-15-speech-acceleration.md) | Assess and deliver proven speech-processing acceleration | Speech cleanup | Not started |
 | [16](todo/sprint-16-isolation-benchmark.md) | Compare music isolation models and processing paths | 13,19 | Not started |
 | [17](todo/sprint-17-isolation-performance.md) | Deliver a measured music isolation improvement | 13,19 | Not started |
+| [18](todo/sprint-18-workspace-redesign.md) | Simplify the workspace and file results | Redesign, 5,6,17,22 | Not started |
+| [19](todo/sprint-19-recipe-interactions.md) | Modernize recipe and trim controls | Redesign, 8,10,11,12 | Not started |
+| [20](todo/sprint-20-output-delivery.md) | Deliver ZIP and supported folder saving | Redesign, 18,19,20 | Not started |
+
+The 2026-10-30 redesign request adds Sprints 18–20 after Sprint 17. It is planning-only; it does not authorize execution in this turn. The [redesign requirements](todo/audio-toolkit-plan.md#28-redesign-direction-2026-10-30) supersede conflicting earlier UI requirements.
 
 ## Final acceptance
 

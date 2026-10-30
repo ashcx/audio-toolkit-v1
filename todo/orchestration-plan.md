@@ -10,6 +10,8 @@ On 2026-10-30 the user authorized three speech-cleanup sprints and a new Voice i
 
 The user added Sprints 16 and 17 for music and vocal separation performance. Sprint 16 compares the existing SCNet pipeline, practical SCNet optimizations, and DTTNet where feasible. Sprint 17 implements only an improvement supported by those results. Speech cleanup and separation research can be prepared independently, but shared runtime and recipe contracts must be coordinated before changes are integrated. Run performance measurements on the Mac one at a time to avoid competing workloads. The user provides Mac and listening observations; absent observations remain not verified. Each sprint has its own PR targeting main.
 
+On 2026-10-30 the user requested planning only for a UI redesign after Sprint 17. Sprints 18, 19, and 20 respectively simplify the workspace, modernize recipe controls, and add folder delivery with an accessible ZIP fallback. The new [requirements](audio-toolkit-plan.md#28-redesign-direction-2026-10-30) supersede conflicting earlier UI requirements without changing historical evidence. No redesign execution is authorized by this planning request. Verify each predecessor and its review evidence before beginning a dependent sprint.
+
 Follow [TODO.md](../TODO.md), one sprint, story and task at a time in the main instance. Verify predecessor artifacts directly. No parallel implementation. The latest user instructions restore PR delivery. Create working branches for reviewed sprint PRs targeting main. Do not commit/push directly to main or merge without explicit user permission. Pages deployment follows an authorized merge, not branch delivery. Record starting/ending revisions and refresh affected verification after changes. Independent technical review and truthful acceptance gates remain binding.
 
 ## Freeze contracts before consumers
@@ -26,7 +28,10 @@ Follow [TODO.md](../TODO.md), one sprint, story and task at a time in the main i
 | 8 | Job lifecycle, attempt identity, cancellation and resource ownership | 9–12 |
 | 9 | Isolation runtime, overlap reconstruction and global single-job limit | 10–12 |
 | 10 | Test-result identity, lifetime and reuse invalidation | 11–12 |
-| 11 | Result storage, ZIP naming and measured cleanup/resource limits | 12 |
+| 11 | Result storage, ZIP naming and measured cleanup/resource limits | 12, 20 |
+| 18 | Compact file states, settings location and export-only flow | 19–20 |
+| 19 | Recipe ordering, parameter controls and trim interactions | 20 |
+| 20 | Folder permission, safe output naming and partial-failure semantics | Final redesign acceptance |
 
 Record concrete schemas and pass predicates before dependent implementation. No API or performance claim has been validated by this plan.
 

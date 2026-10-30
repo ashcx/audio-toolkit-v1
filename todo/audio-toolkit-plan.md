@@ -1,7 +1,7 @@
 # Audio Toolkit feature plan and definition of done
 
 Date: 2026-10-29
-Status: requirements recorded; implementation not started.
+Status: historical requirements and implementation evidence are retained. Section 28 records the 2026-10-30 redesign decisions and supersedes conflicting earlier UI requirements when Sprints 18–20 are implemented.
 
 ## 1. Purpose and authority
 
@@ -44,7 +44,7 @@ Definition of done: delivered behavior matches these decisions, and any accepted
 - [ ] Select multiple audio files, video files, or a mixed batch.
 - [ ] Build a linear recipe from processing cards.
 - [ ] Configure shared settings and optional per-file trim ranges.
-- [ ] Test the recipe on a selected file before processing the remaining batch.
+- [ ] Export the batch directly. The separate test-one-file action is removed in Sprint 18 (section 28).
 - [ ] Process each file locally with clear progress and isolated failures.
 - [ ] Download individual results or a ZIP of successful results.
 
@@ -86,7 +86,7 @@ Definition of done: the hub routes to both production apps, both apps link back 
 - [ ] Use one primary workspace rather than separate pages for every audio operation.
 - [ ] Render the recipe as vertically stacked cards with collapsed summaries and expandable settings.
 - [ ] Make desktop wider without turning it into a different interaction model.
-- [ ] Support desktop drag reordering and explicit Move up/Move down controls usable on mobile and keyboard.
+- [ ] Support visible drag reordering on desktop and touch, with an accessible non-drag keyboard and touch alternative (section 28).
 - [ ] Provide accessible names, visible focus, readable contrast, and touch-friendly controls.
 - [ ] Announce errors and relevant progress without overwhelming screen readers.
 - [ ] Avoid relying only on color to identify file states.
@@ -99,7 +99,7 @@ Definition of done: visual checks on desktop and mobile confirm a consistent fam
 - [ ] Support multiple file selection and desktop drag-and-drop.
 - [ ] Accept mixed audio and video inputs within one batch.
 - [ ] Show batch file count and total input size.
-- [ ] Show per-file name, size, duration, detected container, audio codec, channel count, and sample rate where available.
+- [ ] Show compact per-file identity, useful status, and duration where helpful. Do not display file size, format, codec details, or re-encode labels in normal rows (section 28).
 - [ ] Distinguish unknown metadata from invalid or unsupported files.
 - [ ] Probe actual media content instead of relying only on filename extensions.
 - [ ] Identify video files without audio and report a useful per-file error.
@@ -340,6 +340,8 @@ Definition of done: partial failures, cancellations, and retries leave accurate 
 
 ## 17. Test on one file and presets
 
+Historical scope for Sprint 10. The user removed both features from the intended interface on 2026-10-30; Sprint 18 owns their removal. The checklist below is retained as historical context and is not a future acceptance requirement.
+
 ### Test on one file
 
 - [ ] Default to the first file while allowing a user-selected file.
@@ -375,8 +377,8 @@ Definition of done: tests and batch runs produce equivalent outputs under the sa
 - [ ] Exclude partial/cancelled outputs from successful downloads.
 - [ ] Sanitize names and prevent output collisions without changing source files.
 - [ ] Release object URLs and temporary files when results are removed or the workspace is reset.
-- [ ] Explain the session lifetime of results and the risk of losing unsaved work on navigation.
-- [ ] Direct user-selected folder output is deferred; keep output sinks extensible for it.
+- [ ] Preserve an appropriate contextual warning before losing unsaved results without a persistent footer message (section 28).
+- [ ] Offer user-selected folder saving where browser capabilities permit; retain individual and ZIP downloads elsewhere (section 28).
 
 Definition of done: individual files and ZIP contents are complete, named correctly, playable, and available after unrelated file failures.
 
@@ -535,7 +537,7 @@ Definition of done for any promoted enhancement: define its acceptance criteria,
 - [ ] Convert mixed audio/video inputs using one recipe.
 - [ ] Apply inherited trim settings, two distinct overrides, and Reset to batch settings.
 - [ ] Handle a trim beyond duration without stopping valid files.
-- [ ] Test one file and process the remainder without duplicating its reusable result.
+- [ ] Verify direct batch export without a separate test-one-file action (section 28).
 - [ ] Verify both voice and music isolation on music, speech-over-music, and live/event material.
 - [ ] Verify all required output formats and advertised bitrate options.
 - [ ] Handle corrupt media, no-audio video, unsupported codecs, and missing model assets.
@@ -575,7 +577,7 @@ Definition of done for any promoted enhancement: define its acceptance criteria,
 The initial complete audio product is done only when all required criteria below have evidence. Deferred items do not block completion unless explicitly promoted.
 
 - [ ] The delivered feature inventory covers the required brief and confirmed discussion decisions.
-- [ ] A user can complete file selection, recipe configuration, per-file trimming, test execution, batch processing, and download.
+- [ ] A user can complete file selection, recipe configuration, per-file trimming, batch export, and download.
 - [ ] Every successful input produces exactly one valid output with the requested effective settings.
 - [ ] Extraction, trimming, normalization, gain, channel conversion, resampling, isolation, and required exports work as documented.
 - [ ] The planner demonstrably copies streams where possible and avoids unnecessary decode/encode cycles.
@@ -607,3 +609,17 @@ These details do not prevent recording the current plan. They must be settled be
 - [ ] Establish measured file-duration, batch-size, memory, storage, and ZIP limits.
 - [ ] Verify GitHub Pages runtime/header constraints and model delivery strategy.
 - [ ] Break this inventory into implementation parts with dependencies and acceptance evidence. No phase ordering is assigned in this document.
+
+## 28. Redesign direction 2026-10-30
+
+The user requested planning only. Deliver these changes after Sprint 17 through [Sprints 18–20](../TODO.md). Earlier conflicting UI and preset/test requirements are historical, not acceptance criteria for the redesigned product. Keep existing audio processing, per-file trimming, failure recovery, privacy, and license obligations unless explicitly changed here.
+
+- [ ] Preserve the two-panel workspace on desktop and a usable stacked layout on mobile. Use the image compressor as a read-only visual and interaction reference. Keep copy light.
+- [ ] Remove presets and the separate test-one-file UI and workflow. Export runs the configured batch. Remove obsolete entry points and tests while preserving real batch and result behavior.
+- [ ] Use compact file rows with filename, duration where useful, action and state. Do not show file size, format, codec, sample rate, re-encode label, or redundant completion details in normal rows. Retain actionable errors, clipped-sample warnings, per-file trim, playback, and downloads in a concise form.
+- [ ] Move appearance and licenses to an accessible settings card or panel, inspired by the image compressor. Remove the persistent footer text, links and save-results sentence named in the request. Preserve license notices and the underlying privacy guarantees. Use contextual unsaved-result and failure feedback only when necessary.
+- [ ] Replace gain and peak-target number-first controls with sliders, visible values, and optional precise entry. Preserve supported range, precision, validation, and clipping feedback. Use segmented controls for short choices where appropriate.
+- [ ] Make recipe cards expandable and visibly draggable with a grip, mouse drag, touch long-press, insertion feedback, and an accessible non-drag alternative. Preserve ordered processing and keyboard focus. Add steps from a compact menu.
+- [ ] Improve trim interaction with a visual range where feasible, precise time entry, clear batch versus per-file scope, and source-time correctness. Do not claim waveform support without a bounded implementation and evidence.
+- [ ] Keep individual downloads and ZIP delivery. Add direct folder saving only where browser capability and user-granted access permit. Handle cancellation, denied access, name collisions, partial failures, and unsupported browsers without losing results.
+- [ ] Verify light and dark desktop/mobile states, keyboard, touch, screen readers, actual audio output, cleanup, and the supported-browser fallback. Keep unavailable physical-device evidence marked not verified.
