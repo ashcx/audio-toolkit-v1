@@ -168,7 +168,7 @@ function StepFields({
             <option value="music">Music</option>
           </select>
         </label>
-        <small class="panel-description">Some voice, music or reverb may remain. Isolation uses more memory and can be slow on phones.</small>
+        <small class="panel-description">May take several minutes. Some voice, music or reverb may remain.</small>
         </>
       );
     default: {

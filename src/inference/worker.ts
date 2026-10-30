@@ -41,6 +41,7 @@ self.onmessage = async ({ data }: MessageEvent<InferenceInput>) => {
     const frames = data.planes[0]?.length;
     if (!frames || frames > ISOLATION_WINDOW || data.planes.length < 1 || data.planes.length > 2 || data.planes.some(plane => plane.length !== frames)) throw new Error("This isolation window is unsupported.");
     if (data.backend === "auto" && await usableGpu()) backend = "webgpu+wasm";
+    report({ kind: "backend", backend });
     const base = new URL(import.meta.env.BASE_URL + "vendor/neural/", self.location.href);
     const bytes = await modelBytes(base);
     report({ kind: "phase", phase: "Loading model" });stage = "session";

@@ -6,7 +6,8 @@ export type InferenceInput = {
   backend: "auto" | "wasm";
 };
 export type InferenceResult =
-  | JobEvent
+  | Exclude<JobEvent, { kind: "isolation-progress" }>
+  | { kind: "backend"; backend: "wasm" | "webgpu+wasm" }
   | { kind: "done"; planes: Float32Array<ArrayBuffer>[]; backend: "wasm" | "webgpu+wasm" }
   | { kind: "error"; message: string; stage: "model" | "session" | "run"; backend: "wasm" | "webgpu+wasm" };
 export type InferenceRequest = { kind: "inference"; sequence: number; planes: Float32Array<ArrayBuffer>[] };

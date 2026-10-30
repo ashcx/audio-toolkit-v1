@@ -1,0 +1,465 @@
+{
+  "date": "2026-10-30",
+  "environment": "Linux automated Chromium and WebKit. Physical Mac GPU and thermal behavior not verified.",
+  "unitTestsPassed": 46,
+  "formatChecksPassed": 96,
+  "cleanupCasesPassed": 6,
+  "operationOrderCasesPassed": 4,
+  "failureRecoveryCases": [
+    {
+      "injectedStallBackend": "webgpu+wasm",
+      "actualModelRetryCompleted": true,
+      "ownedStoresAfterRemoval": 0
+    },
+    {
+      "injectedStallBackend": "wasm",
+      "actualModelRetryCompleted": true,
+      "ownedStoresAfterRemoval": 0
+    },
+    {
+      "missingAsset": "model",
+      "actualModelRetryCompleted": true,
+      "ownedStoresAfterRemoval": 0
+    },
+    {
+      "missingAsset": "wasm",
+      "actualModelRetryCompleted": true,
+      "ownedStoresAfterRemoval": 0
+    }
+  ],
+  "fullSong": {
+    "anonymousAlias": "full-song-01",
+    "passed": true,
+    "exports": [
+      {
+        "mode": "voice",
+        "sourceSamples": 18671616,
+        "outputSamples": 18671616,
+        "rms": 0.05718605289302373,
+        "peak": 0.47509765625,
+        "stats": {
+          "encoder": "pcm",
+          "decodePasses": 1,
+          "maxDecodedFrames": 1152,
+          "maxBlockFrames": 4096,
+          "encodedFrames": 9335808,
+          "terminalEncoders": 1,
+          "isolationPasses": 1,
+          "isolationWindows": 40,
+          "maxIsolationFrames": 485100,
+          "isolationLoads": 40,
+          "isolationBackends": [
+            "wasm"
+          ],
+          "normalizationPasses": 0,
+          "limitedNormalizations": 0,
+          "clippedSamples": 0
+        },
+        "models": 40
+      },
+      {
+        "mode": "music",
+        "sourceSamples": 18671616,
+        "outputSamples": 18671616,
+        "rms": 0.08551086120086243,
+        "peak": 0.67999267578125,
+        "stats": {
+          "encoder": "pcm",
+          "decodePasses": 1,
+          "maxDecodedFrames": 1152,
+          "maxBlockFrames": 1152,
+          "encodedFrames": 9335808,
+          "terminalEncoders": 1,
+          "isolationPasses": 1,
+          "isolationWindows": 40,
+          "maxIsolationFrames": 485100,
+          "isolationLoads": 40,
+          "isolationBackends": [
+            "wasm"
+          ],
+          "normalizationPasses": 0,
+          "limitedNormalizations": 0,
+          "clippedSamples": 0
+        },
+        "models": 40
+      }
+    ],
+    "reconstruction": {
+      "samples": 18671616,
+      "checkedSamples": 18671616,
+      "saturatedSamples": 0,
+      "maxReconstructionError": 3.102421760559082e-05,
+      "rmse": 1.2444391597169132e-05,
+      "tolerance": 0.0001,
+      "claim": "Decoded voice plus music reconstructs the decoded input outside saturated 16-bit output samples. This tests sample alignment and subtraction, not perceptual separation quality."
+    },
+    "memory": {
+      "peakSampledOwnedBrowserRssBytes": 1945878528,
+      "samples": 5447,
+      "budgetBytes": 2147483648,
+      "budgetExceeded": false
+    }
+  },
+  "eightSongExcerpts": {
+    "passed": true,
+    "exports": [
+      {
+        "inputIndex": 0,
+        "mode": "voice",
+        "sourceSamples": 264600,
+        "outputSamples": 264600,
+        "rms": 0.052054851746919276,
+        "peak": 0.248779296875,
+        "stats": {
+          "encodedFrames": 132300,
+          "isolationWindows": 1,
+          "clippedSamples": 0,
+          "isolationBackends": [
+            "wasm"
+          ]
+        },
+        "models": 1
+      },
+      {
+        "inputIndex": 0,
+        "mode": "music",
+        "sourceSamples": 264600,
+        "outputSamples": 264600,
+        "rms": 0.070473103303855,
+        "peak": 0.5447998046875,
+        "stats": {
+          "encodedFrames": 132300,
+          "isolationWindows": 1,
+          "clippedSamples": 0,
+          "isolationBackends": [
+            "wasm"
+          ]
+        },
+        "models": 1
+      },
+      {
+        "inputIndex": 1,
+        "mode": "voice",
+        "sourceSamples": 264600,
+        "outputSamples": 264600,
+        "rms": 0.14485118754978582,
+        "peak": 0.6419677734375,
+        "stats": {
+          "encodedFrames": 132300,
+          "isolationWindows": 1,
+          "clippedSamples": 0,
+          "isolationBackends": [
+            "wasm"
+          ]
+        },
+        "models": 1
+      },
+      {
+        "inputIndex": 1,
+        "mode": "music",
+        "sourceSamples": 264600,
+        "outputSamples": 264600,
+        "rms": 0.14462456520983555,
+        "peak": 1,
+        "stats": {
+          "encodedFrames": 132300,
+          "isolationWindows": 1,
+          "clippedSamples": 19,
+          "isolationBackends": [
+            "wasm"
+          ]
+        },
+        "models": 1
+      },
+      {
+        "inputIndex": 2,
+        "mode": "voice",
+        "sourceSamples": 264600,
+        "outputSamples": 264600,
+        "rms": 0.0005838316918543441,
+        "peak": 0.0045166015625,
+        "stats": {
+          "encodedFrames": 132300,
+          "isolationWindows": 1,
+          "clippedSamples": 0,
+          "isolationBackends": [
+            "wasm"
+          ]
+        },
+        "models": 1
+      },
+      {
+        "inputIndex": 2,
+        "mode": "music",
+        "sourceSamples": 264600,
+        "outputSamples": 264600,
+        "rms": 0.21752018873639922,
+        "peak": 1,
+        "stats": {
+          "encodedFrames": 132300,
+          "isolationWindows": 1,
+          "clippedSamples": 8,
+          "isolationBackends": [
+            "wasm"
+          ]
+        },
+        "models": 1
+      },
+      {
+        "inputIndex": 3,
+        "mode": "voice",
+        "sourceSamples": 264600,
+        "outputSamples": 264600,
+        "rms": 0.1903217163517608,
+        "peak": 0.89495849609375,
+        "stats": {
+          "encodedFrames": 132300,
+          "isolationWindows": 1,
+          "clippedSamples": 0,
+          "isolationBackends": [
+            "wasm"
+          ]
+        },
+        "models": 1
+      },
+      {
+        "inputIndex": 3,
+        "mode": "music",
+        "sourceSamples": 264600,
+        "outputSamples": 264600,
+        "rms": 0.22161910781106625,
+        "peak": 1,
+        "stats": {
+          "encodedFrames": 132300,
+          "isolationWindows": 1,
+          "clippedSamples": 1091,
+          "isolationBackends": [
+            "wasm"
+          ]
+        },
+        "models": 1
+      },
+      {
+        "inputIndex": 4,
+        "mode": "voice",
+        "sourceSamples": 264600,
+        "outputSamples": 264600,
+        "rms": 0.24273324654867165,
+        "peak": 0.9644775390625,
+        "stats": {
+          "encodedFrames": 132300,
+          "isolationWindows": 1,
+          "clippedSamples": 0,
+          "isolationBackends": [
+            "wasm"
+          ]
+        },
+        "models": 1
+      },
+      {
+        "inputIndex": 4,
+        "mode": "music",
+        "sourceSamples": 264600,
+        "outputSamples": 264600,
+        "rms": 0.17897805452843607,
+        "peak": 1,
+        "stats": {
+          "encodedFrames": 132300,
+          "isolationWindows": 1,
+          "clippedSamples": 9,
+          "isolationBackends": [
+            "wasm"
+          ]
+        },
+        "models": 1
+      },
+      {
+        "inputIndex": 5,
+        "mode": "voice",
+        "sourceSamples": 264600,
+        "outputSamples": 264600,
+        "rms": 0.13673529623049888,
+        "peak": 0.65289306640625,
+        "stats": {
+          "encodedFrames": 132300,
+          "isolationWindows": 1,
+          "clippedSamples": 0,
+          "isolationBackends": [
+            "wasm"
+          ]
+        },
+        "models": 1
+      },
+      {
+        "inputIndex": 5,
+        "mode": "music",
+        "sourceSamples": 264600,
+        "outputSamples": 264600,
+        "rms": 0.15041726170917094,
+        "peak": 0.999298095703125,
+        "stats": {
+          "encodedFrames": 132300,
+          "isolationWindows": 1,
+          "clippedSamples": 0,
+          "isolationBackends": [
+            "wasm"
+          ]
+        },
+        "models": 1
+      },
+      {
+        "inputIndex": 6,
+        "mode": "voice",
+        "sourceSamples": 264600,
+        "outputSamples": 264600,
+        "rms": 0.1854660928161849,
+        "peak": 0.94281005859375,
+        "stats": {
+          "encodedFrames": 132300,
+          "isolationWindows": 1,
+          "clippedSamples": 0,
+          "isolationBackends": [
+            "wasm"
+          ]
+        },
+        "models": 1
+      },
+      {
+        "inputIndex": 6,
+        "mode": "music",
+        "sourceSamples": 264600,
+        "outputSamples": 264600,
+        "rms": 0.14155538508706825,
+        "peak": 0.940277099609375,
+        "stats": {
+          "encodedFrames": 132300,
+          "isolationWindows": 1,
+          "clippedSamples": 0,
+          "isolationBackends": [
+            "wasm"
+          ]
+        },
+        "models": 1
+      },
+      {
+        "inputIndex": 7,
+        "mode": "voice",
+        "sourceSamples": 264600,
+        "outputSamples": 264600,
+        "rms": 0.16473434278336974,
+        "peak": 0.692291259765625,
+        "stats": {
+          "encodedFrames": 132300,
+          "isolationWindows": 1,
+          "clippedSamples": 0,
+          "isolationBackends": [
+            "wasm"
+          ]
+        },
+        "models": 1
+      },
+      {
+        "inputIndex": 7,
+        "mode": "music",
+        "sourceSamples": 264600,
+        "outputSamples": 264600,
+        "rms": 0.18801667964133983,
+        "peak": 0.999969482421875,
+        "stats": {
+          "encodedFrames": 132300,
+          "isolationWindows": 1,
+          "clippedSamples": 3,
+          "isolationBackends": [
+            "wasm"
+          ]
+        },
+        "models": 1
+      }
+    ],
+    "reconstruction": [
+      {
+        "samples": 264600,
+        "checkedSamples": 264600,
+        "saturatedSamples": 0,
+        "maxReconstructionError": 3.0517578125e-05,
+        "rmse": 3.5098549364336864e-07,
+        "tolerance": 0.0001,
+        "claim": "Decoded voice plus music reconstructs the decoded input outside saturated 16-bit output samples. This tests sample alignment and subtraction, not perceptual separation quality."
+      },
+      {
+        "samples": 264600,
+        "checkedSamples": 264581,
+        "saturatedSamples": 19,
+        "maxReconstructionError": 3.0517578125e-05,
+        "rmse": 6.499221842249311e-07,
+        "tolerance": 0.0001,
+        "claim": "Decoded voice plus music reconstructs the decoded input outside saturated 16-bit output samples. This tests sample alignment and subtraction, not perceptual separation quality."
+      },
+      {
+        "samples": 264600,
+        "checkedSamples": 264592,
+        "saturatedSamples": 8,
+        "maxReconstructionError": 3.0517578125e-05,
+        "rmse": 4.783198330555449e-07,
+        "tolerance": 0.0001,
+        "claim": "Decoded voice plus music reconstructs the decoded input outside saturated 16-bit output samples. This tests sample alignment and subtraction, not perceptual separation quality."
+      },
+      {
+        "samples": 264600,
+        "checkedSamples": 263509,
+        "saturatedSamples": 1091,
+        "maxReconstructionError": 3.0517578125e-05,
+        "rmse": 7.2568053281207e-07,
+        "tolerance": 0.0001,
+        "claim": "Decoded voice plus music reconstructs the decoded input outside saturated 16-bit output samples. This tests sample alignment and subtraction, not perceptual separation quality."
+      },
+      {
+        "samples": 264600,
+        "checkedSamples": 264591,
+        "saturatedSamples": 9,
+        "maxReconstructionError": 3.0517578125e-05,
+        "rmse": 7.41011299325704e-07,
+        "tolerance": 0.0001,
+        "claim": "Decoded voice plus music reconstructs the decoded input outside saturated 16-bit output samples. This tests sample alignment and subtraction, not perceptual separation quality."
+      },
+      {
+        "samples": 264600,
+        "checkedSamples": 264600,
+        "saturatedSamples": 0,
+        "maxReconstructionError": 3.0517578125e-05,
+        "rmse": 6.021071125651068e-07,
+        "tolerance": 0.0001,
+        "claim": "Decoded voice plus music reconstructs the decoded input outside saturated 16-bit output samples. This tests sample alignment and subtraction, not perceptual separation quality."
+      },
+      {
+        "samples": 264600,
+        "checkedSamples": 264600,
+        "saturatedSamples": 0,
+        "maxReconstructionError": 3.0517578125e-05,
+        "rmse": 6.222307757987433e-07,
+        "tolerance": 0.0001,
+        "claim": "Decoded voice plus music reconstructs the decoded input outside saturated 16-bit output samples. This tests sample alignment and subtraction, not perceptual separation quality."
+      },
+      {
+        "samples": 264600,
+        "checkedSamples": 264597,
+        "saturatedSamples": 3,
+        "maxReconstructionError": 3.0517578125e-05,
+        "rmse": 7.119325558319183e-07,
+        "tolerance": 0.0001,
+        "claim": "Decoded voice plus music reconstructs the decoded input outside saturated 16-bit output samples. This tests sample alignment and subtraction, not perceptual separation quality."
+      }
+    ],
+    "memory": {
+      "peakSampledOwnedBrowserRssBytes": 1927233536,
+      "samples": 1905,
+      "budgetBytes": 2147483648,
+      "budgetExceeded": false
+    }
+  },
+  "unverified": [
+    "Physical Mac Chrome hardware GPU and heat",
+    "Subjective listening quality",
+    "Physical iPhone Safari and Android acceptance"
+  ]
+}

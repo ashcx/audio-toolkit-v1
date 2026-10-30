@@ -5,3 +5,5 @@ dist/
 .playwright-cli/
 
 .artifacts/
+/test_songs/
+/.playwright-mcp/

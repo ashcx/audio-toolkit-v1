@@ -80,11 +80,7 @@ async function execute({
       case "isolation":
         stream = isolate(stream, step.keep, {
           signal: controller.signal, checkpoint: () => checkpoint(client), event: report,
-          infer: async planes => {
-            const result = await inference.run(planes);
-            report({ kind: "phase", phase: "Processing / encoding" });
-            return result;
-          }, stats,
+          infer: planes => inference.run(planes), stats,
         });
         break;
       default: {
