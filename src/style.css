@@ -505,3 +505,4 @@ input[type="range"] { width: 100%; min-width: 0; min-height: 44px; accent-color:
 .trim-track { height: .5rem; background: var(--border); border-radius: 1rem; position: relative; overflow: hidden; }
 .trim-track div { height: 100%; position: absolute; background: var(--accent); }
 .timeline-unavailable { grid-column: 1 / -1; }
+.folder-report { flex-basis: 100%; overflow-wrap: anywhere; font-size: .78rem; }

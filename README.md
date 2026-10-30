@@ -1,6 +1,6 @@
 # Audio Toolkit
 
-Local audio processing with an ordered recipe: extract original audio, trim, adjust gain, normalize peaks, change channels or sample rate, and isolate voice/music. Export MP3, AAC/M4A, WAV, FLAC or Opus/OGG. Export the batch and download individual results or a stored ZIP.
+Local audio processing with an ordered recipe: extract original audio, trim, adjust gain, normalize peaks, change channels or sample rate, and isolate voice/music. Export MP3, AAC/M4A, WAV, FLAC or Opus/OGG. Export the batch and download individual results or a stored ZIP. Save to a chosen folder when the browser supports it.
 
 The integrated branch has automated Chromium/WebKit evidence. Physical Mac/Safari/iPhone/iPad/Android and listening acceptance remain open. PR delivery and production deployment are separate; this branch has not been merged or deployed.
 
@@ -29,9 +29,9 @@ Large synthetic workload commands: `node scripts/download-check.mjs` includes 50
 
 ## Use
 
-Choose audio/video files, build an ordered recipe, select an output format and Export. Each Export processes the current batch. File rows keep duration, individual trim, processing state, playback and download. Appearance and licenses are in Settings.
+Choose audio/video files, build an ordered recipe, select an output format and Export. Each Export processes the current batch. File rows keep duration, individual trim, processing state, playback and download. Gain/peak sliders retain precise numeric fields; recipe grips and Up/Down change order. Trim timelines show known file-duration references. Appearance and licenses are in Settings.
 
-Download completed files individually or choose Create ZIP and then Download ZIP. Failed files do not enter the archive. Cancel waits for temporary writes and cleanup. If storage cleanup fails, use its retry control before starting more work. Clear results releases this tab's outputs. Save downloads before closing: there is no session restoration or background-processing promise.
+Download completed files individually or choose Create ZIP and then Download ZIP. Where available, Save to folder asks for access and creates a new batch subfolder. Existing files stay intact. Cancellation or partial failures leave downloads available; the result reports saved, failed and skipped files. No folder permission is retained across sessions. Failed files do not enter the archive. Cancel waits for temporary writes and cleanup. If storage cleanup fails, use its retry control before starting more work. Clear results releases this tab's outputs. Save downloads before closing: there is no session restoration or background-processing promise.
 
 See [formats and limits](docs/formats-and-limits.md), [architecture](docs/architecture.md), [privacy](docs/privacy.md) and [release acceptance](docs/release-acceptance.md).
 

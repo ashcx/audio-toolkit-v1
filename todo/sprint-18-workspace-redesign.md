@@ -4,7 +4,7 @@
 
 Deliver a compact, low-copy workspace with direct batch export, concise file rows, and a settings panel.
 
-Status: Paused after design, implementation and independent Terra/Luna review of the technical candidate. Draft PR20 submitted. Broader acceptance remains open.
+Status: Design, implementation and independent Terra/Luna review of the technical candidate complete. Draft PR20 submitted and reused at the latest resume. Broader acceptance remains open.
 
 ## Entry criteria
 
@@ -50,3 +50,5 @@ Changes to the image compressor, external hub, deployment, or audio-processing s
 2026-10-30: Implemented direct Export and removed presets/test/reuse ownership end to end. Compact file rows preserve individual trim, errors, downloads and expandable native playback. Settings uses a native modal with appearance/license access and Escape focus return.67unit tests, production build and static notices/hash audit pass. Actual mixed-file exports and per-file trim downloads independently match expected PCM grids. Desktop light/mobile dark/settings captures recorded. Physical touch/screen-reader and native exit-prompt handling remain unverified. See Sprint18 coverage.
 
 2026-10-30: Independent Terra/Luna review findings resolved and checked. Draft [PR20](https://github.com/ashcx/audio-toolkit-v1/pull/20) targets main at implementation47049c9. User requested a pause after Sprint18; Sprint19/20 remain unstarted. See [resume note](../resume.md) and `docs/sprint-evidence/sprint-18/interrogate.md` for verified scope and outstanding acceptance. No merge/deployment.
+
+2026-10-31: Latest user instruction resumed18–20. Reverified existing draftPR20 and source checkpoint; no duplicate Sprint18 PR. Sprint19 PR21 and Sprint20 PR22 build on its reviewed contracts.
