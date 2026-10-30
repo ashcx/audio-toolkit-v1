@@ -1,0 +1,594 @@
+[
+  {
+    "browser": "chromium",
+    "persistentContext": true,
+    "files": [
+      {
+        "input": "tone.m4a",
+        "name": "tone.audio.m4a",
+        "size": 32330,
+        "packets": 95,
+        "digest": "a9c2c596026fe87d6bd1e6eaa67e619450cc88d81516e93a7da2e02601600b73",
+        "codec": "aac",
+        "duration": 2,
+        "pcm": {
+          "reference": "tone.m4a",
+          "sourceFrames": 96256,
+          "outputFrames": 96256,
+          "sourceDigest": "88e9dd85201e8e79649df35b63222e36f62a53c7b308829da537555a1a58806b",
+          "outputDigest": "88e9dd85201e8e79649df35b63222e36f62a53c7b308829da537555a1a58806b"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "tone.mp3",
+        "name": "tone.audio.mp3",
+        "size": 32640,
+        "packets": 85,
+        "digest": "ae426af3b6359d19b9270f5e29e90f192b7b89596291271c7d36b4944fbf55e0",
+        "codec": "mp3",
+        "duration": 2.04,
+        "pcm": {
+          "reference": "tone.mp3",
+          "sourceFrames": 96000,
+          "outputFrames": 96000,
+          "sourceDigest": "158384bd81f455330ed08fd33e5adfdaa1b7fefea14289dafb338dba4a9f9dc6",
+          "outputDigest": "158384bd81f455330ed08fd33e5adfdaa1b7fefea14289dafb338dba4a9f9dc6"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "tone.opus",
+        "name": "tone.audio.ogg",
+        "size": 29128,
+        "packets": 101,
+        "digest": "4408154251de8dc51a20221b329612e0040f8b07fe743be4dd828f52d6f11833",
+        "codec": "opus",
+        "duration": 2.0065,
+        "pcm": {
+          "reference": "tone.opus",
+          "sourceFrames": 96000,
+          "outputFrames": 96000,
+          "sourceDigest": "931544a276e998af53e6f02a1708ae12c3f1047a0cfee2d5123518f079fa45b2",
+          "outputDigest": "931544a276e998af53e6f02a1708ae12c3f1047a0cfee2d5123518f079fa45b2"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "tone.ogg",
+        "name": "tone.audio (2).ogg",
+        "size": 6316,
+        "packets": 96,
+        "digest": "99fcbe88a0044e5c7b22f86fbefdbe2c64ae08eae2f6ea9c49d0dd7032202aaf",
+        "codec": "vorbis",
+        "duration": 2,
+        "pcm": {
+          "reference": "tone.ogg",
+          "sourceFrames": 96000,
+          "outputFrames": 96000,
+          "sourceDigest": "d8de83be72006014dab1808e197a1167a494c0cd7f395e8f195eb78e4ce2c0af",
+          "outputDigest": "d8de83be72006014dab1808e197a1167a494c0cd7f395e8f195eb78e4ce2c0af"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "tone.flac",
+        "name": "tone.audio.flac",
+        "size": 27069,
+        "packets": 21,
+        "digest": "55369d81b063f51e9a83dcaefe5c8808d1640a98cc7578ca68cd65f33d026736",
+        "codec": "flac",
+        "duration": 2,
+        "pcm": {
+          "reference": "tone.flac",
+          "sourceFrames": 96000,
+          "outputFrames": 96000,
+          "sourceDigest": "b461c590ea188ba9a63e340ee7c853b63f8e3435e38602e03e1e6983b0b0e934",
+          "outputDigest": "b461c590ea188ba9a63e340ee7c853b63f8e3435e38602e03e1e6983b0b0e934"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "tone.wav",
+        "name": "tone.audio.wav",
+        "size": 384000,
+        "packets": 47,
+        "digest": "9c6ed7580c3d781aa4837f38b28eb01d4a8151ed0e2a3e8a7199f7127718ebef",
+        "codec": "pcm_s16le",
+        "duration": 2,
+        "pcm": {
+          "reference": "tone.wav",
+          "sourceFrames": 96000,
+          "outputFrames": 96000,
+          "sourceDigest": "b461c590ea188ba9a63e340ee7c853b63f8e3435e38602e03e1e6983b0b0e934",
+          "outputDigest": "b461c590ea188ba9a63e340ee7c853b63f8e3435e38602e03e1e6983b0b0e934"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "tone.aac",
+        "name": "tone.audio (2).m4a",
+        "size": 32330,
+        "packets": 95,
+        "digest": "a9c2c596026fe87d6bd1e6eaa67e619450cc88d81516e93a7da2e02601600b73",
+        "codec": "aac",
+        "duration": 2.026667,
+        "pcm": {
+          "reference": "tone.aac",
+          "sourceFrames": 97280,
+          "outputFrames": 97280,
+          "sourceDigest": "dd5ef4e97f228a2173fb6bea40380515d12564c4dc9eb6e77e07c35873cab46c",
+          "outputDigest": "dd5ef4e97f228a2173fb6bea40380515d12564c4dc9eb6e77e07c35873cab46c"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": true,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "video.mp4",
+        "name": "video.audio.m4a",
+        "size": 32414,
+        "packets": 95,
+        "digest": "d7741e2512434e8affc8764c7d377264a5e5a717e13110131c4c21b715228e82",
+        "codec": "aac",
+        "duration": 2.021333,
+        "pcm": {
+          "reference": "video.mp4",
+          "sourceFrames": 96256,
+          "outputFrames": 96256,
+          "sourceDigest": "799819e496f857365026b0bd07cc3a93aabe8ac39b5ad0e870e8b21fcb1d4b82",
+          "outputDigest": "799819e496f857365026b0bd07cc3a93aabe8ac39b5ad0e870e8b21fcb1d4b82"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "video.mov",
+        "name": "video.audio (2).m4a",
+        "size": 32414,
+        "packets": 95,
+        "digest": "d7741e2512434e8affc8764c7d377264a5e5a717e13110131c4c21b715228e82",
+        "codec": "aac",
+        "duration": 2.021333,
+        "pcm": {
+          "reference": "video.mov",
+          "sourceFrames": 96256,
+          "outputFrames": 96256,
+          "sourceDigest": "799819e496f857365026b0bd07cc3a93aabe8ac39b5ad0e870e8b21fcb1d4b82",
+          "outputDigest": "799819e496f857365026b0bd07cc3a93aabe8ac39b5ad0e870e8b21fcb1d4b82"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "video.mkv",
+        "name": "video.audio.ogg",
+        "size": 32116,
+        "packets": 101,
+        "digest": "1d9f2993f617f85982d69c1d64411fc4036869cf10881686d5af08215d3c4011",
+        "codec": "opus",
+        "duration": 2.0065,
+        "pcm": {
+          "reference": "video.mkv",
+          "sourceFrames": 96000,
+          "outputFrames": 96000,
+          "sourceDigest": "4c5d2058edf0e91005f731e8300d14bb5e0fd09c41c894d7b47df215a1f62151",
+          "outputDigest": "4c5d2058edf0e91005f731e8300d14bb5e0fd09c41c894d7b47df215a1f62151"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "video.webm",
+        "name": "video.audio (2).ogg",
+        "size": 32116,
+        "packets": 101,
+        "digest": "1d9f2993f617f85982d69c1d64411fc4036869cf10881686d5af08215d3c4011",
+        "codec": "opus",
+        "duration": 2.0065,
+        "pcm": {
+          "reference": "video.webm",
+          "sourceFrames": 96000,
+          "outputFrames": 96000,
+          "sourceDigest": "4c5d2058edf0e91005f731e8300d14bb5e0fd09c41c894d7b47df215a1f62151",
+          "outputDigest": "4c5d2058edf0e91005f731e8300d14bb5e0fd09c41c894d7b47df215a1f62151"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "offset.mp4",
+        "name": "offset.audio.m4a",
+        "size": 32414,
+        "packets": 95,
+        "digest": "d7741e2512434e8affc8764c7d377264a5e5a717e13110131c4c21b715228e82",
+        "codec": "aac",
+        "duration": 2.021333,
+        "pcm": {
+          "reference": "offset.mp4",
+          "sourceFrames": 97280,
+          "outputFrames": 97280,
+          "sourceDigest": "4ee7928816c8f8b9a2f1815f86598adc2d1ab718a5205225a3a68c7367e68e0c",
+          "outputDigest": "4ee7928816c8f8b9a2f1815f86598adc2d1ab718a5205225a3a68c7367e68e0c"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "long-video.webm",
+        "name": "long-video.audio.ogg",
+        "size": 17908,
+        "packets": 101,
+        "digest": "ac9a08d27c2a9131b19a2e33c0c4d83618dd0bcc51918b9be45a7337e094569e",
+        "codec": "opus",
+        "duration": 2.0065,
+        "pcm": {
+          "reference": "long-video.webm",
+          "sourceFrames": 48000,
+          "outputFrames": 48000,
+          "sourceDigest": "a0bec04cb0e55d3002933abecb3f8144d016d0c2c6f8471029444df803a483e8",
+          "outputDigest": "a0bec04cb0e55d3002933abecb3f8144d016d0c2c6f8471029444df803a483e8"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "laced-opus.mka",
+        "name": "laced-opus.audio.ogg",
+        "size": 29128,
+        "packets": 101,
+        "digest": "4408154251de8dc51a20221b329612e0040f8b07fe743be4dd828f52d6f11833",
+        "codec": "opus",
+        "duration": 2.0065,
+        "pcm": {
+          "reference": "tone.opus",
+          "sourceFrames": 96000,
+          "outputFrames": 96000,
+          "sourceDigest": "931544a276e998af53e6f02a1708ae12c3f1047a0cfee2d5123518f079fa45b2",
+          "outputDigest": "931544a276e998af53e6f02a1708ae12c3f1047a0cfee2d5123518f079fa45b2"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      }
+    ],
+    "codecCalls": 0,
+    "maxWrite": 384078,
+    "cleanup": true,
+    "originalRejectsSignalChanges": true,
+    "touchDownloadAndExport": true,
+    "storageFailureRecovery": true,
+    "quotaFailureIsolation": true,
+    "retryReplacesOutputs": true,
+    "lockedRunAndSnapshotLabel": true,
+    "errors": []
+  },
+  {
+    "browser": "webkit",
+    "persistentContext": true,
+    "files": [
+      {
+        "input": "tone.m4a",
+        "name": "tone.audio.m4a",
+        "size": 32330,
+        "packets": 95,
+        "digest": "a9c2c596026fe87d6bd1e6eaa67e619450cc88d81516e93a7da2e02601600b73",
+        "codec": "aac",
+        "duration": 2,
+        "pcm": {
+          "reference": "tone.m4a",
+          "sourceFrames": 96256,
+          "outputFrames": 96256,
+          "sourceDigest": "88e9dd85201e8e79649df35b63222e36f62a53c7b308829da537555a1a58806b",
+          "outputDigest": "88e9dd85201e8e79649df35b63222e36f62a53c7b308829da537555a1a58806b"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "tone.mp3",
+        "name": "tone.audio.mp3",
+        "size": 32640,
+        "packets": 85,
+        "digest": "ae426af3b6359d19b9270f5e29e90f192b7b89596291271c7d36b4944fbf55e0",
+        "codec": "mp3",
+        "duration": 2.04,
+        "pcm": {
+          "reference": "tone.mp3",
+          "sourceFrames": 96000,
+          "outputFrames": 96000,
+          "sourceDigest": "158384bd81f455330ed08fd33e5adfdaa1b7fefea14289dafb338dba4a9f9dc6",
+          "outputDigest": "158384bd81f455330ed08fd33e5adfdaa1b7fefea14289dafb338dba4a9f9dc6"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "tone.opus",
+        "name": "tone.audio.ogg",
+        "size": 29128,
+        "packets": 101,
+        "digest": "4408154251de8dc51a20221b329612e0040f8b07fe743be4dd828f52d6f11833",
+        "codec": "opus",
+        "duration": 2.0065,
+        "pcm": {
+          "reference": "tone.opus",
+          "sourceFrames": 96000,
+          "outputFrames": 96000,
+          "sourceDigest": "931544a276e998af53e6f02a1708ae12c3f1047a0cfee2d5123518f079fa45b2",
+          "outputDigest": "931544a276e998af53e6f02a1708ae12c3f1047a0cfee2d5123518f079fa45b2"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "tone.ogg",
+        "name": "tone.audio_(2).ogg",
+        "size": 6316,
+        "packets": 96,
+        "digest": "99fcbe88a0044e5c7b22f86fbefdbe2c64ae08eae2f6ea9c49d0dd7032202aaf",
+        "codec": "vorbis",
+        "duration": 2,
+        "pcm": {
+          "reference": "tone.ogg",
+          "sourceFrames": 96000,
+          "outputFrames": 96000,
+          "sourceDigest": "d8de83be72006014dab1808e197a1167a494c0cd7f395e8f195eb78e4ce2c0af",
+          "outputDigest": "d8de83be72006014dab1808e197a1167a494c0cd7f395e8f195eb78e4ce2c0af"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "tone.flac",
+        "name": "tone.audio.flac",
+        "size": 27069,
+        "packets": 21,
+        "digest": "55369d81b063f51e9a83dcaefe5c8808d1640a98cc7578ca68cd65f33d026736",
+        "codec": "flac",
+        "duration": 2,
+        "pcm": {
+          "reference": "tone.flac",
+          "sourceFrames": 96000,
+          "outputFrames": 96000,
+          "sourceDigest": "b461c590ea188ba9a63e340ee7c853b63f8e3435e38602e03e1e6983b0b0e934",
+          "outputDigest": "b461c590ea188ba9a63e340ee7c853b63f8e3435e38602e03e1e6983b0b0e934"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "tone.wav",
+        "name": "tone.audio.wav",
+        "size": 384000,
+        "packets": 47,
+        "digest": "9c6ed7580c3d781aa4837f38b28eb01d4a8151ed0e2a3e8a7199f7127718ebef",
+        "codec": "pcm_s16le",
+        "duration": 2,
+        "pcm": {
+          "reference": "tone.wav",
+          "sourceFrames": 96000,
+          "outputFrames": 96000,
+          "sourceDigest": "b461c590ea188ba9a63e340ee7c853b63f8e3435e38602e03e1e6983b0b0e934",
+          "outputDigest": "b461c590ea188ba9a63e340ee7c853b63f8e3435e38602e03e1e6983b0b0e934"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "tone.aac",
+        "name": "tone.audio_(2).m4a",
+        "size": 32330,
+        "packets": 95,
+        "digest": "a9c2c596026fe87d6bd1e6eaa67e619450cc88d81516e93a7da2e02601600b73",
+        "codec": "aac",
+        "duration": 2.026667,
+        "pcm": {
+          "reference": "tone.aac",
+          "sourceFrames": 97280,
+          "outputFrames": 97280,
+          "sourceDigest": "dd5ef4e97f228a2173fb6bea40380515d12564c4dc9eb6e77e07c35873cab46c",
+          "outputDigest": "dd5ef4e97f228a2173fb6bea40380515d12564c4dc9eb6e77e07c35873cab46c"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": true,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "video.mp4",
+        "name": "video.audio.m4a",
+        "size": 32414,
+        "packets": 95,
+        "digest": "d7741e2512434e8affc8764c7d377264a5e5a717e13110131c4c21b715228e82",
+        "codec": "aac",
+        "duration": 2.021333,
+        "pcm": {
+          "reference": "video.mp4",
+          "sourceFrames": 96256,
+          "outputFrames": 96256,
+          "sourceDigest": "799819e496f857365026b0bd07cc3a93aabe8ac39b5ad0e870e8b21fcb1d4b82",
+          "outputDigest": "799819e496f857365026b0bd07cc3a93aabe8ac39b5ad0e870e8b21fcb1d4b82"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "video.mov",
+        "name": "video.audio_(2).m4a",
+        "size": 32414,
+        "packets": 95,
+        "digest": "d7741e2512434e8affc8764c7d377264a5e5a717e13110131c4c21b715228e82",
+        "codec": "aac",
+        "duration": 2.021333,
+        "pcm": {
+          "reference": "video.mov",
+          "sourceFrames": 96256,
+          "outputFrames": 96256,
+          "sourceDigest": "799819e496f857365026b0bd07cc3a93aabe8ac39b5ad0e870e8b21fcb1d4b82",
+          "outputDigest": "799819e496f857365026b0bd07cc3a93aabe8ac39b5ad0e870e8b21fcb1d4b82"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "video.mkv",
+        "name": "video.audio.ogg",
+        "size": 32116,
+        "packets": 101,
+        "digest": "1d9f2993f617f85982d69c1d64411fc4036869cf10881686d5af08215d3c4011",
+        "codec": "opus",
+        "duration": 2.0065,
+        "pcm": {
+          "reference": "video.mkv",
+          "sourceFrames": 96000,
+          "outputFrames": 96000,
+          "sourceDigest": "4c5d2058edf0e91005f731e8300d14bb5e0fd09c41c894d7b47df215a1f62151",
+          "outputDigest": "4c5d2058edf0e91005f731e8300d14bb5e0fd09c41c894d7b47df215a1f62151"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "video.webm",
+        "name": "video.audio_(2).ogg",
+        "size": 32116,
+        "packets": 101,
+        "digest": "1d9f2993f617f85982d69c1d64411fc4036869cf10881686d5af08215d3c4011",
+        "codec": "opus",
+        "duration": 2.0065,
+        "pcm": {
+          "reference": "video.webm",
+          "sourceFrames": 96000,
+          "outputFrames": 96000,
+          "sourceDigest": "4c5d2058edf0e91005f731e8300d14bb5e0fd09c41c894d7b47df215a1f62151",
+          "outputDigest": "4c5d2058edf0e91005f731e8300d14bb5e0fd09c41c894d7b47df215a1f62151"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "offset.mp4",
+        "name": "offset.audio.m4a",
+        "size": 32414,
+        "packets": 95,
+        "digest": "d7741e2512434e8affc8764c7d377264a5e5a717e13110131c4c21b715228e82",
+        "codec": "aac",
+        "duration": 2.021333,
+        "pcm": {
+          "reference": "offset.mp4",
+          "sourceFrames": 97280,
+          "outputFrames": 97280,
+          "sourceDigest": "4ee7928816c8f8b9a2f1815f86598adc2d1ab718a5205225a3a68c7367e68e0c",
+          "outputDigest": "4ee7928816c8f8b9a2f1815f86598adc2d1ab718a5205225a3a68c7367e68e0c"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "long-video.webm",
+        "name": "long-video.audio.ogg",
+        "size": 17908,
+        "packets": 101,
+        "digest": "ac9a08d27c2a9131b19a2e33c0c4d83618dd0bcc51918b9be45a7337e094569e",
+        "codec": "opus",
+        "duration": 2.0065,
+        "pcm": {
+          "reference": "long-video.webm",
+          "sourceFrames": 48000,
+          "outputFrames": 48000,
+          "sourceDigest": "a0bec04cb0e55d3002933abecb3f8144d016d0c2c6f8471029444df803a483e8",
+          "outputDigest": "a0bec04cb0e55d3002933abecb3f8144d016d0c2c6f8471029444df803a483e8"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      },
+      {
+        "input": "laced-opus.mka",
+        "name": "laced-opus.audio.ogg",
+        "size": 29128,
+        "packets": 101,
+        "digest": "4408154251de8dc51a20221b329612e0040f8b07fe743be4dd828f52d6f11833",
+        "codec": "opus",
+        "duration": 2.0065,
+        "pcm": {
+          "reference": "tone.opus",
+          "sourceFrames": 96000,
+          "outputFrames": 96000,
+          "sourceDigest": "931544a276e998af53e6f02a1708ae12c3f1047a0cfee2d5123518f079fa45b2",
+          "outputDigest": "931544a276e998af53e6f02a1708ae12c3f1047a0cfee2d5123518f079fa45b2"
+        },
+        "decodingConfigEqual": true,
+        "commentMetadataRewritten": false,
+        "payloadsEqual": true,
+        "video": false
+      }
+    ],
+    "codecCalls": 0,
+    "maxWrite": 384078,
+    "cleanup": true,
+    "originalRejectsSignalChanges": true,
+    "touchDownloadAndExport": true,
+    "storageFailureRecovery": true,
+    "quotaFailureIsolation": true,
+    "retryReplacesOutputs": true,
+    "lockedRunAndSnapshotLabel": true,
+    "errors": []
+  }
+]

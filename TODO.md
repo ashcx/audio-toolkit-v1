@@ -19,12 +19,12 @@ The user confirmed the public repository `ashcx/audio-toolkit-v1`. Production pa
 | [9](todo/sprint-9-isolation.md) | Keep voice or music locally in the recipe | 13,15,19,22 | In progress; [PR #9](https://github.com/ashcx/audio-toolkit-v1/pull/9) merged, [reliability PR #10](https://github.com/ashcx/audio-toolkit-v1/pull/10) open with full-song checks passed; Mac GPU and listening acceptance remain open |
 | [10](todo/sprint-10-preview-presets.md) | Test one file and reuse the result in the batch | 17 | [PR #11](https://github.com/ashcx/audio-toolkit-v1/pull/11) open; technical checks pass, independent technical review passed in Sprint11; device acceptance open |
 | [11](todo/sprint-11-downloads-limits.md) | Download retained results within measured limits | 18,19 | [PR #12](https://github.com/ashcx/audio-toolkit-v1/pull/12) open; technical checks/review pass; measured workload/device limits recorded |
-| [12](todo/sprint-12-release-readiness.md) | Verify the complete static audio product | 3,4,20,22,25,26,27 | Not started |
+| [12](todo/sprint-12-release-readiness.md) | Verify the complete static audio product | 3,4,20,22,25,26,27 | [PR #13](https://github.com/ashcx/audio-toolkit-v1/pull/13) open; technical automation/review pass; physical/listening acceptance open |
 
 ## Final acceptance
 
 - [ ] All required source features and section 26 have evidence, including isolation and all required exports.
-- [ ] Every sprint has passed independent interrogate and delivered its verified main commit (historical PRs remain valid evidence). No required stretch or carry-forward remains unresolved.
+- [ ] Every sprint has passed independent interrogate and delivered its verified working-branch PR targeting main. No required stretch or carry-forward remains unresolved.
 - [ ] Browser, audio correctness, privacy, accessibility and measured resource matrices pass.
 - [ ] Production deployment is authorized and observed before claiming the live app works.
 - [ ] Hub/image work has a separate handoff; this workspace does not claim those sites delivered.

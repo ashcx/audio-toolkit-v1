@@ -4,7 +4,7 @@
 
 Verify the complete static audio product. Owns feature-plan sections 3,4,20,22,25,26,27; cross-cutting requirements remain binding.
 
-Status: Not started. Technical delivery: Not started. Agent-verified acceptance: NOT VERIFIED.
+Status: In progress. Technical delivery: [PR #13](https://github.com/ashcx/audio-toolkit-v1/pull/13) open, targets main. Full acceptance: NOT VERIFIED (physical devices and listening).
 
 ## Entry criteria
 
@@ -22,26 +22,26 @@ One-week timebox. First two stories commit 6 SP. Third story is 3 SP required st
 
 - [ ] **S12-US01 - Close cross-browser journeys**. Priority P0. 3 SP. Committed. Owner: main instance.
   - Given all predecessor gates pass, when full journeys run on target browsers, then desktop Chrome Edge macOS Safari iOS/iPadOS Safari and Android Chrome have real evidence.
-  - [ ] Ground affected sources, capture a baseline and freeze prerequisite contracts.
+  - [x] Ground affected sources, capture a baseline and freeze prerequisite contracts.
   - [ ] Verify intake trim preview batch isolation recovery and download on recorded versions/devices; unavailable evidence blocks release claims.
-  - [ ] Drive the actual artifact and run meaningful acceptance checks.
-  - [ ] Perform separate self-review, resolve findings, rerun affected checks and log exact results before advancing.
+  - [x] Drive the actual artifact and run meaningful acceptance checks.
+  - [x] Perform separate self-review, resolve findings, rerun affected checks and log exact results before advancing.
   - Evidence: `docs/sprint-evidence/sprint-12/S12-US01.md`, fixtures/captures and coverage matrix.
 
 - [ ] **S12-US02 - Audit privacy licenses and static assets**. Priority P0. 3 SP. Committed. Owner: main instance.
   - Given the integrated production build exists, when network and assets are inspected, then media/filenames remain local and model/worker paths and notices are correct.
-  - [ ] Ground affected sources, capture a baseline and freeze prerequisite contracts.
-  - [ ] Run production preview under Pages base path; document architecture setup formats privacy limitations and dependency provenance.
-  - [ ] Drive the actual artifact and run meaningful acceptance checks.
-  - [ ] Perform separate self-review, resolve findings, rerun affected checks and log exact results before advancing.
+  - [x] Ground affected sources, capture a baseline and freeze prerequisite contracts.
+  - [x] Run production preview under Pages base path; document architecture setup formats privacy limitations and dependency provenance.
+  - [x] Drive the actual artifact and run meaningful acceptance checks.
+  - [x] Perform separate self-review, resolve findings, rerun affected checks and log exact results before advancing.
   - Evidence: `docs/sprint-evidence/sprint-12/S12-US02.md`, fixtures/captures and coverage matrix.
 
 - [ ] **S12-US03 - Prepare release and sibling handoff**. Priority P1. 3 SP. Required stretch. Owner: main instance.
   - Given audio evidence is complete, when release records are assembled, then local validation, PR delivery and deployment are separately stated.
-  - [ ] Ground affected sources, capture a baseline and freeze prerequisite contracts.
-  - [ ] Verify intended navigation and provide hub/image handoff; live production checks stay NOT VERIFIED until deployment is authorized and observed.
-  - [ ] Drive the actual artifact and run meaningful acceptance checks.
-  - [ ] Perform separate self-review, resolve findings, rerun affected checks and log exact results before advancing.
+  - [x] Ground affected sources, capture a baseline and freeze prerequisite contracts.
+  - [x] Verify intended navigation and provide hub/image handoff; live production checks stay NOT VERIFIED until deployment is authorized and observed.
+  - [x] Drive the actual artifact and run meaningful acceptance checks.
+  - [x] Perform separate self-review, resolve findings, rerun affected checks and log exact results before advancing.
   - Evidence: `docs/sprint-evidence/sprint-12/S12-US03.md`, fixtures/captures and coverage matrix.
 
 ## Exit criteria
@@ -77,10 +77,18 @@ Source sections 23–24 deferred features and exclusions. Hub/image implementati
 - [Scrum policy](redesign-scrum-plan.md).
 - [Feature requirements](audio-toolkit-plan.md).
 - Decision trail: `docs/sprint-evidence/decisions.tsv`.
-- Sprint PR: not created.
+- Sprint PR: [#13](https://github.com/ashcx/audio-toolkit-v1/pull/13).
 
 ## Execution log
 
 ### 2026-10-29 - Planning draft
 
 Stories and initial estimates drafted from requirements. No implementation, Ready verification, tests, device observations or sprint review occurred. Next action is to verify Entry criteria after an implementation instruction.
+
+### 2026-10-30 - Integrated technical increment
+
+Based on98f1020. Product source/public assets remained unchanged during the maintained production-preview run. 58 deterministic tests, production build and local static audit passed. Eleven sequential real automated Chromium/WebKit suites passed after diagnosing and correcting the privacy driver's handling of local blob URLs; initial failure retained in aggregate evidence. This includes58 DSP observations,96 downloaded format cases, cancellation/failure/cleanup, playback/test/presets/reuse and ZIP. Corrected workload driver selected Original and verified20 copy plans;20 synthetic hour-long1.7MB AAC/M4A files completed and the first download matched the source. A ten-minute encode also completed, combined RSS935MB under2GiB. No hour-long encoding/remux claim follows.
+
+Independent Terra high review assessed code, contracts, full evidence/captures and gaps; static audit and first-copy equality independently rerun. No unresolved blocking technical defect reproduced. Physical browsers/devices, suspension, human listening and thermals remain NOT VERIFIED. See docs/sprint-evidence/sprint-12/coverage.md, reviewer.md and sprint-12-unfinished.md. One PR targets main with explicit dependencies; no merge/deployment.
+
+PR13 created from42a06d7 targeting main. Delivery readback and bookkeeping follow; full acceptance stays open.

@@ -9,7 +9,10 @@
     "preview": "vite preview --host 127.0.0.1",
     "probe": "node scripts/browser-probe.mjs",
     "typecheck": "tsc --noEmit",
-    "postinstall": "node scripts/patch-mediabunny.mjs"
+    "postinstall": "node scripts/patch-mediabunny.mjs",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "verify:browser": "node scripts/release-check.mjs",
+    "verify:static": "node scripts/static-audit.mjs"
   },
   "dependencies": {
     "@audio/decode-flac": "2.0.0",

@@ -1,35 +1,42 @@
 # Audio Toolkit
 
-Browser-local batch audio processing with ordered recipes. Implementation is in progress. The current app has a minimal responsive workspace and content-based file inspection. Processing and recipe execution remain in progress.
+Local audio processing with an ordered recipe: extract original audio, trim, adjust gain, normalize peaks, change channels or sample rate, and isolate voice/music. Export MP3, AAC/M4A, WAV, FLAC or Opus/OGG. Test one file, then export the batch and download individual results or a stored ZIP.
 
-## Run the current checks
+The integrated branch has automated Chromium/WebKit evidence. Physical Mac/Safari/iPhone/iPad/Android and listening acceptance remain open. PR delivery and production deployment are separate; this branch has not been merged or deployed.
 
-Requires Node.js 22 or later.
+## Develop and verify
+
+Requires Node.js 22+, npm, FFmpeg/ffprobe and Playwright browser dependencies for browser checks.
 
 ```sh
 npm ci
 npx playwright install chromium webkit
+npm test
+npm run verify:static
 npm run build
-npm run preview -- --port 4173
+npm run preview -- --port 4184
 ```
 
-In a second terminal:
+Open http://127.0.0.1:4184/audio-toolkit-v1/ . In a second terminal:
 
 ```sh
-PROBE_URL=http://127.0.0.1:4173/audio-toolkit-v1/probes/ npm run probe
-node scripts/resource-probe.mjs
+APP_URL=http://127.0.0.1:4184/audio-toolkit-v1/ npm run verify:browser
 ```
 
-Linux WebKit can require `npx playwright install-deps webkit`. This installs development browser dependencies. Both servers bind to loopback. Open the app at `http://127.0.0.1:4173/audio-toolkit-v1/`. The foundation probe is at `/audio-toolkit-v1/probes/`.
+The browser command runs workspace, intake, recipe, copy, DSP, format, batch, cleanup, preview, download and privacy checks sequentially, stops on failure and writes an ignored `.artifacts/release-check/results.json`. The production preview must serve the matching build and stay unchanged during the suites. To rerun a failed stage, `RELEASE_CHECK_FROM=privacy` (or another stage name) checks preceding successes and URL only; it does not verify build contents. Rebuilds require a fresh full run. Linux WebKit may need `npx playwright install-deps webkit`. Browser contexts and servers bind locally. Synthetic fixtures are checked in; regenerate with `node scripts/generate-fixtures.mjs`. Private `test_songs/`, generated media, profiles and upstream checkout are ignored.
 
-The synthetic probes exercise encoding/decoding, AAC packet-copy feasibility and pinned-model CPU inference. They create no upload requests and load their model/runtime locally. They do not prove full-format support, listening quality, long-file limits or real-device compatibility. Probe records are in [Sprint 1 evidence](docs/sprint-evidence/sprint-1/coverage.md).
+Large synthetic workload commands: `node scripts/download-check.mjs` includes 50 ten-second clips; `PCM_ONLY=1 node scripts/download-limits.mjs` checks one ten-minute WAV conversion. The full limits driver also verifies 20 synthetic one-hour AAC/M4A sources (about 1.7 MB each) using matching-container original-audio byte copying. It does not establish hour-long re-encoding or video remux limits. These are measurements of specified workloads, not unlimited-file claims.
 
-## Follow development
+## Use
 
-[TODO.md](TODO.md) owns sprint order. [Feature requirements](todo/audio-toolkit-plan.md) own full scope, including voice/music isolation. [Orchestration](todo/orchestration-plan.md) owns dependencies and contract freezes. [Third-party provenance](THIRD_PARTY_LICENSES.md) records source and outstanding production distribution obligations.
+Choose audio/video files, choose an editable preset or build a recipe, and select an output format. Trim ranges can be overridden per file. Test one file uses that file's complete current recipe; a matching result is reused once when exporting the batch. Changed settings require a new result. Native playback depends on the browser's supported codecs.
 
-The image compressor is a read-only design reference. Its source tree is not a build dependency. Merge and production deployment are not authorized by the current implementation request.
+Download completed files individually or choose Create ZIP and then Download ZIP. Failed files do not enter the archive. Cancel waits for temporary writes and cleanup. If storage cleanup fails, use its retry control before starting more work. Clear results releases this tab's outputs. Save downloads before closing: there is no session restoration or background-processing promise.
 
-## Check the workspace and intake
+See [formats and limits](docs/formats-and-limits.md), [architecture](docs/architecture.md), [privacy](docs/privacy.md) and [release acceptance](docs/release-acceptance.md).
 
-With production preview running, run `node scripts/workspace-check.mjs` and `node scripts/intake-check.mjs`. Default outputs are ignored under `.artifacts/`; explicit `WORKSPACE_EVIDENCE_DIR` or `INTAKE_EVIDENCE_DIR` destinations preserve a sprint record. Checked-in fixtures are synthetic. Regenerate them with `node scripts/generate-fixtures.mjs` if FFmpeg and ffprobe are installed. Full codec decoding is separate from inspection.
+## Development records
+
+[TODO.md](TODO.md) tracks sprint delivery and open gates. [Feature requirements](todo/audio-toolkit-plan.md) own scope. [Third-party provenance](THIRD_PARTY_LICENSES.md) records pinned libraries, source/rebuild links, notices and remaining audit boundaries. [Sprint 12 evidence](docs/sprint-evidence/sprint-12/coverage.md) separates actual automation from unverified devices.
+
+AudioTools.dev was inspected as an ignored reference. The image compressor is a read-only design reference, not a build dependency. This workspace supplies a navigation handoff; it does not implement changes in the media hub or image app.
