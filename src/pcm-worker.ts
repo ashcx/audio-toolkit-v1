@@ -1,3 +1,5 @@
+import { speech } from "./pcm/speech";
+import { createSpeechProcessor } from "./pcm/speech-runtime";
 import { isolate } from "./pcm/isolate";
 import { InferenceClient } from "./inference/client";
 import {
@@ -76,6 +78,9 @@ async function execute({
         break;
       case "normalize":
         stream = normalize(stream, step.targetDbfs, context);
+        break;
+      case "speech":
+        stream = speech(stream, step.model, { signal: controller.signal, create: createSpeechProcessor, onLoad: () => report({ kind: "phase", phase: "Loading model" }), onReady: () => report({ kind: "phase", phase: "Processing" }) });
         break;
       case "isolation":
         stream = isolate(stream, step.keep, {

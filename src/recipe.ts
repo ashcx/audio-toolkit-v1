@@ -62,6 +62,7 @@ export const stepSchema = z
       channels: z.enum(["original", "mono", "stereo"]),
     }),
     z.strictObject({ id: stepId, kind: z.literal("resample"), rateHz: rate }),
+    z.strictObject({ id: stepId, kind: z.literal("speech"), model: z.enum(["standard", "detailed"]) }),
     z.strictObject({
       id: stepId,
       kind: z.literal("isolation"),
@@ -108,7 +109,8 @@ export const recipeSchema = z
   .superRefine((recipe, context) => {
     const seen = new Set<string>();
     let trim = false,
-      isolation = false;
+      isolation = false,
+      speech = false;
     recipe.steps.forEach((step, index) => {
       const issue = (message: string) =>
         context.addIssue({ code: "custom", message, path: ["steps", index] });
@@ -117,6 +119,10 @@ export const recipeSchema = z
       if (step.kind === "trim") {
         if (trim) issue("Use only one trim step.");
         trim = true;
+      }
+      if (step.kind === "speech") {
+        if (speech) issue("Use only one Voice isolation step.");
+        speech = true;
       }
       if (step.kind === "isolation") {
         if (isolation) issue("Use only one voice/music isolation step.");
@@ -140,6 +146,7 @@ export const STEP_NAMES = {
   channels: "Channels",
   resample: "Sample rate",
   isolation: "Voice / music",
+  speech: "Voice isolation",
 } satisfies Record<StepKind, string>;
 export const FORMAT_NAMES = {
   mp3: "MP3",
@@ -191,6 +198,8 @@ export function newStep(kind: StepKind): StepDraft {
       return { id, kind, rateHz: "original" };
     case "isolation":
       return { id, kind, keep: "voice" };
+    case "speech":
+      return { id, kind, model: "standard" };
     default: {
       const unreachable: never = kind;
       return unreachable;

@@ -39,3 +39,9 @@ test('one invalid file range stays isolated; reset restores inheritance',()=>{
  const reset=snapshotForFile(recipe,a);assert.equal(reset.kind,'ready');assert.deepEqual(reset.snapshot.trim,{start:0.25,end:2,duration:1.75});
  const unknown=snapshotForFile(recipe,file(null));assert.equal(unknown.kind,'ready');assert.equal(unknown.snapshot.trim.end,null);
 });
+
+test('voice isolation has one bounded model selection per recipe', () => {
+ const first = newStep('speech'), second = newStep('speech');
+ assert.equal(recipeSchema.safeParse({ ...newRecipe(), steps: [first] }).success, true);
+ assert.equal(recipeSchema.safeParse({ ...newRecipe(), steps: [first, second] }).success, false);
+});

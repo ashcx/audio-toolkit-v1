@@ -166,7 +166,7 @@ export class Batch {
       for (const job of this.jobs.values()) {
         if (this.occupied >= this.concurrency || this.isolating) break;
         if (job.state.kind !== "waiting") continue;
-        const isolation = job.spec.plan.kind === "pcm" && job.spec.plan.steps.some(step => step.kind === "isolation");
+        const isolation = job.spec.plan.kind === "pcm" && job.spec.plan.steps.some(step => (step.kind === "isolation" || step.kind === "speech"));
         if (isolation && this.occupied > 0) continue;
         this.isolating = isolation;
         job.device = null;
@@ -203,7 +203,7 @@ export class Batch {
       };
     } finally {
       if (current() && signal.aborted) job.state = { kind: "cancelled" };
-      if (job.spec.plan.kind === "pcm" && job.spec.plan.steps.some(step => step.kind === "isolation")) this.isolating = false;
+      if (job.spec.plan.kind === "pcm" && job.spec.plan.steps.some(step => (step.kind === "isolation" || step.kind === "speech"))) this.isolating = false;
       this.occupied--;
       this.pump();
     }

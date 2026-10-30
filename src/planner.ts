@@ -56,6 +56,7 @@ function changesSignal(
     case "resample":
       return step.rateHz !== "original" && step.rateHz !== source.sampleRate;
     case "normalize":
+    case "speech":
     case "isolation":
       return true;
     default: {
@@ -71,6 +72,7 @@ const PCM_REASONS = {
   channels: "Changing channels requires re-encoding.",
   resample: "Changing sample rate requires re-encoding.",
   isolation: "Voice / music isolation requires re-encoding.",
+  speech: "Voice isolation requires re-encoding.",
 } satisfies Record<Recipe["steps"][number]["kind"], string>;
 export function compilePlan(
   snapshot: EffectiveRecipe,

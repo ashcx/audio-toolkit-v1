@@ -41,7 +41,7 @@ async function analyze(source: PcmStream, checkpoint: () => Promise<PcmCheckpoin
   } finally { await iterator.return?.(); }
 }
 
-export async function* fitIsolationFrames(source: PcmStream, frames: number, origin: number, rate: number): PcmStream {
+export async function* fitIsolationFrames(source: PcmStream, frames: number | (() => number), origin: number, rate: number, correctionRate = ISOLATION_RATE): PcmStream {
   const held: PcmBlock[] = [];
   let emitted = 0;
   for await (const block of source) {
@@ -51,8 +51,8 @@ export async function* fitIsolationFrames(source: PcmStream, frames: number, ori
       if (next) { yield next;emitted += next.planes[0].length; }
     }
   }
-  const remaining = frames - emitted, actual = held.reduce((sum, block) => sum + block.planes[0].length, 0);
-  if (!held.length || remaining < 0 || Math.abs(remaining - actual) > Math.ceil(rate / ISOLATION_RATE) + 1) throw new Error("The isolated audio duration is inconsistent.");
+  const remaining = (typeof frames === "number" ? frames : frames()) - emitted, actual = held.reduce((sum, block) => sum + block.planes[0].length, 0);
+  if (!held.length || remaining < 0 || Math.abs(remaining - actual) > Math.ceil(rate / correctionRate) + 1) throw new Error("The isolated audio duration is inconsistent.");
   const planes = held[0].planes.map(() => new Float32Array(remaining));
   let used = 0;
   for (const block of held) {

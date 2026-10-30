@@ -1,0 +1,37 @@
+<!doctype html><meta charset="utf-8"><title>Speech pipeline verification</title><h1>Speech pipeline verification</h1><button id="run">Run actual speech pipeline</button><pre id="result">Ready</pre>
+<script type="module">
+import {inspectMedia,createFileId} from '../src/media.ts';
+import {recipeSchema,snapshotForFile,newStep} from '../src/recipe.ts';
+import {compilePlan} from '../src/planner.ts';
+import {processAudio} from '../src/process-audio.ts';
+const results=[];
+document.querySelector('#run').onclick=async()=>{
+ const button=document.querySelector('#run');button.disabled=true;
+ try{
+ const bytes=await(await fetch('./speech-youtube/orton.m4a')).blob();const file=new File([bytes],'interview.m4a');
+ const inspection=await inspectMedia(file,new AbortController().signal);if(inspection.kind!=='ready')throw Error(inspection.message);
+ for(const model of ['standard','detailed'])for(const order of ['trim-first','trim-last']){
+  const trim={...newStep('trim'),range:{start:30,end:31}},cleanup={...newStep('speech'),model};
+  const recipe=recipeSchema.parse({version:1,steps:order==='trim-first'?[trim,cleanup]:[cleanup,trim],export:{format:'wav'}});
+  const snapshot=snapshotForFile(recipe,{id:createFileId(),file,inspection});if(snapshot.kind!=='ready')throw Error(snapshot.message);
+  const plan=compilePlan(snapshot.snapshot,inspection.metadata);if(plan.kind!=='pcm')throw Error('Wrong plan');
+  const start=performance.now(),events=[];
+  const output=await processAudio(file,plan,new AbortController().signal,model+'.wav',event=>events.push(event));
+  const meta=await inspectMedia(output.output.file,new AbortController().signal);
+  const record={model,order,elapsedMs:performance.now()-start,meta,stats:output.stats,events,bytes:output.output.file.size};
+  if(meta.kind!=='ready'||Math.abs(meta.metadata.duration-1)>1/48000||meta.metadata.sampleRate!==inspection.metadata.sampleRate||meta.metadata.channels!==inspection.metadata.channels)throw Error('Output format mismatch '+JSON.stringify(record));
+  await output.output.release();results.push(record);document.querySelector('#result').textContent=JSON.stringify({status:'running',results},null,2);
+ }
+ const cancelRecipe=recipeSchema.parse({version:1,steps:[{...newStep('speech'),model:'detailed'}],export:{format:'wav'}});
+ const cancelSnapshot=snapshotForFile(cancelRecipe,{id:createFileId(),file,inspection});
+ const cancelPlan=compilePlan(cancelSnapshot.snapshot,inspection.metadata);
+ const controller=new AbortController();let cancelled=false;
+ const root=await navigator.storage.getDirectory();const directory=await root.getDirectoryHandle('audio-toolkit-v1',{create:true});
+ const count=async()=>{let n=0;for await(const _ of directory.values())n++;return n;};const before=await count();
+ const pending=processAudio(file,cancelPlan,controller.signal,'cancel.wav');setTimeout(()=>controller.abort(new DOMException('Cancelled','AbortError')),25);
+ try{await pending;}catch(error){cancelled=error.name==='AbortError';}
+ const after=await count();if(!cancelled||before!==after)throw Error('Cancellation cleanup mismatch');results.push({cancelled,before,after});
+ document.querySelector('#result').textContent=JSON.stringify({status:'passed',results},null,2);
+ }catch(error){document.querySelector('#result').textContent=JSON.stringify({status:'failed',error:String(error),results},null,2);}finally{button.disabled=false;}
+};
+</script>
