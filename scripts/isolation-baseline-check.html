@@ -1,0 +1,29 @@
+<!doctype html><meta charset="utf-8"><title>SCNet baseline verification</title><h1>SCNet baseline verification</h1><button id="run">Run baseline music isolation</button><pre id="result">Ready</pre>
+<script type="module">
+import {inspectMedia,createFileId} from '../src/media.ts';
+import {recipeSchema,newStep,snapshotForFile} from '../src/recipe.ts';
+import {compilePlan} from '../src/planner.ts';
+import {processAudio} from '../src/process-audio.ts';
+const records=[];
+document.querySelector('#run').onclick=async()=>{
+ document.querySelector('#run').disabled=true;
+ try{
+ for(const fixture of ['instrumental','live'])for(const keep of ['voice','music']){
+  const response=await fetch('/audio-toolkit-v1/fixtures/'+fixture+'.ogg');if(!response.ok)throw Error('Fixture HTTP'+response.status);
+  const file=new File([await response.blob()],fixture+'.ogg'),signal=new AbortController().signal,inspection=await inspectMedia(file,signal);
+  if(inspection.kind!=='ready')throw Error(inspection.message);
+  const recipe=recipeSchema.parse({version:1,steps:[{...newStep('isolation'),keep}],export:{format:'wav'}});
+  const snapshot=snapshotForFile(recipe,{id:createFileId(),file,inspection});if(snapshot.kind!=='ready')throw Error(snapshot.message);
+  const plan=compilePlan(snapshot.snapshot,inspection.metadata);if(plan.kind!=='pcm')throw Error('Not PCM');
+  const events=[];const begin=performance.now();
+  document.querySelector('#result').textContent=JSON.stringify({status:'running',fixture,keep,records},null,2);
+  const result=await processAudio(file,plan,signal,fixture+'-'+keep+'.wav',event=>{events.push({...event,atMs:performance.now()-begin});document.querySelector('#result').textContent=JSON.stringify({status:'running',fixture,keep,events:events.slice(-6),records},null,2);});
+  const metadata=await inspectMedia(result.output.file,signal);
+  const record={fixture,keep,elapsedMs:performance.now()-begin,input:inspection.metadata,output:metadata,stats:result.stats,events,bytes:result.output.file.size};
+  if(metadata.kind!=='ready'||metadata.metadata.sampleRate!==inspection.metadata.sampleRate||metadata.metadata.channels!==inspection.metadata.channels||Math.abs(metadata.metadata.duration-inspection.metadata.duration)>2/inspection.metadata.sampleRate)throw Error('Format mismatch');
+  await result.output.release();records.push(record);
+ }
+ document.querySelector('#result').textContent=JSON.stringify({status:'passed',userAgent:navigator.userAgent,records},null,2);
+ }catch(error){document.querySelector('#result').textContent=JSON.stringify({status:'failed',error:String(error),records},null,2);}
+};
+</script>

@@ -1,0 +1,1062 @@
+{
+  "status": "passed",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+  "records": [
+    {
+      "fixture": "instrumental",
+      "keep": "voice",
+      "elapsedMs": 111041.30000001192,
+      "input": {
+        "container": "Ogg",
+        "codec": "vorbis",
+        "duration": 92.16,
+        "startTime": 0,
+        "sampleRate": 44100,
+        "channels": 2,
+        "hasVideo": false,
+        "presentation": null
+      },
+      "output": {
+        "kind": "ready",
+        "metadata": {
+          "container": "WAVE",
+          "codec": "pcm-s16",
+          "duration": 92.16,
+          "startTime": 0,
+          "sampleRate": 44100,
+          "channels": 2,
+          "hasVideo": false,
+          "presentation": null
+        }
+      },
+      "stats": {
+        "encoder": "pcm",
+        "decodePasses": 1,
+        "maxDecodedFrames": 90112,
+        "maxBlockFrames": 4096,
+        "encodedFrames": 4064256,
+        "terminalEncoders": 1,
+        "isolationPasses": 1,
+        "isolationWindows": 18,
+        "maxIsolationFrames": 485100,
+        "isolationLoads": 18,
+        "isolationBackends": [
+          "webgpu+wasm"
+        ],
+        "normalizationPasses": 0,
+        "limitedNormalizations": 0,
+        "clippedSamples": 0
+      },
+      "events": [
+        {
+          "kind": "phase",
+          "phase": "Decoding",
+          "atMs": 25.700000002980232
+        },
+        {
+          "kind": "phase",
+          "phase": "Analyzing for isolation",
+          "atMs": 46
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 0,
+          "total": 18,
+          "atMs": 1473.800000011921
+        },
+        {
+          "kind": "isolation-device",
+          "device": "preparing-gpu",
+          "atMs": 1648
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 8229.70000000298
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 1,
+          "total": 18,
+          "atMs": 8232.70000000298
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 8343.60000000894
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 13032.5
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 2,
+          "total": 18,
+          "atMs": 13048.40000000596
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 13287.10000000894
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 19508
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 3,
+          "total": 18,
+          "atMs": 19508.60000000894
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 19688.80000001192
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 25742.5
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 4,
+          "total": 18,
+          "atMs": 25746.5
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 25908.40000000596
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 32015.20000000298
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 5,
+          "total": 18,
+          "atMs": 32018.30000001192
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 32178.20000000298
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 37929.5
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 6,
+          "total": 18,
+          "atMs": 37929.80000001192
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 38070.90000000596
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 43871.90000000596
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 7,
+          "total": 18,
+          "atMs": 43873.10000000894
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 44049.5
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 49887.60000000894
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 8,
+          "total": 18,
+          "atMs": 49891.10000000894
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 50055.10000000894
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 55622.30000001192
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 9,
+          "total": 18,
+          "atMs": 55625.40000000596
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 55793.10000000894
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 61903
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 10,
+          "total": 18,
+          "atMs": 61909.10000000894
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 62084.20000000298
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 68188.80000001192
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 11,
+          "total": 18,
+          "atMs": 68191.90000000596
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 68328
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 74316.30000001192
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 12,
+          "total": 18,
+          "atMs": 74317.90000000596
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 74464.40000000596
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 80445.40000000596
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 13,
+          "total": 18,
+          "atMs": 80446.5
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 80590.30000001192
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 86647.90000000596
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 14,
+          "total": 18,
+          "atMs": 86648.60000000894
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 86791
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 92750.20000000298
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 15,
+          "total": 18,
+          "atMs": 92751.20000000298
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 92894.80000001192
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 98752.10000000894
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 16,
+          "total": 18,
+          "atMs": 98753.5
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 98929.90000000596
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 104870.30000001192
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 17,
+          "total": 18,
+          "atMs": 104876.90000000596
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 104998.30000001192
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 110995.30000001192
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 18,
+          "total": 18,
+          "atMs": 110996.20000000298
+        },
+        {
+          "kind": "phase",
+          "phase": "Processing / encoding",
+          "atMs": 111031.40000000596
+        },
+        {
+          "kind": "phase",
+          "phase": "Encoding",
+          "atMs": 111033.70000000298
+        },
+        {
+          "kind": "phase",
+          "phase": "Saving",
+          "atMs": 111036.20000000298
+        }
+      ],
+      "bytes": 16257068
+    },
+    {
+      "fixture": "instrumental",
+      "keep": "music",
+      "elapsedMs": 111533.70000000298,
+      "input": {
+        "container": "Ogg",
+        "codec": "vorbis",
+        "duration": 92.16,
+        "startTime": 0,
+        "sampleRate": 44100,
+        "channels": 2,
+        "hasVideo": false,
+        "presentation": null
+      },
+      "output": {
+        "kind": "ready",
+        "metadata": {
+          "container": "WAVE",
+          "codec": "pcm-s16",
+          "duration": 92.16,
+          "startTime": 0,
+          "sampleRate": 44100,
+          "channels": 2,
+          "hasVideo": false,
+          "presentation": null
+        }
+      },
+      "stats": {
+        "encoder": "pcm",
+        "decodePasses": 1,
+        "maxDecodedFrames": 90112,
+        "maxBlockFrames": 4096,
+        "encodedFrames": 4064256,
+        "terminalEncoders": 1,
+        "isolationPasses": 1,
+        "isolationWindows": 18,
+        "maxIsolationFrames": 485100,
+        "isolationLoads": 18,
+        "isolationBackends": [
+          "webgpu+wasm"
+        ],
+        "normalizationPasses": 0,
+        "limitedNormalizations": 0,
+        "clippedSamples": 0
+      },
+      "events": [
+        {
+          "kind": "phase",
+          "phase": "Decoding",
+          "atMs": 20.899999991059303
+        },
+        {
+          "kind": "phase",
+          "phase": "Analyzing for isolation",
+          "atMs": 29.200000002980232
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 0,
+          "total": 18,
+          "atMs": 1769.0999999940395
+        },
+        {
+          "kind": "isolation-device",
+          "device": "preparing-gpu",
+          "atMs": 1964.5999999940395
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 7143.5
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 1,
+          "total": 18,
+          "atMs": 7147.399999991059
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 7263.5999999940395
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 13326.39999999106
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 2,
+          "total": 18,
+          "atMs": 13329.39999999106
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 13560.20000000298
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 19643.79999999702
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 3,
+          "total": 18,
+          "atMs": 19644.39999999106
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 19909.89999999106
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 25807.20000000298
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 4,
+          "total": 18,
+          "atMs": 25810.5
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 26008.20000000298
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 31803.20000000298
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 5,
+          "total": 18,
+          "atMs": 31812
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 32049.29999999702
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 37935.89999999106
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 6,
+          "total": 18,
+          "atMs": 37936.39999999106
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 38172.09999999404
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 43569.09999999404
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 7,
+          "total": 18,
+          "atMs": 43572.20000000298
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 43771.39999999106
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 49477.29999999702
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 8,
+          "total": 18,
+          "atMs": 49480.70000000298
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 49665.20000000298
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 55526
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 9,
+          "total": 18,
+          "atMs": 55531.5
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 55740.20000000298
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 61598.59999999404
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 10,
+          "total": 18,
+          "atMs": 61603.5
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 61806.79999999702
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 68090.89999999106
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 11,
+          "total": 18,
+          "atMs": 68094
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 68346
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 74261.70000000298
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 12,
+          "total": 18,
+          "atMs": 74264.59999999404
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 74481.09999999404
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 80417.79999999702
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 13,
+          "total": 18,
+          "atMs": 80423.79999999702
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 80639.59999999404
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 86721.5
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 14,
+          "total": 18,
+          "atMs": 86722
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 86934.20000000298
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 92993.89999999106
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 15,
+          "total": 18,
+          "atMs": 92994.5
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 93246.5
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 99299.5
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 16,
+          "total": 18,
+          "atMs": 99299.89999999106
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 99588.5
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 105434.09999999404
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 17,
+          "total": 18,
+          "atMs": 105442.5
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 105589.29999999702
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 111441.29999999702
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 18,
+          "total": 18,
+          "atMs": 111444.79999999702
+        },
+        {
+          "kind": "phase",
+          "phase": "Processing / encoding",
+          "atMs": 111525.59999999404
+        },
+        {
+          "kind": "phase",
+          "phase": "Encoding",
+          "atMs": 111528.29999999702
+        },
+        {
+          "kind": "phase",
+          "phase": "Saving",
+          "atMs": 111531.09999999404
+        }
+      ],
+      "bytes": 16257068
+    },
+    {
+      "fixture": "live",
+      "keep": "voice",
+      "elapsedMs": 29841.70000000298,
+      "input": {
+        "container": "Ogg",
+        "codec": "vorbis",
+        "duration": 19.04326530612245,
+        "startTime": 0,
+        "sampleRate": 44100,
+        "channels": 2,
+        "hasVideo": false,
+        "presentation": null
+      },
+      "output": {
+        "kind": "ready",
+        "metadata": {
+          "container": "WAVE",
+          "codec": "pcm-s16",
+          "duration": 19.04326530612245,
+          "startTime": 0,
+          "sampleRate": 44100,
+          "channels": 2,
+          "hasVideo": false,
+          "presentation": null
+        }
+      },
+      "stats": {
+        "encoder": "pcm",
+        "decodePasses": 1,
+        "maxDecodedFrames": 9216,
+        "maxBlockFrames": 4096,
+        "encodedFrames": 839808,
+        "terminalEncoders": 1,
+        "isolationPasses": 1,
+        "isolationWindows": 5,
+        "maxIsolationFrames": 485100,
+        "isolationLoads": 5,
+        "isolationBackends": [
+          "webgpu+wasm"
+        ],
+        "normalizationPasses": 0,
+        "limitedNormalizations": 0,
+        "clippedSamples": 0
+      },
+      "events": [
+        {
+          "kind": "phase",
+          "phase": "Decoding",
+          "atMs": 21.200000002980232
+        },
+        {
+          "kind": "phase",
+          "phase": "Analyzing for isolation",
+          "atMs": 33.29999999701977
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 0,
+          "total": 5,
+          "atMs": 339.1000000089407
+        },
+        {
+          "kind": "isolation-device",
+          "device": "preparing-gpu",
+          "atMs": 518.7999999970198
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 6123.600000008941
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 1,
+          "total": 5,
+          "atMs": 6129.4000000059605
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 6233.100000008941
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 12181.90000000596
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 2,
+          "total": 5,
+          "atMs": 12187.10000000894
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 12350.79999999702
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 18099.10000000894
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 3,
+          "total": 5,
+          "atMs": 18109.60000000894
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 18314.40000000596
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 23999.60000000894
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 4,
+          "total": 5,
+          "atMs": 24005.79999999702
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 24116.10000000894
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 29801
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 5,
+          "total": 5,
+          "atMs": 29806.5
+        },
+        {
+          "kind": "phase",
+          "phase": "Processing / encoding",
+          "atMs": 29832.5
+        },
+        {
+          "kind": "phase",
+          "phase": "Encoding",
+          "atMs": 29833.90000000596
+        },
+        {
+          "kind": "phase",
+          "phase": "Saving",
+          "atMs": 29838.40000000596
+        }
+      ],
+      "bytes": 3359276
+    },
+    {
+      "fixture": "live",
+      "keep": "music",
+      "elapsedMs": 29592.40000000596,
+      "input": {
+        "container": "Ogg",
+        "codec": "vorbis",
+        "duration": 19.04326530612245,
+        "startTime": 0,
+        "sampleRate": 44100,
+        "channels": 2,
+        "hasVideo": false,
+        "presentation": null
+      },
+      "output": {
+        "kind": "ready",
+        "metadata": {
+          "container": "WAVE",
+          "codec": "pcm-s16",
+          "duration": 19.04326530612245,
+          "startTime": 0,
+          "sampleRate": 44100,
+          "channels": 2,
+          "hasVideo": false,
+          "presentation": null
+        }
+      },
+      "stats": {
+        "encoder": "pcm",
+        "decodePasses": 1,
+        "maxDecodedFrames": 9216,
+        "maxBlockFrames": 4096,
+        "encodedFrames": 839808,
+        "terminalEncoders": 1,
+        "isolationPasses": 1,
+        "isolationWindows": 5,
+        "maxIsolationFrames": 485100,
+        "isolationLoads": 5,
+        "isolationBackends": [
+          "webgpu+wasm"
+        ],
+        "normalizationPasses": 0,
+        "limitedNormalizations": 0,
+        "clippedSamples": 0
+      },
+      "events": [
+        {
+          "kind": "phase",
+          "phase": "Decoding",
+          "atMs": 22.299999997019768
+        },
+        {
+          "kind": "phase",
+          "phase": "Analyzing for isolation",
+          "atMs": 33.1000000089407
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 0,
+          "total": 5,
+          "atMs": 337.29999999701977
+        },
+        {
+          "kind": "isolation-device",
+          "device": "preparing-gpu",
+          "atMs": 506.5
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 6072.4000000059605
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 1,
+          "total": 5,
+          "atMs": 6082.79999999702
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 6198.600000008941
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 12044.20000000298
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 2,
+          "total": 5,
+          "atMs": 12050.29999999702
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 12297.70000000298
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 18023.60000000894
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 3,
+          "total": 5,
+          "atMs": 18029.40000000596
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 18306.29999999702
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 23985.20000000298
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 4,
+          "total": 5,
+          "atMs": 23991.40000000596
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 24156.40000000596
+        },
+        {
+          "kind": "isolation-device",
+          "device": "gpu",
+          "atMs": 29526.90000000596
+        },
+        {
+          "kind": "isolation-progress",
+          "completed": 5,
+          "total": 5,
+          "atMs": 29538.5
+        },
+        {
+          "kind": "phase",
+          "phase": "Processing / encoding",
+          "atMs": 29583
+        },
+        {
+          "kind": "phase",
+          "phase": "Encoding",
+          "atMs": 29584.90000000596
+        },
+        {
+          "kind": "phase",
+          "phase": "Saving",
+          "atMs": 29589.90000000596
+        }
+      ],
+      "bytes": 3359276
+    }
+  ]
+}
