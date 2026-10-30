@@ -4,13 +4,13 @@
 
 Let users download individual outputs or ZIPs and save successful outputs to a chosen folder where supported.
 
-Status: Not started. Technical delivery and acceptance: NOT VERIFIED.
+Status: Technical implementation and bounded verification complete; independent Terra/Luna review complete; PR delivery next. Physical/assistive and unsupported-browser acceptance remain open.
 
 ## Entry criteria
 
-- [ ] Verify Sprint 19 evidence, independent review, PR delivery, and any carry-forward independence.
-- [ ] Inspect current source, relevant predecessor contracts and actual image-compressor UI; capture baseline and freeze affected contracts before consumers.
-- [ ] Confirm suitable fixtures, browser capabilities and an evidence plan without assuming physical-device coverage.
+- [x] Verify Sprint 19 evidence, independent review, PR delivery, and any carry-forward independence.
+- [x] Inspect current source, relevant predecessor contracts and actual image-compressor UI; capture baseline and freeze affected contracts before consumers.
+- [x] Confirm suitable fixtures, browser capabilities and an evidence plan without assuming physical-device coverage.
 
 ## Depends on
 
@@ -20,15 +20,15 @@ Sprint 19, its acceptance and PR gates, and the processing, storage and recipe c
 
 Execute stories sequentially. For each story, freeze prerequisite contracts; implement; run meaningful checks and actual user journeys; self-review and resolve findings; then log evidence before advancing.
 
-- [ ] **S20-US01 - Reliable folder saving**. P0, 3 points; owner: main instance. Given completed results and a supported browser, when the user chooses Save to folder and grants access, then successful outputs are saved with safe unique names without silently overwriting existing files. Cancellation, denied access, collisions, write errors and partial success preserve existing results and report outcomes. Freeze naming, write and cleanup contracts before implementation. Evidence: `docs/sprint-evidence/sprint-20/folder.md`.
-- [ ] **S20-US02 - ZIP and fallback**. P0, 3 points; owner: main instance. Given any supported or unsupported folder capability and mixed batch results, when the user downloads individually or as ZIP, then successful outputs remain retrievable and failed or partial outputs are excluded. The unsupported folder option is clearly unavailable or omitted, with ZIP available. Verify browser support in the actual environments rather than assuming it. Evidence: `docs/sprint-evidence/sprint-20/downloads.md`.
+- [x] **S20-US01 - Reliable folder saving**. P0, 3 points; owner: main instance. Given completed results and a supported browser, when the user chooses Save to folder and grants access, then successful outputs are saved with safe unique names without silently overwriting existing files. Cancellation, denied access, collisions, write errors and partial success preserve existing results and report outcomes. Freeze naming, write and cleanup contracts before implementation. Evidence: `docs/sprint-evidence/sprint-20/folder.md`.
+- [x] **S20-US02 - ZIP and fallback**. P0, 3 points; owner: main instance. Given any supported or unsupported folder capability and mixed batch results, when the user downloads individually or as ZIP, then successful outputs remain retrievable and failed or partial outputs are excluded. The unsupported folder option is clearly unavailable or omitted, with ZIP available. Verify browser support in the actual environments rather than assuming it. Evidence: `docs/sprint-evidence/sprint-20/downloads.md`.
 - [ ] **S20-US03 - Integrated redesign acceptance**. P1, 3 points, required stretch; owner: main instance. Given mixed files and a recipe, when users select files, edit/reorder steps, export and deliver results, then desktop/mobile light/dark and keyboard/touch journeys meet sections 28 and 18 with accurate output, privacy, recovery and no obsolete presets or test control. Record actual device limitations honestly. Evidence: `docs/sprint-evidence/sprint-20/integrated.md`.
 
 ## Exit criteria
 
 - [ ] All stories and sequential tasks pass with evidence, including preserved processing, result, and cleanup contracts.
 - [ ] Relevant automated checks and actual desktop/mobile, light/dark, keyboard and touch journeys are recorded with captures. Physical-device or screen-reader evidence not obtained remains NOT VERIFIED.
-- [ ] Coverage matrix, decision trail, separate self-review, and independent interrogate against the integrated sprint are recorded; proven findings are resolved and rerun.
+- [x] Coverage matrix, decision trail, separate self-review, and independent interrogate against the integrated sprint are recorded; proven findings are resolved and rerun.
 - [ ] One sprint PR targeting main is created after implementation and review pass, linked here and in the roadmap with evidence and any unfinished record. No merge or deployment without explicit permission.
 
 ## Scrum details
@@ -46,3 +46,7 @@ Changes to the image compressor, external hub, deployment, or audio-processing s
 ## Execution log
 
 2026-10-30: Planned at the user's request. No implementation, verification, review, or PR is claimed.
+
+2026-10-31: Verified Sprint19 review and draftPR21. Implemented folder operation/hook/UI sequentially against frozen contracts.76normaltests/build/static pass. ActualChrome mixedfile keyboardrecipe/export, individual/ZIP, nativecancel and user-assisted nativefolder save verified. Parent independently inspected2savedWAVs72000frames48kstereo, matchingZIPbytes and existing sentinel unchanged. RealChromeOPFS verifies chunked writes/cancel/cleanup. Physicaltouch/screenreader/unsupportedbrowser/nativeexitprompt/fullstandalonematrix remain unverified. See [coverage](../docs/sprint-evidence/sprint-20/coverage.md). Integrated US03 and broad exit boxes remain open for those actual observations; no full acceptance claim.
+
+2026-10-31: [Interrogate](../docs/sprint-evidence/sprint-20/interrogate.md) records two-model source review, restored acceptance document, final report-reset review and evidence reconciliation. No remaining proven source defect; bounded technical candidate eligible for PR. User-assisted native saves and physical ZIP match; optional further native-cancel check pending user action does not replace earlier verified success.

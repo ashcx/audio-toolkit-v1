@@ -1,0 +1,31 @@
+<!doctype html><meta charset="utf-8"><title>Folder delivery integration check</title>
+<button id="run">Run local folder integration</button><pre id="result">Not run</pre>
+<script type="module">
+import {saveFilesToFolder,FolderSave} from '../src/folder-save.ts';
+const button=document.querySelector('#run'),result=document.querySelector('#result');
+button.onclick=async()=>{
+ button.disabled=true;
+ const root=await navigator.storage.getDirectory();const name=`audio-toolkit-s20-${crypto.randomUUID()}`;
+ const parent=await root.getDirectoryHandle(name,{create:true});
+ const checks=[];let outcome;
+ const check=(condition,label)=>{if(!condition)throw Error(label);checks.push(label);};
+ try{
+  const files=[new File(['first bytes'],'one.wav'),new File([new Uint8Array(2*1024*1024).fill(27)],'two.wav')];
+  const report=await saveFilesToFolder(files,parent,new AbortController().signal,()=>{});
+  check(report.saved.length===2&&report.failed.length===0,'actual OPFS writes completed');
+  const child=await parent.getDirectoryHandle(report.folder.split('/').at(-1));
+  check(await (await (await child.getFileHandle('one.wav')).getFile()).text()==='first bytes','actual first output exact bytes');
+  const second=await (await child.getFileHandle('two.wav')).getFile();
+  check(second.size===2*1024*1024&&new Uint8Array(await second.arrayBuffer()).every(x=>x===27),'actual chunked second output exact bytes');
+  const controller=new AbortController();
+  const cancelled=await saveFilesToFolder(files,parent,controller.signal,n=>{if(n===1)controller.abort();});
+  check(cancelled.cancelled&&cancelled.saved.length===1&&cancelled.remaining===1,'cancellation preserves completed output and skips next');
+  const owner=new FolderSave(async()=>{throw new DOMException('denied','NotAllowedError');});
+  await owner.start(files);check(owner.state.kind==='failed'&&!owner.busy&&owner.state.message.includes('denied'),'denied boundary restores idle ownership');
+  check(await files[0].text()==='first bytes','original download source retained');
+  outcome={status:'passed',secure:isSecureContext,nativePicker:typeof showDirectoryPicker,checks,report,cancelled};
+ }catch(error){outcome={status:'failed',checks,error:String(error)};}
+ finally{try{await root.removeEntry(name,{recursive:true});outcome.cleanup='removed exact task directory';}catch(error){outcome={...outcome,status:'failed',cleanup:String(error)};}button.disabled=false;}
+ result.textContent=JSON.stringify(outcome,null,2);
+};
+</script>

@@ -1,0 +1,7 @@
+
+> audio-toolkit-v1@0.1.0 verify:static
+> node scripts/static-audit.mjs
+
+Verified AAC runtime, wrapper, worker, bridge and corresponding-source hashes.
+Pinned isolation asset hashes match.
+Audited 18 production package declarations and 25 served notice/source assets; private media is ignored.

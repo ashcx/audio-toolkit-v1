@@ -3,6 +3,7 @@ import { useLayoutEffect, useRef, useState } from "preact/hooks";
 import "./style.css";
 import { useFiles } from "./use-files";
 import { FileRow } from "./file-row";
+import { useFolderSave } from "./use-folder-save";
 import { useArchive } from "./use-archive";
 import { useExport } from "./use-export";
 import { compilePlan } from "./planner";
@@ -32,7 +33,8 @@ function App() {
   const exports = useExport(files);
   const completed = [...exports.jobs.values()].flatMap(job => job.state.kind === "done" ? [job.state] : []);
   const archive = useArchive(completed.map(result => result.url).join("|"));
-  const locked = exports.busy || archive.busy;
+  const folder = useFolderSave(completed.map(result => result.url).join("|"));
+  const locked = exports.busy || archive.busy || folder.busy;
   const [dragging, setDragging] = useState(false);
   const dragDepth = useRef(0);
   const [draft, setDraft] = useState<RecipeDraft>(newRecipe);
@@ -78,11 +80,11 @@ function App() {
     return true;
   };
   useLayoutEffect(() => {
-    if (!completed.length && !exports.busy && !archive.busy) return;
+    if (!completed.length && !exports.busy && !archive.busy && !folder.busy) return;
     const protect = (event: BeforeUnloadEvent) => { event.preventDefault();event.returnValue = ""; };
     window.addEventListener("beforeunload", protect);
     return () => window.removeEventListener("beforeunload", protect);
-  }, [completed.length, exports.busy, archive.busy]);
+  }, [completed.length, exports.busy, archive.busy, folder.busy]);
   const picker = useRef<HTMLInputElement>(null);
   const fileList = useRef<HTMLUListElement>(null);
   const pendingFocus = useRef<number | null>(null);
@@ -174,12 +176,12 @@ function App() {
                 event.preventDefault();
                 dragDepth.current = 0;
                 setDragging(false);
-                if (!archive.busy) add(Array.from(event.dataTransfer?.files ?? []));
+                if (!archive.busy && !folder.busy) add(Array.from(event.dataTransfer?.files ?? []));
               }}
             >
               <input
                 ref={picker}
-                disabled={archive.busy}
+                disabled={archive.busy || folder.busy}
                 type="file"
                 multiple
                 accept="audio/*,video/*,.mkv,.flac,.opus,.ogg,.m4a,.aac"
@@ -213,7 +215,7 @@ function App() {
                     plan={plans.get(entry.id) ?? null}
                     job={exports.jobs.get(entry.id)}
                     busy={locked || exports.cleanupCount > 0}
-                    downloadBusy={archive.busy}
+                    downloadBusy={archive.busy || folder.busy}
                     onCancel={() => exports.cancel(entry.id)}
                     onRetry={() => exports.retry(entry.id)}
                     override={overrides.get(entry.id)}
@@ -262,6 +264,16 @@ function App() {
         </div>
         <div class="run-actions">
           {completed.length > 0 && <button type="button" disabled={locked || exports.cleanupCount > 0} onClick={() => archive.start(completed.map(result => result.output.file))}>Create ZIP</button>}
+          {completed.length > 0 && folder.supported && <button type="button" disabled={locked || exports.cleanupCount > 0} onClick={() => void folder.start(completed.map(result => result.output.file))}>Save to folder</button>}
+          {folder.state.kind === "choosing" && <span role="status">Choose a folder for a new batch folder.</span>}
+          {folder.state.kind === "saving" && <span role="status">Saving {folder.state.completed} / {folder.state.total}</span>}
+          {(folder.state.kind === "choosing" || folder.state.kind === "saving") && <button type="button" onClick={folder.cancel}>Cancel folder save</button>}
+          {folder.state.kind === "cancelling" && <span role="status">Cancelling folder save…</span>}
+          {folder.state.kind === "failed" && <span role="status">{folder.state.message}</span>}
+          {folder.state.kind === "result" && <div class="folder-report" role="status">
+            <p>{folder.state.report.cancelled ? "Cancelled. " : ""}{folder.state.report.saved.length} saved to {folder.state.report.folder}. {folder.state.report.failed.length} failed, {folder.state.report.remaining} not saved.</p>
+            {folder.state.report.failed.map(item => <p>{item.name}: {item.message}</p>)}
+          </div>}
           {archive.state.kind === "ready" && <a class="button" href={archive.state.url} download={archive.state.output.name}>Download ZIP</a>}
           {archive.state.kind === "building" && <><progress aria-label="ZIP progress" value={archive.state.progress.loaded} max={archive.state.progress.total || 1} /><button type="button" onClick={archive.cancel}>Cancel ZIP</button></>}
           {(archive.state.kind === "cancelling" || archive.state.kind === "releasing") && <span role="status">Cleaning up ZIP…</span>}

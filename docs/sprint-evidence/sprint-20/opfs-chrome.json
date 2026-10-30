@@ -1,0 +1,33 @@
+{
+  "status": "passed",
+  "secure": true,
+  "nativePicker": "function",
+  "checks": [
+    "actual OPFS writes completed",
+    "actual first output exact bytes",
+    "actual chunked second output exact bytes",
+    "cancellation preserves completed output and skips next",
+    "denied boundary restores idle ownership",
+    "original download source retained"
+  ],
+  "report": {
+    "folder": "audio-toolkit-s20-556d7f3e-1a81-4653-b6d6-6f9643ec8d31/Audio Toolkit d57e418e-67a3-4045-826b-d90079a374cf",
+    "saved": [
+      "one.wav",
+      "two.wav"
+    ],
+    "failed": [],
+    "remaining": 0,
+    "cancelled": false
+  },
+  "cancelled": {
+    "folder": "audio-toolkit-s20-556d7f3e-1a81-4653-b6d6-6f9643ec8d31/Audio Toolkit ce0ae088-5793-4686-9fbb-1df9692e8b54",
+    "saved": [
+      "one.wav"
+    ],
+    "failed": [],
+    "remaining": 1,
+    "cancelled": true
+  },
+  "cleanup": "removed exact task directory"
+}
