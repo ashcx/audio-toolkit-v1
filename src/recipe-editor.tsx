@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "preact/hooks";
+import { useId, useEffect, useLayoutEffect, useRef, useState } from "preact/hooks";
 import {
   STEP_NAMES,
   FORMAT_NAMES,
@@ -51,11 +51,39 @@ function summary(step: StepDraft): string {
     }
   }
 }
+function DbControl({ label, value, min, max, errorId, onChange }: {
+  label: string; value: number; min: number; max: number; errorId?: string;
+  onChange: (value: number) => void;
+}) {
+  const sliderValue = Number.isFinite(value) ? Math.round(Math.max(min, Math.min(max, value)) * 10) / 10 : min;
+  return <div class="db-control">
+    <label class="field">{label}<input type="range" min={min} max={max} step="0.1"
+      aria-label={`${label} slider`} aria-valuetext={`${sliderValue} dB`}
+      value={sliderValue}
+      onInput={event => onChange(event.currentTarget.valueAsNumber)} /></label>
+    <label class="field">{label} precise<input type="number" min={min} max={max} step="any"
+      aria-invalid={!!errorId} aria-describedby={errorId}
+      value={Number.isFinite(value) ? value : ""}
+      onInput={event => onChange(event.currentTarget.valueAsNumber)} /></label>
+    <output>{Number.isFinite(value) ? value : "Unset"} dB · {min} to {max}</output>
+    {label === "Gain (dB)" && value > 0 && <small class="file-error">May clip. Check the exported result.</small>}
+  </div>;
+}
+function Choices<T extends string>({ label, value, options, onChange }: {
+  label: string; value: T; options: readonly {value: T; label: string}[]; onChange: (value: T) => void;
+}) {
+  const name = useId();
+  return <fieldset class="segmented"><legend>{label}</legend>{options.map(option =>
+    <label><input type="radio" name={name} value={option.value} checked={value === option.value}
+      onChange={() => onChange(option.value)} />{option.label}</label>)}</fieldset>;
+}
 function StepFields({
   step,
   onChange,
   errorId,
+  duration,
 }: {
+  duration?: number;
   step: StepDraft;
   errorId?: string;
   onChange: (step: StepDraft) => void;
@@ -65,70 +93,21 @@ function StepFields({
       return (
         <TrimFields
           errorId={errorId}
+          duration={duration}
+          scope="Batch timeline · longest file"
           range={step.range}
           prefix="Batch trim"
           onChange={(range) => onChange({ ...step, range })}
         />
       );
     case "gain":
-      return (
-        <label class="field">
-          Gain (dB)
-          <input
-            aria-invalid={!!errorId}
-            aria-describedby={errorId}
-            type="number"
-            min="-12"
-            max="12"
-            step="0.1"
-            value={Number.isFinite(step.db) ? step.db : ""}
-            onInput={(event) =>
-              onChange({ ...step, db: event.currentTarget.valueAsNumber })
-            }
-          />
-        </label>
-      );
+      return <DbControl label="Gain (dB)" value={step.db} min={-12} max={12} errorId={errorId} onChange={db => onChange({...step, db})} />;
     case "normalize":
-      return (
-        <label class="field">
-          Peak target (dBFS)
-          <input
-            aria-invalid={!!errorId}
-            aria-describedby={errorId}
-            type="number"
-            min="-60"
-            max="0"
-            step="0.1"
-            value={Number.isFinite(step.targetDbfs) ? step.targetDbfs : ""}
-            onInput={(event) =>
-              onChange({
-                ...step,
-                targetDbfs: event.currentTarget.valueAsNumber,
-              })
-            }
-          />
-        </label>
-      );
+      return <DbControl label="Peak target (dBFS)" value={step.targetDbfs} min={-60} max={0} errorId={errorId} onChange={targetDbfs => onChange({...step, targetDbfs})} />;
     case "channels":
-      return (
-        <label class="field">
-          Channels
-          <select
-            value={step.channels}
-            onChange={(event) => {
-              const next = stepSchema.safeParse({
-                ...step,
-                channels: event.currentTarget.value,
-              });
-              if (next.success) onChange(next.data);
-            }}
-          >
-            <option value="original">Keep unchanged</option>
-            <option value="mono">Mono</option>
-            <option value="stereo">Stereo</option>
-          </select>
-        </label>
-      );
+      return <Choices label="Channels" value={step.channels} options={[
+        {value:"original",label:"Unchanged"}, {value:"mono",label:"Mono"}, {value:"stereo",label:"Stereo"}
+      ]} onChange={channels => onChange({...step,channels})} />;
     case "resample":
       return (
         <label class="field">
@@ -193,7 +172,9 @@ export function RecipeEditor({
   value,
   onChange,
   error,
+  duration,
 }: {
+  duration?: number;
   value: RecipeDraft;
   onChange: (value: RecipeDraft) => boolean;
   error?: string;
@@ -211,11 +192,26 @@ export function RecipeEditor({
       moved.current = null;
     }
   }, [value.steps]);
-  const move = (index: number, direction: -1 | 1) => {
-    moved.current = value.steps[index].id;
-    onChange(moveStep(value, index, index + direction));
+  const [announcement, setAnnouncement] = useState("");
+  const [slot, setSlot] = useState<number | null>(null);
+  type Gesture = {kind: "pressing"; id: string; pointer: number; timer: ReturnType<typeof setTimeout>}
+    | {kind: "dragging"; id: string; pointer: number; slot: number};
+  const gesture = useRef<Gesture | null>(null);
+  const stopGesture = () => {
+    if (gesture.current?.kind === "pressing") clearTimeout(gesture.current.timer);
+    gesture.current = null;
+    setSlot(null);
   };
-  const dragged = useRef<string | null>(null);
+  useEffect(() => stopGesture, []);
+  const reorder = (from: number, to: number) => {
+    const step = value.steps[from];
+    if (!step || from === to) return;
+    if (onChange(moveStep(value, from, to))) {
+      moved.current = step.id;
+      setAnnouncement(`${STEP_NAMES[step.kind]} moved to position ${to + 1} of ${value.steps.length}.`);
+    }
+  };
+  const move = (index: number, direction: -1 | 1) => reorder(index, index + direction);
   const addControl = useRef<HTMLSelectElement>(null);
   const bitrates =
     value.export.format === "mp3"
@@ -262,6 +258,8 @@ export function RecipeEditor({
           ))}
         </select>
       </div>
+      <small id="reorder-help">Drag the grip, or hold it on touch. Up/Down also reorders.</small>
+      <span class="sr-only" role="status" aria-live="polite">{announcement}</span>
       <div class="recipe-steps">
         {value.steps.map((step, index) => {
           const parsed = stepSchema.safeParse(step);
@@ -281,33 +279,41 @@ export function RecipeEditor({
               aria-label={STEP_NAMES[step.kind]}
               key={step.id}
               data-step-id={step.id}
-              draggable
-              onDragStart={(event) => {
-                if (
-                  event.target instanceof HTMLInputElement ||
-                  event.target instanceof HTMLSelectElement
-                ) {
-                  event.preventDefault();
-                  return;
-                }
-                dragged.current = step.id;
-                event.dataTransfer?.setData("text/x-audio-step", step.id);
-              }}
-              onDragEnd={() => {
-                dragged.current = null;
-              }}
-              onDragOver={(event) => {
-                if (dragged.current) event.preventDefault();
-              }}
-              onDrop={(event) => {
-                event.preventDefault();
-                const id = event.dataTransfer?.getData("text/x-audio-step");
-                const from = value.steps.findIndex((item) => item.id === id);
-                onChange(moveStep(value, from, index));
-                dragged.current = null;
-              }}
+              data-insertion={slot === index ? "before" : slot === value.steps.length && index === value.steps.length - 1 ? "after" : undefined}
             >
               <div class="step-heading">
+                <button type="button" class="step-grip" aria-label={`Drag ${label}`}
+                  aria-describedby="reorder-help"
+                  onPointerDown={event => {
+                    if (event.button !== 0 || event.currentTarget.disabled || gesture.current) return;
+                    stopGesture();
+                    event.currentTarget.setPointerCapture(event.pointerId);
+                    const start = () => { gesture.current = {kind:"dragging", id:step.id, pointer:event.pointerId, slot:index}; setSlot(index); };
+                    if (event.pointerType === "touch") {
+                      gesture.current = {kind:"pressing", id:step.id, pointer:event.pointerId, timer:setTimeout(start,350)};
+                    } else start();
+                  }}
+                  onPointerMove={event => {
+                    const current = gesture.current;
+                    if (current?.kind !== "dragging" || current.pointer !== event.pointerId) return;
+                    const cards = [...(panel.current?.querySelectorAll<HTMLElement>(".recipe-step") ?? [])];
+                    const next = cards.findIndex(card => {const box=card.getBoundingClientRect();return event.clientY < box.top + box.height / 2;});
+                    current.slot = next < 0 ? cards.length : next;
+                    setSlot(current.slot);
+                  }}
+                  onPointerUp={event => {
+                    const current=gesture.current;
+                    if (!current || current.pointer !== event.pointerId) return;
+                    if (current?.kind === "dragging" && current.pointer === event.pointerId) {
+                      const from=value.steps.findIndex(item=>item.id===current.id);
+                      reorder(from, current.slot > from ? current.slot - 1 : current.slot);
+                    }
+                    stopGesture();
+                  }}
+                  onPointerCancel={event => {if (gesture.current?.pointer === event.pointerId) stopGesture();}}
+                  onLostPointerCapture={event => {if (gesture.current?.pointer === event.pointerId) stopGesture();}}
+                  onKeyDown={event=>{if(event.key==="Escape") stopGesture();}}
+                >⋮⋮</button>
                 <h3>
                   <button
                     class="step-toggle"
@@ -367,6 +373,7 @@ export function RecipeEditor({
               >
                 {expanded === step.id && (
                   <StepFields
+                    duration={duration}
                     errorId={errorId}
                     step={step}
                     onChange={(next) =>

@@ -30,15 +30,15 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   await page.getByRole('button',{name:'Trim two.wav',exact:true}).click();await page.getByLabel('Trim two.wav end (seconds)').fill('');await page.getByLabel('Trim two.wav start (seconds)').fill('3');
   await two.getByText('Trim starts at or after the file end.',{exact:true}).waitFor();assert.equal(await one.getByText('Trim starts at or after the file end.',{exact:true}).count(),0);
   await two.getByRole('button',{name:'Use batch range',exact:true}).click();
-  await page.getByLabel('Add step',{exact:true}).selectOption('gain');await page.getByLabel('Gain (dB)',{exact:true}).fill('13');await page.getByRole('alert').filter({hasText:'Gain must be between'}).waitFor();
-  await page.getByLabel('Gain (dB)',{exact:true}).fill('-6');await page.waitForFunction(()=>!document.querySelector('[role=alert]'));
-  await page.getByRole('button',{name:'Gain settings',exact:true}).click();assert.equal(await page.getByLabel('Gain (dB)',{exact:true}).count(),0);
+  await page.getByLabel('Add step',{exact:true}).selectOption('gain');await page.getByLabel('Gain (dB) precise',{exact:true}).fill('13');await page.getByRole('alert').filter({hasText:'Gain must be between'}).waitFor();
+  await page.getByLabel('Gain (dB) precise',{exact:true}).fill('-6');await page.waitForFunction(()=>!document.querySelector('[role=alert]'));
+  await page.getByRole('button',{name:'Gain settings',exact:true}).click();assert.equal(await page.getByLabel('Gain (dB) precise',{exact:true}).count(),0);
   await page.getByLabel('Add step',{exact:true}).selectOption('normalize');
   await page.getByRole('button',{name:'Move Gain up',exact:true}).focus();await page.keyboard.press('Enter');
   const order=()=>page.locator('.recipe-step .step-toggle>span').allTextContents();
   assert.deepEqual(await order(),['Gain','Trim','Normalize peaks']);
   await page.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='Gain settings');
-  await page.getByRole('article',{name:'Gain',exact:true}).dragTo(page.getByRole('article',{name:'Normalize peaks',exact:true}));
+  const grip=await page.getByRole('button',{name:'Drag Gain',exact:true}).boundingBox(); const target=await page.getByRole('article',{name:'Normalize peaks',exact:true}).boundingBox(); assert(grip&&target); await page.mouse.move(grip.x+grip.width/2,grip.y+grip.height/2); await page.mouse.down(); await page.mouse.move(target.x+target.width/2,target.y+target.height-2,{steps:8}); await page.mouse.up();
   await page.waitForFunction(()=>document.querySelectorAll('.step-toggle>span')[2]?.textContent==='Gain');assert.deepEqual(await order(),['Trim','Normalize peaks','Gain']);
   assert.equal(await page.getByLabel('Add step',{exact:true}).locator('option[value=trim]').isDisabled(),true);
   await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('opus');await page.getByLabel('Bitrate (kbps)').selectOption('96');
@@ -53,7 +53,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   if (await page.getByLabel('Trim one.wav start (seconds)').count() === 0) await one.getByRole('button',{name:'Trim one.wav',exact:true}).click();
   await page.getByLabel('Trim one.wav start (seconds)').fill('3');
   await page.getByRole('button',{name:'Gain settings',exact:true}).click();
-  await page.getByLabel('Gain (dB)',{exact:true}).fill('13');
+  await page.getByLabel('Gain (dB) precise',{exact:true}).fill('13');
   await one.getByText('Trim starts at or after the file end.',{exact:true}).waitFor();
   const badTrim=page.getByLabel('Trim one.wav start (seconds)');
   assert.equal(await badTrim.getAttribute('aria-invalid'),'true');
@@ -65,7 +65,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   const descriptions=(await invalidGain.getAttribute('aria-describedby')).split(' ');
   assert.match(await page.locator(`#${descriptions[1]}`).innerText(),/Gain must be between/);
   await invalidGain.click();
-  const badInput=page.getByLabel('Gain (dB)',{exact:true});
+  const badInput=page.getByLabel('Gain (dB) precise',{exact:true});
   assert.equal(await badInput.getAttribute('aria-invalid'),'true');
   await badInput.fill('-6');assert.equal(await badInput.getAttribute('aria-invalid'),'false');
   await badTrim.fill('0.5');assert.equal(await badTrim.getAttribute('aria-invalid'),'false');

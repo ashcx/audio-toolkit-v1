@@ -56,7 +56,7 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]]){
    await page.goto(url);await page.getByLabel('Choose audio or video files').setInputFiles(Array.from({length:count},(_,i)=>({name:`clip-${i}.wav`,mimeType:'audio/wav',buffer:fixture})));
    await page.waitForFunction(n=>document.querySelectorAll('[data-inspection=ready]').length===n,count);
    await page.getByRole('combobox',{name:'Format',exact:true}).selectOption(copy?'original':'wav');
-   if(!copy){await page.getByLabel('Add step',{exact:true}).selectOption('gain');await page.getByLabel('Gain (dB)',{exact:true}).fill('-6');}
+   if(!copy){await page.getByLabel('Add step',{exact:true}).selectOption('gain');await page.getByLabel('Gain (dB) precise',{exact:true}).fill('-6');}
   }
   const row=i=>page.locator('.file-list>li').nth(i);
   const state=async(i,kind)=>{await page.waitForFunction(({i,kind})=>document.querySelectorAll('.file-list>li')[i]?.getAttribute('data-job-state')===kind,{i,kind});};
@@ -80,7 +80,7 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]]){
   await page.evaluate(()=>window.__release());await state(0,'cancelled');await state(1,'done');await idle();assert.equal(await stores(),1);await download(1,'preserved');
   const maxLive=await page.evaluate(()=>window.__maxLive);assert.equal(maxLive,2);
   if(process.env.BATCH_CHECK_CASE==='capture'){await clearAll();records.push({engine,settledTheme:true});await writeFile(`${root}/capture-check.json`,JSON.stringify(records,null,2)+'\n');continue;}
-  await page.getByLabel('Gain (dB)',{exact:true}).fill('-12');await row(0).getByRole('button',{name:'Retry clip-0.wav',exact:true}).tap();await state(0,'done');await idle();
+  await page.getByLabel('Gain (dB) precise',{exact:true}).fill('-12');await row(0).getByRole('button',{name:'Retry clip-0.wav',exact:true}).tap();await state(0,'done');await idle();
   assert.equal(await row(0).getByText('Previous settings',{exact:true}).count(),1);const retried=await download(0,'frozen-retry');
   const pcm=execFileSync('ffmpeg',['-v','error','-i',retried,'-f','f32le','-'],{maxBuffer:16*1024*1024});const floats=new Float32Array(pcm.buffer.slice(pcm.byteOffset,pcm.byteOffset+pcm.byteLength));let peak=0;for(const v of floats)peak=Math.max(peak,Math.abs(v));assert(Math.abs(peak/inputPeak-10**(-6/20))<.001,`frozen -6dB ratio ${peak/inputPeak}`);
   await clearAll();

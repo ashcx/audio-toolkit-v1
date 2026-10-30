@@ -26,7 +26,7 @@ The user confirmed the public repository `ashcx/audio-toolkit-v1`. Production pa
 | [16](todo/sprint-16-isolation-benchmark.md) | Compare music isolation models and processing paths | 13,19 | [Draft PR18](https://github.com/ashcx/audio-toolkit-v1/pull/18), reproducible Mac baseline reviewed; comparisons/quality gates open |
 | [17](todo/sprint-17-isolation-performance.md) | Deliver a measured music isolation improvement | 13,19 | [Draft PR19](https://github.com/ashcx/audio-toolkit-v1/pull/19), reviewed retain-baseline disposition; no improvement claimed |
 | [18](todo/sprint-18-workspace-redesign.md) | Simplify the workspace and file results | Redesign, 5,6,17,22 | [Draft PR20](https://github.com/ashcx/audio-toolkit-v1/pull/20), design/implementation/review complete for tested scope; paused; broader acceptance open |
-| [19](todo/sprint-19-recipe-interactions.md) | Modernize recipe and trim controls | Redesign, 8,10,11,12 | Not started |
+| [19](todo/sprint-19-recipe-interactions.md) | Modernize recipe and trim controls | Redesign, 8,10,11,12 | [Draft PR21](https://github.com/ashcx/audio-toolkit-v1/pull/21), reviewed technical candidate; physical/matrix gaps open |
 | [20](todo/sprint-20-output-delivery.md) | Deliver ZIP and supported folder saving | Redesign, 18,19,20 | Not started |
 
 The 2026-10-30 redesign request adds Sprints 18–20 after Sprint 17. It is planning-only; it does not authorize execution in this turn. The [redesign requirements](todo/audio-toolkit-plan.md#28-redesign-direction-2026-10-30) supersede conflicting earlier UI requirements.

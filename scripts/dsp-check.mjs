@@ -68,9 +68,9 @@ for(const [engine, browserType] of [['chromium',chromium], ['webkit',webkit]]) {
       await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('wav');
       for(const [kind,value] of steps) {
         await page.getByLabel('Add step',{exact:true}).selectOption(kind);
-        if(kind==='gain')await page.getByLabel('Gain (dB)',{exact:true}).fill(String(value));
-        if(kind==='normalize')await page.getByLabel('Peak target (dBFS)',{exact:true}).fill(String(value));
-        if(kind==='channels')await page.getByRole('combobox',{name:'Channels',exact:true}).selectOption(value);
+        if(kind==='gain')await page.getByLabel('Gain (dB) precise',{exact:true}).fill(String(value));
+        if(kind==='normalize')await page.getByLabel('Peak target (dBFS) precise',{exact:true}).fill(String(value));
+        if(kind==='channels')await page.getByRole('radio',{name:value==='mono'?'Mono':value==='stereo'?'Stereo':'Unchanged',exact:true}).check();
         if(kind==='resample')await page.getByRole('combobox',{name:'Sample rate',exact:true}).selectOption(String(value));
         if(kind==='trim') {
           await page.getByLabel('Batch trim start (seconds)').fill(String(value[0]));
@@ -106,7 +106,7 @@ for(const [engine, browserType] of [['chromium',chromium], ['webkit',webkit]]) {
     let maxError = 0;
     for(let i=0;i<output.samples.length;i++)maxError=Math.max(maxError,Math.abs(output.samples[i]-(original.samples[(start+i)*2]+original.samples[(start+i)*2+1])/2*factor));
     assert(maxError<1/32768,`trim/gain/channel error ${maxError}`); records.at(-1).maxError=maxError;
-    await page.getByRole('button',{name:'Gain settings',exact:true}).click(); await page.getByLabel('Gain (dB)',{exact:true}).fill('-3');
+    await page.getByRole('button',{name:'Gain settings',exact:true}).click(); await page.getByLabel('Gain (dB) precise',{exact:true}).fill('-3');
     await page.getByText('Previous settings',{exact:true}).waitFor();
     await page.screenshot({path:`${root}/captures/${engine}-desktop.png`,fullPage:true,animations:'disabled'});
     await page.setViewportSize({width:390,height:844}); await setAppearance(page,'dark');

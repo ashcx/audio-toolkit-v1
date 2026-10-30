@@ -166,6 +166,7 @@ export function FileRow({
         >
           <TrimFields
             errorId={errorId}
+            duration={entry.inspection.kind === "ready" ? entry.inspection.metadata.duration : null}
             range={override ?? trim}
             prefix={`Trim ${entry.file.name}`}
             onChange={onOverride}

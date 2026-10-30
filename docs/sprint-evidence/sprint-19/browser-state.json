@@ -1,0 +1,18 @@
+{
+  "announcement": "Gain moved to position 3 of 4.",
+  "downloads": [
+    {
+      "name": "s19-2s.audio.wav"
+    },
+    {
+      "name": "s19-4s.audio.wav"
+    }
+  ],
+  "order": [
+    "Channels",
+    "Normalize peaks",
+    "Gain",
+    "Trim"
+  ],
+  "overflow": false
+}

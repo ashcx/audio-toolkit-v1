@@ -76,3 +76,7 @@ Sprint10 PR11 and Sprint11 PR12 target main; Sprint12 is prepared on codex/sprin
 ## 2026-10-30 - Authorized Sprints14–20 technical execution
 
 The user explicitly requested all remaining Sprints14–20, one submission after each sprint, and no routine approval pauses. Interpret the dictated TR/screen wording as PR/sprint consistent with the project delivery convention. Execute technical work sequentially and retain existing Sprint13 and physical/listening factual gaps without describing them as passed. Recheck model rights, executable CPU paths and frozen contracts before Sprint14. No merge/deployment authorization is inferred. Independent reviews and truthful limitations remain required.
+
+## 2026-10-30 - Resume Sprint18 through20
+
+User explicitly resumed all remaining work with one PR per sprint and Chrome/GitHub tools. Reuse Sprint18 PR20 and reviewed implementation; continue19 then20 on cumulative branches, without merge/deploy. Prior physical/listening/licensing release observations remain factual gaps. New UI/delivery evidence must state actual environment and preserve these limits.
