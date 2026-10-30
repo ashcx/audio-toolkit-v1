@@ -4,6 +4,7 @@ import "./style.css";
 import { useFiles } from "./use-files";
 import { formatBytes } from "./format";
 import { FileRow } from "./file-row";
+import { useArchive } from "./use-archive";
 import { useExport } from "./use-export";
 import { compilePlan } from "./planner";
 import { snapshotForFile } from "./recipe";
@@ -30,6 +31,9 @@ function App() {
   const [theme, setTheme] = useState<Theme>(initialTheme);
   const { entries: files, add, remove } = useFiles();
   const exports = useExport(files);
+  const completed = [...exports.jobs.values()].flatMap(job => job.state.kind === "done" ? [job.state] : []);
+  const archive = useArchive(completed.map(result => result.url).join("|"));
+  const locked = exports.busy || archive.busy;
   const [dragging, setDragging] = useState(false);
   const dragDepth = useRef(0);
   const [draft, setDraft] = useState<RecipeDraft>(newRecipe);
@@ -65,7 +69,7 @@ function App() {
   const testId = files.find(file => file.id === testFile)?.id ?? files[0]?.id;
   const testJob = jobs.find(job => job.entry.id === testId);
   const changeRecipe = (next: RecipeDraft) => {
-    if (exports.busy) return false;
+    if (locked) return false;
     if (trim && !next.steps.some((step) => step.kind === "trim")) {
       if ((overrides.size > 0 || trim.range.start !== null || trim.range.end !== null) && !confirm("Remove trim and individual ranges?"))
         return false;
@@ -183,11 +187,12 @@ function App() {
                 event.preventDefault();
                 dragDepth.current = 0;
                 setDragging(false);
-                add(Array.from(event.dataTransfer?.files ?? []));
+                if (!archive.busy) add(Array.from(event.dataTransfer?.files ?? []));
               }}
             >
               <input
                 ref={picker}
+                disabled={archive.busy}
                 type="file"
                 multiple
                 accept="audio/*,video/*,.mkv,.flac,.opus,.ogg,.m4a,.aac"
@@ -220,7 +225,8 @@ function App() {
                     trim={trim?.range}
                     plan={plans.get(entry.id) ?? null}
                     job={exports.jobs.get(entry.id)}
-                    busy={exports.busy || exports.cleanupCount > 0}
+                    busy={locked || exports.cleanupCount > 0}
+                    downloadBusy={archive.busy}
                     onCancel={() => exports.cancel(entry.id)}
                     onRetry={() => exports.retry(entry.id)}
                     override={overrides.get(entry.id)}
@@ -253,7 +259,7 @@ function App() {
               </ul>
             )}
           </section>
-          <fieldset class="recipe-lock" disabled={exports.busy}>
+          <fieldset class="recipe-lock" disabled={locked}>
           <RecipeEditor
             value={draft}
             onChange={changeRecipe}
@@ -267,24 +273,31 @@ function App() {
           </fieldset>
         </div>
         <div class="run-actions">
-          {files.length > 1 && <select aria-label="Test file" disabled={exports.busy} value={testId} onChange={event => setTestFile(files.find(file => file.id === event.currentTarget.value)?.id ?? null)}>
+          {completed.length > 0 && <button type="button" disabled={locked || exports.cleanupCount > 0} onClick={() => archive.start(completed.map(result => result.output.file))}>Create ZIP</button>}
+          {archive.state.kind === "ready" && <a class="button" href={archive.state.url} download={archive.state.output.name}>Download ZIP</a>}
+          {archive.state.kind === "building" && <><progress aria-label="ZIP progress" value={archive.state.progress.loaded} max={archive.state.progress.total || 1} /><button type="button" onClick={archive.cancel}>Cancel ZIP</button></>}
+          {(archive.state.kind === "cancelling" || archive.state.kind === "releasing") && <span role="status">Cleaning up ZIP…</span>}
+          {(archive.state.kind === "failed" || archive.state.kind === "cleanup") && <span role="status">{archive.state.message}</span>}
+          {archive.state.kind === "cleanup" && <button type="button" onClick={() => void archive.clear()}>Retry ZIP cleanup</button>}
+          {completed.length > 0 && <button type="button" disabled={locked} onClick={() => { void archive.clear(); for (const id of exports.jobs.keys()) exports.clear(id); }}>Clear results</button>}
+          {files.length > 1 && <select aria-label="Test file" disabled={locked} value={testId} onChange={event => setTestFile(files.find(file => file.id === event.currentTarget.value)?.id ?? null)}>
             {files.map((file, index) => <option value={file.id}>{index + 1}. {file.file.name}</option>)}
           </select>}
-          {files.length > 0 && <button type="button" disabled={exports.busy || exports.cleanupCount > 0 || !testJob} onClick={() => { if (testJob) exports.run([testJob], "test"); }}>Test one file</button>}
+          {files.length > 0 && <button type="button" disabled={locked || exports.cleanupCount > 0 || !testJob} onClick={() => { if (testJob) exports.run([testJob], "test"); }}>Test one file</button>}
           <button
             class="button primary"
             type="button"
-            disabled={exports.busy || exports.cleanupCount > 0 || !jobs.length}
+            disabled={locked || exports.cleanupCount > 0 || !jobs.length}
             onClick={() => void exports.run(jobs)}
           >
             Export
           </button>
           {exports.busy && <button type="button" onClick={exports.cancelAll}>Cancel all</button>}
-          {!exports.busy && exports.cleanupCount === 0 && [...exports.jobs.values()].some(job => job.state.kind === "failed") &&
+          {!locked && exports.cleanupCount === 0 && [...exports.jobs.values()].some(job => job.state.kind === "failed") &&
             <button type="button" onClick={() => exports.retry()}>Retry failed</button>}
           {exports.cleanupCount > 0 && <>
             <span role="status">Temporary files need cleanup.</span>
-            <button type="button" disabled={exports.busy} onClick={() => void exports.retryCleanup()}>Retry cleanup</button>
+            <button type="button" disabled={locked} onClick={() => void exports.retryCleanup()}>Retry cleanup</button>
           </>}
           {exports.jobs.size > 0 && <span role="status">{[
             ["done", "done"], ["running", "active"], ["waiting", "waiting"],
@@ -295,6 +308,7 @@ function App() {
           }).join(" · ")}</span>}
           {exports.busy && <small>{exports.cleaning ? "Cleaning up…" : "Keep this page open. Cancellation waits for cleanup."}</small>}
         </div>
+        {completed.length > 0 && <small>Save results before closing this tab.</small>}
       </main>
       <footer>
         <span>Files stay on your device. Tools download when needed.</span>

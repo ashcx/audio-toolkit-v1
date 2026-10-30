@@ -1,0 +1,48 @@
+[
+  {
+    "engine": "chromium",
+    "entries": [
+      "TONE.audio.wav",
+      "TONE.audio (2).wav",
+      "_音楽_.audio.wav"
+    ],
+    "storedExactBytes": true,
+    "repeatedDownloads": true,
+    "quotaRecovery": true,
+    "cancelPendingWrite": true,
+    "failedCleanupRetry": true,
+    "sourceInvalidation": true,
+    "partialFailureZip": true,
+    "remainingStores": 0,
+    "batch": null,
+    "memory": {
+      "peakSampledOwnedBrowserRssBytes": 646303744,
+      "samples": 19,
+      "budgetBytes": 2147483648,
+      "budgetExceeded": false
+    }
+  },
+  {
+    "engine": "webkit",
+    "entries": [
+      "TONE.audio.wav",
+      "TONE.audio (2).wav",
+      "_音楽_.audio.wav"
+    ],
+    "storedExactBytes": true,
+    "repeatedDownloads": true,
+    "quotaRecovery": true,
+    "cancelPendingWrite": true,
+    "failedCleanupRetry": true,
+    "sourceInvalidation": true,
+    "partialFailureZip": true,
+    "remainingStores": 0,
+    "batch": null,
+    "memory": {
+      "peakSampledOwnedBrowserRssBytes": 637575168,
+      "samples": 25,
+      "budgetBytes": 2147483648,
+      "budgetExceeded": false
+    }
+  }
+]

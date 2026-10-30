@@ -18,6 +18,7 @@ export function FileRow({
   plan,
   job,
   busy,
+  downloadBusy,
   onCancel,
   onRetry,
   trim,
@@ -30,6 +31,7 @@ export function FileRow({
   plan: ExecutionPlan | null;
   job: BatchJob | undefined;
   busy: boolean;
+  downloadBusy: boolean;
   onCancel: () => void;
   onRetry: () => void;
   trim: TrimRangeDraft | undefined;
@@ -114,7 +116,7 @@ export function FileRow({
         <button
           class="icon-button"
           type="button"
-          data-remove-file={entry.id}
+          disabled={downloadBusy} data-remove-file={entry.id}
           aria-label={`Remove ${entry.file.name}`}
           onClick={onRemove}
         >

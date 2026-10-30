@@ -1,0 +1,18 @@
+{
+  "host": "Linux automated Chromium; synthetic silence/tone, no physical Mac/mobile claims",
+  "results": [
+    {
+      "case": "10-minute stereo 48 kHz WAV to MP3",
+      "seconds": 600,
+      "count": 1,
+      "elapsedMs": 25674
+    }
+  ],
+  "memory": {
+    "peakSampledOwnedBrowserRssBytes": 640860160,
+    "samples": 96,
+    "budgetBytes": 2147483648,
+    "budgetExceeded": false
+  },
+  "remainingStores": 0
+}

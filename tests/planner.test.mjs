@@ -45,3 +45,9 @@ test('WAV byte guard prevents RIFF wrap at the actual PCM16 mono and stereo boun
  assert.equal(wavSizeError(1073740799,2),null);assert.match(wavSizeError(1073740800,2),/4 GB/);
  assert.equal(wavSizeError(2147481599,1),null);assert.match(wavSizeError(2147481600,1),/4 GB/);
 });
+test('download names are safe, Unicode bounded and unique against mixed-case retained outputs',async()=>{
+ const {outputName}=await import('../src/planner.ts');const used=new Set(['TONE.audio.wav']);
+ assert.equal(outputName('TONE.wav','wav',used),'TONE.audio (2).wav');
+ for(const source of ['../a\\b?.wav','CON.wav','...','😀'.repeat(200)+'.wav','e\u0301.wav','é.wav']){const name=outputName(source,'wav',used);assert(!/[<>:"/\\|?*\x00-\x1f]/.test(name));assert(!/^\./.test(name));assert(new TextEncoder().encode(name).length<255);assert(!/^CON\./i.test(name));}
+ assert.equal(used.size,8);
+});
