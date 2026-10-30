@@ -1,3 +1,4 @@
+import {setAppearance} from './browser-controls.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
@@ -75,7 +76,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   await page.getByLabel('Choose audio or video files').setInputFiles(files.map(file=>`tests/fixtures/${file}`));
   await page.waitForFunction(count=>document.querySelectorAll('li[data-inspection=ready]').length===count,files.length);
   await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('original');
-  assert.equal(await page.locator('.file-list').getByText(/^Copy ·/).count(),files.length);
+  assert.equal(await page.locator('[data-inspection=ready]').count(),files.length);
   await page.getByRole('button',{name:'Export',exact:true}).click();
   await page.waitForFunction(count=>document.querySelectorAll('.file-result a[download]').length===count,files.length);
   const downloads=[];
@@ -105,7 +106,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   const maxWrite=await page.evaluate(()=>window.__maxWrite);assert(maxWrite>0&&maxWrite<=1024*1024);
   assert(!requests.some(url=>/encoders|neural|\.onnx|\.wasm/.test(url)),'Copy must not load encoders or isolation');
   await page.screenshot({path:`${root}/captures/${name}-desktop.png`,fullPage:true,animations:'disabled'});
-  await page.setViewportSize({width:390,height:844});await page.getByLabel('Appearance').selectOption('dark');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+  await page.setViewportSize({width:390,height:844});await setAppearance(page,'dark');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.screenshot({path:`${root}/captures/${name}-mobile-dark.png`,fullPage:true,animations:'disabled'});
   await page.getByLabel('Add step',{exact:true}).selectOption('gain');await page.getByLabel('Gain (dB)',{exact:true}).fill('1');
   assert.equal(await page.locator('.file-name').getByText('Gain requires re-encoding. Choose another format.',{exact:true}).count(),files.length);

@@ -1,0 +1,7 @@
+# Compact workspace verification
+
+The two-panel desktop workspace becomes a stacked layout at mobile width. File rows show filename, useful duration, contextual trim/error/state and actions. Removed file bytes, codec/container/channels/sample rate, re-encode/copy badges and redundant completed format/recipe descriptions. Listen expands native playback; individual downloads remain accessible. Source files and stable identities still belong to useFiles.
+
+Actual Chrome selected a valid two-second stereo WAV and a corrupt WAV. The valid file exported and downloaded while the corrupt file remained an actionable inspection error. A physical downloaded WAV was independently parsed as96000frames/48000Hz/stereo/PCM16. Repeated Export created a new result URL, confirming the UI no longer invokes preview reuse. An individual override0.5–1.5s superseded the batch0.25–1.75s range; the downloaded output independently parsed as48000frames at48000Hz. Native playback was started by its actual play control and observed unpaused with a progressing source time. Later output metadata reflected the one-second trim.
+
+workspace-state.json records actual row/action content and absence of presets/footer. Captures include desktop light, mobile dark and settings dark. Parent inspected the images. Mobile390px had no horizontal overflow. These are desktop Chrome observations at emulated widths, not physical mobile, touch or screen-reader sessions.

@@ -1,0 +1,7 @@
+# Settings and contextual result protection
+
+Inspected the actual image-compressor Settings page read-only in Chrome. The audio header now opens a native HTML dialog with grouped System/Light/Dark appearance choices, Licenses and Close. Existing theme persistence/live system preference logic remains. Removed the persistent footer/privacy/sibling-link text and save-results sentence.
+
+Actual Chrome opened Settings with Enter, changed Light/Dark through visible labels, closed with Escape and returned focus to Settings. Keyboard tab observations are recorded in keyboard.json; reverse traversal was not promoted to a verified custom focus-wrap claim. Native dialog supplies app inertness and its standard semantics; no physical screen-reader session is claimed. The license link remains available in the dialog and serves the audited notices. A beforeunload handler is installed only while jobs, archive work or completed results exist; actual browser exit-prompt handling remains unverified because the Chrome extension could not control native JavaScript dialogs earlier in this run. This is contextual protection rather than persistent UI copy.
+
+Target review measured the original appearance labels and license link below44px. Explicit44px minima now apply; fresh Chrome observations and computed styles are recorded in settings-targets.json. The native playback summary has the same minimum, recorded in playback-target.json. Values near43.993px reflect fractional layout rounding and are described as approximately44px, not fabricated exact integers.

@@ -9,7 +9,7 @@ Use the candidate branch preview/build whose commit is recorded in Sprint 12 evi
 | Device | Check | Status |
 | --- | --- | --- |
 | Chrome on the user's Mac | Both isolation modes complete; progress advances across windows; cancel/retry; listen to exports; observe heat and responsiveness | NOT VERIFIED |
-| Edge on desktop | Mixed inputs, editable recipe/preset, test -> batch reuse, playback, individual/ZIP download, cancel/retry | NOT VERIFIED |
+| Edge on desktop | Mixed inputs, ordered recipe, direct batch export, playback, individual/ZIP download, cancel/retry | NOT VERIFIED |
 | Actual Safari on Mac | Same journey, WAV/MP3/AAC/FLAC/Opus save and supported native preview, ZIP extraction | NOT VERIFIED |
 | iPhone and iPad Safari | File picker, trim/override, touch/reorder, theme, preview/save, cancellation and quota recovery; background/suspend and return | NOT VERIFIED |
 | Android Chrome | Same mobile journey, save/ZIP, background/suspend and return | NOT VERIFIED |

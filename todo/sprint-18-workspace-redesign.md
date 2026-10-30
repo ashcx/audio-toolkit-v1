@@ -4,7 +4,7 @@
 
 Deliver a compact, low-copy workspace with direct batch export, concise file rows, and a settings panel.
 
-Status: Not started. Technical delivery and acceptance: NOT VERIFIED.
+Status: In progress. Compact workspace implemented and verified in desktop Chrome/emulated widths; independent review and broader acceptance pending.
 
 ## Entry criteria
 
@@ -46,3 +46,5 @@ Changes to the image compressor, external hub, deployment, or audio-processing s
 ## Execution log
 
 2026-10-30: Planned at the user's request. No implementation, verification, review, or PR is claimed.
+
+2026-10-30: Implemented direct Export and removed presets/test/reuse ownership end to end. Compact file rows preserve individual trim, errors, downloads and expandable native playback. Settings uses a native modal with appearance/license access and Escape focus return.67unit tests, production build and static notices/hash audit pass. Actual mixed-file exports and per-file trim downloads independently match expected PCM grids. Desktop light/mobile dark/settings captures recorded. Physical touch/screen-reader and native exit-prompt handling remain unverified. See Sprint18 coverage.

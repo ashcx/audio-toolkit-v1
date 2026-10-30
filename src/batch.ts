@@ -23,7 +23,7 @@ export type JobState =
   | { kind: "cancelled" }
   | { kind: "failed"; message: string }
   | ({ kind: "done"; url: string } & JobOutput);
-type OwnedJob = { readonly spec: JobSpec; state: JobState; ready: Promise<void>; purpose: "test" | "batch"; device: IsolationDevice | null };
+type OwnedJob = { readonly spec: JobSpec; state: JobState; ready: Promise<void>; device: IsolationDevice | null };
 export type BatchJob = Readonly<Pick<OwnedJob, "spec" | "state" | "device">>;
 export type BatchSnapshot = { jobs: ReadonlyMap<FileId, BatchJob>; busy: boolean; cleanupCount: number; cleaning: boolean };
 export type JobRunner = (spec: JobSpec, signal: AbortSignal, phase: (value: JobEvent) => void) => Promise<JobOutput>;
@@ -79,26 +79,17 @@ export class Batch {
       this.emit();
     }
   }
-  invalidateTest(id?: FileId) {
-    for (const [key, job] of this.jobs) if (id === undefined || key === id) job.purpose = "batch";
-  }
-  start(inputs: readonly Omit<JobSpec, "name">[], purpose: "test" | "batch" = "batch") {
+  start(inputs: readonly Omit<JobSpec, "name">[]) {
     if (this.disposed || this.snapshot.busy || this.pendingCleanup.size) return;
-    const reusable = new Set(inputs.filter(input => {
-      const previous = this.jobs.get(input.entry.id);
-      return purpose === "batch" && previous?.purpose === "test" && previous.state.kind === "done" &&
-        previous.spec.entry.file === input.entry.file && JSON.stringify(previous.spec.plan) === JSON.stringify(input.plan);
-    }).map(input => input.entry.id));
-    const replacing = new Set(inputs.filter(input => !reusable.has(input.entry.id)).map(input => input.entry.id));
+    const replacing = new Set(inputs.map(input => input.entry.id));
     const names = new Set([...this.jobs.values()].filter(job => !replacing.has(job.spec.entry.id)).map(job => job.spec.name));
     for (const input of inputs) {
       const previous = this.jobs.get(input.entry.id);
-      if (previous && reusable.has(input.entry.id)) { previous.purpose = "batch";continue; }
       const ready = previous ? this.release(input.entry.id, previous.state) : Promise.resolve();
       void ready.catch(() => undefined);
       const extension = input.plan.kind === "copy" ? input.plan.target.container : exportDescriptor(input.plan.snapshot.recipe.export).extension;
       const name = outputName(input.entry.file.name, extension, names);
-      this.jobs.set(input.entry.id, { spec: Object.freeze({ ...input, name }), state: { kind: "waiting" }, ready, purpose, device: null });
+      this.jobs.set(input.entry.id, { spec: Object.freeze({ ...input, name }), state: { kind: "waiting" }, ready, device: null });
     }
     this.pump();
   }

@@ -1,3 +1,4 @@
+import {setAppearance} from './browser-controls.mjs';
 import assert from 'node:assert/strict';
 import {chromium,webkit} from 'playwright';
 import {writeFile,mkdir} from 'node:fs/promises';
@@ -18,14 +19,14 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   for(const viewport of [{width:1440,height:1000},{width:390,height:844}]){
    await page.setViewportSize(viewport);
    for(const theme of ['light','dark']){
-    await page.getByLabel('Appearance').selectOption(theme);
+    await setAppearance(page,theme);
     await page.waitForFunction(expected=>document.documentElement.dataset.theme===expected,theme);
     assert.equal(await page.locator('html').getAttribute('data-theme'),theme);
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'No horizontal overflow');
     await page.screenshot({path:`${root}/captures/${name}-${viewport.width}-${theme}.png`,fullPage:true,animations:'disabled'});
    }
   }
-  await page.getByLabel('Appearance').selectOption('system');
+  await setAppearance(page,'system');
   await page.emulateMedia({colorScheme:'light'});
   await page.waitForFunction(()=>document.documentElement.dataset.theme==='light');
   await page.emulateMedia({colorScheme:'dark'});
@@ -46,7 +47,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   assert.deepEqual(errors,[]);
   assert(requests.every(url=>new URL(url).hostname==='127.0.0.1'),'No external asset or media requests');
   assert(!requests.some(url=>/\.onnx|vendor\/neural/.test(url)),'Model/runtime are not loaded at app start');
-  await page.getByText('Files stay on your device. Tools download when needed.',{exact:true}).waitFor();
+  assert.equal(await page.locator('footer').count(),0);await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('link',{name:'Licenses',exact:true}).waitFor();await page.getByRole('button',{name:'Close',exact:true}).click();
   records.push({browser:name,viewports:[1440,390],themes:['light','dark','system live change'],keyboardRemove:true,longNames:true,basePathAndReload:true,noExternalRequests:true,noEagerModel:true,errors});
   const limited=await browser.newContext({userAgent:'Mozilla/5.0 Firefox/145.0'});
   await limited.addInitScript(()=>{Object.defineProperty(window,'AudioDecoder',{value:undefined});Object.defineProperty(navigator,'storage',{value:undefined});Object.defineProperty(window,'Worker',{value:undefined});});

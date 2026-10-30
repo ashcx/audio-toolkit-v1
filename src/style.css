@@ -121,9 +121,6 @@ select {
   padding: 0.65rem 0.8rem;
   min-height: 44px;
 }
-.header select {
-  font-size: 0.8rem;
-}
 .workspace {
   display: grid;
   grid-template-columns: 1.15fr 1fr;
@@ -231,20 +228,6 @@ h3 {
 .field select {
   width: 100%;
   font-size: 0.8rem;
-}
-footer {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  color: var(--muted-strong);
-  font-size: 0.72rem;
-  padding: 1rem 0.2rem 0;
-}
-footer a {
-  text-decoration: none;
-}
-footer a:hover {
-  text-decoration: underline;
 }
 .notice {
   background: var(--warning-bg);
@@ -484,3 +467,22 @@ input[type="number"] {
   font-weight: 600;
   line-height: 1.4;
 }
+
+.settings-dialog { color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; width: min(24rem, calc(100% - 2rem)); }
+.settings-dialog::backdrop { background: rgb(0 0 0 / .4); }
+.settings-dialog fieldset { border: 0; margin: 1.5rem 0; padding: 0; }
+.settings-dialog legend { margin-bottom: .65rem; font-weight: 600; font-size: .85rem; }
+.theme-options { display: flex; gap: .35rem; }
+.theme-options label { min-height: 44px; display: flex; align-items: center; justify-content: center; flex: 1; text-align: center; cursor: pointer; padding: .75rem .25rem; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: .8rem; }
+.theme-options label:has(input:checked) { color: var(--accent-contrast); background: var(--accent); border-color: var(--accent); }
+.theme-options label:focus-within { outline: 2px solid var(--muted-strong); outline-offset: 2px; }
+.dropzone { min-height: 140px; }
+.file-name { font-weight: 550; }
+.file-result { font-size: .8rem; }
+.playback { min-width: 0; flex: 1; }
+.playback summary { min-height: 44px; cursor: pointer; width: fit-content; padding: .9rem .7rem; border-radius: var(--radius-sm); }
+.playback[open] { flex-basis: 100%; }
+.playback audio { display: block; width: 100%; margin-top: .35rem; }
+
+.settings-dialog > a { min-height: 44px; display: flex; align-items: center; width: fit-content; padding: .5rem .25rem; }
+.brand { display: flex; align-items: center; min-height: 44px; }
