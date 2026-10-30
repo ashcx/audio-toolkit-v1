@@ -1,0 +1,63 @@
+
+> audio-toolkit-v1@0.1.0 build
+> node scripts/verify-aac.mjs && node scripts/verify-neural.mjs && tsc --noEmit && vite build && node scripts/check-worker-imports.mjs
+
+Verified AAC runtime, wrapper, worker, bridge and corresponding-source hashes.
+Pinned isolation asset hashes match.
+You are using Node.js 22.11.0. Vite requires Node.js version 20.19+ or 22.12+. Please upgrade your Node.js version.
+vite v8.3.5 building client environment for production...
+transforming...
+[plugin rolldown:vite-resolve] Module "node:path" has been externalized for browser compatibility, imported by "/Users/macbook/Documents/test/audio-toolkit-v1/vendor/neural/neural.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin rolldown:vite-resolve] Module "node:url" has been externalized for browser compatibility, imported by "/Users/macbook/Documents/test/audio-toolkit-v1/vendor/neural/neural.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin rolldown:vite-resolve] Module "node:crypto" has been externalized for browser compatibility, imported by "/Users/macbook/Documents/test/audio-toolkit-v1/vendor/neural/neural.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin rolldown:vite-resolve] Module "node:os" has been externalized for browser compatibility, imported by "/Users/macbook/Documents/test/audio-toolkit-v1/vendor/neural/neural.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin rolldown:vite-resolve] Module "node:fs" has been externalized for browser compatibility, imported by "/Users/macbook/Documents/test/audio-toolkit-v1/vendor/neural/neural.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+
+new URL("ort-wasm-simd-threaded.wasm",import.meta.url) doesn't exist at build time, it will remain unchanged to be resolved at runtime. If this is intended, you can use the /* @vite-ignore */ comment to suppress this warning.
+
+new URL("ort-wasm-simd-threaded.asyncify.wasm",import.meta.url) doesn't exist at build time, it will remain unchanged to be resolved at runtime. If this is intended, you can use the /* @vite-ignore */ comment to suppress this warning.
+[plugin rolldown:vite-resolve] Module "worker_threads" has been externalized for browser compatibility, imported by "/Users/macbook/Documents/test/audio-toolkit-v1/vendor/aac/aac-worker.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin rolldown:vite-resolve] Module "node:path" has been externalized for browser compatibility, imported by "/Users/macbook/Documents/test/audio-toolkit-v1/vendor/neural/neural.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin rolldown:vite-resolve] Module "node:url" has been externalized for browser compatibility, imported by "/Users/macbook/Documents/test/audio-toolkit-v1/vendor/neural/neural.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin rolldown:vite-resolve] Module "node:crypto" has been externalized for browser compatibility, imported by "/Users/macbook/Documents/test/audio-toolkit-v1/vendor/neural/neural.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin rolldown:vite-resolve] Module "node:os" has been externalized for browser compatibility, imported by "/Users/macbook/Documents/test/audio-toolkit-v1/vendor/neural/neural.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin rolldown:vite-resolve] Module "node:fs" has been externalized for browser compatibility, imported by "/Users/macbook/Documents/test/audio-toolkit-v1/vendor/neural/neural.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+✓ 208 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/assets/__vite-browser-external-fjlRhLv6.js    0.11 kB
+dist/probes/index.html                             0.63 kB │ gzip:   0.29 kB
+dist/index.html                                    0.72 kB │ gzip:   0.40 kB
+dist/assets/rolldown-runtime-FCrsKEuO.js           1.00 kB
+dist/assets/rolldown-runtime-BNaE-Ejt.js           1.13 kB
+dist/assets/isolation-worker-CNCi9pNV.js           1.30 kB
+dist/assets/worker-Dw1TTvGa.js                     2.96 kB
+dist/assets/encoder-DATrsRvP.js                    7.48 kB
+dist/assets/pcm-worker-BXSYFdBr.js                22.12 kB
+dist/assets/decode-flac-CMwG4B86.js               78.06 kB
+dist/assets/decode-vorbis-BrtLKzcr.js            107.48 kB
+dist/assets/mediabunny-mp3-encoder-BhayXZrY.js   311.54 kB
+dist/assets/mediabunny-flac-encoder-oNnKgB2f.js  323.02 kB
+dist/assets/worker-media-CWWPAkHJ.js             516.01 kB
+dist/assets/aac-worker-ZjeufOxA.js               701.72 kB
+dist/assets/isolation-runtime-C01pV1gI.js        716.33 kB
+dist/assets/index-PK2CSMMQ.css                     7.53 kB │ gzip:   2.29 kB
+dist/assets/inference-probe-CxDgbkll.js            0.54 kB │ gzip:   0.39 kB
+dist/assets/__vite-browser-external-BVMaDFzg.js    1.14 kB │ gzip:   0.64 kB
+dist/assets/preload-helper-Cqd02Gxk.js             2.21 kB │ gzip:   1.08 kB
+dist/assets/runner-v__JNrSv.js                     2.24 kB │ gzip:   0.98 kB
+dist/assets/copy-audio-D_sIVz9W.js                 2.47 kB │ gzip:   1.14 kB
+dist/assets/process-audio-JQy9Y4V7.js              2.59 kB │ gzip:   1.21 kB
+dist/assets/reconstruction-probe-BuopGm1Z.js       8.50 kB │ gzip:   3.25 kB
+dist/assets/output-DUSJYtA2.js                   132.18 kB │ gzip:  33.57 kB
+dist/assets/index-eq2VV7qQ.js                    145.18 kB │ gzip:  44.97 kB
+dist/assets/src-CfjxdX3Y.js                      445.20 kB │ gzip: 113.95 kB
+dist/assets/index-BR_K96CN.js                    754.35 kB │ gzip: 275.12 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 443ms
+Codec and isolation chunks do not import worker entries.

@@ -1,0 +1,343 @@
+
+> audio-toolkit-v1@0.1.0 test
+> node --experimental-strip-types --test tests/*.test.mjs
+
+(node:1765) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+TAP version 13
+# (node:1766) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: archive owns one URL, rejects overlapping builds, releases on clear and can be rebuilt
+ok 1 - archive owns one URL, rejects overlapping builds, releases on clear and can be rebuilt
+  ---
+  duration_ms: 26.8505
+  ...
+# Subtest: cancel waits for pending builder and releases its late output without success
+ok 2 - cancel waits for pending builder and releases its late output without success
+  ---
+  duration_ms: 3.483125
+  ...
+# Subtest: failed cleanup retains ownership for retry and blocks new builds
+ok 3 - failed cleanup retains ownership for retry and blocks new builds
+  ---
+  duration_ms: 2.367541
+  ...
+# Subtest: builder cleanup failures remain recoverable, disposal cancels and releases late output
+ok 4 - builder cleanup failures remain recoverable, disposal cancels and releases late output
+  ---
+  duration_ms: 5.452042
+  ...
+# (node:1767) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: capability policy never assumes memory and caps parallel work at two
+ok 5 - capability policy never assumes memory and caps parallel work at two
+  ---
+  duration_ms: 0.394041
+  ...
+# Subtest: cancelled late success is released before dispatch; waiting cancel never starts
+ok 6 - cancelled late success is released before dispatch; waiting cancel never starts
+  ---
+  duration_ms: 4.6125
+  ...
+# Subtest: failure is isolated and retry retains exact snapshot/name and unrelated success
+ok 7 - failure is isolated and retry retains exact snapshot/name and unrelated success
+  ---
+  duration_ms: 0.621583
+  ...
+# Subtest: cancel all stops dispatch; remove/dispose reject stale attempts and free outputs
+ok 8 - cancel all stops dispatch; remove/dispose reject stale attempts and free outputs
+  ---
+  duration_ms: 4.63125
+  ...
+# Subtest: new run names cannot collide with retained output names
+ok 9 - new run names cannot collide with retained output names
+  ---
+  duration_ms: 1.516875
+  ...
+# Subtest: one failed old-output cleanup cannot fail unrelated new jobs
+ok 10 - one failed old-output cleanup cannot fail unrelated new jobs
+  ---
+  duration_ms: 1.128416
+  ...
+# Subtest: failed cancellation cleanup stays owned after removal and blocks exports until recovery
+ok 11 - failed cancellation cleanup stays owned after removal and blocks exports until recovery
+  ---
+  duration_ms: 1.273375
+  ...
+# Subtest: cleanup attempts every owner and retries only failed actions
+ok 12 - cleanup attempts every owner and retries only failed actions
+  ---
+  duration_ms: 0.506375
+  ...
+# Subtest: removing a completed output stays busy until deletion settles
+ok 13 - removing a completed output stays busy until deletion settles
+  ---
+  duration_ms: 4.185708
+  ...
+# Subtest: recovering old-output deletion clears its prerequisite before retry
+ok 14 - recovering old-output deletion clears its prerequisite before retry
+  ---
+  duration_ms: 1.451042
+  ...
+# Subtest: isolation has an exclusive slot and queued inference never overlaps cleanup
+ok 15 - isolation has an exclusive slot and queued inference never overlaps cleanup
+  ---
+  duration_ms: 1.751458
+  ...
+# Subtest: batch consumes a matching test once and reserves its name before other inputs
+ok 16 - batch consumes a matching test once and reserves its name before other inputs
+  ---
+  duration_ms: 9.953417
+  ...
+# Subtest: settings edits, explicit invalidation and changed File identity prevent test reuse
+ok 17 - settings edits, explicit invalidation and changed File identity prevent test reuse
+  ---
+  duration_ms: 8.187792
+  ...
+# Subtest: retry of a cancelled test retains eligibility and unrelated file edits preserve it
+ok 18 - retry of a cancelled test retains eligibility and unrelated file edits preserve it
+  ---
+  duration_ms: 7.731917
+  ...
+# Subtest: device metadata preserves numeric progress, survives completion/reuse and resets on retry
+ok 19 - device metadata preserves numeric progress, survives completion/reuse and resets on retry
+  ---
+  duration_ms: 1.573209
+  ...
+# (node:1768) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: sealed PCM gives independent replay readers over immutable recorded samples
+ok 20 - sealed PCM gives independent replay readers over immutable recorded samples
+  ---
+  duration_ms: 0.73225
+  ...
+# (node:1769) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: GPU-session failure closes its worker before CPU fallback and keeps bounded input
+ok 21 - GPU-session failure closes its worker before CPU fallback and keeps bounded input
+  ---
+  duration_ms: 3.600459
+  ...
+# Subtest: cancellation between GPU rejection and fallback cannot launch another worker
+ok 22 - cancellation between GPU rejection and fallback cannot launch another worker
+  ---
+  duration_ms: 1.180917
+  ...
+# Subtest: model verification errors do not retry an unrelated backend
+ok 23 - model verification errors do not retry an unrelated backend
+  ---
+  duration_ms: 0.125917
+  ...
+# (node:1769) ExperimentalWarning: The MockTimers API is an experimental feature and might change at any time
+# Subtest: GPU fallback persists across the rest of the file
+ok 24 - GPU fallback persists across the rest of the file
+  ---
+  duration_ms: 5.151959
+  ...
+# Subtest: initialization and inference stalls terminate once without automatic loops
+ok 25 - initialization and inference stalls terminate once without automatic loops
+  ---
+  duration_ms: 0.515708
+  ...
+# Subtest: cancellation from a progress callback cannot start work afterward
+ok 26 - cancellation from a progress callback cannot start work afterward
+  ---
+  duration_ms: 0.179542
+  ...
+# Subtest: a stalled GPU session gets one CPU fallback, which stays selected
+ok 27 - a stalled GPU session gets one CPU fallback, which stays selected
+  ---
+  duration_ms: 0.994916
+  ...
+# Subtest: device status distinguishes tentative GPU, confirmed hybrid and sticky CPU fallback
+ok 28 - device status distinguishes tentative GPU, confirmed hybrid and sticky CPU fallback
+  ---
+  duration_ms: 1.058167
+  ...
+# (node:1770) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: both modes reconstruct the reference and retain rate/frame/source-time grids
+ok 29 - both modes reconstruct the reference and retain rate/frame/source-time grids
+  ---
+  duration_ms: 416.187333
+  ...
+# Subtest: final grid correction can drop samples spanning a block boundary
+ok 30 - final grid correction can drop samples spanning a block boundary
+  ---
+  duration_ms: 0.339375
+  ...
+# Subtest: inference failure discards the analysis checkpoint
+ok 31 - inference failure discards the analysis checkpoint
+  ---
+  duration_ms: 0.402875
+  ...
+# Subtest: music retains source frequencies above the model band
+ok 32 - music retains source frequencies above the model band
+  ---
+  duration_ms: 74.598958
+  ...
+# Subtest: weak stereo isolation preserves every sample across long replay block boundaries
+ok 33 - weak stereo isolation preserves every sample across long replay block boundaries
+  ---
+  duration_ms: 476.001833
+  ...
+# Subtest: silent and single-frame inputs stay finite and report completed work
+ok 34 - silent and single-frame inputs stay finite and report completed work
+  ---
+  duration_ms: 1.981709
+  ...
+# Subtest: empty audio fails before allocating a model or checkpoint
+ok 35 - empty audio fails before allocating a model or checkpoint
+  ---
+  duration_ms: 0.110875
+  ...
+# Subtest: failure after a completed window releases its checkpoint and does not advance progress
+ok 36 - failure after a completed window releases its checkpoint and does not advance progress
+  ---
+  duration_ms: 70.543042
+  ...
+# (node:1771) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: weighted windows perfectly reconstruct short/full/overlapping/tail source grids
+ok 37 - weighted windows perfectly reconstruct short/full/overlapping/tail source grids
+  ---
+  duration_ms: 455.322292
+  ...
+# Subtest: window boundaries do not depend on decoder chunk boundaries
+ok 38 - window boundaries do not depend on decoder chunk boundaries
+  ---
+  duration_ms: 261.865666
+  ...
+# (node:1772) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: actual dependency expands fixed, Xiph and EBML lacing without losing final discard padding
+ok 39 - actual dependency expands fixed, Xiph and EBML lacing without losing final discard padding
+  ---
+  duration_ms: 0.627
+  ...
+# Subtest: a real laced Opus file exposes a short final duration instead of silently adding padding
+ok 40 - a real laced Opus file exposes a short final duration instead of silently adding padding
+  ---
+  duration_ms: 10.591958
+  ...
+# (node:1773) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: failed writer creation retains a failed removal for explicit cleanup retry
+ok 41 - failed writer creation retains a failed removal for explicit cleanup retry
+  ---
+  duration_ms: 2.039459
+  ...
+# (node:1774) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: trim retains half-open source positions; gain and mono/stereo mappings are deterministic
+ok 42 - trim retains half-open source positions; gain and mono/stereo mappings are deterministic
+  ---
+  duration_ms: 8.42575
+  ...
+# Subtest: normalization at its actual position changes trim results; silence is finite and checkpoints always close
+ok 43 - normalization at its actual position changes trim results; silence is finite and checkpoints always close
+  ---
+  duration_ms: 10.442125
+  ...
+# Subtest: streaming sinc resampling preserves rate, duration, passband and arbitrary block boundaries
+ok 44 - streaming sinc resampling preserves rate, duration, passband and arbitrary block boundaries
+  ---
+  duration_ms: 195.656375
+  ...
+# Subtest: downsampling rejects out-of-band aliases and preserves the source clock through repeated conversion before trim
+ok 45 - downsampling rejects out-of-band aliases and preserves the source clock through repeated conversion before trim
+  ---
+  duration_ms: 43.735167
+  ...
+# (node:1775) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: original audio resolves valid audio-only containers per codec; unsupported never transcodes
+ok 46 - original audio resolves valid audio-only containers per codec; unsupported never transcodes
+  ---
+  duration_ms: 3.33075
+  ...
+# Subtest: only real no-ops disappear and original audio rejects every signal change
+ok 47 - only real no-ops disappear and original audio rejects every signal change
+  ---
+  duration_ms: 1.788
+  ...
+# Subtest: PCM plan preserves processor order and export intent without freezing mutable drafts
+ok 48 - PCM plan preserves processor order and export intent without freezing mutable drafts
+  ---
+  duration_ms: 0.7865
+  ...
+# Subtest: a return to the source channel count or rate still runs after an earlier change
+ok 49 - a return to the source channel count or rate still runs after an earlier change
+  ---
+  duration_ms: 0.106584
+  ...
+# Subtest: copy filenames avoid collisions even when codec extensions converge
+ok 50 - copy filenames avoid collisions even when codec extensions converge
+  ---
+  duration_ms: 0.422709
+  ...
+# Subtest: known oversized WAVs fail before processing and trim/rate/channel changes can recover
+ok 51 - known oversized WAVs fail before processing and trim/rate/channel changes can recover
+  ---
+  duration_ms: 0.203208
+  ...
+# Subtest: WAV byte guard prevents RIFF wrap at the actual PCM16 mono and stereo boundaries
+ok 52 - WAV byte guard prevents RIFF wrap at the actual PCM16 mono and stereo boundaries
+  ---
+  duration_ms: 0.15175
+  ...
+# Subtest: download names are safe, Unicode bounded and unique against mixed-case retained outputs
+ok 53 - download names are safe, Unicode bounded and unique against mixed-case retained outputs
+  ---
+  duration_ms: 0.303167
+  ...
+# (node:1776) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: editable presets match names and preserve conversion trim identity
+ok 54 - editable presets match names and preserve conversion trim identity
+  ---
+  duration_ms: 3.157041
+  ...
+# (node:1777) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: ordered serializable recipes preserve repeatable stages and separate terminal export
+ok 55 - ordered serializable recipes preserve repeatable stages and separate terminal export
+  ---
+  duration_ms: 3.395125
+  ...
+# Subtest: invalid ranges, duplicate singleton steps and invalid encoding settings cannot become execution recipes
+ok 56 - invalid ranges, duplicate singleton steps and invalid encoding settings cannot become execution recipes
+  ---
+  duration_ms: 1.483
+  ...
+# Subtest: per-file overrides and clamping do not mutate the shared recipe
+ok 57 - per-file overrides and clamping do not mutate the shared recipe
+  ---
+  duration_ms: 0.485584
+  ...
+# Subtest: one invalid file range stays isolated; reset restores inheritance
+ok 58 - one invalid file range stays isolated; reset restores inheritance
+  ---
+  duration_ms: 0.132083
+  ...
+# (node:1778) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: stored ZIP64 round trips exact Unicode entries with independent Python reader and bounded writes
+ok 59 - stored ZIP64 round trips exact Unicode entries with independent Python reader and bounded writes
+  ---
+  duration_ms: 88.864541
+  ...
+# Subtest: ZIP cancels after an in-flight write, rejects unsafe and duplicate names, and propagates storage failure
+ok 60 - ZIP cancels after an in-flight write, rejects unsafe and duplicate names, and propagates storage failure
+  ---
+  duration_ms: 0.625833
+  ...
+1..60
+# tests 60
+# suites 0
+# pass 60
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1163.665209

@@ -1,0 +1,54 @@
+
+> audio-toolkit-v1@0.1.0 build
+> node scripts/verify-aac.mjs && node scripts/verify-neural.mjs && tsc --noEmit && vite build && node scripts/check-worker-imports.mjs
+
+Verified AAC runtime, wrapper, worker, bridge and corresponding-source hashes.
+Pinned isolation asset hashes match.
+file:///Users/macbook/Documents/test/audio-toolkit-v1/node_modules/rolldown/dist/shared/binding-BMtuZhvP.mjs:601
+			const error = /* @__PURE__ */ new Error("Cannot find native binding. npm has a bug related to optional dependencies (https://github.com/npm/cli/issues/4828). Please try `npm i` again after removing both package-lock.json and node_modules directory.");
+			                              ^
+
+Error: Cannot find native binding. npm has a bug related to optional dependencies (https://github.com/npm/cli/issues/4828). Please try `npm i` again after removing both package-lock.json and node_modules directory.
+    at file:///Users/macbook/Documents/test/audio-toolkit-v1/node_modules/rolldown/dist/shared/binding-BMtuZhvP.mjs:601:34
+    at file:///Users/macbook/Documents/test/audio-toolkit-v1/node_modules/rolldown/dist/shared/binding-BMtuZhvP.mjs:9:49
+    ... 2 lines matching cause stack trace ...
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:543:26) {
+  cause: Error: Cannot find module '@rolldown/binding-wasm32-wasi'
+  Require stack:
+  - /Users/macbook/Documents/test/audio-toolkit-v1/node_modules/rolldown/dist/shared/binding-BMtuZhvP.mjs
+      at file:///Users/macbook/Documents/test/audio-toolkit-v1/node_modules/rolldown/dist/shared/binding-BMtuZhvP.mjs:495:18
+      ... 6 lines matching cause stack trace ...
+      at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:543:26) {
+    cause: Error: Cannot find module './rolldown-binding.wasi.cjs'
+    Require stack:
+    - /Users/macbook/Documents/test/audio-toolkit-v1/node_modules/rolldown/dist/shared/binding-BMtuZhvP.mjs
+        at file:///Users/macbook/Documents/test/audio-toolkit-v1/node_modules/rolldown/dist/shared/binding-BMtuZhvP.mjs:495:18
+        ... 6 lines matching cause stack trace ...
+        at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:543:26) {
+      cause: Error: Cannot find module '@rolldown/binding-darwin-arm64'
+      Require stack:
+      - /Users/macbook/Documents/test/audio-toolkit-v1/node_modules/rolldown/dist/shared/binding-BMtuZhvP.mjs
+          at file:///Users/macbook/Documents/test/audio-toolkit-v1/node_modules/rolldown/dist/shared/binding-BMtuZhvP.mjs:495:18
+          ... 6 lines matching cause stack trace ...
+          at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:543:26) {
+        cause: Error: Cannot find module './rolldown-binding.darwin-arm64.node'
+        Require stack:
+        - /Users/macbook/Documents/test/audio-toolkit-v1/node_modules/rolldown/dist/shared/binding-BMtuZhvP.mjs
+            at file:///Users/macbook/Documents/test/audio-toolkit-v1/node_modules/rolldown/dist/shared/binding-BMtuZhvP.mjs:495:18
+            ... 6 lines matching cause stack trace ...
+            at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:543:26) {
+          cause: Error: Cannot find module '@rolldown/binding-darwin-universal'
+          Require stack:
+          - /Users/macbook/Documents/test/audio-toolkit-v1/node_modules/rolldown/dist/shared/binding-BMtuZhvP.mjs
+              at file:///Users/macbook/Documents/test/audio-toolkit-v1/node_modules/rolldown/dist/shared/binding-BMtuZhvP.mjs:495:18
+              ... 6 lines matching cause stack trace ...
+              at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:543:26) {
+            cause: [Error]
+          }
+        }
+      }
+    }
+  }
+}
+
+Node.js v22.11.0
