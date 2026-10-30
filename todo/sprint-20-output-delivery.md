@@ -4,7 +4,7 @@
 
 Let users download individual outputs or ZIPs and save successful outputs to a chosen folder where supported.
 
-Status: Technical implementation and bounded verification complete; independent Terra/Luna review complete; PR delivery next. Physical/assistive and unsupported-browser acceptance remain open.
+Status: Technical implementation and bounded verification complete; independent Terra/Luna review complete; [Draft PR22](https://github.com/ashcx/audio-toolkit-v1/pull/22) submitted. Physical/assistive and unsupported-browser acceptance remain open.
 
 ## Entry criteria
 
@@ -29,7 +29,7 @@ Execute stories sequentially. For each story, freeze prerequisite contracts; imp
 - [ ] All stories and sequential tasks pass with evidence, including preserved processing, result, and cleanup contracts.
 - [ ] Relevant automated checks and actual desktop/mobile, light/dark, keyboard and touch journeys are recorded with captures. Physical-device or screen-reader evidence not obtained remains NOT VERIFIED.
 - [x] Coverage matrix, decision trail, separate self-review, and independent interrogate against the integrated sprint are recorded; proven findings are resolved and rerun.
-- [ ] One sprint PR targeting main is created after implementation and review pass, linked here and in the roadmap with evidence and any unfinished record. No merge or deployment without explicit permission.
+- [x] One sprint PR targeting main is created after implementation and review pass, linked here and in the roadmap with evidence and any unfinished record. No merge or deployment without explicit permission.
 
 ## Scrum details
 
@@ -49,4 +49,6 @@ Changes to the image compressor, external hub, deployment, or audio-processing s
 
 2026-10-31: Verified Sprint19 review and draftPR21. Implemented folder operation/hook/UI sequentially against frozen contracts.76normaltests/build/static pass. ActualChrome mixedfile keyboardrecipe/export, individual/ZIP, nativecancel and user-assisted nativefolder save verified. Parent independently inspected2savedWAVs72000frames48kstereo, matchingZIPbytes and existing sentinel unchanged. RealChromeOPFS verifies chunked writes/cancel/cleanup. Physicaltouch/screenreader/unsupportedbrowser/nativeexitprompt/fullstandalonematrix remain unverified. See [coverage](../docs/sprint-evidence/sprint-20/coverage.md). Integrated US03 and broad exit boxes remain open for those actual observations; no full acceptance claim.
 
-2026-10-31: [Interrogate](../docs/sprint-evidence/sprint-20/interrogate.md) records two-model source review, restored acceptance document, final report-reset review and evidence reconciliation. No remaining proven source defect; bounded technical candidate eligible for PR. User-assisted native saves and physical ZIP match; optional further native-cancel check pending user action does not replace earlier verified success.
+2026-10-31: [Interrogate](../docs/sprint-evidence/sprint-20/interrogate.md) records two-model source review, restored acceptance document, final report-reset review and evidence reconciliation. No remaining proven source defect; bounded technical candidate eligible for PR. User-assisted native saves and physical ZIP match; final native-cancel/report-reset check completed with user cancellation and actual Chrome clear/re-export verification, supplementing earlier native success.
+
+2026-10-31: Draft [PR22](https://github.com/ashcx/audio-toolkit-v1/pull/22) targets main at implementation8f8f0f0, including prerequisite PR21/20. Technical implementation/review delivered; required physical/unsupported observations remain open, so full integrated acceptance is not Done. No merge/deploy.

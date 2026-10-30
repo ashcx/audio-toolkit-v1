@@ -8,7 +8,7 @@ Base61c337d, reviewed Sprint19 technical candidate submitted as draft PR21. User
 | Successful saved output accuracy | VERIFIED filesystem/ZIP byte comparison |2WAVs,72000frames/stereo48kHz, SHA256 equal ZIP; existing sentinel unchanged |
 | Native picker cancellation preserves outputs | VERIFIED actual Chrome | folder.md; initial desktoplight/dark captures |
 | Safe names/collisions/failure/partial cleanup/cancellation | VERIFIED boundary tests; real OPFS integration | tests/folder-save.test.mjs; opfs-chrome.json |
-| Busy locking/report lifecycle | Automated owner tests and source inspection; actual cancellation/success | originals never released by folder owner; reset report on completed-output source changes |
+| Busy locking/report lifecycle | Automated owner tests and actual Chrome cancellation/success/report reset | originals never released by folder owner; reset report on completed-output source changes |
 | US02 ZIP/individual fallback, corrupt file exclusion | VERIFIED actual production Chrome/physical ZIP | zip-download.json; downloads.md |
 | Unsupported-browser UI | NOT VERIFIED actual environment | runtime capability gate reviewed; raw-CDP override method unavailable, no override installed |
 | US03 mixed intake/edit/reorder/trim/export/delivery | VERIFIED actual Mac Chrome and emulated widths | integrated.md; captures desktop/mobile light/dark; inherited unchanged19 pointer/keyboard evidence |
@@ -22,3 +22,5 @@ Tests verify existing data/batch-name/output-name collisions, duplicates/travers
 Independent review caught an accidental replacement of release-acceptance.md with architecture text. Parent reproduced diff, restored the full prior document and appended new evidence. A final comparison must retain all original device/listening/deployment gates. Luna's pending-native/absent-coverage notes were true at the earlier snapshot; this matrix and revised folder/download/integrated records reconcile them. Final review disposition belongs in interrogate.md.
 
 Written planning/review/retrospective records are agent-run, no human meetings claimed. Retrospective: keep file-system failure policy testable outside UI, and compare document content before committing multi-file edits. Recovery acceptance remains actual unsupported browsers and physical/assistive matrix. No merge/deploy or full release acceptance.
+
+Final recovery observation: user cancelled the additional native chooser; parent verified cancellation status1 before Clear results/0 after, then re-exported successfully. report-reset.json records it. No native chooser action remains pending.
