@@ -27,7 +27,7 @@ The user confirmed the public repository `ashcx/audio-toolkit-v1`. Production pa
 | [17](todo/sprint-17-isolation-performance.md) | Deliver a measured music isolation improvement | 13,19 | [Draft PR19](https://github.com/ashcx/audio-toolkit-v1/pull/19), reviewed retain-baseline disposition; no improvement claimed |
 | [18](todo/sprint-18-workspace-redesign.md) | Simplify the workspace and file results | Redesign, 5,6,17,22 | [Draft PR20](https://github.com/ashcx/audio-toolkit-v1/pull/20), design/implementation/review complete for tested scope; broader acceptance open |
 | [19](todo/sprint-19-recipe-interactions.md) | Modernize recipe and trim controls | Redesign, 8,10,11,12 | [Draft PR21](https://github.com/ashcx/audio-toolkit-v1/pull/21), reviewed technical candidate; physical/matrix gaps open |
-| [20](todo/sprint-20-output-delivery.md) | Deliver ZIP and supported folder saving | Redesign, 18,19,20 | [Draft PR22](https://github.com/ashcx/audio-toolkit-v1/pull/22), reviewed folder delivery; native save/ZIP verified; physical/unsupported matrix open |
+| [20](todo/sprint-20-output-delivery.md) | Deliver ZIP and supported folder saving | Redesign, 18,19,20 | [Merged PR22](https://github.com/ashcx/audio-toolkit-v1/pull/22), reviewed folder delivery; native save/ZIP verified; physical/unsupported matrix open |
 
 The 2026-10-30 redesign request adds Sprints 18–20 after Sprint 17. It is planning-only; it does not authorize execution in this turn. The [redesign requirements](todo/audio-toolkit-plan.md#28-redesign-direction-2026-10-30) supersede conflicting earlier UI requirements.
 
@@ -46,3 +46,9 @@ Read [orchestration](todo/orchestration-plan.md), [Scrum policy](todo/redesign-s
 ## Planning delivery
 
 Planning validation and independent review are in [planning evidence](docs/sprint-evidence/planning/validation.md). The decision trail is [decisions.tsv](docs/sprint-evidence/planning/decisions.tsv). Planning PR: [#1](https://github.com/ashcx/audio-toolkit-v1/pull/1). This PR is separate from all future implementation sprint PRs.
+
+## 2026-10-31 UI redesign
+
+The user superseded the Sprint19 number-first/duplicated trim presentation with a shared two-handle rail and clock fields, slider-only gain/normalize, on-demand original peak/RMS and a compact image-compressor-style shell. [Redesign plan](todo/ui-redesign.md) and `docs/sprint-evidence/ui-redesign/` record the implementation, audit, tests and final independent review. PR delivery follows these checks. Earlier sprint evidence is historical, not the current UI contract.
+
+GitHub confirmed Sprint20 PR22 merged; the UI refinement branches from that exact source tree. The refinement itself is not merged or deployed.

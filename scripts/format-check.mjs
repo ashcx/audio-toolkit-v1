@@ -1,3 +1,4 @@
+import {setSlider} from './browser-controls.mjs';
 import {setAppearance} from './browser-controls.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
@@ -43,7 +44,7 @@ for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
    await page.goto(appUrl);await page.getByLabel('Choose audio or video files').setInputFiles(path);await page.locator('[data-inspection=ready]').waitFor();
    await page.getByRole('combobox',{name:'Format',exact:true}).selectOption(format);
    if(['mp3','m4a','opus'].includes(format))await page.getByLabel('Bitrate (kbps)').selectOption(String(bitrate));
-   await page.getByLabel('Add step',{exact:true}).selectOption('gain');await page.getByLabel('Gain (dB) precise',{exact:true}).fill('-6');
+   await page.getByLabel('Add step',{exact:true}).selectOption('gain');await setSlider(page,'Gain (dB) slider',-6);
    if(channels===1){await page.getByLabel('Add step',{exact:true}).selectOption('channels');await page.getByRole('radio',{name:'Mono',exact:true}).check();}
    if(rate!==48000){await page.getByLabel('Add step',{exact:true}).selectOption('resample');await page.getByRole('combobox',{name:'Sample rate',exact:true}).selectOption(String(rate));}
   }
@@ -124,7 +125,7 @@ for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
   await page.getByLabel('Bitrate (kbps)').selectOption('128');assert(await page.getByRole('button',{name:'Export',exact:true}).isEnabled());await page.getByRole('button',{name:'Remove reference.wav',exact:true}).click();
   await setup({format:'m4a',bitrate:256,rate:16000,channels:1});await page.getByText('AAC bitrate is too high for this rate and channel count. Lower the bitrate or increase the sample rate.',{exact:true}).waitFor();
   await page.screenshot({path:`${root}/captures/${engine}-desktop-error.png`,fullPage:true,animations:'disabled'});
-  await page.setViewportSize({width:390,height:844});await setAppearance(page,'dark');await page.waitForFunction(()=>getComputedStyle(document.querySelector('.panel')).backgroundColor==='rgb(28, 30, 35)');
+  await page.setViewportSize({width:390,height:844});await setAppearance(page,'dark');await page.waitForFunction(()=>getComputedStyle(document.querySelector('.panel')).backgroundColor==='rgb(29, 31, 36)');
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:`${root}/captures/${engine}-mobile-dark-error.png`,fullPage:true,animations:'disabled'});
   assert.deepEqual(errors,[]);assert(!requests.some(url=>!url.startsWith(new URL(appUrl).origin)&&!url.startsWith('blob:')));assert(!requests.some(url=>url.includes('.onnx')));
  }finally{await context.close();}

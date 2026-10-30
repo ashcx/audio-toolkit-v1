@@ -1,0 +1,21 @@
+{
+  "cardHeights": [
+    69.09722900390625,
+    184.9132080078125
+  ],
+  "gainInputs": 2,
+  "gainText": "⋮⋮Gain0 dBUpDownRemoveGain (dB)Gain (dB) precise0 dB · -12 to 12",
+  "panels": [
+    {
+      "gap": "normal",
+      "label": "files-title",
+      "padding": "20px"
+    },
+    {
+      "gap": "normal",
+      "label": "recipe-title",
+      "padding": "20px"
+    }
+  ],
+  "trimInputs": 0
+}

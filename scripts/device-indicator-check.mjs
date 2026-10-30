@@ -1,3 +1,4 @@
+import {saveAction} from './browser-controls.mjs';
 import {setAppearance} from './browser-controls.mjs';
 import {chromium,webkit} from 'playwright';import {mkdir,writeFile} from 'node:fs/promises';import assert from 'node:assert/strict';
 const root=process.env.DEVICE_EVIDENCE_DIR??'.artifacts/device-indicator/browser';await mkdir(root,{recursive:true});const records=[];
@@ -36,7 +37,7 @@ for(const[engine,type]of[['chromium',chromium],['webkit',webkit]]){
    for(const theme of ['light','dark']){
     await setAppearance(page,theme);await page.waitForFunction(theme=>document.documentElement.dataset.theme===theme,theme);await page.setViewportSize({width:theme==='dark'?390:1280,height:844});await page.waitForTimeout(200);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:`${root}/${engine}-${mode}-${theme}.png`,fullPage:true});
    }
-   await page.getByRole('button',{name:'Clear results',exact:true}).click();await badge.waitFor({state:'detached'});await page.waitForFunction(async()=>{const d=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1');for await(const e of d.values())return false;return true;});
+   await (await saveAction(page,'Clear results','button')).click();await badge.waitFor({state:'detached'});await page.waitForFunction(async()=>{const d=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1');for await(const e of d.values())return false;return true;});
    records.push({engine,mode,expected,actualCpuInference:true,gpuEventsSimulated:mode!=='native',progressRetained:true,completedBadge:true,themes:['light','dark'],viewports:[1280,390],remainingStores:0});console.log(engine,mode,'passed');
   }
   assert.deepEqual(errors,[]);await writeFile(`${root}/results.json`,JSON.stringify(records,null,2)+'\n');

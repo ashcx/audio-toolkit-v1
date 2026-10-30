@@ -35,11 +35,25 @@ function App() {
   const archive = useArchive(completed.map(result => result.url).join("|"));
   const folder = useFolderSave(completed.map(result => result.url).join("|"));
   const locked = exports.busy || archive.busy || folder.busy;
+  useLayoutEffect(() => {
+    const dismiss = (event: Event) => {
+      if (!(event.target instanceof Node)) return;
+      for (const menu of document.querySelectorAll<HTMLDetailsElement>(".step-menu[open], .delivery-menu[open]"))
+        if (!menu.contains(event.target)) menu.open = false;
+    };
+    document.addEventListener("pointerdown",dismiss);
+    document.addEventListener("focusin",dismiss);
+    return () => {document.removeEventListener("pointerdown",dismiss);document.removeEventListener("focusin",dismiss);};
+  },[]);
   const [dragging, setDragging] = useState(false);
   const dragDepth = useRef(0);
   const [draft, setDraft] = useState<RecipeDraft>(newRecipe);
   const [overrides, setOverrides] = useState(new Map<FileId, TrimRangeDraft>());
   const settings = useRef<HTMLDialogElement>(null);
+  const exportButton = useRef<HTMLButtonElement>(null);
+  const pendingResultFocus = useRef(false);
+  const cleanupButton = useRef<HTMLButtonElement>(null);
+  const zipCleanupButton = useRef<HTMLButtonElement>(null);
   const settingsButton = useRef<HTMLButtonElement>(null);
   const parsedRecipe = recipeSchema.safeParse(draft);
   const plans = new Map(
@@ -86,6 +100,16 @@ function App() {
     return () => window.removeEventListener("beforeunload", protect);
   }, [completed.length, exports.busy, archive.busy, folder.busy]);
   const picker = useRef<HTMLInputElement>(null);
+  useLayoutEffect(() => {
+    if (!pendingResultFocus.current) return;
+    if (archive.state.kind === "cleanup") {pendingResultFocus.current=false;zipCleanupButton.current?.focus();return;}
+    if (locked) return;
+    pendingResultFocus.current = false;
+    if (exports.cleanupCount > 0) {cleanupButton.current?.focus();return;}
+    const target = jobs.length ? exportButton.current
+      : document.querySelector<HTMLButtonElement>(".step-toggle[aria-describedby*='error-']") ?? picker.current;
+    target?.focus();
+  },[locked,completed.length,jobs.length,exports.cleanupCount,archive.state.kind]);
   const fileList = useRef<HTMLUListElement>(null);
   const pendingFocus = useRef<number | null>(null);
   const capabilities = {
@@ -161,7 +185,7 @@ function App() {
               )}
             </div>
             <label
-              class={`dropzone${dragging ? " dropzone-active" : ""}`}
+              class={`dropzone${files.length ? " has-files" : ""}${dragging ? " dropzone-active" : ""}`}
               onDragEnter={(event) => {
                 event.preventDefault();
                 dragDepth.current++;
@@ -191,7 +215,7 @@ function App() {
                   event.currentTarget.value = "";
                 }}
               />
-              <span class="button primary">Choose files</span>
+              <span class="button primary">{files.length ? "Add files" : "Choose files"}</span>
               <small>or drop audio or video</small>
             </label>
             {files.length > 0 && (
@@ -250,6 +274,8 @@ function App() {
           </section>
           <fieldset class="recipe-lock" disabled={locked}>
           <RecipeEditor
+            files={files}
+            analysisEnabled={!locked}
             duration={Math.max(0, ...files.flatMap(file => file.inspection.kind === "ready" && file.inspection.metadata.duration !== null ? [file.inspection.metadata.duration] : []))}
             value={draft}
             onChange={changeRecipe}
@@ -263,8 +289,23 @@ function App() {
           </fieldset>
         </div>
         <div class="run-actions">
-          {completed.length > 0 && <button type="button" disabled={locked || exports.cleanupCount > 0} onClick={() => archive.start(completed.map(result => result.output.file))}>Create ZIP</button>}
-          {completed.length > 0 && folder.supported && <button type="button" disabled={locked || exports.cleanupCount > 0} onClick={() => void folder.start(completed.map(result => result.output.file))}>Save to folder</button>}
+          {completed.length > 0 && <details class="delivery-menu" onKeyDown={event=>{
+            if(event.key === "Escape") {event.currentTarget.open=false;event.currentTarget.querySelector<HTMLElement>("summary")?.focus();}
+          }}>
+            <summary role="button" class="button">Save results</summary>
+            <div class="delivery-options">
+              {archive.state.kind === "ready" ? <a class="button" href={archive.state.url} download={archive.state.output.name}>Download ZIP</a>
+                : <button type="button" disabled={locked || exports.cleanupCount > 0} onClick={() => archive.start(completed.map(result => result.output.file))}>Create ZIP</button>}
+              {folder.supported && <button type="button" disabled={locked || exports.cleanupCount > 0} onClick={event => {
+                event.currentTarget.closest("details")?.removeAttribute("open");
+                void folder.start(completed.map(result => result.output.file));
+              }}>Save to folder</button>}
+              <button type="button" disabled={locked} onClick={() => {
+                pendingResultFocus.current = true;
+                void archive.clear(); for (const id of exports.jobs.keys()) exports.clear(id);
+              }}>Clear results</button>
+            </div>
+          </details>}
           {folder.state.kind === "choosing" && <span role="status">Choose a folder for a new batch folder.</span>}
           {folder.state.kind === "saving" && <span role="status">Saving {folder.state.completed} / {folder.state.total}</span>}
           {(folder.state.kind === "choosing" || folder.state.kind === "saving") && <button type="button" onClick={folder.cancel}>Cancel folder save</button>}
@@ -274,13 +315,12 @@ function App() {
             <p>{folder.state.report.cancelled ? "Cancelled. " : ""}{folder.state.report.saved.length} saved to {folder.state.report.folder}. {folder.state.report.failed.length} failed, {folder.state.report.remaining} not saved.</p>
             {folder.state.report.failed.map(item => <p>{item.name}: {item.message}</p>)}
           </div>}
-          {archive.state.kind === "ready" && <a class="button" href={archive.state.url} download={archive.state.output.name}>Download ZIP</a>}
           {archive.state.kind === "building" && <><progress aria-label="ZIP progress" value={archive.state.progress.loaded} max={archive.state.progress.total || 1} /><button type="button" onClick={archive.cancel}>Cancel ZIP</button></>}
           {(archive.state.kind === "cancelling" || archive.state.kind === "releasing") && <span role="status">Cleaning up ZIP…</span>}
           {(archive.state.kind === "failed" || archive.state.kind === "cleanup") && <span role="status">{archive.state.message}</span>}
-          {archive.state.kind === "cleanup" && <button type="button" onClick={() => void archive.clear()}>Retry ZIP cleanup</button>}
-          {completed.length > 0 && <button type="button" disabled={locked} onClick={() => { void archive.clear(); for (const id of exports.jobs.keys()) exports.clear(id); }}>Clear results</button>}
+          {archive.state.kind === "cleanup" && <button ref={zipCleanupButton} type="button" onClick={() => {pendingResultFocus.current=true;void archive.clear();}}>Retry ZIP cleanup</button>}
           <button
+            ref={exportButton}
             class="button primary"
             type="button"
             disabled={locked || exports.cleanupCount > 0 || !jobs.length}
@@ -293,7 +333,7 @@ function App() {
             <button type="button" onClick={() => exports.retry()}>Retry failed</button>}
           {exports.cleanupCount > 0 && <>
             <span role="status">Temporary files need cleanup.</span>
-            <button type="button" disabled={locked} onClick={() => void exports.retryCleanup()}>Retry cleanup</button>
+            <button ref={cleanupButton} type="button" disabled={locked} onClick={() => {pendingResultFocus.current=true;void exports.retryCleanup();}}>Retry cleanup</button>
           </>}
           {exports.jobs.size > 0 && <span role="status">{[
             ["done", "done"], ["running", "active"], ["waiting", "waiting"],

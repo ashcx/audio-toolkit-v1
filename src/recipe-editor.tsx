@@ -13,6 +13,10 @@ import {
   type StepDraft,
 } from "./recipe";
 import { TrimFields } from "./trim-fields";
+import { formatClock } from "./format";
+import { levelDb } from "./levels";
+import { useLevels } from "./use-levels";
+import type { FileEntry } from "./media";
 
 function summary(step: StepDraft): string {
   switch (step.kind) {
@@ -22,7 +26,7 @@ function summary(step: StepDraft): string {
         (step.range.end !== null && !Number.isFinite(step.range.end))
       )
         return "Set range";
-      return `${step.range.start ?? 0} s to ${step.range.end === null ? "end" : `${step.range.end} s`}`;
+      return `${formatClock(step.range.start ?? 0)} to ${step.range.end === null ? "End" : formatClock(step.range.end)}`;
     case "gain":
       return Number.isFinite(step.db)
         ? `${step.db} dB${step.db > 0 ? " · May clip" : ""}`
@@ -51,21 +55,33 @@ function summary(step: StepDraft): string {
     }
   }
 }
+function SourceLevels({ files, enabled }: {files: readonly FileEntry[]; enabled: boolean}) {
+  const state = useLevels(files,enabled);
+  const display = (value: number | null) => value === null ? "−∞" : value.toFixed(1);
+  return <div class="source-levels" aria-live="polite" aria-busy={state.kind === "loading"}>
+    {state.kind === "idle" ? <small>{enabled ? "Choose files to measure their levels." : "Analysis paused during export."}</small>
+      : state.kind === "loading" ? <small>Measuring audio{state.total > 1 ? ` ${state.completed}/${state.total}` : ""}…</small>
+      : state.kind === "failed" ? <small class="file-error">{state.message} Reopen this step to retry.</small>
+      : <>
+        <div class="levels-heading">Original audio <span>{state.count} {state.count === 1 ? "file" : "files"}</span></div>
+        <dl class="level-readout">
+          <div><dt>Peak</dt><dd>{display(levelDb(state.levels.peak))}<small>dBFS</small></dd></div>
+          <div><dt>Average <span>RMS</span></dt><dd>{display(levelDb(Math.sqrt(state.levels.squareSum / state.levels.samples)))}<small>dBFS</small></dd></div>
+        </dl>
+      </>}
+  </div>;
+}
 function DbControl({ label, value, min, max, errorId, onChange }: {
   label: string; value: number; min: number; max: number; errorId?: string;
   onChange: (value: number) => void;
 }) {
   const sliderValue = Number.isFinite(value) ? Math.round(Math.max(min, Math.min(max, value)) * 10) / 10 : min;
   return <div class="db-control">
-    <label class="field">{label}<input type="range" min={min} max={max} step="0.1"
-      aria-label={`${label} slider`} aria-valuetext={`${sliderValue} dB`}
-      value={sliderValue}
-      onInput={event => onChange(event.currentTarget.valueAsNumber)} /></label>
-    <label class="field">{label} precise<input type="number" min={min} max={max} step="any"
-      aria-invalid={!!errorId} aria-describedby={errorId}
-      value={Number.isFinite(value) ? value : ""}
-      onInput={event => onChange(event.currentTarget.valueAsNumber)} /></label>
-    <output>{Number.isFinite(value) ? value : "Unset"} dB · {min} to {max}</output>
+    <div class="parameter-heading"><span>{label}</span><output>{Number.isFinite(value) ? value : "Unset"} <small>dB</small></output></div>
+    <input type="range" min={min} max={max} step="0.1" aria-invalid={!!errorId} aria-describedby={errorId}
+      aria-label={`${label} slider`} aria-valuetext={`${sliderValue} dB`} value={sliderValue}
+      onInput={event => onChange(event.currentTarget.valueAsNumber)} />
+    <div class="parameter-scale"><span>{min} dB</span><span>{max} dB</span></div>
     {label === "Gain (dB)" && value > 0 && <small class="file-error">May clip. Check the exported result.</small>}
   </div>;
 }
@@ -82,7 +98,11 @@ function StepFields({
   onChange,
   errorId,
   duration,
+  files,
+  analysisEnabled,
 }: {
+  files: readonly FileEntry[];
+  analysisEnabled: boolean;
   duration?: number;
   step: StepDraft;
   errorId?: string;
@@ -94,16 +114,16 @@ function StepFields({
         <TrimFields
           errorId={errorId}
           duration={duration}
-          scope="Batch timeline · longest file"
+          scope={files.length > 1 ? "All files · longest duration shown" : undefined}
           range={step.range}
           prefix="Batch trim"
           onChange={(range) => onChange({ ...step, range })}
         />
       );
     case "gain":
-      return <DbControl label="Gain (dB)" value={step.db} min={-12} max={12} errorId={errorId} onChange={db => onChange({...step, db})} />;
+      return <><SourceLevels files={files} enabled={analysisEnabled} /><DbControl label="Gain (dB)" value={step.db} min={-12} max={12} errorId={errorId} onChange={db => onChange({...step, db})} /></>;
     case "normalize":
-      return <DbControl label="Peak target (dBFS)" value={step.targetDbfs} min={-60} max={0} errorId={errorId} onChange={targetDbfs => onChange({...step, targetDbfs})} />;
+      return <><SourceLevels files={files} enabled={analysisEnabled} /><DbControl label="Peak target (dBFS)" value={step.targetDbfs} min={-60} max={0} errorId={errorId} onChange={targetDbfs => onChange({...step, targetDbfs})} /></>;
     case "channels":
       return <Choices label="Channels" value={step.channels} options={[
         {value:"original",label:"Unchanged"}, {value:"mono",label:"Mono"}, {value:"stereo",label:"Stereo"}
@@ -173,7 +193,11 @@ export function RecipeEditor({
   onChange,
   error,
   duration,
+  files,
+  analysisEnabled,
 }: {
+  files: readonly FileEntry[];
+  analysisEnabled: boolean;
   duration?: number;
   value: RecipeDraft;
   onChange: (value: RecipeDraft) => boolean;
@@ -258,7 +282,7 @@ export function RecipeEditor({
           ))}
         </select>
       </div>
-      <small id="reorder-help">Drag the grip, or hold it on touch. Up/Down also reorders.</small>
+      <small id="reorder-help" class="sr-only">Drag to reorder, or use Arrow Up and Arrow Down on the grip. More actions also has move controls.</small>
       <span class="sr-only" role="status" aria-live="polite">{announcement}</span>
       <div class="recipe-steps">
         {value.steps.map((step, index) => {
@@ -312,7 +336,11 @@ export function RecipeEditor({
                   }}
                   onPointerCancel={event => {if (gesture.current?.pointer === event.pointerId) stopGesture();}}
                   onLostPointerCapture={event => {if (gesture.current?.pointer === event.pointerId) stopGesture();}}
-                  onKeyDown={event=>{if(event.key==="Escape") stopGesture();}}
+                  onKeyDown={event=>{
+                    if(event.key === "Escape") stopGesture();
+                    if(event.key === "ArrowUp" && index > 0) {event.preventDefault();move(index,-1);}
+                    if(event.key === "ArrowDown" && index < value.steps.length - 1) {event.preventDefault();move(index,1);}
+                  }}
                 >⋮⋮</button>
                 <h3>
                   <button
@@ -330,12 +358,16 @@ export function RecipeEditor({
                     <small id={`summary-${step.id}`}>{summary(step)}</small>
                   </button>
                 </h3>
-                <div class="step-actions">
+                <details class="step-menu" onKeyDown={event=>{
+                  if(event.key === "Escape") { event.currentTarget.open=false; event.currentTarget.querySelector<HTMLElement>("summary")?.focus(); }
+                }}>
+                  <summary role="button" aria-label={`More actions for ${label}`}>⋯</summary>
+                  <div class="step-actions">
                   <button
                     type="button"
                     aria-label={`Move ${label} up`}
                     disabled={index === 0}
-                    onClick={() => move(index, -1)}
+                    onClick={event => {event.currentTarget.closest("details")?.removeAttribute("open");move(index,-1);}}
                   >
                     Up
                   </button>
@@ -343,7 +375,7 @@ export function RecipeEditor({
                     type="button"
                     aria-label={`Move ${label} down`}
                     disabled={index === value.steps.length - 1}
-                    onClick={() => move(index, 1)}
+                    onClick={event => {event.currentTarget.closest("details")?.removeAttribute("open");move(index,1);}}
                   >
                     Down
                   </button>
@@ -364,7 +396,8 @@ export function RecipeEditor({
                   >
                     Remove
                   </button>
-                </div>
+                  </div>
+                </details>
               </div>
               <div
                 id={`settings-${step.id}`}
@@ -373,6 +406,8 @@ export function RecipeEditor({
               >
                 {expanded === step.id && (
                   <StepFields
+                    files={files}
+                    analysisEnabled={analysisEnabled}
                     duration={duration}
                     errorId={errorId}
                     step={step}

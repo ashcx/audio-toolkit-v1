@@ -1,0 +1,13 @@
+{
+  "beforeFix": {
+    "invalidRecipeFocus": "BODY"
+  },
+  "invalidRecipe": {
+    "label": "Trim settings",
+    "tag": "BUTTON"
+  },
+  "validRecipe": {
+    "tag": "BUTTON",
+    "text": "Export"
+  }
+}

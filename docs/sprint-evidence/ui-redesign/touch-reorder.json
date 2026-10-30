@@ -1,0 +1,15 @@
+{
+  "markers": [
+    {
+      "marker": "after",
+      "step": "Trim"
+    }
+  ],
+  "result": {
+    "announcement": "Gain moved to position 2 of 2.",
+    "order": [
+      "Trim",
+      "Gain"
+    ]
+  }
+}

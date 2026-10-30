@@ -1,3 +1,4 @@
+import {setSlider} from './browser-controls.mjs';
 import {setAppearance} from './browser-controls.mjs';
 import assert from 'node:assert/strict';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
@@ -68,13 +69,13 @@ for(const [engine, browserType] of [['chromium',chromium], ['webkit',webkit]]) {
       await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('wav');
       for(const [kind,value] of steps) {
         await page.getByLabel('Add step',{exact:true}).selectOption(kind);
-        if(kind==='gain')await page.getByLabel('Gain (dB) precise',{exact:true}).fill(String(value));
-        if(kind==='normalize')await page.getByLabel('Peak target (dBFS) precise',{exact:true}).fill(String(value));
+        if(kind==='gain')await setSlider(page,'Gain (dB) slider',Number(value));
+        if(kind==='normalize')await setSlider(page,'Peak target (dBFS) slider',Number(value));
         if(kind==='channels')await page.getByRole('radio',{name:value==='mono'?'Mono':value==='stereo'?'Stereo':'Unchanged',exact:true}).check();
         if(kind==='resample')await page.getByRole('combobox',{name:'Sample rate',exact:true}).selectOption(String(value));
         if(kind==='trim') {
-          await page.getByLabel('Batch trim start (seconds)').fill(String(value[0]));
-          await page.getByLabel('Batch trim end (seconds)').fill(String(value[1]));
+          await page.getByLabel('Batch trim start (time)').fill(String(value[0]));
+          await page.getByLabel('Batch trim end (time)').fill(String(value[1]));
         }
       }
     }
@@ -106,11 +107,11 @@ for(const [engine, browserType] of [['chromium',chromium], ['webkit',webkit]]) {
     let maxError = 0;
     for(let i=0;i<output.samples.length;i++)maxError=Math.max(maxError,Math.abs(output.samples[i]-(original.samples[(start+i)*2]+original.samples[(start+i)*2+1])/2*factor));
     assert(maxError<1/32768,`trim/gain/channel error ${maxError}`); records.at(-1).maxError=maxError;
-    await page.getByRole('button',{name:'Gain settings',exact:true}).click(); await page.getByLabel('Gain (dB) precise',{exact:true}).fill('-3');
+    await page.getByRole('button',{name:'Gain settings',exact:true}).click(); await setSlider(page,'Gain (dB) slider',-3);
     await page.getByText('Previous settings',{exact:true}).waitFor();
     await page.screenshot({path:`${root}/captures/${engine}-desktop.png`,fullPage:true,animations:'disabled'});
     await page.setViewportSize({width:390,height:844}); await setAppearance(page,'dark');
-    await page.waitForFunction(()=>getComputedStyle(document.querySelector('.panel')).backgroundColor==='rgb(28, 30, 35)');
+    await page.waitForFunction(()=>getComputedStyle(document.querySelector('.panel')).backgroundColor==='rgb(29, 31, 36)');
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
     await page.screenshot({path:`${root}/captures/${engine}-mobile-dark.png`,fullPage:true,animations:'disabled'});
     await remove('signal.wav');
@@ -143,7 +144,7 @@ for(const [engine, browserType] of [['chromium',chromium], ['webkit',webkit]]) {
     await remove('signal.wav');
     await setup(signal,[['trim',[.1,.7]]]);
     await page.getByRole('button',{name:'Trim signal.wav',exact:true}).click();
-    await page.getByLabel('Trim signal.wav start (seconds)').fill('.3');await page.getByLabel('Trim signal.wav end (seconds)').fill('.6');
+    await page.getByLabel('Trim signal.wav start (time)').fill('.3');await page.getByLabel('Trim signal.wav end (time)').fill('.6');
     output=await exportFile('trim-override');assert.equal(output.samples.length/output.channels,14400);await remove('signal.wav');
     const surround=fixture('surround.wav',1,3);await setup(surround,[]);
     await page.getByRole('button',{name:'Export',exact:true}).click();

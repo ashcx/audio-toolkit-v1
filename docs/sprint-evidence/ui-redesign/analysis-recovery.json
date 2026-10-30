@@ -1,0 +1,8 @@
+{
+  "closedReadouts": 0,
+  "silence": "Peak−∞dBFSAverage RMS−∞dBFS",
+  "unsupported": "surround.wav: Processing supports mono or stereo audio from 8 to 384 kHz. Reopen this step to retry.",
+  "staleReadoutsDuringError": 0,
+  "afterRemoval": "Peak−∞dBFSAverage RMS−∞dBFS",
+  "emptyReadouts": 0
+}

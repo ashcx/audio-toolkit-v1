@@ -1,0 +1,16 @@
+[
+  {
+    "name": "long-tone.audio.wav",
+    "frames": 12000,
+    "rate": 8000,
+    "channels": 1,
+    "peakDb": -8.999645249881333
+  },
+  {
+    "name": "s19-2s.audio (2).wav",
+    "frames": 72000,
+    "rate": 48000,
+    "channels": 2,
+    "peakDb": -8.999645249881333
+  }
+]
