@@ -4,7 +4,7 @@
 
 Identify a practical way to reduce voice and music isolation time without an unacceptable loss of quality or reliability. Record a reproducible comparison and recommendation.
 
-Status: Not started.
+Status: In progress. Frozen Mac browser baseline and practical candidate assessment; full comparison/quality gates remain open.
 
 ## Entry criteria
 
@@ -46,3 +46,9 @@ Shipping an unverified model, simultaneous stem export, deployment and claims ba
 ## Execution log
 
 2026-10-30: Added at the user's request. Planning only; no new benchmark, device observation or implementation has been completed.
+
+2026-10-30: Started from reviewed Sprint14 processing code after Sprint15 assessment PR17. Froze a separate production build to prevent later worker-asset replacement, downloaded attributed instrumental and live-vocal fixtures with hashes, and began actual full-file SCNet checks sequentially in Mac Chrome. Official DTTNet root/README/code license inspected; no browser-ready artifact or measured replacement is claimed. See Sprint16 protocol/comparison/recommendation; actual browser results are pending.
+
+2026-10-30: The previously pending Mac browser baseline completed all four cases. Source/output duration, sample rate and channels match;18windows per instrumental mode and5per live mode complete on the mixed webgpu+wasm path. Actual post-run temporary-output count is0. Exact preparation reproduces all27frozen runtime hashes. Terra/Luna approve the assessment-only PR after reproduction/status/scheduler wording fixes. Full comparator/quality/listening/memory/thermal gates remain open; no performance winner is claimed.
+
+2026-10-30: [Draft assessment PR18](https://github.com/ashcx/audio-toolkit-v1/pull/18) targets main at8613008, including earlier candidate dependencies. No full comparator acceptance, performance gain, merge or deployment is claimed.

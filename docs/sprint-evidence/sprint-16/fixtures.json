@@ -1,0 +1,28 @@
+[
+  {
+    "id": "live",
+    "title": "File:Christian mass singing hallelujah.ogg",
+    "source": "https://commons.wikimedia.org/wiki/File:Christian_mass_singing_hallelujah.ogg",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/2/27/Christian_mass_singing_hallelujah.ogg",
+    "license": "Public domain",
+    "licenseUrl": null,
+    "authorHtml": "stephan",
+    "descriptionHtml": "<br>\n<dl><dd><b>Title</b> Christian Mass, singing Hallelujah</dd>\n<dd><b>Artist</b> stephan</dd>\n<dd><b>Original mp3 data</b> Length:0:19 minutes (376.57 KB) Format:MP3 Stereo 44kHz 160Kbps (CBR)</dd>\n<dd><b>User tags</b> Christianity, Church, ecumenical, Hallelujah, Mass, Organ play, Parish, People, Religion, singing</dd>\n<dd><b>Type</b> Single Subject, Natural, Human</dd>\n<dd><b>PDSounds record number</b> 294</dd>\n<dd><b>Comment</b>  May 27, 2007 - Church of Christ the King (1927), Leverkusen, Germany.</dd></dl>\n The parishioners sing \"Hallelujah\" with organ play.",
+    "sha256": "95318ee764013f8c21dab39bc21b4b90ab1efd7b2bb6ad1ca41547b0ee6b1b32",
+    "bytes": 449254,
+    "usage": "Local full-file evaluation only; no clean stem ground truth or listening classification yet"
+  },
+  {
+    "id": "instrumental",
+    "title": "File:Kevin MacLeod - Mourning Song.ogg",
+    "source": "https://commons.wikimedia.org/wiki/File:Kevin_MacLeod_-_Mourning_Song.ogg",
+    "download": "https://upload.wikimedia.org/wikipedia/commons/e/e2/Kevin_MacLeod_-_Mourning_Song.ogg",
+    "license": "CC BY 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/3.0",
+    "authorHtml": "<a rel=\"nofollow\" class=\"external text\" href=\"https://freemusicarchive.org/music/Kevin_MacLeod/\">Kevin MacLeod</a>",
+    "descriptionHtml": "Mourning Song by Kevin MacLeod",
+    "sha256": "5895fda198849a1969371ba262052eb05dd2a27af7cdb4d984e45ba580a02623",
+    "bytes": 1674386,
+    "usage": "Local full-file evaluation only; no clean stem ground truth or listening classification yet"
+  }
+]
