@@ -11,7 +11,7 @@ Replace the crowded recipe interface with a polished workspace matching the imag
 - [x] Implement the authorized redesign separately from the read-only audit.
 - [x] Verify actual Chrome desktop/mobile, light/dark, both trim handles, clock fields, keyboard/menu/drag, on-demand levels and cancellation/stale-file recovery, actual exports.
 - [x] Independent Terra/Luna final review; fix proven findings and rerun affected checks.
-- [ ] Submit one reviewable PR with captures and exact limitations.
+- [x] Submit one reviewable PR with captures and exact limitations. [PR23](https://github.com/ashcx/audio-toolkit-v1/pull/23).
 
 ## Design
 
@@ -28,3 +28,5 @@ Blocking first steps are baseline/audit/data contracts. Implementation is sequen
 ## Verification and review
 
 82normaltests/build/static pass. Actual Mac Chrome verified long-clock fields, both mouse/touch handles, Shift fine keyboard changes, menu pointer/focus/Escape dismissal, grip keyboard/long-press reorder, on-demand tone/silence/unsupported analysis and removal recovery, physical downloads and ZIP. Actual CSS390x844 and320px layouts have no horizontal overflow; physical mobile/screen-reader and full standalone matrix remain unverified. Independent panel corrections included light-theme text contrast and Clear results focus across invalid settings, failed batch cleanup and failed ZIP cleanup. The parent reproduced these in real Chrome, fixed recovery priorities and reran; final narrow independent verdict is clean. Evidence is in `docs/sprint-evidence/ui-redesign/`.
+
+2026-10-31: Ready [PR23](https://github.com/ashcx/audio-toolkit-v1/pull/23) targets main with reviewed implementatione7f8298. The base is merged Sprint20 source299de35. No UI merge/deployment performed by this task. Actual Chrome runs the matching production entry; code hashes are recorded.

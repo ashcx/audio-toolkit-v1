@@ -49,6 +49,6 @@ Planning validation and independent review are in [planning evidence](docs/sprin
 
 ## 2026-10-31 UI redesign
 
-The user superseded the Sprint19 number-first/duplicated trim presentation with a shared two-handle rail and clock fields, slider-only gain/normalize, on-demand original peak/RMS and a compact image-compressor-style shell. [Redesign plan](todo/ui-redesign.md) and `docs/sprint-evidence/ui-redesign/` record the implementation, audit, tests and final independent review. PR delivery follows these checks. Earlier sprint evidence is historical, not the current UI contract.
+The user superseded the Sprint19 number-first/duplicated trim presentation with a shared two-handle rail and clock fields, slider-only gain/normalize, on-demand original peak/RMS and a compact image-compressor-style shell. [Redesign plan](todo/ui-redesign.md) and `docs/sprint-evidence/ui-redesign/` record the implementation, audit, tests and final independent review. Ready [PR23](https://github.com/ashcx/audio-toolkit-v1/pull/23) delivers this UI increment. Earlier sprint evidence is historical, not the current UI contract.
 
 GitHub confirmed Sprint20 PR22 merged; the UI refinement branches from that exact source tree. The refinement itself is not merged or deployed.
