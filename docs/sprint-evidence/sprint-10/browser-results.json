@@ -1,0 +1,32 @@
+[
+  {
+    "engine": "chromium",
+    "selectedFileOverrideSeconds": 0.7,
+    "sameEngine": true,
+    "reusedUrl": true,
+    "changedAndRevertedSettingsReprocessed": true,
+    "presets": true,
+    "presetTrimConfirmation": true,
+    "nativeAudioMetadata": true,
+    "nativePlaybackAdvanced": true,
+    "firstFileDefault": true,
+    "testCancellationRetryReuse": true,
+    "isolationReuse": "two actual model calls for two files",
+    "remainingStores": 0
+  },
+  {
+    "engine": "webkit",
+    "selectedFileOverrideSeconds": 0.7,
+    "sameEngine": true,
+    "reusedUrl": true,
+    "changedAndRevertedSettingsReprocessed": true,
+    "presets": true,
+    "presetTrimConfirmation": true,
+    "nativeAudioMetadata": true,
+    "nativePlaybackAdvanced": true,
+    "firstFileDefault": true,
+    "testCancellationRetryReuse": true,
+    "isolationReuse": "covered in Chromium",
+    "remainingStores": 0
+  }
+]

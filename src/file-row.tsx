@@ -1,7 +1,7 @@
 import { useState } from "preact/hooks";
 import type { FileEntry } from "./media";
 import { formatBytes, describeAudio } from "./format";
-import { resolveTrim, type TrimRangeDraft } from "./recipe";
+import { FORMAT_NAMES, STEP_NAMES, resolveTrim, type TrimRangeDraft } from "./recipe";
 import type { ExecutionPlan } from "./planner";
 import type { BatchJob } from "./batch";
 import type { JobEvent } from "./job-events";
@@ -153,9 +153,11 @@ export function FileRow({
                 Download
               </a>
               <small>
-                {exported.output.name} ·{" "}
+                {job?.spec.plan.kind === "copy" ? job.spec.plan.target.container.toUpperCase() : job && FORMAT_NAMES[job.spec.plan.snapshot.recipe.export.format]} ·{" "}
                 {formatBytes(exported.output.file.size)}
               </small>
+              {job && job.spec.plan.snapshot.recipe.steps.length > 0 && <small>Done · {job.spec.plan.snapshot.recipe.steps.map(step => STEP_NAMES[step.kind]).join(" · ")}</small>}
+              {document.createElement("audio").canPlayType(exported.output.mime) && <audio controls preload="none" src={exported.url} aria-label={`Play ${entry.file.name}`} />}
             </>
           )}
         </div>

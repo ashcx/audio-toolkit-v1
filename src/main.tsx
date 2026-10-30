@@ -34,6 +34,7 @@ function App() {
   const dragDepth = useRef(0);
   const [draft, setDraft] = useState<RecipeDraft>(newRecipe);
   const [overrides, setOverrides] = useState(new Map<FileId, TrimRangeDraft>());
+  const [testFile, setTestFile] = useState<FileId | null>(null);
   const parsedRecipe = recipeSchema.safeParse(draft);
   const plans = new Map(
     files.map((entry) => {
@@ -61,13 +62,16 @@ function App() {
       : [];
   });
   const trim = draft.steps.find((step) => step.kind === "trim");
+  const testId = files.find(file => file.id === testFile)?.id ?? files[0]?.id;
+  const testJob = jobs.find(job => job.entry.id === testId);
   const changeRecipe = (next: RecipeDraft) => {
     if (exports.busy) return false;
     if (trim && !next.steps.some((step) => step.kind === "trim")) {
-      if (overrides.size > 0 && !confirm("Remove trim and individual ranges?"))
+      if ((overrides.size > 0 || trim.range.start !== null || trim.range.end !== null) && !confirm("Remove trim and individual ranges?"))
         return false;
       setOverrides(new Map());
     }
+    exports.invalidateTest();
     setDraft(next);
     return true;
   };
@@ -220,18 +224,20 @@ function App() {
                     onCancel={() => exports.cancel(entry.id)}
                     onRetry={() => exports.retry(entry.id)}
                     override={overrides.get(entry.id)}
-                    onOverride={(range) =>
+                    onOverride={(range) => {
+                      exports.invalidateTest(entry.id);
                       setOverrides((previous) =>
                         new Map(previous).set(entry.id, range),
-                      )
-                    }
-                    onReset={() =>
+                      );
+                    }}
+                    onReset={() => {
+                      exports.invalidateTest(entry.id);
                       setOverrides((previous) => {
                         const next = new Map(previous);
                         next.delete(entry.id);
                         return next;
-                      })
-                    }
+                      });
+                    }}
                     onRemove={() => {
                       pendingFocus.current = index;
                       exports.clear(entry.id);
@@ -261,6 +267,10 @@ function App() {
           </fieldset>
         </div>
         <div class="run-actions">
+          {files.length > 1 && <select aria-label="Test file" disabled={exports.busy} value={testId} onChange={event => setTestFile(files.find(file => file.id === event.currentTarget.value)?.id ?? null)}>
+            {files.map((file, index) => <option value={file.id}>{index + 1}. {file.file.name}</option>)}
+          </select>}
+          {files.length > 0 && <button type="button" disabled={exports.busy || exports.cleanupCount > 0 || !testJob} onClick={() => { if (testJob) exports.run([testJob], "test"); }}>Test one file</button>}
           <button
             class="button primary"
             type="button"

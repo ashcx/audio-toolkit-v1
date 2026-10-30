@@ -31,5 +31,5 @@ export function useExport(files: readonly FileEntry[]) {
     const unsubscribe = batch.subscribe(setSnapshot);
     return () => { unsubscribe(); batch.dispose(); };
   }, [batch]);
-  return { ...snapshot, run: batch.start.bind(batch), clear: batch.remove.bind(batch), cancel: batch.cancel.bind(batch), cancelAll: batch.cancelAll.bind(batch), retryCleanup: batch.retryCleanup.bind(batch), retry: batch.retry.bind(batch) };
+  return { ...snapshot, run: batch.start.bind(batch), invalidateTest: batch.invalidateTest.bind(batch), clear: batch.remove.bind(batch), cancel: batch.cancel.bind(batch), cancelAll: batch.cancelAll.bind(batch), retryCleanup: batch.retryCleanup.bind(batch), retry: batch.retry.bind(batch) };
 }
