@@ -1,0 +1,23 @@
+{
+  "buttons": [
+    "Settings",
+    "Trim",
+    "×",
+    "Use batch range",
+    "×",
+    "Trim0.25 s to 1.75 s",
+    "Up",
+    "Down",
+    "Remove",
+    "Create ZIP",
+    "Clear results",
+    "Export",
+    "Close"
+  ],
+  "footer": 0,
+  "presets": 0,
+  "rows": [
+    "workspace-check.wav0:020.5 s to 1.5 s · 1 s kept · CustomTrim×DownloadListenStart (s)End (s)Use batch range",
+    "broken-18.wavUnsupported or unreadable media.×"
+  ]
+}

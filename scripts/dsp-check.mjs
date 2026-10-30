@@ -1,3 +1,4 @@
+import {setAppearance} from './browser-controls.mjs';
 import assert from 'node:assert/strict';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
@@ -108,8 +109,8 @@ for(const [engine, browserType] of [['chromium',chromium], ['webkit',webkit]]) {
     await page.getByRole('button',{name:'Gain settings',exact:true}).click(); await page.getByLabel('Gain (dB)',{exact:true}).fill('-3');
     await page.getByText('Previous settings',{exact:true}).waitFor();
     await page.screenshot({path:`${root}/captures/${engine}-desktop.png`,fullPage:true,animations:'disabled'});
-    await page.setViewportSize({width:390,height:844}); await page.getByLabel('Appearance').selectOption('dark');
-    await page.waitForFunction(()=>getComputedStyle(document.querySelector('.header select')).backgroundColor==='rgb(28, 30, 35)');
+    await page.setViewportSize({width:390,height:844}); await setAppearance(page,'dark');
+    await page.waitForFunction(()=>getComputedStyle(document.querySelector('.panel')).backgroundColor==='rgb(28, 30, 35)');
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
     await page.screenshot({path:`${root}/captures/${engine}-mobile-dark.png`,fullPage:true,animations:'disabled'});
     await remove('signal.wav');

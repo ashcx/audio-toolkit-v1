@@ -2,7 +2,6 @@ import { render } from "preact";
 import { useLayoutEffect, useRef, useState } from "preact/hooks";
 import "./style.css";
 import { useFiles } from "./use-files";
-import { formatBytes } from "./format";
 import { FileRow } from "./file-row";
 import { useArchive } from "./use-archive";
 import { useExport } from "./use-export";
@@ -38,7 +37,8 @@ function App() {
   const dragDepth = useRef(0);
   const [draft, setDraft] = useState<RecipeDraft>(newRecipe);
   const [overrides, setOverrides] = useState(new Map<FileId, TrimRangeDraft>());
-  const [testFile, setTestFile] = useState<FileId | null>(null);
+  const settings = useRef<HTMLDialogElement>(null);
+  const settingsButton = useRef<HTMLButtonElement>(null);
   const parsedRecipe = recipeSchema.safeParse(draft);
   const plans = new Map(
     files.map((entry) => {
@@ -66,8 +66,6 @@ function App() {
       : [];
   });
   const trim = draft.steps.find((step) => step.kind === "trim");
-  const testId = files.find(file => file.id === testFile)?.id ?? files[0]?.id;
-  const testJob = jobs.find(job => job.entry.id === testId);
   const changeRecipe = (next: RecipeDraft) => {
     if (locked) return false;
     if (trim && !next.steps.some((step) => step.kind === "trim")) {
@@ -75,10 +73,16 @@ function App() {
         return false;
       setOverrides(new Map());
     }
-    exports.invalidateTest();
+
     setDraft(next);
     return true;
   };
+  useLayoutEffect(() => {
+    if (!completed.length && !exports.busy && !archive.busy) return;
+    const protect = (event: BeforeUnloadEvent) => { event.preventDefault();event.returnValue = ""; };
+    window.addEventListener("beforeunload", protect);
+    return () => window.removeEventListener("beforeunload", protect);
+  }, [completed.length, exports.busy, archive.busy]);
   const picker = useRef<HTMLInputElement>(null);
   const fileList = useRef<HTMLUListElement>(null);
   const pendingFocus = useRef<number | null>(null);
@@ -122,19 +126,7 @@ function App() {
         >
           <h1>Audio Toolkit</h1>
         </a>
-        <select
-          aria-label="Appearance"
-          value={theme}
-          onChange={(event) => {
-            const value = event.currentTarget.value;
-            if (value === "system" || value === "light" || value === "dark")
-              setTheme(value);
-          }}
-        >
-          <option value="system">System</option>
-          <option value="light">Light</option>
-          <option value="dark">Dark</option>
-        </select>
+        <button ref={settingsButton} type="button" onClick={() => settings.current?.showModal()}>Settings</button>
       </header>
       <main>
         {capabilities.firefox && (
@@ -163,12 +155,7 @@ function App() {
             <div class="panel-heading">
               <h2 id="files-title">Files</h2>
               {files.length > 0 && (
-                <span class="count">
-                  {files.length} ·{" "}
-                  {formatBytes(
-                    files.reduce((total, entry) => total + entry.file.size, 0),
-                  )}
-                </span>
+                <span class="count">{files.length}</span>
               )}
             </div>
             <label
@@ -231,13 +218,13 @@ function App() {
                     onRetry={() => exports.retry(entry.id)}
                     override={overrides.get(entry.id)}
                     onOverride={(range) => {
-                      exports.invalidateTest(entry.id);
+
                       setOverrides((previous) =>
                         new Map(previous).set(entry.id, range),
                       );
                     }}
                     onReset={() => {
-                      exports.invalidateTest(entry.id);
+
                       setOverrides((previous) => {
                         const next = new Map(previous);
                         next.delete(entry.id);
@@ -280,10 +267,6 @@ function App() {
           {(archive.state.kind === "failed" || archive.state.kind === "cleanup") && <span role="status">{archive.state.message}</span>}
           {archive.state.kind === "cleanup" && <button type="button" onClick={() => void archive.clear()}>Retry ZIP cleanup</button>}
           {completed.length > 0 && <button type="button" disabled={locked} onClick={() => { void archive.clear(); for (const id of exports.jobs.keys()) exports.clear(id); }}>Clear results</button>}
-          {files.length > 1 && <select aria-label="Test file" disabled={locked} value={testId} onChange={event => setTestFile(files.find(file => file.id === event.currentTarget.value)?.id ?? null)}>
-            {files.map((file, index) => <option value={file.id}>{index + 1}. {file.file.name}</option>)}
-          </select>}
-          {files.length > 0 && <button type="button" disabled={locked || exports.cleanupCount > 0 || !testJob} onClick={() => { if (testJob) exports.run([testJob], "test"); }}>Test one file</button>}
           <button
             class="button primary"
             type="button"
@@ -308,13 +291,16 @@ function App() {
           }).join(" · ")}</span>}
           {exports.busy && <small>{exports.cleaning ? "Cleaning up…" : "Keep this page open. Cancellation waits for cleanup."}</small>}
         </div>
-        {completed.length > 0 && <small>Save results before closing this tab.</small>}
       </main>
-      <footer>
-        <span>Files stay on your device. Tools download when needed.</span>
-        <a href={`${import.meta.env.BASE_URL}third-party/`}>Licenses</a>
-        <a href="https://ashcx.github.io/image-compressor-v1/">Image Toolkit</a>
-      </footer>
+      <dialog ref={settings} class="settings-dialog" aria-labelledby="settings-title" onClose={() => settingsButton.current?.focus()}>
+        <div class="panel-heading"><h2 id="settings-title">Settings</h2><button type="button" onClick={() => settings.current?.close()}>Close</button></div>
+        <fieldset><legend>Appearance</legend><div class="theme-options">
+          {([{ value: "system", label: "System" }, { value: "light", label: "Light" }, { value: "dark", label: "Dark" }] satisfies { value: Theme; label: string }[]).map(option => <label>
+            <input class="sr-only" type="radio" name="appearance" checked={theme === option.value} onChange={() => setTheme(option.value)} />{option.label}
+          </label>)}
+        </div></fieldset>
+        <a href={`${import.meta.env.BASE_URL}third-party/`} target="_blank" rel="noopener">Licenses</a>
+      </dialog>
     </div>
   );
 }

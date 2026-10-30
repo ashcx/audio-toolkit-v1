@@ -1,3 +1,4 @@
+import {setAppearance} from './browser-controls.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
@@ -123,7 +124,7 @@ for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
   await page.getByLabel('Bitrate (kbps)').selectOption('128');assert(await page.getByRole('button',{name:'Export',exact:true}).isEnabled());await page.getByRole('button',{name:'Remove reference.wav',exact:true}).click();
   await setup({format:'m4a',bitrate:256,rate:16000,channels:1});await page.getByText('AAC bitrate is too high for this rate and channel count. Lower the bitrate or increase the sample rate.',{exact:true}).waitFor();
   await page.screenshot({path:`${root}/captures/${engine}-desktop-error.png`,fullPage:true,animations:'disabled'});
-  await page.setViewportSize({width:390,height:844});await page.getByLabel('Appearance').selectOption('dark');await page.waitForFunction(()=>getComputedStyle(document.querySelector('.header select')).backgroundColor==='rgb(28, 30, 35)');
+  await page.setViewportSize({width:390,height:844});await setAppearance(page,'dark');await page.waitForFunction(()=>getComputedStyle(document.querySelector('.panel')).backgroundColor==='rgb(28, 30, 35)');
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:`${root}/captures/${engine}-mobile-dark-error.png`,fullPage:true,animations:'disabled'});
   assert.deepEqual(errors,[]);assert(!requests.some(url=>!url.startsWith(new URL(appUrl).origin)&&!url.startsWith('blob:')));assert(!requests.some(url=>url.includes('.onnx')));
  }finally{await context.close();}

@@ -2,7 +2,7 @@ import {spawn} from 'node:child_process';
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
 const root=process.env.RELEASE_EVIDENCE_DIR??'.artifacts/release-check';await mkdir(root,{recursive:true});
 const app=process.env.APP_URL??'http://127.0.0.1:4184/audio-toolkit-v1/';
-const checks=[['workspace','WORKSPACE'],['intake','INTAKE'],['recipe','RECIPE'],['copy','COPY'],['dsp','DSP'],['format','FORMAT'],['batch','BATCH'],['cleanup','CLEANUP'],['preview','PREVIEW'],['download','DOWNLOAD'],['privacy','PRIVACY']];
+const checks=[['workspace','WORKSPACE'],['intake','INTAKE'],['recipe','RECIPE'],['copy','COPY'],['dsp','DSP'],['format','FORMAT'],['batch','BATCH'],['cleanup','CLEANUP'],['download','DOWNLOAD'],['privacy','PRIVACY']];
 const startAt=process.env.RELEASE_CHECK_FROM?checks.findIndex(([name])=>name===process.env.RELEASE_CHECK_FROM):0;
 if(startAt<0)throw Error("Unknown release check name.");
 let records=[],previousFailures=[];

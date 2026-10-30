@@ -1,0 +1,5 @@
+# Direct Export contract
+
+Removed Preset, test-file selection and Test one file. Deleted presets.ts, preset tests and the obsolete preview browser driver. Removed purpose/test-reuse eligibility and invalidation from Batch/useExport/main. Every requested Export now freezes current specs and processes them, releasing the prior result through the existing cleanup ownership path. Retry still uses the frozen failed/cancelled spec. Unrelated successful outputs, exclusive speech/music inference, safe names, cancellation and cleanup retry remain covered.
+
+The normal suite passes67tests. New/updated Batch behavior checks cover always-processing a repeated Export, prior-output release, both speech and music exclusivity, progress/device state and retry. Obsolete reuse tests were removed with the behavior they asserted. Twelve retained browser drivers were migrated to Settings and direct Export, and syntax checked; they were not rerun in standalone Chromium/WebKit during this Chrome-controlled session. The release runner no longer invokes a deleted preview suite. Underlying DSP/codec test evidence is retained without falsely claiming a new full browser matrix.

@@ -1,3 +1,4 @@
+import {setAppearance} from './browser-controls.mjs';
 import assert from 'node:assert/strict';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {chromium,webkit} from 'playwright';
@@ -28,13 +29,10 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
    if(!audio){assert.equal(row.status,'failed');assert.match(row.text,/No audio track/);continue;}
    if(audio.codec_name==='wmav2'){assert.equal(row.status,'failed');assert.match(row.text,/Unsupported audio codec/);continue;}
    assert.equal(row.status,'ready',`${name} ${fixture.name}: ${row.text}`);
-   const codec=audio.codec_name==='pcm_s16le'?'PCM-S16':audio.codec_name.toUpperCase();
-   assert(row.text.includes(codec),`${fixture.name} codec ${codec}: ${row.text}`);
-   assert(new RegExp(`${Number(audio.sample_rate)/1000}\\s+kHz`).test(row.text),`${fixture.name} sample rate`);
-   assert(row.text.includes(audio.channels===2?'Stereo':'Mono'),`${fixture.name} channels`);
+   assert(!/kHz|Stereo|Mono/.test(row.text),`${fixture.name} compact row hides technical metadata`);
   }
   assert.equal(rows.find(row=>row.name==='corrupt.wav').status,'failed');
-  assert.match(rows.find(row=>row.name==='misnamed.mp3').text,/WAV/,'Content detection ignores misleading extension');
+  assert.equal(rows.find(row=>row.name==='misnamed.mp3').status,'ready','Content detection still accepts the misleading extension');
   assert.match(rows.find(row=>row.name==='long-video.webm').text,/0:02/,'Video length does not replace primary audio duration');
   assert.match(rows.find(row=>row.name==='offset.mp4').text,/0:02/,'Positive media timestamps are not mistaken for duration');
   assert.match(rows.find(row=>row.name==='tone.m4a').text,/0:02/,'Duration display avoids floating-point truncation');
@@ -51,7 +49,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   await page.getByRole('button',{name:'Remove duplicate.wav',exact:true}).last().click();
   await page.waitForFunction(count=>document.querySelectorAll('.file-list li').length===count,names.length+1);
   await page.screenshot({path:`${root}/captures/${name}-desktop.png`,fullPage:true,animations:'disabled'});
-  await page.setViewportSize({width:390,height:844});await page.getByLabel('Appearance').selectOption('dark');
+  await page.setViewportSize({width:390,height:844});await setAppearance(page,'dark');
   await page.waitForFunction(()=>document.documentElement.dataset.theme==='dark');
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.screenshot({path:`${root}/captures/${name}-mobile-dark.png`,fullPage:true,animations:'disabled'});
@@ -62,7 +60,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   });
   const payload=await readFile('tests/fixtures/tone.wav');
   await page.getByLabel('Choose audio or video files').setInputFiles(Array.from({length:40},(_,i)=>({name:`stress-${i}.wav`,mimeType:'audio/wav',buffer:payload})));
-  await page.getByLabel('Appearance').selectOption('light');
+  await setAppearance(page,'light');
   for(let i=0;i<5;i++)await page.getByRole('button',{name:`Remove stress-${i}.wav`,exact:true}).click();
   await page.waitForFunction(count=>document.querySelectorAll('.file-list li').length===count&&[...document.querySelectorAll('.file-list li')].every(row=>['ready','failed'].includes(row.dataset.inspection)),names.length+36);
   const peakReading=await page.evaluate(()=>{window.__readingObserver.disconnect();return window.__maxReading;});

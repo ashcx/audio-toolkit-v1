@@ -1,7 +1,7 @@
 import { useState } from "preact/hooks";
 import type { FileEntry } from "./media";
-import { formatBytes, describeAudio } from "./format";
-import { FORMAT_NAMES, STEP_NAMES, resolveTrim, type TrimRangeDraft } from "./recipe";
+import { formatBytes, formatDuration } from "./format";
+import { resolveTrim, type TrimRangeDraft } from "./recipe";
 import type { ExecutionPlan } from "./planner";
 import type { BatchJob } from "./batch";
 import type { JobOperation, IsolationDevice } from "./job-events";
@@ -66,25 +66,16 @@ export function FileRow({
   const short = (seconds: number) => Number(seconds.toFixed(3));
   return (
     <li data-file-id={entry.id} data-inspection={entry.inspection.kind} data-job-state={exported?.kind}>
-      <span class="file-name">
+      <span class="file-name" title={entry.file.name}>
         {entry.file.name}
         <small>
-          {formatBytes(entry.file.size)}
-          {entry.inspection.kind === "ready"
-            ? ` · ${describeAudio(entry.inspection.metadata)}`
-            : entry.inspection.kind === "failed"
-              ? ""
-              : ` · ${entry.inspection.kind === "reading" ? "Reading…" : "Waiting"}`}
+          {entry.inspection.kind === "ready" ? formatDuration(entry.inspection.metadata.duration) : entry.inspection.kind === "reading" ? "Reading…" : entry.inspection.kind === "waiting" ? "Waiting" : ""}
         </small>
         {entry.inspection.kind === "failed" && (
           <small class="file-error" role="status">
             {entry.inspection.message}
           </small>
         )}
-        {plan?.kind === "copy" && (
-          <small>Copy · {plan.target.container.toUpperCase()}</small>
-        )}
-        {plan?.kind === "pcm" && <small title={plan.reason}>Re-encode</small>}
         {plan?.kind === "failed" && result?.kind !== "failed" && (
           <small class="file-error" role="status">
             {plan.message}
@@ -161,12 +152,7 @@ export function FileRow({
               >
                 Download
               </a>
-              <small>
-                {job?.spec.plan.kind === "copy" ? job.spec.plan.target.container.toUpperCase() : job && FORMAT_NAMES[job.spec.plan.snapshot.recipe.export.format]} ·{" "}
-                {formatBytes(exported.output.file.size)}
-              </small>
-              {job && job.spec.plan.snapshot.recipe.steps.length > 0 && <small>Done · {job.spec.plan.snapshot.recipe.steps.map(step => STEP_NAMES[step.kind]).join(" · ")}</small>}
-              {document.createElement("audio").canPlayType(exported.output.mime) && <audio controls preload="none" src={exported.url} aria-label={`Play ${entry.file.name}`} />}
+              {document.createElement("audio").canPlayType(exported.output.mime) && <details class="playback"><summary>Listen</summary><audio controls preload="none" src={exported.url} aria-label={`Play ${entry.file.name}`} /></details>}
             </>
           )}
         </div>

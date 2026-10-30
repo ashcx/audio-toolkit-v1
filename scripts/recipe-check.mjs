@@ -1,3 +1,4 @@
+import {setAppearance} from './browser-controls.mjs';
 import assert from 'node:assert/strict';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {chromium,webkit} from 'playwright';
@@ -43,7 +44,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('opus');await page.getByLabel('Bitrate (kbps)').selectOption('96');
   await page.getByRole('button',{name:'Trim settings',exact:true}).click();await page.getByLabel('Batch trim end (seconds)').fill('0');await page.getByRole('alert').filter({hasText:'Trim start must be before end.'}).waitFor();await page.getByLabel('Batch trim end (seconds)').fill('1.5');
   await page.screenshot({path:`${root}/captures/${name}-desktop.png`,fullPage:true,animations:'disabled'});
-  await page.setViewportSize({width:390,height:844});await page.getByLabel('Appearance').selectOption('dark');await page.waitForFunction(()=>document.documentElement.dataset.theme==='dark');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+  await page.setViewportSize({width:390,height:844});await setAppearance(page,'dark');await page.waitForFunction(()=>document.documentElement.dataset.theme==='dark');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.screenshot({path:`${root}/captures/${name}-mobile-dark.png`,fullPage:true,animations:'disabled'});
   await page.getByLabel('Trim one.wav start (seconds)').fill('0.5');
   page.once('dialog',dialog=>dialog.dismiss());await page.getByRole('button',{name:'Remove Trim',exact:true}).click();assert.equal(await page.getByRole('article',{name:'Trim',exact:true}).count(),1);
