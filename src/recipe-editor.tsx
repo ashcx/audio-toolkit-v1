@@ -42,6 +42,8 @@ function summary(step: StepDraft): string {
       return step.rateHz === "original"
         ? "Keep unchanged"
         : `${step.rateHz / 1000} kHz`;
+    case "speech":
+      return step.model === "standard" ? "Standard · GTCRN" : "Detailed · DeepFilterNet3";
     case "isolation":
       return step.keep === "voice" ? "Keep voice" : "Keep music";
     default: {
@@ -150,6 +152,16 @@ function StepFields({
           </select>
         </label>
       );
+    case "speech":
+      return <label class="field">Voice model
+        <select value={step.model} onChange={event => {
+          const next = stepSchema.safeParse({ ...step, model: event.currentTarget.value });
+          if (next.success) onChange(next.data);
+        }}>
+          <option value="standard">Standard · GTCRN</option>
+          <option value="detailed">Detailed · DeepFilterNet3</option>
+        </select>
+      </label>;
     case "isolation":
       return (
         <>
@@ -242,7 +254,7 @@ export function RecipeEditor({
             <option
               value={kind}
               disabled={
-                (kind === "trim" || kind === "isolation") &&
+                (kind === "trim" || kind === "isolation" || kind === "speech") &&
                 value.steps.some((step) => step.kind === kind)
               }
             >

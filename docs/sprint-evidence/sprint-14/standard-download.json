@@ -1,0 +1,8 @@
+{
+  "model": "standard",
+  "frames": 44100,
+  "rate": 44100,
+  "channels": 2,
+  "width": 2,
+  "sha256": "633c60629783104e487fcf7ada624a4fb12f39bdd8b8f005419a23ccf7a76fc8"
+}

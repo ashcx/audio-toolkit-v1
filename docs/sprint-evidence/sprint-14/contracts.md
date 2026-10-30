@@ -1,0 +1,9 @@
+# Speech cleanup contract
+
+The 2026-10-30 user request explicitly authorizes technical execution of Sprints14–20 and a PR per sprint. Sprint13's listening, complete memory and broader quality observations remain open. This authorization allows technical continuation without claiming those observations passed. Standard and Detailed are neutral option names, with no comparative speed/quality promise.
+
+Data shape. A speech recipe step has kind speech and model standard or detailed. One independent streaming model state exists per channel per step per job. GTCRN uses16kHz,256-sample frames and256-sample compensated latency. DeepFilterNet3 uses48kHz,480-sample frames and1440-sample compensated latency. These offsets derive from the Sprint13 paired-reference experiment, with subjective boundary quality still unverified. Preserve original rate, channel count, source clock and final frame count. Reject >2 channels. Finite frame outputs are mandatory. Flush zeros for model delay and pad only the terminal input frame. No whole-recording PCM buffers.
+
+The PCM worker owns speech states; cancellation terminates that worker through the existing processAudio lifecycle. Lazy model imports fetch only same-origin build assets. Speech jobs occupy the existing exclusive neural-work slot. Ordered trim/gain/resample/normalization and a single terminal encoder are preserved. No change to SCNet or music output semantics.
+
+Throughput checkpoint. Blocking first steps are pinned dependencies and this frame/lifecycle contract. Independent workstreams are n/a under sequential main-instance implementation. Shared state is the checkout/build, written only by the main instance; independent reviewers remain read-only. The smallest safe sequence is streaming adapter, ordered recipe integration, actual browser verification, independent review and PR delivery.

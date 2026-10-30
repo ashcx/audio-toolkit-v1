@@ -1,0 +1,270 @@
+{
+  "status": "passed",
+  "results": [
+    {
+      "model": "standard",
+      "order": "trim-first",
+      "elapsedMs": 1959.4000000059605,
+      "meta": {
+        "kind": "ready",
+        "metadata": {
+          "container": "WAVE",
+          "codec": "pcm-s16",
+          "duration": 1,
+          "startTime": 0,
+          "sampleRate": 44100,
+          "channels": 2,
+          "hasVideo": false,
+          "presentation": null
+        }
+      },
+      "stats": {
+        "encoder": "pcm",
+        "decodePasses": 1,
+        "maxDecodedFrames": 1024,
+        "maxBlockFrames": 4096,
+        "encodedFrames": 44100,
+        "terminalEncoders": 1,
+        "isolationPasses": 0,
+        "isolationWindows": 0,
+        "maxIsolationFrames": 0,
+        "isolationLoads": 0,
+        "isolationBackends": [],
+        "normalizationPasses": 0,
+        "limitedNormalizations": 0,
+        "clippedSamples": 0
+      },
+      "events": [
+        {
+          "kind": "phase",
+          "phase": "Decoding"
+        },
+        {
+          "kind": "phase",
+          "phase": "Loading model"
+        },
+        {
+          "kind": "phase",
+          "phase": "Processing"
+        },
+        {
+          "kind": "phase",
+          "phase": "Processing"
+        },
+        {
+          "kind": "phase",
+          "phase": "Processing / encoding"
+        },
+        {
+          "kind": "phase",
+          "phase": "Encoding"
+        },
+        {
+          "kind": "phase",
+          "phase": "Saving"
+        }
+      ],
+      "bytes": 176444
+    },
+    {
+      "model": "standard",
+      "order": "trim-last",
+      "elapsedMs": 35084,
+      "meta": {
+        "kind": "ready",
+        "metadata": {
+          "container": "WAVE",
+          "codec": "pcm-s16",
+          "duration": 1,
+          "startTime": 0,
+          "sampleRate": 44100,
+          "channels": 2,
+          "hasVideo": false,
+          "presentation": null
+        }
+      },
+      "stats": {
+        "encoder": "pcm",
+        "decodePasses": 1,
+        "maxDecodedFrames": 1024,
+        "maxBlockFrames": 4096,
+        "encodedFrames": 44100,
+        "terminalEncoders": 1,
+        "isolationPasses": 0,
+        "isolationWindows": 0,
+        "maxIsolationFrames": 0,
+        "isolationLoads": 0,
+        "isolationBackends": [],
+        "normalizationPasses": 0,
+        "limitedNormalizations": 0,
+        "clippedSamples": 0
+      },
+      "events": [
+        {
+          "kind": "phase",
+          "phase": "Decoding"
+        },
+        {
+          "kind": "phase",
+          "phase": "Loading model"
+        },
+        {
+          "kind": "phase",
+          "phase": "Processing"
+        },
+        {
+          "kind": "phase",
+          "phase": "Processing"
+        },
+        {
+          "kind": "phase",
+          "phase": "Processing / encoding"
+        },
+        {
+          "kind": "phase",
+          "phase": "Encoding"
+        },
+        {
+          "kind": "phase",
+          "phase": "Saving"
+        }
+      ],
+      "bytes": 176444
+    },
+    {
+      "model": "detailed",
+      "order": "trim-first",
+      "elapsedMs": 971.5,
+      "meta": {
+        "kind": "ready",
+        "metadata": {
+          "container": "WAVE",
+          "codec": "pcm-s16",
+          "duration": 1,
+          "startTime": 0,
+          "sampleRate": 44100,
+          "channels": 2,
+          "hasVideo": false,
+          "presentation": null
+        }
+      },
+      "stats": {
+        "encoder": "pcm",
+        "decodePasses": 1,
+        "maxDecodedFrames": 1024,
+        "maxBlockFrames": 4096,
+        "encodedFrames": 44100,
+        "terminalEncoders": 1,
+        "isolationPasses": 0,
+        "isolationWindows": 0,
+        "maxIsolationFrames": 0,
+        "isolationLoads": 0,
+        "isolationBackends": [],
+        "normalizationPasses": 0,
+        "limitedNormalizations": 0,
+        "clippedSamples": 0
+      },
+      "events": [
+        {
+          "kind": "phase",
+          "phase": "Decoding"
+        },
+        {
+          "kind": "phase",
+          "phase": "Loading model"
+        },
+        {
+          "kind": "phase",
+          "phase": "Processing"
+        },
+        {
+          "kind": "phase",
+          "phase": "Processing"
+        },
+        {
+          "kind": "phase",
+          "phase": "Processing / encoding"
+        },
+        {
+          "kind": "phase",
+          "phase": "Encoding"
+        },
+        {
+          "kind": "phase",
+          "phase": "Saving"
+        }
+      ],
+      "bytes": 176444
+    },
+    {
+      "model": "detailed",
+      "order": "trim-last",
+      "elapsedMs": 17795.40000000596,
+      "meta": {
+        "kind": "ready",
+        "metadata": {
+          "container": "WAVE",
+          "codec": "pcm-s16",
+          "duration": 1,
+          "startTime": 0,
+          "sampleRate": 44100,
+          "channels": 2,
+          "hasVideo": false,
+          "presentation": null
+        }
+      },
+      "stats": {
+        "encoder": "pcm",
+        "decodePasses": 1,
+        "maxDecodedFrames": 1024,
+        "maxBlockFrames": 4096,
+        "encodedFrames": 44100,
+        "terminalEncoders": 1,
+        "isolationPasses": 0,
+        "isolationWindows": 0,
+        "maxIsolationFrames": 0,
+        "isolationLoads": 0,
+        "isolationBackends": [],
+        "normalizationPasses": 0,
+        "limitedNormalizations": 0,
+        "clippedSamples": 0
+      },
+      "events": [
+        {
+          "kind": "phase",
+          "phase": "Decoding"
+        },
+        {
+          "kind": "phase",
+          "phase": "Loading model"
+        },
+        {
+          "kind": "phase",
+          "phase": "Processing"
+        },
+        {
+          "kind": "phase",
+          "phase": "Processing"
+        },
+        {
+          "kind": "phase",
+          "phase": "Processing / encoding"
+        },
+        {
+          "kind": "phase",
+          "phase": "Encoding"
+        },
+        {
+          "kind": "phase",
+          "phase": "Saving"
+        }
+      ],
+      "bytes": 176444
+    },
+    {
+      "cancelled": true,
+      "before": 0,
+      "after": 0
+    }
+  ]
+}

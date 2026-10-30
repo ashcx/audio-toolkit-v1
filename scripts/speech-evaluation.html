@@ -1,0 +1,65 @@
+<!doctype html><meta charset="utf-8"><title>Speech runtime evaluation</title>
+<h1>Speech runtime evaluation</h1><p>Local evaluation using the attributed upstream sample. Listening quality remains unverified.</p>
+<button id="run">Run both CPU models</button><pre id="result">Ready</pre>
+<script type="module">
+import {GtcrnProcessor,loadGtcrnModule} from './gtcrn/package/dist/index.js';
+import {DeepFilter} from './dfn/package/dist/index.js';
+document.querySelector('#run').onclick=async()=>{
+ const button=document.querySelector('#run'); button.disabled=true;
+ const results=[];
+ try {
+ const audio=new AudioContext();
+ const decoded=await audio.decodeAudioData(await (await fetch('./noisy.wav')).arrayBuffer());
+ const reference=await audio.decodeAudioData(await (await fetch('./clean.wav')).arrayBuffer());
+ await audio.close();
+ const inputs={};
+ for(const rate of [16000,48000]){
+  inputs[rate]=[];
+  for(const source of [decoded,reference]){
+   const context=new OfflineAudioContext(1,Math.round(source.duration*rate),rate);
+   const node=context.createBufferSource();node.buffer=source;node.connect(context.destination);node.start();
+   inputs[rate].push((await context.startRendering()).getChannelData(0));
+  }
+ }
+ for(let run=0;run<5;run++)for(const name of ['GTCRN','DeepFilterNet3']){
+  let processor;
+  try{
+   const start=performance.now();
+   processor=name==='GTCRN'?new GtcrnProcessor(await loadGtcrnModule()):await DeepFilter.create();
+   const initMs=performance.now()-start;
+   const rate=processor.sampleRate, size=processor.frameSize??processor.frameLength;
+   let energy=0, changed=0;
+   const [input,clean]=inputs[rate];
+   if(!input.length||input.length!==clean.length||!input.every(Number.isFinite)||!clean.every(Number.isFinite))throw Error("Reference and mixture must contain equal nonempty finite sample grids");
+   const output=new Float32Array(Math.ceil(input.length/size)*size+rate/5);
+   const begin=performance.now();
+   for(let i=0;i<Math.ceil(output.length/size);i++){
+    const frame=new Float32Array(size);frame.set(input.subarray(i*size,(i+1)*size));
+    const out=processor.process(frame);
+    if(out.length!==size||!out.every(Number.isFinite))throw Error('Invalid output');
+    output.set(out.subarray(0,Math.min(size,output.length-i*size)),i*size);
+    for(let j=0;j<size;j++){energy+=out[j]*out[j];changed+=Math.abs(out[j]-frame[j]);}
+   }
+   if(!(energy>0&&changed>0))throw Error('Empty or unchanged output');
+   const processingMs=performance.now()-begin;
+   let best=-Infinity,delay=0;
+   for(let lag=0;lag<rate/10;lag++){
+    let correlation=0;
+    for(let i=0;i<Math.min(clean.length,rate*2);i+=8)correlation+=clean[i]*output[i+lag];
+    if(correlation>best){best=correlation;delay=lag;}
+   }
+   let before=0,after=0,referenceEnergy=0;
+   for(let i=0;i<clean.length;i++){
+    before+=(input[i]-clean[i])**2;after+=(output[i+delay]-clean[i])**2;referenceEnergy+=clean[i]**2;
+   }
+   const inputSnr=10*Math.log10(referenceEnergy/before),outputSnr=10*Math.log10(referenceEnergy/after);
+   if(!Number.isFinite(inputSnr)||!Number.isFinite(outputSnr))throw Error('SNR is undefined for this fixture');
+   results.push({name,run,size,rate,initMs,processingMs,inputFrames:input.length,delay,energy,changed,inputSnr,outputSnr,status:'executed'});
+  }catch(e){results.push({name,run,status:'failed',error:String(e)});}
+  finally{processor?.destroy();}
+ }
+ document.querySelector('#result').textContent=JSON.stringify({userAgent:navigator.userAgent,crossOriginIsolated,results},null,2);
+ }catch(e){document.querySelector('#result').textContent=JSON.stringify({status:'failed',error:String(e),results},null,2);}
+ finally{button.disabled=false;}
+};
+</script>

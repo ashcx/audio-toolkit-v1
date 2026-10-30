@@ -1,0 +1,116 @@
+{
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+  "crossOriginIsolated": false,
+  "results": [
+    {
+      "name": "GTCRN",
+      "run": 0,
+      "size": 256,
+      "rate": 16000,
+      "initMs": 15.300000011920929,
+      "processingMs": 120.59999999403954,
+      "energy": 0.14956902215817752,
+      "changed": 1021.4856390424752,
+      "status": "executed"
+    },
+    {
+      "name": "DeepFilterNet3",
+      "run": 0,
+      "size": 480,
+      "rate": 48000,
+      "initMs": 931.8000000119209,
+      "processingMs": 32,
+      "energy": 0.015937707808483068,
+      "changed": 3053.39270525983,
+      "status": "executed"
+    },
+    {
+      "name": "GTCRN",
+      "run": 1,
+      "size": 256,
+      "rate": 16000,
+      "initMs": 3.9000000059604645,
+      "processingMs": 118.09999999403954,
+      "energy": 0.14956902215817752,
+      "changed": 1021.4856390424752,
+      "status": "executed"
+    },
+    {
+      "name": "DeepFilterNet3",
+      "run": 1,
+      "size": 480,
+      "rate": 48000,
+      "initMs": 803,
+      "processingMs": 96,
+      "energy": 0.015937707808483068,
+      "changed": 3053.39270525983,
+      "status": "executed"
+    },
+    {
+      "name": "GTCRN",
+      "run": 2,
+      "size": 256,
+      "rate": 16000,
+      "initMs": 3,
+      "processingMs": 89.70000000298023,
+      "energy": 0.14956902215817752,
+      "changed": 1021.4856390424752,
+      "status": "executed"
+    },
+    {
+      "name": "DeepFilterNet3",
+      "run": 2,
+      "size": 480,
+      "rate": 48000,
+      "initMs": 784.3999999910593,
+      "processingMs": 72.29999999701977,
+      "energy": 0.015937707808483068,
+      "changed": 3053.39270525983,
+      "status": "executed"
+    },
+    {
+      "name": "GTCRN",
+      "run": 3,
+      "size": 256,
+      "rate": 16000,
+      "initMs": 4.700000002980232,
+      "processingMs": 131,
+      "energy": 0.14956902215817752,
+      "changed": 1021.4856390424752,
+      "status": "executed"
+    },
+    {
+      "name": "DeepFilterNet3",
+      "run": 3,
+      "size": 480,
+      "rate": 48000,
+      "initMs": 738.0999999940395,
+      "processingMs": 45.80000001192093,
+      "energy": 0.015937707808483068,
+      "changed": 3053.39270525983,
+      "status": "executed"
+    },
+    {
+      "name": "GTCRN",
+      "run": 4,
+      "size": 256,
+      "rate": 16000,
+      "initMs": 6.0999999940395355,
+      "processingMs": 80.5,
+      "energy": 0.14956902215817752,
+      "changed": 1021.4856390424752,
+      "status": "executed"
+    },
+    {
+      "name": "DeepFilterNet3",
+      "run": 4,
+      "size": 480,
+      "rate": 48000,
+      "initMs": 710.5,
+      "processingMs": 86.8999999910593,
+      "energy": 0.015937707808483068,
+      "changed": 3053.39270525983,
+      "status": "executed"
+    }
+  ]
+}
