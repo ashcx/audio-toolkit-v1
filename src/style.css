@@ -474,3 +474,13 @@ input[type="number"] {
 .run-actions small { flex-basis: 100%; color: var(--muted); }
 .file-result audio { width: min(100%, 20rem); height: 2.5rem; }
 .run-actions select { max-width: 100%; }
+
+.device-badge {
+  display: inline-block;
+  padding: .25rem .5rem;
+  border: 1px solid var(--border);
+  border-radius: .375rem;
+  font-size: .875rem;
+  font-weight: 600;
+  line-height: 1.4;
+}

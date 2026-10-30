@@ -1,5 +1,5 @@
 import type { InferenceRequest, InferenceReply } from "../inference/protocol";
-import type { JobEvent } from "../job-events";
+import type { JobOperation } from "../job-events";
 import type { ExecutionPlan } from "../planner";
 export type PcmPlan = Extract<ExecutionPlan, { kind: "pcm" }>;
 export type StoreOperation =
@@ -39,7 +39,7 @@ export type DspStats = {
 export type WorkerResult =
   | StorageRequest
   | InferenceRequest
-  | JobEvent
+  | JobOperation
   | { kind: "done"; outputId: string; stats: DspStats }
   | { kind: "error"; message: string };
 export type WorkerInput =

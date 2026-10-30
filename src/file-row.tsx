@@ -4,9 +4,15 @@ import { formatBytes, describeAudio } from "./format";
 import { FORMAT_NAMES, STEP_NAMES, resolveTrim, type TrimRangeDraft } from "./recipe";
 import type { ExecutionPlan } from "./planner";
 import type { BatchJob } from "./batch";
-import type { JobEvent } from "./job-events";
+import type { JobOperation, IsolationDevice } from "./job-events";
 import { TrimFields } from "./trim-fields";
-function operationLabel(operation: JobEvent) {
+const DEVICES: Record<IsolationDevice, { label: string; description: string }> = {
+  "preparing-gpu": { label: "Trying GPU", description: "Checking GPU-assisted separation. Processing has not succeeded yet." },
+  gpu: { label: "GPU + CPU", description: "GPU-assisted mode with CPU support. This does not measure GPU utilization." },
+  cpu: { label: "CPU", description: "Separation is using CPU mode." },
+  "cpu-fallback": { label: "CPU · switched from GPU", description: "GPU processing failed or stopped responding. Separation switched to CPU mode." },
+};
+function operationLabel(operation: JobOperation) {
   switch (operation.kind) {
     case "phase": return `${operation.phase}…`;
     case "model-download": return `Loading model ${formatBytes(operation.loaded)} / ${formatBytes(operation.total)}`;
@@ -126,6 +132,7 @@ export function FileRow({
       {exported && (
         <div class="file-result" role="status">
           {previousSettings && <small>Previous settings</small>}
+          {job?.device && (exported.kind === "running" || exported.kind === "done") && <span class="device-badge" aria-label="Separation processor" title={DEVICES[job.device].description}>{DEVICES[job.device].label}</span>}
           {exported.kind === "waiting" || exported.kind === "running" || exported.kind === "cancelling" ? (
             <>
               <progress aria-label={`Export ${entry.file.name}`} {...progress} />

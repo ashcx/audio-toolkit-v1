@@ -1,0 +1,110 @@
+[
+  {
+    "engine": "chromium",
+    "mode": "native",
+    "expected": "CPU",
+    "actualCpuInference": true,
+    "gpuEventsSimulated": false,
+    "progressRetained": true,
+    "completedBadge": true,
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "viewports": [
+      1280,
+      390
+    ],
+    "remainingStores": 0
+  },
+  {
+    "engine": "chromium",
+    "mode": "gpu",
+    "expected": "GPU + CPU",
+    "actualCpuInference": true,
+    "gpuEventsSimulated": true,
+    "progressRetained": true,
+    "completedBadge": true,
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "viewports": [
+      1280,
+      390
+    ],
+    "remainingStores": 0
+  },
+  {
+    "engine": "chromium",
+    "mode": "fallback",
+    "expected": "CPU · switched from GPU",
+    "actualCpuInference": true,
+    "gpuEventsSimulated": true,
+    "progressRetained": true,
+    "completedBadge": true,
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "viewports": [
+      1280,
+      390
+    ],
+    "remainingStores": 0
+  },
+  {
+    "engine": "webkit",
+    "mode": "native",
+    "expected": "CPU",
+    "actualCpuInference": true,
+    "gpuEventsSimulated": false,
+    "progressRetained": true,
+    "completedBadge": true,
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "viewports": [
+      1280,
+      390
+    ],
+    "remainingStores": 0
+  },
+  {
+    "engine": "webkit",
+    "mode": "gpu",
+    "expected": "GPU + CPU",
+    "actualCpuInference": true,
+    "gpuEventsSimulated": true,
+    "progressRetained": true,
+    "completedBadge": true,
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "viewports": [
+      1280,
+      390
+    ],
+    "remainingStores": 0
+  },
+  {
+    "engine": "webkit",
+    "mode": "fallback",
+    "expected": "CPU · switched from GPU",
+    "actualCpuInference": true,
+    "gpuEventsSimulated": true,
+    "progressRetained": true,
+    "completedBadge": true,
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "viewports": [
+      1280,
+      390
+    ],
+    "remainingStores": 0
+  }
+]

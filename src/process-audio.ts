@@ -87,7 +87,7 @@ export function processAudio(
         isolating = false;phase(data);
       }
       else if (data.kind === "inference") {
-        inferenceTask = inference.run(data.planes, value => { if (!isolating) phase(value); }).then(
+        inferenceTask = inference.run(data.planes, value => { if (value.kind === "isolation-device" || !isolating) phase(value); }).then(
           reply => { if (!settled) worker.postMessage({ kind: "inference", sequence: data.sequence, reply } satisfies WorkerInput, reply.planes.map(plane => plane.buffer)); },
           error => { if (!settled) worker.postMessage({ kind: "inference", sequence: data.sequence, reply: { kind: "error", message: error instanceof Error ? error.message : "Isolation failed." } } satisfies WorkerInput); },
         );

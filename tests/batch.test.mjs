@@ -92,3 +92,9 @@ test('settings edits, explicit invalidation and changed File identity prevent te
 test('retry of a cancelled test retains eligibility and unrelated file edits preserve it',async()=>{
  const {batch,calls,finish}=harness();const a=spec(),b=spec();batch.start([a],'test');await tick();batch.cancel(a.entry.id);calls[0].reject(new DOMException('Cancelled','AbortError'));await tick();batch.retry(a.entry.id);await tick();finish(1);await tick();batch.invalidateTest(b.entry.id);batch.start([a,b]);await tick();assert.equal(calls.length,3);assert.equal(calls[2].job.entry.id,b.entry.id);finish(2);await tick();batch.dispose();
 });
+test('device metadata preserves numeric progress, survives completion/reuse and resets on retry',async()=>{
+ const {batch,calls,finish}=harness();const item=spec('device.wav',[newStep('isolation')]);batch.start([item],'test');await tick();const id=item.entry.id;
+ calls[0].phase({kind:'isolation-progress',completed:2,total:5});calls[0].phase({kind:'isolation-device',device:'gpu'});assert.deepEqual(batch.snapshot.jobs.get(id).state.operation,{kind:'isolation-progress',completed:2,total:5});assert.equal(batch.snapshot.jobs.get(id).device,'gpu');
+ calls[0].phase({kind:'isolation-device',device:'cpu-fallback'});finish(0);await tick();assert.equal(batch.snapshot.jobs.get(id).device,'cpu-fallback');batch.start([item]);assert.equal(calls.length,1);assert.equal(batch.snapshot.jobs.get(id).device,'cpu-fallback');
+ batch.start([item]);await tick();assert.equal(batch.snapshot.jobs.get(id).device,null);calls[1].phase({kind:'isolation-device',device:'cpu'});batch.cancel(id);calls[1].phase({kind:'isolation-device',device:'gpu'});assert.equal(batch.snapshot.jobs.get(id).device,'cpu');finish(1);await tick();batch.retry(id);await tick();assert.equal(batch.snapshot.jobs.get(id).device,null);finish(2);await tick();batch.dispose();
+});
