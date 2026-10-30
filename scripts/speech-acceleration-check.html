@@ -1,0 +1,22 @@
+<!doctype html><meta charset="utf-8"><title>Speech acceleration capability check</title><button id="run">Check actual speech backends</button><pre id="result">Ready</pre>
+<script type="module">
+import {GtcrnProcessor,loadGtcrnModule} from './gtcrn/package/dist/index.js';
+import {DeepFilter} from './dfn/package/dist/index.js';
+const captured=[];
+const instantiate=WebAssembly.instantiate.bind(WebAssembly),streaming=WebAssembly.instantiateStreaming.bind(WebAssembly);
+const observe=result=>{const instance=result.instance??result;for(const [name,value] of Object.entries(instance.exports))if(value instanceof WebAssembly.Memory)captured.push({name,memory:value});return result;};
+WebAssembly.instantiate=async(...args)=>observe(await instantiate(...args));
+WebAssembly.instantiateStreaming=async(...args)=>observe(await streaming(...args));
+document.querySelector('#run').onclick=async()=>{
+ document.querySelector('#run').disabled=true;
+ const results={userAgent:navigator.userAgent,cores:navigator.hardwareConcurrency,crossOriginIsolated,sharedArrayBuffer:typeof SharedArrayBuffer!=='undefined',gpu:null,models:[]};
+ try{
+ if(navigator.gpu){const adapter=await navigator.gpu.requestAdapter();results.gpu=adapter?{available:true,info:{vendor:adapter.info?.vendor,architecture:adapter.info?.architecture,device:adapter.info?.device,description:adapter.info?.description}}:{available:false};}
+ for(const name of ['GTCRN','DeepFilterNet3']){
+  captured.length=0;const p=name==='GTCRN'?new GtcrnProcessor(await loadGtcrnModule()):await DeepFilter.create();
+  try{if(!captured.length)throw Error('Model memory was not observed. Reload this one-shot probe before retrying.');const size=p.frameSize??p.frameLength;const output=p.process(new Float32Array(size));if(output.length!==size||!output.every(Number.isFinite))throw Error('Model output is empty, malformed or non-finite');results.models.push({name,frame:size,finite:output.every(Number.isFinite),memory:captured.map(x=>({name:x.name,shared:typeof SharedArrayBuffer!=="undefined"&&x.memory.buffer instanceof SharedArrayBuffer,bytes:x.memory.buffer.byteLength})),backend:'compiled CPU WASM; no provider or thread-count API exposed'});}finally{p.destroy();}
+ }
+ document.querySelector('#result').textContent=JSON.stringify({status:'passed',...results},null,2);
+ }catch(error){document.querySelector('#result').textContent=JSON.stringify({status:'failed',error:String(error),...results},null,2);}
+};
+</script>

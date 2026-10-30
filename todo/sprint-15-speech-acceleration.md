@@ -4,7 +4,7 @@
 
 Provide an accelerated path for speech cleanup only where actual browser measurements demonstrate a useful, correct improvement over the CPU baseline.
 
-Status: Not started.
+Status: In progress. Technical assessment retains CPU; accelerated model execution remains not verified.
 
 ## Entry criteria
 
@@ -46,3 +46,7 @@ Changes to OS or hosting configuration without explicit authorization, model sel
 ## Execution log
 
 2026-10-30: User authorized investigation and possible accelerated processing. No measurements yet.
+
+2026-10-30: Actual Chrome tests on the Mac observe Apple Metal3 GPU availability and both isolated/non-isolated CPU model execution. Both speech models use unshared WASM memory and expose no GPU/thread-provider option. No performance comparison or accelerated path is claimed. See Sprint15 coverage and raw probe JSON. The prospective thresholds are recorded before any future comparative timing.
+
+2026-10-30: Terra/Luna reviewed the assessment and its limitations. Fixed repeat-init observation and invalid-output status defects in the research probe, added an offline boundary regression and regenerated both actual Chrome records. No production processing code changed. Accelerator execution/comparison gates remain unverified; the technical conclusion retains CPU without a speed claim.
