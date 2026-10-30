@@ -48,3 +48,5 @@ Guaranteeing a target speed before measurement, adding simultaneous stem export,
 2026-10-30: Added at the user's request. Planning only; implementation and acceptance evidence do not yet exist.
 
 2026-10-30: Sprint16 assessment PR18 reports no eligible measured replacement. Applied this sprint’s explicit retain-baseline outcome with no processing/runtime/dependency changes. Reran the normal unit suite and build; reused the source-identical actual Mac baseline without describing it as a new benchmark. Full comparisons, peak/thermal/fallback and quality/listening remain unverified. See Sprint17 evidence.
+
+2026-10-30: [Draft disposition PR19](https://github.com/ashcx/audio-toolkit-v1/pull/19) targets main at3868334. Terra/Luna approve the source-identical retain-baseline decision; no measured gain or completed quality acceptance is claimed.
