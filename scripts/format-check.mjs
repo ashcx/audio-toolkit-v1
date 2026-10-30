@@ -43,8 +43,8 @@ for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
    await page.goto(appUrl);await page.getByLabel('Choose audio or video files').setInputFiles(path);await page.locator('[data-inspection=ready]').waitFor();
    await page.getByRole('combobox',{name:'Format',exact:true}).selectOption(format);
    if(['mp3','m4a','opus'].includes(format))await page.getByLabel('Bitrate (kbps)').selectOption(String(bitrate));
-   await page.getByLabel('Add step',{exact:true}).selectOption('gain');await page.getByLabel('Gain (dB)',{exact:true}).fill('-6');
-   if(channels===1){await page.getByLabel('Add step',{exact:true}).selectOption('channels');await page.getByRole('combobox',{name:'Channels',exact:true}).selectOption('mono');}
+   await page.getByLabel('Add step',{exact:true}).selectOption('gain');await page.getByLabel('Gain (dB) precise',{exact:true}).fill('-6');
+   if(channels===1){await page.getByLabel('Add step',{exact:true}).selectOption('channels');await page.getByRole('radio',{name:'Mono',exact:true}).check();}
    if(rate!==48000){await page.getByLabel('Add step',{exact:true}).selectOption('resample');await page.getByRole('combobox',{name:'Sample rate',exact:true}).selectOption(String(rate));}
   }
   async function countStores(){return page.evaluate(async()=>{const directory=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1',{create:true});let n=0;for await(const f of directory.values())n++;return n;});}

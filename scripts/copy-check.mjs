@@ -108,10 +108,10 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   await page.screenshot({path:`${root}/captures/${name}-desktop.png`,fullPage:true,animations:'disabled'});
   await page.setViewportSize({width:390,height:844});await setAppearance(page,'dark');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.screenshot({path:`${root}/captures/${name}-mobile-dark.png`,fullPage:true,animations:'disabled'});
-  await page.getByLabel('Add step',{exact:true}).selectOption('gain');await page.getByLabel('Gain (dB)',{exact:true}).fill('1');
+  await page.getByLabel('Add step',{exact:true}).selectOption('gain');await page.getByLabel('Gain (dB) precise',{exact:true}).fill('1');
   assert.equal(await page.locator('.file-name').getByText('Gain requires re-encoding. Choose another format.',{exact:true}).count(),files.length);
   assert.equal(await page.getByText('Previous settings',{exact:true}).count(),files.length,'Old outputs must be explicitly identified after edits');assert(await page.getByRole('button',{name:'Export',exact:true}).isDisabled());
-  await page.getByLabel('Gain (dB)',{exact:true}).fill('0');assert(await page.getByRole('button',{name:'Export',exact:true}).isEnabled());
+  await page.getByLabel('Gain (dB) precise',{exact:true}).fill('0');assert(await page.getByRole('button',{name:'Export',exact:true}).isEnabled());
   const touchDownload=page.waitForEvent('download');await page.getByRole('link',{name:'Download',exact:true}).first().tap();await touchDownload;
   for(const input of files)await page.getByRole('button',{name:`Remove ${input}`,exact:true}).click();
   await page.getByRole('button',{name:'Remove Gain',exact:true}).click();
@@ -132,7 +132,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   assert.equal(await page.getByLabel('Add step',{exact:true}).isDisabled(),true,'Recipe edits are locked during the run');
   await page.evaluate(()=>{window.__pauseWrites=false;});
   await page.waitForFunction(()=>document.querySelectorAll('.file-result a[download]').length===2);
-  await page.getByLabel('Add step',{exact:true}).selectOption('gain');await page.getByLabel('Gain (dB)',{exact:true}).fill('1');
+  await page.getByLabel('Add step',{exact:true}).selectOption('gain');await page.getByLabel('Gain (dB) precise',{exact:true}).fill('1');
   assert.equal(await page.getByText('Previous settings',{exact:true}).count(),2,'Later edits do not relabel old snapshots as current');
   await page.getByRole('button',{name:'Remove Gain',exact:true}).click();assert.equal(await page.getByText('Previous settings',{exact:true}).count(),0);
   await page.getByRole('button',{name:'Remove tone.wav',exact:true}).first().tap();await page.getByRole('button',{name:'Remove tone.wav',exact:true}).tap();

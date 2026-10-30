@@ -1,0 +1,18 @@
+[
+  {
+    "name": "s19-2s.audio.wav",
+    "rate": 48000,
+    "channels": 1,
+    "frames": 48000,
+    "peak": 0.79290771484375,
+    "peakDb": -2.015547130479938
+  },
+  {
+    "name": "s19-4s.audio.wav",
+    "rate": 48000,
+    "channels": 1,
+    "frames": 72000,
+    "peak": 0.79290771484375,
+    "peakDb": -2.015547130479938
+  }
+]

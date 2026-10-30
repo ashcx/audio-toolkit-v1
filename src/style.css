@@ -486,3 +486,22 @@ input[type="number"] {
 
 .settings-dialog > a { min-height: 44px; display: flex; align-items: center; width: fit-content; padding: .5rem .25rem; }
 .brand { display: flex; align-items: center; min-height: 44px; }
+
+.db-control { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; }
+.db-control output, .db-control small { grid-column: 1 / -1; font-size: .78rem; }
+input[type="range"] { width: 100%; min-width: 0; min-height: 44px; accent-color: var(--accent); padding: 0; }
+.segmented { border: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .3rem; }
+.segmented legend { font-size: .78rem; margin-bottom: .4rem; }
+.segmented label { display: flex; align-items: center; gap: .35rem; min-height: 44px; padding: .4rem .6rem; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.segmented label:has(input:checked) { background: var(--surface); border-color: var(--accent); }
+.segmented input { margin: 0; }
+.step-grip { touch-action: none; cursor: grab; min-width: 44px; min-height: 44px; }
+.recipe-step { position: relative; }
+.recipe-step[data-insertion="before"]::before, .recipe-step[data-insertion="after"]::after { content: ""; position: absolute; left: 0; right: 0; height: 4px; background: var(--accent); }
+.recipe-step[data-insertion="before"]::before { top: -.45rem; }
+.recipe-step[data-insertion="after"]::after { bottom: -.45rem; }
+.trim-timeline { grid-column: 1 / -1; display: grid; gap: .25rem; }
+.trim-timeline small, .trim-timeline output, #reorder-help { font-size: .72rem; color: var(--muted-strong); }
+.trim-track { height: .5rem; background: var(--border); border-radius: 1rem; position: relative; overflow: hidden; }
+.trim-track div { height: 100%; position: absolute; background: var(--accent); }
+.timeline-unavailable { grid-column: 1 / -1; }

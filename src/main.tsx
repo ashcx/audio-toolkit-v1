@@ -248,6 +248,7 @@ function App() {
           </section>
           <fieldset class="recipe-lock" disabled={locked}>
           <RecipeEditor
+            duration={Math.max(0, ...files.flatMap(file => file.inspection.kind === "ready" && file.inspection.metadata.duration !== null ? [file.inspection.metadata.duration] : []))}
             value={draft}
             onChange={changeRecipe}
             error={

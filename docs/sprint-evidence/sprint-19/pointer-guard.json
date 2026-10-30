@@ -1,0 +1,7 @@
+{
+  "handler": "actual onPointerUp source",
+  "activePointer": 1,
+  "releasedPointer": 2,
+  "cleared": false,
+  "remainingPointer": 1
+}
