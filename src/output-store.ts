@@ -1,3 +1,4 @@
+import { cleanupAll } from "./cleanup.ts";
 export type StoredOutput = Readonly<{
   file: File;
   name: string;
@@ -30,7 +31,7 @@ export async function createOutputStore(name: string, mime: string) {
   try {
     writer = await handle.createWritable();
   } catch (error) {
-    await remove();
+    await cleanupAll([remove]);
     throw error;
   }
   let closed = false;

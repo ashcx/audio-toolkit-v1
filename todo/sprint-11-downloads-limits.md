@@ -4,7 +4,7 @@
 
 Download retained results within measured limits. Owns feature-plan sections 18,19; cross-cutting requirements remain binding.
 
-Status: Not started. Technical delivery: Not started. Agent-verified acceptance: NOT VERIFIED.
+Status: In progress. Technical delivery: Not started. Agent-verified acceptance: NOT VERIFIED.
 
 ## Entry criteria
 
@@ -77,10 +77,14 @@ Source sections 23–24 deferred features and exclusions. Hub/image implementati
 - [Scrum policy](redesign-scrum-plan.md).
 - [Feature requirements](audio-toolkit-plan.md).
 - Decision trail: `docs/sprint-evidence/decisions.tsv`.
-- Sprint PR: not created.
+- Sprint PR: [#12](https://github.com/ashcx/audio-toolkit-v1/pull/12).
 
 ## Execution log
 
 ### 2026-10-29 - Planning draft
 
 Stories and initial estimates drafted from requirements. No implementation, Ready verification, tests, device observations or sprint review occurred. Next action is to verify Entry criteria after an implementation instruction.
+
+### 2026-10-30 - Implementation and technical validation
+
+Stored ZIP64 downloads, safe names and archive ownership/recovery implemented sequentially. 58 deterministic tests and production build pass. Both real automated engines validate exact ZIP bytes, repeated downloads, partial batch failure, quota/cancel/cleanup recovery and reset. Synthetic resource results: 50 ten-second clips and one ten-minute PCM conversion within2GiB owned RSS. 20 compressed hour-long input case has no completed result; physical device behavior remains NOT VERIFIED. Independent Terra high review reproduced one cleanup setup defect; fixed and rerun, no additional blocking technical finding. Evidence: docs/sprint-evidence/sprint-11/coverage.md and reviewer.md. No Done, merge or deployment claim.

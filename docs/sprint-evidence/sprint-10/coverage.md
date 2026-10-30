@@ -15,7 +15,7 @@ Base `047afb7` includes reliability PR #10. This increment remains review-blocke
 | Desktop/mobile, light/dark, keyboard and native playback | browser driver and committed captures; no horizontal overflow at390px | VERIFIED for automation; physical touch deferred |
 | Resource ownership | same Batch owner, no preview copies, model call count, zero OPFS files after removal | VERIFIED lifecycle; process RSS increment not separately measured |
 | Separate self-review | diff/type checks, ownership and identity cases | VERIFIED |
-| Required Terra high independent interrogate | agent capacity prevented a new reviewer; Terra low design check cannot substitute | NOT VERIFIED |
+| Required Terra high independent interrogate | follow-up during Sprint11 reviewed code, tests, recorded browser assertions/results and captures; no blocking finding | VERIFIED technical review; physical/listening excluded |
 | Physical-device and subjective listening acceptance | retained in Sprint12 | NOT VERIFIED |
 
 The initial browser script used an exact text label for a bitrate select whose option text participates in label matching. A partial label fixed the driver; no product change was needed. Native playback is validated by media time advancing, not a claim that a person listened.

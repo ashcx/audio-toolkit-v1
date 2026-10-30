@@ -127,10 +127,16 @@ export function outputName(
   extension: string,
   used: Set<string>,
 ): string {
-  const stem = fileName.replace(/\.[^.]+$/, "") || "audio";
+  const clean = new TextDecoder().decode(new TextEncoder().encode(fileName)).normalize("NFC")
+    .replace(/[<>:"/\\|?*\x00-\x1f\x7f]/g, "_").replace(/^\.+/, "").replace(/[. ]+$/, "");
+  let stem = clean.replace(/\.[^.]+$/, "") || "audio";
+  if (/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(stem)) stem = `_${stem}`;
+  let bytes = 0;
+  stem = Array.from(stem).filter(character => { bytes += new TextEncoder().encode(character).length; return bytes <= 180; }).join("");
+  const occupied = new Set([...used].map(name => name.normalize("NFC").toLowerCase()));
   let name = `${stem}.audio.${extension}`;
   let count = 2;
-  while (used.has(name.toLowerCase()))
+  while (occupied.has(name.toLowerCase()))
     name = `${stem}.audio (${count++}).${extension}`;
   used.add(name.toLowerCase());
   return name;
