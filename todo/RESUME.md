@@ -1,3 +1,5 @@
+> Current checkpoint: [root resume.md](../resume.md). Paused after Sprint18 on 2026-10-30. The records below are historical and do not describe the current branch.
+
 # Current work, 2026-10-30
 
 User resumed full build under poteto/scrum. Sprints1–8 are complete within their scope; main e9aef30 is the Sprint8 closure. Main312c673/Pages40927620132 are verified live. Current user instructions require a working branch and PR targeting main, with no merge without explicit permission. The user explicitly requested Sprint9 PR delivery with its unfinished factual gates disclosed. Working branch codex/sprint-9-isolation.
