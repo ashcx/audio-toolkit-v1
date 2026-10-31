@@ -171,8 +171,8 @@ function App() {
       <header class="header">
         <a
           class="brand"
-          href="https://ashcx.github.io/media-toolkit/"
-          aria-label="Back to Media Toolkit"
+          href="https://ashcx.github.io/tools/"
+          aria-label="Back to Tools"
         >
           <h1>Audio Toolkit</h1>
         </a>

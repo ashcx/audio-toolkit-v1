@@ -39,4 +39,4 @@ See [formats and limits](docs/formats-and-limits.md), [architecture](docs/archit
 
 [TODO.md](TODO.md) tracks sprint delivery and open gates. [Feature requirements](todo/audio-toolkit-plan.md) own scope. [Third-party provenance](THIRD_PARTY_LICENSES.md) records pinned libraries, source/rebuild links, notices and remaining audit boundaries. [Sprint 12 evidence](docs/sprint-evidence/sprint-12/coverage.md) separates actual automation from unverified devices.
 
-AudioTools.dev was inspected as an ignored reference. The image compressor is a read-only design reference, not a build dependency. This workspace supplies a navigation handoff; it does not implement changes in the media hub or image app.
+AudioTools.dev was inspected as an ignored reference. The image compressor is a read-only design reference, not a build dependency. This workspace supplies a navigation handoff; it does not implement changes in the tools hub or image app.
