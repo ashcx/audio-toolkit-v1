@@ -1,3 +1,4 @@
+import type { ComponentChildren } from "preact";
 import { useId, useEffect, useLayoutEffect, useRef, useState } from "preact/hooks";
 import {
   STEP_NAMES,
@@ -13,7 +14,7 @@ import {
   type StepDraft,
 } from "./recipe";
 import { TrimFields } from "./trim-fields";
-import { formatClock } from "./format";
+import { formatTime } from "./format";
 import { levelDb } from "./levels";
 import { useLevels } from "./use-levels";
 import type { FileEntry } from "./media";
@@ -26,7 +27,7 @@ function summary(step: StepDraft): string {
         (step.range.end !== null && !Number.isFinite(step.range.end))
       )
         return "Set range";
-      return `${formatClock(step.range.start ?? 0)} to ${step.range.end === null ? "End" : formatClock(step.range.end)}`;
+      return `${formatTime(step.range.start ?? 0)} to ${step.range.end === null ? "End" : formatTime(step.range.end)}`;
     case "gain":
       return Number.isFinite(step.db)
         ? `${step.db} dB${step.db > 0 ? " · May clip" : ""}`
@@ -237,14 +238,6 @@ export function RecipeEditor({
   };
   const move = (index: number, direction: -1 | 1) => reorder(index, index + direction);
   const addControl = useRef<HTMLSelectElement>(null);
-  const bitrates =
-    value.export.format === "mp3"
-      ? [128, 192, 256, 320]
-      : value.export.format === "m4a"
-        ? [128, 192, 256]
-        : value.export.format === "opus"
-          ? [64, 96, 128, 160, 192]
-          : [];
   return (
     <section
       ref={panel}
@@ -354,10 +347,15 @@ export function RecipeEditor({
                       setExpanded(expanded === step.id ? null : step.id)
                     }
                   >
-                    <span>{STEP_NAMES[step.kind]}</span>
+                    <span class="step-title">{STEP_NAMES[step.kind]}<span class="expansion-indicator" aria-hidden="true">{expanded === step.id ? "⌃" : "⌄"}</span></span>
                     <small id={`summary-${step.id}`}>{summary(step)}</small>
                   </button>
                 </h3>
+                <button type="button" class="step-edit" aria-label={`Edit ${label}`}
+                  aria-expanded={expanded === step.id} aria-controls={`settings-${step.id}`}
+                  onClick={() => setExpanded(expanded === step.id ? null : step.id)}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m15 5 4 4M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15z" /></svg>
+                </button>
                 <details class="step-menu" onKeyDown={event=>{
                   if(event.key === "Escape") { event.currentTarget.open=false; event.currentTarget.querySelector<HTMLElement>("summary")?.focus(); }
                 }}>
@@ -436,8 +434,30 @@ export function RecipeEditor({
           {error}
         </p>
       )}
-      <div class="export-card">
-        <h3>Export</h3>
+
+    </section>
+  );
+}
+
+export function ExportEditor({value,onChange,disabled,children}: {
+  value: RecipeDraft;
+  onChange: (value: RecipeDraft, explicitFormat?: boolean) => boolean;
+  disabled: boolean;
+  children: ComponentChildren;
+}) {
+  const bitrates =
+    value.export.format === "mp3"
+      ? [128, 192, 256, 320]
+      : value.export.format === "m4a"
+        ? [128, 192, 256]
+        : value.export.format === "opus"
+          ? [64, 96, 128, 160, 192]
+          : [];
+  return (
+      <section class="panel export-panel" aria-labelledby="export-title">
+      <h2 id="export-title">Export</h2>
+      <fieldset class="export-lock" disabled={disabled}>
+
         <div class="export-fields">
           <label class="field">
             Format
@@ -446,7 +466,7 @@ export function RecipeEditor({
               onChange={(event) => {
                 const format = event.currentTarget.value;
                 if (isExportFormat(format))
-                  onChange({ ...value, export: newExport(format) });
+                  onChange({ ...value, export: newExport(format) }, true);
               }}
             >
               {Object.entries(FORMAT_NAMES).map(([format, label]) => (
@@ -474,7 +494,9 @@ export function RecipeEditor({
             </label>
           )}
         </div>
-      </div>
+      </fieldset>
+      {value.export.format === "original" && <p class="panel-description">Preserves the encoded audio without re-encoding. Effects and accurate trims need an encoded format.</p>}
+      {children}
     </section>
   );
 }

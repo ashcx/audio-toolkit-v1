@@ -154,7 +154,7 @@ export const FORMAT_NAMES = {
   wav: "WAV",
   flac: "FLAC",
   opus: "OGG · Opus",
-  original: "Original audio",
+  original: "Direct stream copy",
 } satisfies Record<ExportFormat, string>;
 export function isStepKind(value: string): value is StepKind {
   return Object.hasOwn(STEP_NAMES, value);
