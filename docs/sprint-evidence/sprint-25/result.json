@@ -1,0 +1,16 @@
+{
+  "errors": [],
+  "metaText": "tone.wav\n00:02\n×\nOriginal",
+  "trimmed": "tone.wav\n00:01 · 00:00 to 00:01\nPreview\n×\nOriginal",
+  "previewText": "Preview · 00:00 to 00:01 · WAV comparison\nOriginal excerpt\nProcessed preview\nClose preview",
+  "result": "Exported audio",
+  "status": "2/2 done\nClear all removes unsaved exports. Saved downloads stay on your device.",
+  "actions": [
+    "Clear all",
+    "Save to device",
+    "Export"
+  ],
+  "previous": "tone.wav\n00:01 · 00:00 to 00:01\nPreview\n×\nOriginal\nPrevious export",
+  "storageAfterClear": 0,
+  "copyText": "Exported audio\nNo re-encoding."
+}
