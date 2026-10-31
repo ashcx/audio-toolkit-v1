@@ -17,7 +17,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
    await page.goto(appUrl);await page.getByLabel('Choose audio or video files').setInputFiles('tests/fixtures/tone.wav');await page.locator('[data-inspection=ready]').waitFor();
    await page.getByRole('combobox',{name:'Format',exact:true}).selectOption(format);await page.getByLabel('Add step',{exact:true}).selectOption('gain');await setSlider(page,'Gain (dB) slider',-6);if(process.env.FORMAT_PROBE_RATE){await page.getByLabel('Add step',{exact:true}).selectOption('resample');await page.getByRole('combobox',{name:'Sample rate',exact:true}).selectOption(process.env.FORMAT_PROBE_RATE);}await page.getByRole('button',{name:'Export',exact:true}).click();
    await page.waitForFunction(()=>document.querySelector('.file-result a[download]')||!!document.querySelector('.file-result')&&!document.querySelector('.file-result').textContent.includes('Processing…'),null,{timeout:10000});
-   const link=page.getByRole('link',{name:'Download',exact:true});
+   const link=page.getByRole('link',{name:/Download exported audio/});
    if(await link.count()){
     const pending=page.waitForEvent('download');await link.click();const download=await pending;const path=`${root}/${name}-${download.suggestedFilename()}`;await download.saveAs(path);
     const reference=JSON.parse(execFileSync('ffprobe',['-v','error','-show_streams','-show_format','-of','json',path],{encoding:'utf8'}));

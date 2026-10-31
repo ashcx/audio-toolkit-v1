@@ -22,6 +22,6 @@ export async function recipeAction(page, name) {
 }
 export async function saveAction(page, name, role='button') {
   const action=page.getByRole(role,{name,exact:true});
-  if(!await action.isVisible())await page.getByText('Save results',{exact:true}).click();
+  if(!await action.isVisible())await page.getByRole('button',{name:'Save to device',exact:true}).click();
   return action;
 }

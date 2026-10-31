@@ -40,7 +40,7 @@ try{
   await page.getByLabel('Add step',{exact:true}).selectOption('isolation');
   await page.getByRole('combobox',{name:'Keep',exact:true}).selectOption(mode);
   const started=Date.now();await page.getByRole('button',{name:'Export',exact:true}).click();
-  const link=page.getByRole('link',{name:'Download',exact:true});
+  const link=page.getByRole('link',{name:/Download exported audio/});
   let finished=false;
   const status=(async()=>{while(!finished){await new Promise(resolve=>setTimeout(resolve,10_000));if(finished)break;const observation=await page.evaluate(()=>({models:window.__song.models,progress:window.__song.progress.at(-1),state:document.querySelector('[data-job-state]')?.dataset.jobState}));await writeFile(`${root}/status.json`,JSON.stringify({engine,mode,seconds:(Date.now()-started)/1000,...observation})+'\n');if(observation.state==='failed')throw new Error('Export failed; inspect private browser capture');}})();
   try{await Promise.race([link.waitFor(),status]);}finally{finished=true;await status.catch(()=>{});}

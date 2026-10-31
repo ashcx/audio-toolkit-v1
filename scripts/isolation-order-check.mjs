@@ -25,7 +25,7 @@ for(const[engine,type]of[['chromium',chromium],['webkit',webkit]]){
     if(kind==='isolation')await page.getByRole('combobox',{name:'Keep',exact:true}).selectOption(isolationFirst?'music':'voice');
     if(kind==='normalize')await setSlider(page,'Peak target (dBFS) slider',-6);
    }
-   await page.getByRole('button',{name:'Export',exact:true}).click();const link=page.getByRole('link',{name:'Download',exact:true});await link.waitFor();const pending=page.waitForEvent('download');await link.click();const output=await pending,path=`${root}/${engine}-${isolationFirst?'after':'before'}.wav`;await output.saveAs(path);
+   await page.getByRole('button',{name:'Export',exact:true}).click();const link=page.getByRole('link',{name:/Download exported audio/});await link.waitFor();const pending=page.waitForEvent('download');await link.click();const output=await pending,path=`${root}/${engine}-${isolationFirst?'after':'before'}.wav`;await output.saveAs(path);
    const info=JSON.parse(execFileSync('ffprobe',['-v','error','-show_streams','-of','json',path],{encoding:'utf8'})).streams[0];const bytes=execFileSync('ffmpeg',['-v','error','-i',path,'-f','f32le','-']);const samples=new Float32Array(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength));
    assert.equal(Number(info.sample_rate),16000);assert.equal(info.channels,1);assert.equal(samples.length,8000);assert(samples.every(Number.isFinite));
    const stats=await page.evaluate(()=>window.__stats.at(-1));assert.equal(stats.decodePasses,1);assert.equal(stats.terminalEncoders,1);assert.equal(stats.isolationPasses,1);assert.equal(stats.normalizationPasses,1);assert.equal(stats.isolationWindows,1);assert.equal(stats.encodedFrames,8000);

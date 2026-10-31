@@ -18,7 +18,7 @@ try{
   if(backend==='wasm'){
    await page.locator('[data-job-state=failed]').waitFor();assert.equal(await stores(),0);assert.equal(await page.evaluate(()=>window.__activeModels),0);assert.deepEqual(await page.evaluate(()=>window.__attempts),['auto']);await page.getByRole('button',{name:'Retry tone.wav',exact:true}).click();
   }
-  await page.getByRole('link',{name:'Download',exact:true}).waitFor();
+  await page.getByRole('link',{name:/Download exported audio/}).waitFor();
   assert.deepEqual(await page.evaluate(()=>window.__attempts),backend==='wasm'?['auto','auto']:['auto','wasm']);assert.equal(await page.evaluate(()=>window.__activeModels),0);
   await page.getByRole('button',{name:'Remove tone.wav',exact:true}).click();await page.waitForFunction(async()=>{const dir=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1');for await(const value of dir.values())return false;return true;});
   await page.unrouteAll();records.push({injectedStallBackend:backend,actualModelRetryCompleted:true,ownedStoresAfterRemoval:await stores()});await writeFile(`${root}/results.json`,JSON.stringify(records,null,2)+'\n');console.log(backend,'stall recovery passed');
@@ -28,8 +28,8 @@ try{
   await page.getByLabel('Choose audio or video files').setInputFiles('tests/fixtures/tone.wav');await page.locator('[data-inspection=ready]').waitFor();await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('wav');await page.getByLabel('Add step',{exact:true}).selectOption('isolation');
   const pattern=fault==='model'?'**/scnet.int8.onnx':'**/ort-wasm*.wasm';let intercepted=0;
   await page.route(pattern,route=>{intercepted++;return route.fulfill({status:404,body:'Not found'});});
-  await page.getByRole('button',{name:'Export',exact:true}).click();await page.locator('[data-job-state=failed]').waitFor();assert(intercepted>0);assert.equal(await stores(),0);assert.equal(await page.evaluate(()=>window.__activeModels),0);assert.equal(await page.getByRole('link',{name:'Download',exact:true}).count(),0);
-  await page.unrouteAll();await page.getByRole('button',{name:'Retry tone.wav',exact:true}).click();await page.getByRole('link',{name:'Download',exact:true}).waitFor();
+  await page.getByRole('button',{name:'Export',exact:true}).click();await page.locator('[data-job-state=failed]').waitFor();assert(intercepted>0);assert.equal(await stores(),0);assert.equal(await page.evaluate(()=>window.__activeModels),0);assert.equal(await page.getByRole('link',{name:/Download exported audio/}).count(),0);
+  await page.unrouteAll();await page.getByRole('button',{name:'Retry tone.wav',exact:true}).click();await page.getByRole('link',{name:/Download exported audio/}).waitFor();
   await page.getByRole('button',{name:'Remove tone.wav',exact:true}).click();await page.waitForFunction(async()=>{const dir=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1');for await(const value of dir.values())return false;return true;});
   records.push({missingAsset:fault,actualModelRetryCompleted:true,ownedStoresAfterRemoval:await stores()});await writeFile(`${root}/results.json`,JSON.stringify(records,null,2)+'\n');console.log(fault,'missing asset recovery passed');
  }
