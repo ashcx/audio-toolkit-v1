@@ -1,0 +1,8 @@
+step	decision	reason	evidence	result
+1	Prioritize speed with quality guardrail	Latest user instruction overrides earlier quality-first plan	todo/workspace-audio-refinement-sprints.md	No model replacement or strength change
+2	Reject unsupported larger actual model windows	Model input spectral time axis is fixed at476	Actual Chrome shape probe and pinned model metadata	15s and22s inputs rejected; do not substitute outer buffering
+3	Experiment with 55% overlap independently	User specifically requested the comparison	Fixed485100sample model input and streaming window tests	Default remains50%; new hop218295samples
+4	Bound session reuse to two windows	Initialization repeats for every baseline window; historical WebKit resource limit rejects unbounded reuse	docs/sprint-evidence/sprint-9/reliability/verification.md	Opt-in two-window experiment; default remains fresh worker
+5	Freeze production benchmark build	Other sprint source edits must not replace active workers	scripts/prepare-isolation-experiment.mjs	Dedicated ignored build directory
+6	Retain production default after scoped comparison	Owned memory, WebKit and affected-passage acceptance are incomplete	comparison-summary.json and historical WebKit resource evidence	Measured candidate remains opt-in diagnostic, not production speed claim
+7	Reject55percent as speed-only default	Six instead of five windows on19.043second fixture; output differs	Five interleaved warm runs per profile	Listening could justify optional quality tradeoff but no quality claim is made

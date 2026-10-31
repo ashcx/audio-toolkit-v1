@@ -1,0 +1,17 @@
+{
+  "status": "Passed retained-worker cancellation",
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36",
+  "shapeResult": null,
+  "cancellationResult": {
+    "cancelled": true,
+    "completedWindows": 1,
+    "retainedWorkerActiveBeforeAbort": 1,
+    "delayMs": 12,
+    "active": 0,
+    "storageFilesAfterRelease": 0
+  },
+  "active": 0,
+  "maxActive": 1,
+  "records": [],
+  "failures": []
+}

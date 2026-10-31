@@ -12,5 +12,5 @@ export type InferenceResult =
   | { kind: "error"; message: string; stage: "model" | "session" | "run"; backend: "wasm" | "webgpu+wasm" };
 export type InferenceRequest = { kind: "inference"; sequence: number; planes: Float32Array<ArrayBuffer>[] };
 export type InferenceReply =
-  | { kind: "done"; planes: Float32Array<ArrayBuffer>[]; backend: "wasm" | "webgpu+wasm"; attempts: number }
+  | { kind: "done"; planes: Float32Array<ArrayBuffer>[]; backend: "wasm" | "webgpu+wasm"; attempts: number; loads?: number }
   | { kind: "error"; message: string };

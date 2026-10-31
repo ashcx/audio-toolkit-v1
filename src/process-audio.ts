@@ -4,6 +4,7 @@ import type { JobEvent } from "./job-events";
 import { createOutputStore, type StoredOutput } from "./output-store";
 import type {
   DspStats,
+  IsolationExperiment,
   PcmPlan,
   StorageReply,
   StoreOperation,
@@ -21,13 +22,14 @@ export function processAudio(
   signal: AbortSignal,
   name: string,
   phase: (value: JobEvent) => void = () => undefined,
+  options: { isolation?: IsolationExperiment } = {},
 ): Promise<ProcessedOutput> {
   signal.throwIfAborted();
   return new Promise((resolve, reject) => {
     const worker = new Worker(new URL("./pcm-worker.ts", import.meta.url), {
       type: "module",
     });
-    const inference = new InferenceRunner();
+    const inference = new InferenceRunner(options.isolation?.workerWindows);
     let inferenceTask = Promise.resolve();
     let isolating = false;
     const stores = new Map<string, Entry>();
@@ -144,6 +146,7 @@ export function processAudio(
       file,
       plan,
       name,
+      isolation: options.isolation,
     } satisfies WorkerInput);
   });
 }

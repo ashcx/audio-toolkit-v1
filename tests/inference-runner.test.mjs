@@ -33,3 +33,17 @@ test('device status distinguishes tentative GPU, confirmed hybrid and sticky CPU
   pending=runner.run(planes,event=>events.push(event));fixture.workers[3].reply({kind:'backend',backend:'wasm'});assert.equal(events.filter(event=>event.kind==='isolation-device').at(-1).device,'cpu-fallback');fixture.workers[3].reply({kind:'done',planes,backend:'wasm'});await pending;runner.stop();
  }finally{fixture.restore();}
 });
+test('two-window experiment reuses one worker then releases it and counts actual loads',async()=>{
+ const fixture=fakeWorkers();try{
+  const runner=new InferenceRunner(2),planes=[new Float32Array([.1])];
+  let pending=runner.run(planes,()=>{});fixture.workers[0].reply({kind:'done',planes,backend:'wasm'});assert.equal((await pending).loads,1);assert.equal(fixture.workers[0].stopped,false);
+  pending=runner.run(planes,()=>{});assert.equal(fixture.workers.length,1);fixture.workers[0].reply({kind:'done',planes,backend:'wasm'});assert.equal((await pending).loads,0);assert.equal(fixture.workers[0].stopped,true);
+  pending=runner.run(planes,()=>{});assert.equal(fixture.workers.length,2);fixture.workers[1].reply({kind:'done',planes,backend:'wasm'});await pending;runner.stop();assert.equal(fixture.workers[1].stopped,true);
+ }finally{fixture.restore();}
+});
+test('stopping a retained idle worker releases it and refuses future work',async()=>{
+ const fixture=fakeWorkers();try{const runner=new InferenceRunner(2),planes=[new Float32Array([.1])],pending=runner.run(planes,()=>{});fixture.workers[0].reply({kind:'done',planes,backend:'wasm'});await pending;runner.stop();assert.equal(fixture.workers[0].stopped,true);await assert.rejects(runner.run(planes,()=>{}),error=>error.name==='AbortError');assert.equal(fixture.workers.length,1);}finally{fixture.restore();}
+});
+test('failure of a reused GPU worker closes it before one sticky CPU retry',async()=>{
+ const fixture=fakeWorkers();try{const runner=new InferenceRunner(2),planes=[new Float32Array([.1])];let pending=runner.run(planes,()=>{});fixture.workers[0].reply({kind:'done',planes,backend:'webgpu+wasm'});await pending;pending=runner.run(planes,()=>{});fixture.workers[0].reply({kind:'error',stage:'run',backend:'webgpu+wasm',message:'Device lost'});await tick();assert.equal(fixture.workers[0].stopped,true);assert.equal(fixture.workers[1].input.backend,'wasm');fixture.workers[1].reply({kind:'done',planes,backend:'wasm'});const result=await pending;assert.equal(result.attempts,2);assert.equal(result.loads,1);runner.stop();assert.equal(fixture.workers[1].stopped,true);}finally{fixture.restore();}
+});

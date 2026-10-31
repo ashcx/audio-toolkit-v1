@@ -34,21 +34,28 @@ async function usableGpu() {
   const info = "info" in adapter ? adapter.info : null;
   return !(info && typeof info === "object" && (("isFallbackAdapter" in info && info.isFallbackAdapter === true) || ("architecture" in info && info.architecture === "swiftshader")));
 }
+let retainedBackend: "wasm" | "webgpu+wasm" = "wasm";
+let retainedSession: Awaited<ReturnType<typeof load>> | null = null;
 self.onmessage = async ({ data }: MessageEvent<InferenceInput>) => {
   let backend: "wasm" | "webgpu+wasm" = "wasm";
   let stage: "model" | "session" | "run" = "model";
   try {
     const frames = data.planes[0]?.length;
     if (!frames || frames > ISOLATION_WINDOW || data.planes.length < 1 || data.planes.length > 2 || data.planes.some(plane => plane.length !== frames)) throw new Error("This isolation window is unsupported.");
-    if (data.backend === "auto" && await usableGpu()) backend = "webgpu+wasm";
+    if (retainedSession) backend = retainedBackend;
+    else if (data.backend === "auto" && await usableGpu()) backend = "webgpu+wasm";
     report({ kind: "backend", backend });
     const base = new URL(import.meta.env.BASE_URL + "vendor/neural/", self.location.href);
-    const bytes = await modelBytes(base);
-    report({ kind: "phase", phase: "Loading model" });stage = "session";
+    if (!retainedSession) {
+      const bytes = await modelBytes(base);
+      report({ kind: "phase", phase: "Loading model" });stage = "session";
+      retainedSession = await load(bytes, { backend: backend === "wasm" ? "wasm" : "webgpu", executionProviders: backend === "wasm" ? ["wasm"] : ["webgpu", "wasm"], wasmPaths: base.href, threads: 1, sessionOptions: { enableCpuMemArena: false, enableMemPattern: false } });
+      retainedBackend = backend;
+    }
+    const session = retainedSession;
     const result = await separate(data.planes, {
       sampleRate: 44100, model: "scnet", targets: ["vocals"], step: 1, standardize: false,
       session: async () => {
-        const session = await load(bytes, { backend: backend === "wasm" ? "wasm" : "webgpu", executionProviders: backend === "wasm" ? ["wasm"] : ["webgpu", "wasm"], wasmPaths: base.href, threads: 1, sessionOptions: { enableCpuMemArena: false, enableMemPattern: false } });
         stage = "run";report({ kind: "phase", phase: "Separating" });
         return {
           inputs: session.inputs.map(input => ({ name: input.name })), outputs: session.outputs,
@@ -65,7 +72,6 @@ self.onmessage = async ({ data }: MessageEvent<InferenceInput>) => {
             }
             return result;
           },
-          free: session.free,
         };
       },
     });
