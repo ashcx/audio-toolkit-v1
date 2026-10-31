@@ -37,7 +37,7 @@ Final runner output: `PASS: all independent loudness/true-peak tolerances met.`
 
 The first implementation compared the source true peak with the ceiling before applying the requested gain. A quiet, high-crest source targeted upward therefore bypassed the ceiling. The reviewer reproduced it in Chrome: the transient fixture at -8 LUFS with a -0.3 dBTP ceiling reported `Loudness target reached. Achieved -8.0 LUFS.` and `Clipped samples.`
 
-The comparison now uses `guardedTruePeak * gainFactor`, so it judges the peak after gain. A regression test builds a quiet burst signal whose source peak is below the ceiling but whose requested gain would exceed it; it fails against the old comparison and passes now. A 16 kHz burst export at -8 LUFS with a -0.3 dBTP ceiling reported `Peak ceiling limited loudness. Achieved -11.1 LUFS at an estimated -1.3 dBTP.` ffmpeg measured the exported file at -0.4 dBTP, so the ceiling held and no clipped samples were reported. The full suite is 119 passing tests.
+The comparison now uses `guardedTruePeak * gainFactor`, so it judges the peak after gain. A regression test builds a quiet burst signal whose source peak is below the ceiling but whose requested gain would exceed it; it fails against the old comparison and passes now. A 16 kHz burst export at -8 LUFS with a -0.3 dBTP ceiling reported `Peak ceiling limited loudness. Achieved -11.1 LUFS at an estimated -1.3 dBTP.` ffmpeg measured the exported file at -0.4 dBTP, so the ceiling held and no clipped samples were reported. The full suite is 123 passing tests.
 
 ## Unit-level checks
 

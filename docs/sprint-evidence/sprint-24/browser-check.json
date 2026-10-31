@@ -1,5 +1,5 @@
 {
-  "appUrl": "http://127.0.0.1:5185/audio-toolkit-v1/",
+  "appUrl": "http://127.0.0.1:4174/audio-toolkit-v1/",
   "browser": "chrome",
   "captures": [
     "docs/sprint-evidence/sprint-24/captures/01-loudness-rail.png",

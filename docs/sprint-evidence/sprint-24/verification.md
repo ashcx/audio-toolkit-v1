@@ -4,7 +4,7 @@
 
 ## Commands and results
 
-- `npm test`: 119 tests, 119 pass, 0 fail.
+- `npm test`: 123 tests, 123 pass, 0 fail.
 - `npm run build`: pass, including the AAC, neural and worker-import checks.
 - `npm run verify:static`: pass.
 - `node --experimental-strip-types /Users/macbook/Documents/test/audio-toolkit-v1/.artifacts/loudness-reference.mjs`: PASS on all seven ffmpeg EBU R128 rows.
@@ -23,7 +23,7 @@
 
 ## Review
 
-Two independent reviewers covered the sprint. Their first round found four blocking issues: the ceiling under-read, the unqualified final-loudness claim, the peak mode using dBFS sample peak instead of dBTP true peak, and stale checks. All four were fixed and reproduced clean. The second round at `901ef26` resolved the behavior findings; the only remaining stale-check finding was fixed in `49d2da9` and `a07b86c`, and the root reran the updated checks successfully. The peak result now says `Peak target applied` because the 1.0 dB guard sits below the requested target.
+Two independent reviewers covered the sprint. Their first round found four blocking issues: the ceiling under-read, the unqualified final-loudness claim, the peak mode using dBFS sample peak instead of dBTP true peak, and stale checks. All four were fixed and reproduced clean. The second round resolved the behavior findings; the only remaining stale-check finding was fixed in later commits. After the rebase onto Sprint 25, the root reran the updated checks on the merged tree successfully. The peak result now says `Peak target applied` because the 1.0 dB guard sits below the requested target.
 
 ## Gaps
 
