@@ -4,7 +4,7 @@
 
 | Format and backend | CBR | VBR | ABR | Evidence |
 | --- | --- | --- | --- | --- |
-| MP3, LAME wasm | yes | no | no | 835 packets, all 384 bytes at 128 kbps in the final UI audit. A worker-level audit with `bitrateMode: "variable"` produced the same 833 packets of 384 bytes and the same file size. The adapter passes only a bitrate to LAME. |
+| MP3, LAME wasm | yes | no | no | 835 packets, all 384 bytes at 128 kbps in the final UI audit. The LAME adapter receives a bitrate only, so no VBR flag reaches it and the UI offers CBR only. |
 | M4A/AAC, native WebCodecs | no | yes, adaptive | no | At a 128 kbps target, the 20 s tone file was 101 kbps, the transient file 27.8 kbps and silence 4.1 kbps. The encoder adapts to content. A 192 kbps target tone measured 127.7 kbps in the reviewer probe. No mode control is shown; the bitrate is a target. |
 | Opus, native WebCodecs | yes | yes | no | CBR: 1001 packets, all 320 bytes. VBR: 1001 packets, 74 sizes, 259 to 510 bytes, median 334. Silence VBR was 4,221 bytes against 323,484 for CBR. |
 | WAV, PCM s16 | n/a | n/a | n/a | No bitrate or mode control. |

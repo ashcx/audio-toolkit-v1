@@ -6,9 +6,9 @@
 
 - `npm test` from `/private/tmp/audio-sprint26`: 104 tests, 104 pass, 0 fail.
 - `npm run build`: pass. Vite reports only its Node 22.11 and chunk-size warnings.
-- `APP_URL=http://127.0.0.1:5184/audio-toolkit-v1/ node scripts/sprint-26-check.mjs`: 13 real exports pass. Opus CBR had one packet size, Opus VBR had 74, MP3 had one, AAC varied with content.
-- `PATH=/opt/homebrew/bin:$PATH FORMAT_CHECK_ENGINE=chromium FORMAT_CHECK_FORMAT=opus APP_URL=http://127.0.0.1:5184/audio-toolkit-v1/ node scripts/format-check.mjs`: 11 Opus downloads plus invalid-setting recovery pass, including the VBR path.
-- The earlier worker-level audit at `.artifacts/encode-audit` compared `bitrateMode` constant and variable. The flag was ignored by MP3 and AAC; Opus changed from fixed 320-byte packets to 259-452-byte packets. AAC's content-dependent bitrate still varied, so the UI calls it adaptive rather than CBR.
+- `APP_URL=http://127.0.0.1:4175/audio-toolkit-v1/ node scripts/sprint-26-check.mjs`: 13 real exports pass. Opus CBR had one packet size, Opus VBR had 74, MP3 had one, AAC varied with content.
+- `PATH=/opt/homebrew/bin:$PATH FORMAT_CHECK_ENGINE=chromium FORMAT_CHECK_FORMAT=opus APP_URL=http://127.0.0.1:4175/audio-toolkit-v1/ node scripts/format-check.mjs`: 11 Opus downloads plus invalid-setting recovery pass, including the VBR path.
+- The LAME adapter receives a bitrate only, with no VBR flag in the path. MP3 therefore shows CBR only, and its export produced a single packet size of 384 bytes. Opus CBR produced fixed 320-byte packets; VBR produced 74 sizes from 259 to 510 bytes. AAC's content-dependent bitrate still varied, so the UI calls it adaptive rather than CBR.
 
 ## Observed
 
