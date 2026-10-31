@@ -19,3 +19,9 @@ Editing gain invalidated both retained players. With batch trim 10–28 seconds,
 The integrated 91-test suite and production build passed. Terra's follow-up review of the automatic-export integration and player CSS passed eight focused tests with no verified regressions. A roughly 30-second actual Chrome screencast records on-demand preview generation, closure, recipe editing and regeneration in interaction.mp4.
 
 Physical devices, subjective listening acceptance and context-sensitive full-file equivalence remain unverified. Excerpt estimation is explicitly labelled. No audio-quality or speedup claim is established by these UI checks.
+
+## Cross-sprint compatibility
+
+A temporary detached checkout combined Sprint 23 at 57b37ce with isolation Sprint 21 at a3cc527. Git merged the worker and protocol changes without conflicts. All 96 combined tests passed, followed by a successful production build and worker-import check. See combined-tests.txt and combined-build.txt. This was a local compatibility check, not a merge or deployment.
+
+The sprint PRs are https://github.com/ashcx/audio-toolkit-v1/pull/24, https://github.com/ashcx/audio-toolkit-v1/pull/25 and https://github.com/ashcx/audio-toolkit-v1/pull/26. The preview PR targets the workspace branch. Both earlier sprint PRs target main.
