@@ -1,7 +1,7 @@
 import type { InferenceRequest, InferenceReply } from "../inference/protocol";
 import type { JobOperation } from "../job-events";
 import type { ExecutionPlan } from "../planner";
-export type PcmPlan = Extract<ExecutionPlan, { kind: "pcm" }>;
+export type PcmPlan = Extract<ExecutionPlan, { kind: "pcm" }> & Readonly<{ previewRange?: import("../preview-plan").PreviewRange }>;
 export type StoreOperation =
   | { op: "create"; name: string; mime: string }
   | { op: "write"; id: string; position: number; data: Uint8Array<ArrayBuffer> }

@@ -5,6 +5,7 @@ import { useFiles } from "./use-files";
 import { FileRow } from "./file-row";
 import { useFolderSave } from "./use-folder-save";
 import { useArchive } from "./use-archive";
+import { usePreview } from "./use-preview";
 import { useExport } from "./use-export";
 import { compilePlan } from "./planner";
 import { automaticExport } from "./export-default";
@@ -35,7 +36,7 @@ function App() {
   const completed = [...exports.jobs.values()].flatMap(job => job.state.kind === "done" ? [job.state] : []);
   const archive = useArchive(completed.map(result => result.url).join("|"));
   const folder = useFolderSave(completed.map(result => result.url).join("|"));
-  const locked = exports.busy || archive.busy || folder.busy;
+  const deliveryLocked = exports.busy || archive.busy || folder.busy;
   useLayoutEffect(() => {
     const dismiss = (event: Event) => {
       if (!(event.target instanceof Node)) return;
@@ -52,6 +53,9 @@ function App() {
   const [explicitFormat, setExplicitFormat] = useState(false);
   const [overrides, setOverrides] = useState(new Map<FileId, TrimRangeDraft>());
   const draft = explicitFormat ? recipeDraft : {...recipeDraft, export: automaticExport(recipeDraft,files,overrides)};
+  const preview = usePreview(JSON.stringify([draft, [...overrides], files.map(entry => [entry.id, entry.inspection])]));
+  const locked = deliveryLocked;
+  const workLocked = locked || preview.busy;
   const settings = useRef<HTMLDialogElement>(null);
   const exportButton = useRef<HTMLButtonElement>(null);
   const pendingResultFocus = useRef(false);
@@ -241,10 +245,18 @@ function App() {
                     trim={trim?.range}
                     plan={plans.get(entry.id) ?? null}
                     job={exports.jobs.get(entry.id)}
-                    busy={locked || exports.cleanupCount > 0}
+                    preview={preview.state.kind !== "idle" && preview.state.fileId === entry.id ? preview.state : undefined}
+                    previewDisabled={workLocked || exports.cleanupCount > 0 || !parsedRecipe.success}
+                    onPreview={() => {
+                      if (workLocked || exports.cleanupCount > 0 || !parsedRecipe.success) return;
+                      const effective = snapshotForFile(parsedRecipe.data, entry, overrides.get(entry.id));
+                      if (effective.kind === "ready") preview.start(entry, effective.snapshot);
+                    }}
+                    onClearPreview={preview.clear}
+                    busy={workLocked || exports.cleanupCount > 0}
                     downloadBusy={archive.busy || folder.busy}
                     onCancel={() => exports.cancel(entry.id)}
-                    onRetry={() => exports.retry(entry.id)}
+                    onRetry={() => { if (!preview.busy) exports.retry(entry.id); }}
                     override={overrides.get(entry.id)}
                     onOverride={(range) => {
 
@@ -297,14 +309,17 @@ function App() {
             return changed;
           }}>
         <div class="run-actions">
+          {preview.state.kind === "cleanup" && !files.map(entry => entry.id).includes(preview.state.fileId) && <>
+            <span role="status">{preview.state.message}</span><button type="button" onClick={preview.clear}>Retry preview cleanup</button>
+          </>}
           {completed.length > 0 && <details class="delivery-menu" onKeyDown={event=>{
             if(event.key === "Escape") {event.currentTarget.open=false;event.currentTarget.querySelector<HTMLElement>("summary")?.focus();}
           }}>
             <summary role="button" class="button">Save results</summary>
             <div class="delivery-options">
               {archive.state.kind === "ready" ? <a class="button" href={archive.state.url} download={archive.state.output.name}>Download ZIP</a>
-                : <button type="button" disabled={locked || exports.cleanupCount > 0} onClick={() => archive.start(completed.map(result => result.output.file))}>Create ZIP</button>}
-              {folder.supported && <button type="button" disabled={locked || exports.cleanupCount > 0} onClick={event => {
+                : <button type="button" disabled={workLocked || exports.cleanupCount > 0} onClick={() => archive.start(completed.map(result => result.output.file))}>Create ZIP</button>}
+              {folder.supported && <button type="button" disabled={workLocked || exports.cleanupCount > 0} onClick={event => {
                 event.currentTarget.closest("details")?.removeAttribute("open");
                 void folder.start(completed.map(result => result.output.file));
               }}>Save to folder</button>}
@@ -331,13 +346,13 @@ function App() {
             ref={exportButton}
             class="button primary"
             type="button"
-            disabled={locked || exports.cleanupCount > 0 || !jobs.length}
+            disabled={workLocked || exports.cleanupCount > 0 || !jobs.length}
             onClick={() => void exports.run(jobs)}
           >
             Export
           </button>
           {exports.busy && <button type="button" onClick={exports.cancelAll}>Cancel all</button>}
-          {!locked && exports.cleanupCount === 0 && [...exports.jobs.values()].some(job => job.state.kind === "failed") &&
+          {!workLocked && exports.cleanupCount === 0 && [...exports.jobs.values()].some(job => job.state.kind === "failed") &&
             <button type="button" onClick={() => exports.retry()}>Retry failed</button>}
           {exports.cleanupCount > 0 && <>
             <span role="status">Temporary files need cleanup.</span>

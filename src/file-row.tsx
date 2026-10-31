@@ -5,6 +5,7 @@ import { resolveTrim, type TrimRangeDraft } from "./recipe";
 import type { ExecutionPlan } from "./planner";
 import type { BatchJob } from "./batch";
 import type { JobOperation, IsolationDevice } from "./job-events";
+import type { PreviewState } from "./preview";
 import { TrimFields } from "./trim-fields";
 const DEVICES: Record<IsolationDevice, { label: string; description: string }> = {
   "preparing-gpu": { label: "Trying GPU", description: "Checking GPU-assisted separation. Processing has not succeeded yet." },
@@ -32,7 +33,15 @@ export function FileRow({
   onOverride,
   onReset,
   onRemove,
+  preview,
+  previewDisabled,
+  onPreview,
+  onClearPreview,
 }: {
+  preview: Exclude<PreviewState, { kind: "idle" }> | undefined;
+  previewDisabled: boolean;
+  onPreview: () => void;
+  onClearPreview: () => void;
   entry: FileEntry;
   plan: ExecutionPlan | null;
   job: BatchJob | undefined;
@@ -97,6 +106,7 @@ export function FileRow({
         )}
       </span>
       <div class="file-actions">
+        {entry.inspection.kind === "ready" && <button type="button" disabled={previewDisabled || result?.kind === "failed"} aria-label={`Preview ${entry.file.name}`} onClick={onPreview}>Preview</button>}
         {trim && entry.inspection.kind === "ready" && (
           <button
             type="button"
@@ -119,6 +129,20 @@ export function FileRow({
           ×
         </button>
       </div>
+      {preview && <div class="file-preview" data-preview-state={preview.kind}>
+        {preview.kind === "ready" ? <>
+          <small>Preview · {formatTime(preview.range.start)} to {formatTime(preview.range.end)} · WAV comparison</small>
+          {preview.estimate && <small>Excerpt estimate. Normalization and isolation may differ with full-track context.</small>}
+          <label>Original<audio controls preload="none" src={preview.original} aria-label={`Original preview ${entry.file.name}`} onPlay={event => { for (const audio of document.querySelectorAll("audio")) if (audio !== event.currentTarget) audio.pause(); }} /></label>
+          <label>Processed<audio controls preload="none" src={preview.processed} aria-label={`Processed preview ${entry.file.name}`} onPlay={event => { for (const audio of document.querySelectorAll("audio")) if (audio !== event.currentTarget) audio.pause(); }} /></label>
+          <button type="button" onClick={onClearPreview}>Close preview</button>
+        </> : preview.kind === "running" ? <>
+          <span role="status">Preview · {preview.stage === "original" ? "Preparing original" : "Processing excerpt"} · {preview.operation.kind === "isolation-device" ? DEVICES[preview.operation.device].label : operationLabel(preview.operation)}</span>
+          <button type="button" onClick={onClearPreview}>Cancel preview</button>
+        </> : preview.kind === "cleanup" ? <>
+          <span role="status">{preview.message}</span><button type="button" onClick={onClearPreview}>Retry preview cleanup</button>
+        </> : <span role="status">{preview.kind === "failed" ? preview.message : preview.kind === "cancelling" ? "Cancelling preview…" : "Cleaning up preview…"}</span>}
+      </div>}
       {exported && (
         <div class="file-result" role="status">
           {previousSettings && <small>Previous settings</small>}
