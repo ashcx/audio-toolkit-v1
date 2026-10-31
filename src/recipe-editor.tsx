@@ -17,6 +17,14 @@ import { TrimFields } from "./trim-fields";
 import { formatTime } from "./format";
 import { levelDb } from "./levels";
 import { useLevels } from "./use-levels";
+import {
+  LOUDNESS_MARKS,
+  LOUDNESS_MAX,
+  LOUDNESS_MIN,
+  lufsFromPosition,
+  positionForLufs,
+  stepLufs,
+} from "./loudness-rail";
 import type { FileEntry } from "./media";
 
 function summary(step: StepDraft): string {
@@ -32,10 +40,21 @@ function summary(step: StepDraft): string {
       return Number.isFinite(step.db)
         ? `${step.db} dB${step.db > 0 ? " · May clip" : ""}`
         : "Set gain";
-    case "normalize":
-      return Number.isFinite(step.targetDbfs)
-        ? `${step.targetDbfs} dBFS`
-        : "Set target";
+    case "normalize": {
+      const mode = step.mode ?? "peak";
+      if (mode === "peak") {
+        if (Number.isFinite(step.targetDbtp))
+          return `Peak · ${step.targetDbtp} dBTP`;
+        return Number.isFinite(step.targetDbfs)
+          ? `Peak · ${step.targetDbfs} dBFS (legacy)`
+          : "Set peak target";
+      }
+      return Number.isFinite(step.targetLufs) && Number.isFinite(step.ceilingDbtp)
+        ? `Loudness · ${step.targetLufs} LUFS · ${step.ceilingDbtp} dBTP`
+        : "Set loudness target";
+    }
+    case "compress":
+      return `${step.enabled && step.amount > 0 ? "On" : "Bypass"} · ${step.preset === "speech" ? "Speech" : "Music"} · ${step.amount}%`;
     case "channels":
       return step.channels === "original"
         ? "Keep unchanged"
@@ -72,17 +91,17 @@ function SourceLevels({ files, enabled }: {files: readonly FileEntry[]; enabled:
       </>}
   </div>;
 }
-function DbControl({ label, value, min, max, errorId, onChange }: {
-  label: string; value: number; min: number; max: number; errorId?: string;
+function DbControl({ label, value, min, max, unit = "dB", errorId, onChange }: {
+  label: string; value: number; min: number; max: number; unit?: string; errorId?: string;
   onChange: (value: number) => void;
 }) {
   const sliderValue = Number.isFinite(value) ? Math.round(Math.max(min, Math.min(max, value)) * 10) / 10 : min;
   return <div class="db-control">
-    <div class="parameter-heading"><span>{label}</span><output>{Number.isFinite(value) ? value : "Unset"} <small>dB</small></output></div>
+    <div class="parameter-heading"><span>{label}</span><output>{Number.isFinite(value) ? value : "Unset"} <small>{unit}</small></output></div>
     <input type="range" min={min} max={max} step="0.1" aria-invalid={!!errorId} aria-describedby={errorId}
-      aria-label={`${label} slider`} aria-valuetext={`${sliderValue} dB`} value={sliderValue}
+      aria-label={`${label} slider`} aria-valuetext={`${sliderValue} ${unit}`} value={sliderValue}
       onInput={event => onChange(event.currentTarget.valueAsNumber)} />
-    <div class="parameter-scale"><span>{min} dB</span><span>{max} dB</span></div>
+    <div class="parameter-scale"><span>{min} {unit}</span><span>{max} {unit}</span></div>
     {label === "Gain (dB)" && value > 0 && <small class="file-error">May clip. Check the exported result.</small>}
   </div>;
 }
@@ -93,6 +112,92 @@ function Choices<T extends string>({ label, value, options, onChange }: {
   return <fieldset class="segmented"><legend>{label}</legend>{options.map(option =>
     <label><input type="radio" name={name} value={option.value} checked={value === option.value}
       onChange={() => onChange(option.value)} />{option.label}</label>)}</fieldset>;
+}
+function LoudnessRail({ value, errorId, onChange }: {
+  value: number; errorId?: string; onChange: (value: number) => void;
+}) {
+  const rail = useRef<HTMLDivElement>(null);
+  const marksId = useId();
+  const current = Number.isFinite(value)
+    ? Math.max(LOUDNESS_MIN, Math.min(LOUDNESS_MAX, value))
+    : -14;
+  const position = positionForLufs(current);
+  const pointerValue = (clientX: number) => {
+    const box = rail.current?.getBoundingClientRect();
+    if (!box || box.width <= 0) return current;
+    return lufsFromPosition((clientX - box.left) / box.width);
+  };
+  return <div class="loudness-control">
+    <div class="parameter-heading"><span>Loudness target</span><output>{current} <small>LUFS</small></output></div>
+    <div
+      ref={rail}
+      class="lufs-rail"
+      role="slider"
+      tabIndex={0}
+      aria-label="Loudness target"
+      aria-orientation="horizontal"
+      aria-valuemin={LOUDNESS_MIN}
+      aria-valuemax={LOUDNESS_MAX}
+      aria-valuenow={current}
+      aria-valuetext={`${current} LUFS`}
+      aria-invalid={!!errorId}
+      aria-describedby={[marksId, errorId].filter(Boolean).join(" ") || undefined}
+      onPointerDown={event => {
+        if (event.button !== 0) return;
+        event.currentTarget.setPointerCapture(event.pointerId);
+        onChange(pointerValue(event.clientX));
+      }}
+      onPointerMove={event => {
+        if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
+        onChange(pointerValue(event.clientX));
+      }}
+      onPointerUp={event => {
+        if (event.currentTarget.hasPointerCapture(event.pointerId))
+          event.currentTarget.releasePointerCapture(event.pointerId);
+      }}
+      onPointerCancel={event => {
+        if (event.currentTarget.hasPointerCapture(event.pointerId))
+          event.currentTarget.releasePointerCapture(event.pointerId);
+      }}
+      onKeyDown={event => {
+        const steps =
+          event.key === "ArrowRight" || event.key === "ArrowUp" ? 1
+            : event.key === "ArrowLeft" || event.key === "ArrowDown" ? -1
+              : event.key === "PageUp" ? 2
+                : event.key === "PageDown" ? -2
+                  : 0;
+        if (steps) {
+          event.preventDefault();
+          onChange(stepLufs(current, steps));
+        } else if (event.key === "Home") {
+          event.preventDefault();
+          onChange(LOUDNESS_MIN);
+        } else if (event.key === "End") {
+          event.preventDefault();
+          onChange(LOUDNESS_MAX);
+        }
+      }}
+    >
+      <div class="lufs-track">
+        <span class="lufs-fill" style={{ width: `${position * 100}%` }} />
+        {LOUDNESS_MARKS.map(mark => (
+          <span class="lufs-mark" style={{ left: `${positionForLufs(mark.value) * 100}%` }} />
+        ))}
+        <span class="lufs-thumb" style={{ left: `${position * 100}%` }} />
+      </div>
+    </div>
+    <div class="lufs-marks" aria-hidden="true">
+      {LOUDNESS_MARKS.map(mark => (
+        <span class={`lufs-mark-label ${mark.kind}`}>
+          <b>{mark.value} LUFS</b> {mark.label}
+        </span>
+      ))}
+    </div>
+    <small class="panel-description">Only -23 LUFS is a formal delivery target here. Other marks are references, not platform guarantees.</small>
+    <p id={marksId} class="sr-only">
+      Reference marks: {LOUDNESS_MARKS.map(mark => `${mark.value} LUFS, ${mark.label}`).join("; ")}.
+    </p>
+  </div>;
 }
 function StepFields({
   step,
@@ -123,8 +228,66 @@ function StepFields({
       );
     case "gain":
       return <><SourceLevels files={files} enabled={analysisEnabled} /><DbControl label="Gain (dB)" value={step.db} min={-12} max={12} errorId={errorId} onChange={db => onChange({...step, db})} /></>;
-    case "normalize":
-      return <><SourceLevels files={files} enabled={analysisEnabled} /><DbControl label="Peak target (dBFS)" value={step.targetDbfs} min={-60} max={0} errorId={errorId} onChange={targetDbfs => onChange({...step, targetDbfs})} /></>;
+    case "normalize": {
+      const mode = step.mode ?? "peak";
+      const targetLufs = step.targetLufs ?? -14;
+      const ceilingDbtp = step.ceilingDbtp ?? -0.3;
+      const targetDbtp = step.targetDbtp ?? -0.3;
+      const legacyDbfs = step.targetDbfs;
+      return <>
+        <SourceLevels files={files} enabled={analysisEnabled} />
+        <Choices label="Normalize mode" value={mode} options={[
+          { value: "loudness", label: "Loudness" }, { value: "peak", label: "Peak" },
+        ]} onChange={next => onChange(next === "loudness"
+          ? { id: step.id, kind: "normalize", mode: "loudness", targetLufs, ceilingDbtp }
+          : { id: step.id, kind: "normalize", mode: "peak", targetDbtp })} />
+        {mode === "loudness" ? <>
+          <LoudnessRail value={targetLufs} errorId={errorId} onChange={targetLufs =>
+            onChange({ id: step.id, kind: "normalize", mode: "loudness", targetLufs, ceilingDbtp })} />
+          <DbControl label="True-peak ceiling (dBTP)" value={ceilingDbtp} min={-6} max={0} unit="dBTP" errorId={errorId}
+            onChange={ceilingDbtp => onChange({ id: step.id, kind: "normalize", mode: "loudness", targetLufs, ceilingDbtp })} />
+          <small class="panel-description">Gated integrated loudness is measured in 400 ms blocks. The true-peak ceiling can prevent the requested loudness; the export reports the achieved result at this step. Later gain or compressor steps can change the final level.</small>
+        </> : legacyDbfs !== undefined ? <>
+          <DbControl label="Legacy peak target (dBFS)" value={legacyDbfs} min={-60} max={0} unit="dBFS" errorId={errorId}
+            onChange={targetDbfs => onChange({ id: step.id, kind: "normalize", mode: "peak", targetDbfs })} />
+          <small class="panel-description">This recipe keeps its original sample-peak meaning. New peak steps use true peak.</small>
+          <button type="button" class="text-button"
+            onClick={() => onChange({ id: step.id, kind: "normalize", mode: "peak", targetDbtp })}>Use a true-peak target</button>
+        </> : <>
+          <DbControl label="Peak target (dBTP)" value={targetDbtp} min={-6} max={0} unit="dBTP" errorId={errorId}
+            onChange={targetDbtp => onChange({ id: step.id, kind: "normalize", mode: "peak", targetDbtp })} />
+          <small class="panel-description">Peak mode aims at the requested true peak. The reported peak is this app's estimate, so another meter can read a little differently. The loudness target is not used.</small>
+        </>}
+      </>;
+    }
+    case "compress":
+      return <>
+        <SourceLevels files={files} enabled={analysisEnabled} />
+        <label class="checkbox-field">
+          <input type="checkbox" checked={step.enabled}
+            onChange={event => onChange({ ...step, enabled: event.currentTarget.checked })} />
+          Enable compressor
+        </label>
+        <div class="compressor-control">
+          <div class="parameter-heading"><span>Amount</span><output>{step.amount} <small>%</small></output></div>
+          <input type="range" min="0" max="100" step="1" value={step.amount}
+            aria-label="Compression amount" aria-valuetext={`${step.amount}%`}
+            onInput={event => onChange({ ...step, amount: event.currentTarget.valueAsNumber })} />
+          <div class="parameter-scale"><span>Gentle</span><span>Strong</span></div>
+        </div>
+        <label class="field">
+          Preset
+          <select value={step.preset} onChange={event => {
+            const next = stepSchema.safeParse({ ...step, preset: event.currentTarget.value });
+            if (next.success) onChange(next.data);
+          }}>
+            <option value="speech">Speech</option>
+            <option value="music">Music</option>
+          </select>
+        </label>
+        <small class="panel-description">Loud parts are turned down more than quiet parts, so speech stays even without automatic makeup gain.</small>
+        <small class="panel-description">Compressor before loudness normalization avoids downstream gain changes. Explicit step order is respected.</small>
+      </>;
     case "channels":
       return <Choices label="Channels" value={step.channels} options={[
         {value:"original",label:"Unchanged"}, {value:"mono",label:"Mono"}, {value:"stereo",label:"Stereo"}

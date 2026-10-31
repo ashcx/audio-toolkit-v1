@@ -39,6 +39,61 @@ test('one invalid file range stays isolated and unknown duration keeps the open 
  const unknown=snapshotForFile(recipe,file(null));assert.equal(unknown.kind,'ready');assert.equal(unknown.snapshot.trim.end,null);
 });
 
+test('normalize defaults to loudness while legacy peak recipes keep their meaning', () => {
+ const loudness=newStep('normalize');
+ assert.deepEqual(loudness,{id:loudness.id,kind:'normalize',mode:'loudness',targetLufs:-14,ceilingDbtp:-0.3});
+ const legacy={id:crypto.randomUUID(),kind:'normalize',targetDbfs:-1};
+ const parsed=recipeSchema.parse({...newRecipe(),steps:[legacy]});
+ assert.equal(parsed.steps[0].mode,'peak');
+ assert.equal(parsed.steps[0].targetDbfs,-1);
+ assert.equal(parsed.steps[0].targetLufs,undefined);
+ assert.equal(parsed.steps[0].targetDbtp,undefined);
+ const truePeak={id:crypto.randomUUID(),kind:'normalize',mode:'peak',targetDbtp:-0.3};
+ const parsedTruePeak=recipeSchema.parse({...newRecipe(),steps:[truePeak]});
+ assert.equal(parsedTruePeak.steps[0].targetDbtp,-0.3);
+ assert.equal(parsedTruePeak.steps[0].targetDbfs,undefined);
+});
+test('normalize rejects mixed mode fields and out-of-range loudness or ceiling values', () => {
+ const base=newRecipe();
+ const step=overrides=>({id:crypto.randomUUID(),kind:'normalize',...overrides});
+ const valid=[
+  step({mode:'loudness',targetLufs:-23,ceilingDbtp:-1}),
+  step({mode:'loudness',targetLufs:-8,ceilingDbtp:0}),
+  step({mode:'peak',targetDbfs:-60}),
+  step({mode:'peak',targetDbfs:0}),
+  step({mode:'peak',targetDbtp:-6}),
+  step({mode:'peak',targetDbtp:0}),
+ ];
+ for(const value of valid)assert.equal(recipeSchema.safeParse({...base,steps:[value]}).success,true,JSON.stringify(value));
+ const invalid=[
+  step({mode:'loudness',targetLufs:-14,ceilingDbtp:-1,targetDbfs:-1}),
+  step({mode:'loudness',targetLufs:-14,ceilingDbtp:-1,targetDbtp:-1}),
+  step({mode:'loudness',targetLufs:-14}),
+  step({mode:'loudness',ceilingDbtp:-1}),
+  step({mode:'loudness',targetLufs:-14.2,ceilingDbtp:-1}),
+  step({mode:'loudness',targetLufs:-7.5,ceilingDbtp:-1}),
+  step({mode:'loudness',targetLufs:-14,ceilingDbtp:-6.1}),
+  step({mode:'loudness',targetLufs:-14,ceilingDbtp:0.1}),
+  step({mode:'peak',targetDbfs:-1,targetLufs:-14}),
+  step({mode:'peak',targetDbfs:-1,ceilingDbtp:-1}),
+  step({mode:'peak'}),
+  step({mode:'peak',targetDbfs:-61}),
+  step({mode:'peak',targetDbtp:-6.1}),
+  step({mode:'peak',targetDbtp:0.1}),
+  step({mode:'peak',targetDbtp:-1,targetDbfs:-1}),
+ ];
+ for(const value of invalid)assert.equal(recipeSchema.safeParse({...base,steps:[value]}).success,false,JSON.stringify(value));
+});
+test('compressor steps start bypassed and bound amount plus preset', () => {
+ const compressor=newStep('compress');
+ assert.deepEqual(compressor,{id:compressor.id,kind:'compress',enabled:false,amount:50,preset:'speech'});
+ const base=newRecipe();
+ const step=overrides=>({...compressor,...overrides});
+ for(const value of [step({}),step({enabled:true,amount:0,preset:'music'}),step({enabled:true,amount:100})])
+  assert.equal(recipeSchema.safeParse({...base,steps:[value]}).success,true);
+ for(const value of [step({amount:-1}),step({amount:101}),step({preset:'voice'}),step({enabled:'yes'})])
+  assert.equal(recipeSchema.safeParse({...base,steps:[value]}).success,false,JSON.stringify(value));
+});
 test('voice isolation has one bounded model selection per recipe', () => {
  const first = newStep('speech'), second = newStep('speech');
  assert.equal(recipeSchema.safeParse({ ...newRecipe(), steps: [first] }).success, true);

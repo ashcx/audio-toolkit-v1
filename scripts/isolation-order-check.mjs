@@ -8,7 +8,7 @@ const root=process.env.ISOLATION_ORDER_DIR??'.artifacts/isolation-order';
 await mkdir(root,{recursive:true});const records=[];
 for(const[engine,type]of[['chromium',chromium],['webkit',webkit]]){
  if(process.env.ISOLATION_CHECK_ENGINE&&process.env.ISOLATION_CHECK_ENGINE!==engine)continue;
- const context=await type.launchPersistentContext(`.artifacts/isolation-order-profiles/${crypto.randomUUID()}`,{headless:true,acceptDownloads:true});
+ const context=await type.launchPersistentContext(`.artifacts/isolation-order-profiles/${crypto.randomUUID()}`,{channel:engine==='chromium'?'chrome':undefined,headless:true,acceptDownloads:true});
  try{
   await context.addInitScript(()=>{window.__stats=[];window.Worker=new Proxy(Worker,{construct(target,args){const worker=Reflect.construct(target,args);worker.addEventListener('message',({data})=>{if(data.stats)window.__stats.push(data.stats);});return worker;}});});
   const page=context.pages()[0]??await context.newPage();await page.reload();page.setDefaultTimeout(120000);const errors=[];page.on('pageerror',error=>errors.push(error.message));
@@ -21,12 +21,12 @@ for(const[engine,type]of[['chromium',chromium],['webkit',webkit]]){
     await page.getByLabel('Add step',{exact:true}).selectOption(kind);
     if(kind==='channels')await page.getByRole('radio',{name:'Mono',exact:true}).check();
     if(kind==='resample')await page.getByRole('combobox',{name:'Sample rate',exact:true}).selectOption('16000');
-    if(kind==='trim'){await page.getByLabel('Trim all start (time)').fill('.25');await page.getByLabel('Trim all end (time)').fill('.75');}
+    if(kind==='trim'){await page.getByLabel('Trim all start (time)').fill('0.25');await page.getByLabel('Trim all end (time)').fill('0.75');}
     if(kind==='isolation')await page.getByRole('combobox',{name:'Keep',exact:true}).selectOption(isolationFirst?'music':'voice');
-    if(kind==='normalize')await setSlider(page,'Peak target (dBFS) slider',-6);
+    if(kind==='normalize'){if(await page.getByRole('radio',{name:'Peak',exact:true}).count())await page.getByRole('radio',{name:'Peak',exact:true}).check();await setSlider(page,'Peak target (dBTP) slider',-6);}
    }
    await page.getByRole('button',{name:'Export',exact:true}).click();const link=page.getByRole('link',{name:/Download exported audio/});await link.waitFor();const pending=page.waitForEvent('download');await link.click();const output=await pending,path=`${root}/${engine}-${isolationFirst?'after':'before'}.wav`;await output.saveAs(path);
-   const info=JSON.parse(execFileSync('ffprobe',['-v','error','-show_streams','-of','json',path],{encoding:'utf8'})).streams[0];const bytes=execFileSync('ffmpeg',['-v','error','-i',path,'-f','f32le','-']);const samples=new Float32Array(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength));
+   const info=JSON.parse(execFileSync('ffprobe',['-v','error','-f','wav','-show_streams','-of','json',path],{encoding:'utf8'})).streams[0];const bytes=execFileSync('ffmpeg',['-v','error','-f','wav','-i',path,'-f','f32le','-']);const samples=new Float32Array(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength));
    assert.equal(Number(info.sample_rate),16000);assert.equal(info.channels,1);assert.equal(samples.length,8000);assert(samples.every(Number.isFinite));
    const stats=await page.evaluate(()=>window.__stats.at(-1));assert.equal(stats.decodePasses,1);assert.equal(stats.terminalEncoders,1);assert.equal(stats.isolationPasses,1);assert.equal(stats.normalizationPasses,1);assert.equal(stats.isolationWindows,1);assert.equal(stats.encodedFrames,8000);
    await page.getByRole('button',{name:'Remove tone.wav',exact:true}).click();await page.waitForFunction(async()=>{const directory=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1');for await(const file of directory.values())return false;return true;});

@@ -44,6 +44,15 @@ test('processed failure releases the original; cleanup failure remains retryable
  f.preview.start(entry,snapshot());await settle();assert.equal(f.preview.state.kind,'cleanup');assert.equal(previewBusy(f.preview.state),true);assert.deepEqual(f.revoked,['blob:1']);
  f.preview.start(entry,snapshot());assert.equal(calls,2);failCleanup=false;f.preview.clear();await settle();assert.equal(f.preview.state.kind,'idle');assert.deepEqual(f.released,[1]);
 });
+test('ready preview carries processed compressor gain reduction and bypass reports zero',async()=>{
+ let reduction=4.2;
+ const f=fixture(async(_file,plan)=>{const output=f.output();return{output,stats:{compressorMaxGainReductionDb:plan.steps.some(step=>step.kind==='compress')?reduction:0}};});
+ f.preview.start(entry,snapshot([newStep('compress')]));await settle();
+ assert.equal(f.preview.state.kind,'ready');assert.equal(f.preview.state.stats.compressorMaxGainReductionDb,4.2);
+ f.preview.clear();await settle();
+ reduction=0;f.preview.start(entry,snapshot([newStep('compress')]));await settle();
+ assert.equal(f.preview.state.kind,'ready');assert.equal(f.preview.state.stats.compressorMaxGainReductionDb,0);
+});
 test('processed sine excerpt applies the actual gain transform to identical original samples',async()=>{
  const rate=10000;const samples=Float32Array.from({length:rate*2},(_,i)=>.2*Math.sin(2*Math.PI*440*i/rate));
  async function* source(){for(let offset=0;offset<samples.length;offset+=3072)yield{origin:0,offset,rate,planes:[samples.slice(offset,offset+3072)]};}

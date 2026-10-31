@@ -3,13 +3,14 @@ import type { EffectiveRecipe } from "./recipe.ts";
 import type { JobEvent } from "./job-events.ts";
 import type { StoredOutput } from "./output-store.ts";
 import type { processAudio } from "./process-audio.ts";
+import type { DspStats } from "./pcm/protocol.ts";
 import { previewPlans, type PreviewRange } from "./preview-plan.ts";
 export type PreviewState =
   | { kind: "idle" }
   | { kind: "running"; fileId: FileId; operation: JobEvent; stage: "original" | "processed" }
   | { kind: "cancelling" | "releasing"; fileId: FileId }
   | { kind: "failed" | "cleanup"; fileId: FileId; message: string }
-  | { kind: "ready"; fileId: FileId; original: string; processed: string; range: PreviewRange; estimate: boolean };
+  | { kind: "ready"; fileId: FileId; original: string; processed: string; range: PreviewRange; estimate: boolean; stats: DspStats };
 export function previewBusy(state: PreviewState) {
   return state.kind === "running" || state.kind === "cancelling" || state.kind === "releasing" || state.kind === "cleanup";
 }
@@ -55,6 +56,7 @@ export class Preview {
       controller.signal.throwIfAborted();
       const plans = previewPlans(snapshot);
       const urls: string[] = [];
+      let processedStats: DspStats | null = null;
       for (const stage of ["original", "processed"] satisfies ("original" | "processed")[]) {
         controller.signal.throwIfAborted();
         this.publish({ kind: "running", fileId: entry.id, stage, operation: { kind: "phase", phase: "Preparing" } });
@@ -62,12 +64,14 @@ export class Preview {
           if (!controller.signal.aborted) this.publish({ kind: "running", fileId: entry.id, stage, operation });
         });
         this.outputs.add(result.output);
+        if (stage === "processed") processedStats = result.stats;
         controller.signal.throwIfAborted();
         const url = this.objectUrls.create(result.output.file);
         this.urls.add(url);
         urls.push(url);
       }
-      this.publish({ kind: "ready", fileId: entry.id, original: urls[0], processed: urls[1], range: plans.range, estimate: plans.estimate });
+      if (!processedStats) throw new Error("The processed preview did not report DSP statistics.");
+      this.publish({ kind: "ready", fileId: entry.id, original: urls[0], processed: urls[1], range: plans.range, estimate: plans.estimate, stats: processedStats });
       return;
     } catch (error) { failure = error; }
     try { await this.release(); }

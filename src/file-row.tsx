@@ -7,6 +7,7 @@ import type { ExecutionPlan } from "./planner";
 import type { BatchJob } from "./batch";
 import type { JobOperation, IsolationDevice } from "./job-events";
 import type { PreviewState } from "./preview";
+const LEVEL_CHANGING = new Set(["gain", "compress", "channels", "isolation", "speech", "normalize"]);
 const DEVICES: Record<IsolationDevice, { label: string; description: string }> = {
   "preparing-gpu": { label: "Trying GPU", description: "Checking GPU-assisted separation. Processing has not succeeded yet." },
   gpu: { label: "GPU + CPU", description: "GPU-assisted mode with CPU support. This does not measure GPU utilization." },
@@ -71,6 +72,19 @@ export function FileRow({
   onRemove: () => void;
 }) {
   const exported = job?.state;
+  const pcmStats = exported?.kind === "done" && exported.report.kind === "pcm"
+    ? exported.report.stats
+    : null;
+  const compressorRan = exported?.kind === "done" && job?.spec.plan.kind === "pcm" &&
+    job.spec.plan.steps.some(step =>
+      step.kind === "compress" && step.enabled && step.amount > 0);
+  const planSteps = job?.spec.plan.kind === "pcm" ? job.spec.plan.steps : [];
+  let normalizeIndex = -1;
+  planSteps.forEach((step, index) => { if (step.kind === "normalize") normalizeIndex = index; });
+  const laterLevelChange = normalizeIndex >= 0 &&
+    planSteps.slice(normalizeIndex + 1).some(step => LEVEL_CHANGING.has(step.kind));
+  const normalizeScope = laterLevelChange ? " at the Normalize step" : "";
+  const laterNote = laterLevelChange ? " Later steps can change the final level." : "";
   const operation = exported?.kind === "running" ? exported.operation : null;
   const progress = operation && operation.kind !== "phase"
     ? { value: operation.kind === "model-download" ? operation.loaded : operation.completed, max: operation.total }
@@ -150,6 +164,7 @@ export function FileRow({
         {preview.kind === "ready" ? <>
           <small>Preview · {formatTime(preview.range.start)} to {formatTime(preview.range.end)} · WAV comparison</small>
           {preview.estimate && <small>Excerpt estimate. Normalization and isolation may differ with full-track context.</small>}
+          {preview.stats.compressorMaxGainReductionDb > 0 && <small>Compressor reduced peaks by up to {preview.stats.compressorMaxGainReductionDb.toFixed(1)} dB in this excerpt.</small>}
           <label>Original excerpt<audio controls preload="none" src={preview.original} aria-label={`Original preview ${entry.file.name}`} onPlay={pauseOthers} /></label>
           <label>Processed preview<audio controls preload="none" src={preview.processed} aria-label={`Processed preview ${entry.file.name}`} onPlay={pauseOthers} /></label>
           <button type="button" onClick={onClearPreview}>Close preview</button>
@@ -181,14 +196,42 @@ export function FileRow({
               {exportedPlayable
                 ? <audio controls preload="none" src={exported.url} aria-label={playLabel} onPlay={pauseOthers} />
                 : <small class="file-note">This exported format cannot play here. Download it to listen.</small>}
-              {exported.report.kind === "pcm" &&
-                exported.report.stats.limitedNormalizations > 0 && (
-                  <small>Normalization limited.</small>
+              {pcmStats && pcmStats.loudnessRequestedLufs !== null &&
+                pcmStats.loudnessAchievedLufs === null && (
+                  <small>Loudness target not reached{normalizeScope}. The audio was silent or below the measurement gate.{laterNote}</small>
                 )}
-              {exported.report.kind === "pcm" &&
-                exported.report.stats.clippedSamples > 0 && (
-                  <small class="file-error">Clipped samples.</small>
+              {pcmStats && pcmStats.normalizationLimitedByCeiling && (
+                <small>
+                  Peak ceiling limited loudness{normalizeScope}.
+                  {pcmStats.loudnessAchievedLufs === null
+                    ? " Achieved loudness is unavailable."
+                    : ` Achieved ${pcmStats.loudnessAchievedLufs.toFixed(1)} LUFS${pcmStats.truePeakDbtp === null ? "." : ` at an estimated ${pcmStats.truePeakDbtp.toFixed(1)} dBTP.`}`}{laterNote}
+                </small>
+              )}
+              {pcmStats && pcmStats.limitedNormalizations > 0 &&
+                !pcmStats.normalizationLimitedByCeiling && (
+                  <small>
+                    Limited by the maximum gain{normalizeScope}.{pcmStats.loudnessAchievedLufs === null ? "" : ` Achieved ${pcmStats.loudnessAchievedLufs.toFixed(1)} LUFS.`}{laterNote}
+                  </small>
                 )}
+              {pcmStats && pcmStats.loudnessRequestedLufs !== null &&
+                pcmStats.loudnessAchievedLufs !== null &&
+                pcmStats.limitedNormalizations === 0 && (
+                  <small>Loudness target reached{normalizeScope}. Achieved {pcmStats.loudnessAchievedLufs.toFixed(1)} LUFS.{laterNote}</small>
+                )}
+              {pcmStats && pcmStats.peakTargetDbtp !== null && pcmStats.truePeakDbtp !== null && (
+                <small>
+                  {pcmStats.limitedNormalizations > 0 ? "Limited by the maximum gain" : "Peak target applied"} at the Peak step.
+                  {` Estimated true peak ${pcmStats.truePeakDbtp.toFixed(1)} dBTP against a ${pcmStats.peakTargetDbtp.toFixed(1)} dBTP target.`}
+                  {laterNote}
+                </small>
+              )}
+              {pcmStats && compressorRan && (
+                <small>Compressor max gain reduction {pcmStats.compressorMaxGainReductionDb.toFixed(1)} dB.</small>
+              )}
+              {pcmStats && pcmStats.clippedSamples > 0 && (
+                <small class="file-error">Clipped samples.</small>
+              )}
             </>
           )}
         </div>

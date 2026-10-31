@@ -25,7 +25,7 @@ await writeFile(shortPath,makeSignal(shortFrames));await writeFile(longPath,make
 await writeFile(tinyPath,makeSignal(tinyFrames));
 const descriptors={mp3:['mp3','audio/mpeg','mp3'],m4a:['m4a','audio/mp4','aac'],wav:['wav','audio/wav','pcm_s16le'],flac:['flac','audio/flac','flac'],opus:['ogg','audio/ogg','opus']};
 function decode(path,filter){
- const bytes=execFileSync('ffmpeg',['-v','error','-i',path,...(filter?['-af',filter]:[]),'-f','f32le','-'],{maxBuffer:128*1024*1024});
+ const bytes=execFileSync('ffmpeg',['-v','error',...(path.endsWith('.wav')?['-f','wav']:[]),'-i',path,...(filter?['-af',filter]:[]),'-f','f32le','-'],{maxBuffer:128*1024*1024});
  return new Float32Array(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength));
 }
 const records=[];
@@ -61,7 +61,7 @@ for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
    assert(download.suggestedFilename().endsWith(`.${descriptor[0]}`));
    const label=`${engine}-${records.length}-${format}-${bitrate}-${rate}-${channels}`;
    const output=`${outputs}/${label}.${descriptor[0]}`;await download.saveAs(output);
-   const stream=JSON.parse(execFileSync('ffprobe',['-v','error','-show_streams','-of','json',output],{encoding:'utf8'})).streams[0];
+   const stream=JSON.parse(execFileSync('ffprobe',['-v','error',...(output.endsWith('.wav')?['-f','wav']:[]),'-show_streams','-of','json',output],{encoding:'utf8'})).streams[0];
    assert.equal(stream.codec_name,descriptor[2]);if(format==='m4a')assert.equal(stream.profile,'LC');if(format==='mp3')assert.equal(Number(stream.bit_rate),bitrate*1000);assert.equal(stream.channels,channels);assert.equal(Number(stream.sample_rate),format==='opus'?48000:rate);
    if(format==='flac')assert.equal(Number(stream.bits_per_raw_sample),24);
    await page.waitForFunction(()=>window.__stats.some(entry=>entry&&entry.terminalEncoders===1),null,{timeout:60000});const stats=await page.evaluate(()=>window.__stats.findLast(entry=>entry&&entry.terminalEncoders===1));assert.equal(stats.decodePasses,1);assert.equal(stats.terminalEncoders,1);assert(stats.maxBlockFrames<=4096);

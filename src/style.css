@@ -131,6 +131,21 @@ input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border: 3px s
 .parameter-heading output small { font-size: 12px; font-weight: 400; color: var(--muted-strong); }
 .parameter-scale, .trim-scale { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
 .db-control > .file-error { display: block; margin-top: 12px; font-size: 12px; }
+.loudness-control { margin-top: 20px; }
+.lufs-rail { position: relative; height: 44px; margin-top: 4px; touch-action: none; cursor: pointer; border-radius: 8px; }
+.lufs-rail:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.lufs-track { position: absolute; top: 18px; left: 0; right: 0; height: 8px; border-radius: 4px; background: var(--surface-muted); }
+.lufs-fill { position: absolute; top: 0; bottom: 0; left: 0; border-radius: 4px; background: var(--accent); }
+.lufs-mark { position: absolute; top: -3px; width: 2px; height: 14px; margin-left: -1px; border-radius: 1px; background: var(--border-strong); pointer-events: none; }
+.lufs-thumb { position: absolute; top: -6px; width: 20px; height: 20px; margin-left: -10px; border: 3px solid var(--surface); border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 1px var(--border-strong); pointer-events: none; }
+.lufs-marks { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 8px; font-size: 10px; color: var(--muted); }
+.lufs-marks span { white-space: nowrap; }
+.lufs-marks b { color: var(--muted-strong); font-weight: 600; font-variant-numeric: tabular-nums; }
+.lufs-mark-label.delivery b { color: var(--accent); }
+.lufs-mark-label.limit b { color: var(--muted); }
+.checkbox-field { display: flex; align-items: center; gap: 10px; min-height: 44px; margin-top: 12px; font-size: 13px; color: var(--text); }
+.checkbox-field input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
+.compressor-control { margin-top: 8px; }
 .source-levels { color: var(--muted-strong); font-size: 12px; }
 .levels-heading { display: flex; justify-content: space-between; margin-bottom: 10px; }
 .levels-heading > span { color: var(--muted); }

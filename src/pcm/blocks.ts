@@ -1,4 +1,12 @@
+import { LoudnessMeter, type LoudnessMeasurement } from "./loudness.ts";
+import type { Recipe } from "../recipe";
+
 export const BLOCK_FRAMES = 4096;
+// The BS.1770 true-peak meter can differ from ffmpeg near Nyquist in either
+// direction; a phase sweep read up to 0.64 dB above it. Loudness-mode ceiling
+// decisions keep this margin. A peak-mode target aims at the requested dBTP
+// directly. Reported peaks stay the measured value, not a padded one.
+export const TRUE_PEAK_CEILING_GUARD_DB = 1.0;
 export type PcmBlock = Readonly<{
   origin: number;
   offset: number;
@@ -12,10 +20,22 @@ export interface PcmCheckpoint {
   seal(): Promise<PcmReplay>;
   discard(): Promise<void>;
 }
+export type NormalizeStep = Extract<Recipe["steps"][number], { kind: "normalize" }>;
+export type NormalizationReport = Readonly<{
+  mode: "loudness" | "peak";
+  measuredLufs: number | null;
+  requestedLufs: number | null;
+  achievedLufs: number | null;
+  truePeakDbtp: number | null;
+  peakTargetDbtp: number | null;
+  limited: boolean;
+  limitedByCeiling: boolean;
+}>;
 export type PcmContext = Readonly<{
   signal: AbortSignal;
   checkpoint: () => Promise<PcmCheckpoint>;
   onNormalizationLimit?: () => void;
+  onNormalization?: (report: NormalizationReport) => void;
 }>;
 export function frameTime(block: PcmBlock, index = 0): number {
   return block.origin + (block.offset + index) / block.rate;
@@ -75,23 +95,83 @@ export async function* channels(source: PcmStream, count: 1 | 2): PcmStream {
 }
 export async function* normalize(
   source: PcmStream,
-  dbfs: number,
+  step: NormalizeStep,
   context: PcmContext,
 ): PcmStream {
   const checkpoint = await context.checkpoint();
-  let peak = 0;
+  let meter: LoudnessMeter | null = null;
   try {
     for await (const block of source) {
       context.signal.throwIfAborted();
-      for (const plane of block.planes)
-        for (const value of plane) peak = Math.max(peak, Math.abs(value));
+      meter ??= new LoudnessMeter(block.rate, block.planes.length);
+      meter.push(block.planes);
       await checkpoint.append(block);
     }
     const replay = await checkpoint.seal();
-    const requested = peak === 0 ? 1 : 10 ** (dbfs / 20) / peak;
-    const factor = peak <= 1e-6 ? 1 : Math.min(1000, requested);
-    if (peak > 0 && factor < requested) context.onNormalizationLimit?.();
-    for await (const block of gain(replay.read(), factor)) {
+    const measurement: LoudnessMeasurement = meter?.finish() ?? {
+      integratedLufs: null,
+      samplePeak: 0,
+      truePeak: 0,
+      short: false,
+    };
+    const loudnessMode = step.mode === "loudness";
+    const truePeakMode = !loudnessMode && step.targetDbtp !== undefined;
+    const targetDbfs = step.targetDbfs ?? -1;
+    const targetDbtp = step.targetDbtp ?? -0.3;
+    const targetLufs = step.targetLufs ?? -14;
+    const ceilingDbtp = step.ceilingDbtp ?? -0.3;
+    const silent =
+      measurement.samplePeak === 0 ||
+      (!loudnessMode && measurement.samplePeak <= 1e-6) ||
+      (loudnessMode && measurement.integratedLufs === null);
+    let requestedGain = 1;
+    let gainFactor = 1;
+    let limitedByCeiling = false;
+    if (!silent) {
+      if (loudnessMode) {
+        requestedGain = 10 ** ((targetLufs - (measurement.integratedLufs ?? targetLufs)) / 20);
+        gainFactor = Math.min(1000, requestedGain);
+        if (measurement.truePeak > 0) {
+          const ceiling = 10 ** (ceilingDbtp / 20);
+          const guardedTruePeak =
+            measurement.truePeak * 10 ** (TRUE_PEAK_CEILING_GUARD_DB / 20);
+          // Compare the peak after the requested gain, not the source peak alone.
+          if (guardedTruePeak * gainFactor > ceiling) {
+            gainFactor = ceiling / guardedTruePeak;
+            limitedByCeiling = true;
+          }
+        }
+      } else if (truePeakMode) {
+        const peak = measurement.truePeak > 0 ? measurement.truePeak : measurement.samplePeak;
+        requestedGain = 10 ** (targetDbtp / 20) / peak;
+        gainFactor = Math.min(1000, requestedGain);
+      } else {
+        // Legacy peak recipes keep their sample-peak meaning.
+        requestedGain = 10 ** (targetDbfs / 20) / measurement.samplePeak;
+        gainFactor = Math.min(1000, requestedGain);
+      }
+    }
+    if (!Number.isFinite(gainFactor) || gainFactor <= 0) gainFactor = 1;
+    const limited = !silent && (limitedByCeiling || gainFactor < requestedGain);
+    if (limited) context.onNormalizationLimit?.();
+    const achievedLufs =
+      loudnessMode && !silent && measurement.integratedLufs !== null
+        ? measurement.integratedLufs + 20 * Math.log10(gainFactor)
+        : null;
+    context.onNormalization?.({
+      mode: loudnessMode ? "loudness" : "peak",
+      measuredLufs: measurement.integratedLufs,
+      requestedLufs: loudnessMode ? targetLufs : null,
+      achievedLufs,
+      truePeakDbtp:
+        measurement.truePeak > 0
+          ? 20 * Math.log10(measurement.truePeak * gainFactor)
+          : null,
+      peakTargetDbtp: truePeakMode ? targetDbtp : null,
+      limited,
+      limitedByCeiling,
+    });
+    for await (const block of gain(replay.read(), gainFactor)) {
       context.signal.throwIfAborted();
       yield block;
     }

@@ -10,7 +10,8 @@ import {
   StreamTarget,
 } from "mediabunny";
 import { decodePcm } from "./pcm/decode";
-import { gain, trim, channels, normalize, type PcmStream } from "./pcm/blocks";
+import { gain, trim, channels, normalize, type NormalizationReport, type PcmStream } from "./pcm/blocks";
+import { compress } from "./pcm/compressor";
 import { resample } from "./pcm/resample";
 import { checkpoint } from "./pcm/checkpoint";
 import { StorageClient } from "./pcm/storage-client";
@@ -44,12 +45,27 @@ async function execute({
       isolationBackends: [],
       normalizationPasses: 0,
       limitedNormalizations: 0,
+      normalizationLimitedByCeiling: false,
+      loudnessMeasuredLufs: null,
+      loudnessRequestedLufs: null,
+      loudnessAchievedLufs: null,
+      truePeakDbtp: null,
+      peakTargetDbtp: null,
+      compressorMaxGainReductionDb: 0,
       clippedSamples: 0,
     };
   const decodeStats = { passes: 0, maxDecodedFrames: 0 };
   const context = {
     signal: controller.signal,
     onNormalizationLimit: () => stats.limitedNormalizations++,
+    onNormalization: (report: NormalizationReport) => {
+      stats.loudnessMeasuredLufs = report.measuredLufs;
+      stats.loudnessRequestedLufs = report.requestedLufs;
+      stats.loudnessAchievedLufs = report.achievedLufs;
+      stats.truePeakDbtp = report.truePeakDbtp;
+      stats.peakTargetDbtp = report.peakTargetDbtp;
+      stats.normalizationLimitedByCeiling = report.limitedByCeiling;
+    },
     checkpoint: () => {
       report({ kind: "phase", phase: "Normalizing" });
       stats.normalizationPasses++;
@@ -80,7 +96,18 @@ async function execute({
         if (step.rateHz !== "original") stream = resample(stream, step.rateHz);
         break;
       case "normalize":
-        stream = normalize(stream, step.targetDbfs, context);
+        stream = normalize(stream, step, context);
+        break;
+      case "compress":
+        stream = compress(stream, step, {
+          signal: controller.signal,
+          onGainReduction: (maximumDb) => {
+            stats.compressorMaxGainReductionDb = Math.max(
+              stats.compressorMaxGainReductionDb,
+              maximumDb,
+            );
+          },
+        });
         break;
       case "speech":
         stream = speech(stream, step.model, { signal: controller.signal, create: createSpeechProcessor, onLoad: () => report({ kind: "phase", phase: "Loading model" }), onReady: () => report({ kind: "phase", phase: "Processing" }) });

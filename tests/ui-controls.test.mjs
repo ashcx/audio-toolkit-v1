@@ -4,6 +4,7 @@ import { formatClock,parseClock } from '../src/format.ts';
 import { trimHandles,changeTrimHandle } from '../src/trim-control.ts';
 import { resolveTrim } from '../src/recipe.ts';
 import { measureLevels,combineLevels,levelDb } from '../src/levels.ts';
+import { LOUDNESS_MARKS,LOUDNESS_MAX,LOUDNESS_MIN,positionForLufs,lufsForPosition,lufsFromPosition,stepLufs } from '../src/loudness-rail.ts';
 test('clock fields keep human-readable times and distinct sample-sized boundaries',()=>{
  for(const [value,text] of [[0,'0:00'],[542.609,'9:02.609'],[619.439,'10:19.439'],[3601.125,'1:00:01.125'],[1.0001,'0:01.0001'],[1.0002,'0:01.0002']]){assert.equal(formatClock(value),text);assert(Math.abs(parseClock(text)-value)<1e-9);}
 });
@@ -59,6 +60,33 @@ test('analysis worker is terminated on completion, abort and clone failure; late
  }finally{globalThis.Worker=original;}
 });
 
+test('the loudness rail is monotonic, preserves every 0.5 LUFS step and exposes the reference marks',()=>{
+ let previous=-Infinity;
+ for(let value=LOUDNESS_MIN;value<=LOUDNESS_MAX;value+=0.5){
+  const position=positionForLufs(value);
+  assert(position>previous,`position must increase at ${value}`);
+  previous=position;
+  assert.equal(lufsForPosition(position),value,`inverse at ${value}`);
+ }
+ assert.equal(lufsForPosition(0),LOUDNESS_MIN);assert.equal(lufsForPosition(1),LOUDNESS_MAX);
+ const values=LOUDNESS_MARKS.map(mark=>mark.value);
+ for(const value of [-23,-16,-14,-9.5,-8])assert(values.includes(value),`missing mark ${value}`);
+ assert.deepEqual(LOUDNESS_MARKS.filter(mark=>mark.kind==='delivery').map(mark=>mark.value),[-23]);
+ assert.equal(LOUDNESS_MARKS.find(mark=>mark.value===-16).label,'Podcast reference');
+});
+test('the loudness rail magnetises near a mark without trapping the pointer',()=>{
+ const fourteen=positionForLufs(-14);
+ assert.equal(lufsFromPosition(fourteen),-14);
+ assert.equal(lufsFromPosition(fourteen+0.02),-14);
+ const escaped=lufsFromPosition(fourteen+0.03);
+ assert.notEqual(escaped,-14);assert(escaped>-14);
+ const ebu=positionForLufs(-23);
+ assert.equal(lufsFromPosition(ebu+0.02),-23);
+ assert.notEqual(lufsFromPosition(ebu+0.03),-23);
+ assert(lufsFromPosition(fourteen+0.1)>escaped,'moving farther away keeps increasing the target');
+ assert.equal(stepLufs(-14,1),-13.5);assert.equal(stepLufs(-14,-1),-14.5);
+ assert.equal(stepLufs(LOUDNESS_MAX,1),LOUDNESS_MAX);assert.equal(stepLufs(LOUDNESS_MIN,-1),LOUDNESS_MIN);
+});
 test('compact time labels round only their display and carry across minute boundaries',async()=>{
  const {formatTime,formatTrimTime}=await import('../src/format.ts');
  for(const [value,summary,trim] of [[0,'00:00','00:00'],[542.609,'09:03','09:02.6'],[59.96,'01:00','01:00'],[3601.125,'60:01','60:01.1'],[1.0001,'00:01','00:01']]){
