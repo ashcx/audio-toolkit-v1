@@ -40,17 +40,22 @@ for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
    const prototype=window.FileSystemFileHandle?.prototype,original=prototype?.createWritable;
    if(original)prototype.createWritable=async function(...args){const writer=await original.apply(this,args),write=writer.write.bind(writer),truncate=writer.truncate.bind(writer);writer.write=async data=>{window.__maxWrite=Math.max(window.__maxWrite,data?.data?.byteLength??data?.byteLength??0);return write(data);};writer.truncate=async length=>{if(window.__failTruncate){window.__failTruncate=false;throw new DOMException('Full','QuotaExceededError');}return truncate(length);};return writer;};
   });
-  async function setup({format,bitrate=128,rate=48000,channels=2,path=shortPath}){
+  async function setup({format,bitrate=128,rate=48000,channels=2,path=shortPath,mode='cbr'}){
    await page.goto(appUrl);await page.getByLabel('Choose audio or video files').setInputFiles(path);await page.locator('[data-inspection=ready]').waitFor();
    await page.getByRole('combobox',{name:'Format',exact:true}).selectOption(format);
-   if(['mp3','m4a','opus'].includes(format))await page.getByLabel('Bitrate (kbps)').selectOption(String(bitrate));
+   if(format==='opus'){
+    if(mode==='vbr'){
+     await page.getByRole('combobox',{name:'Encoding mode',exact:true}).selectOption('vbr');
+     await page.getByRole('combobox',{name:'Target bitrate (kbps)',exact:true}).selectOption(String(bitrate));
+    }else await page.getByRole('combobox',{name:'Bitrate (kbps)',exact:true}).selectOption(String(bitrate));
+   }else if(['mp3','m4a'].includes(format))await page.getByRole('combobox',{name:'Bitrate (kbps)',exact:true}).selectOption(String(bitrate));
    await page.getByLabel('Add step',{exact:true}).selectOption('gain');await setSlider(page,'Gain (dB) slider',-6);
    if(channels===1){await page.getByLabel('Add step',{exact:true}).selectOption('channels');await page.getByRole('radio',{name:'Mono',exact:true}).check();}
    if(rate!==48000){await page.getByLabel('Add step',{exact:true}).selectOption('resample');await page.getByRole('combobox',{name:'Sample rate',exact:true}).selectOption(String(rate));}
   }
   async function countStores(){return page.evaluate(async()=>{const directory=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1',{create:true});let n=0;for await(const f of directory.values())n++;return n;});}
   async function run(test){
-   const {format,bitrate=128,rate=48000,channels=2,path=shortPath}=test;
+   const {format,bitrate=128,rate=48000,channels=2,path=shortPath,mode='cbr'}=test;
    if(process.env.FORMAT_CHECK_FORMAT&&process.env.FORMAT_CHECK_FORMAT!==format)return;
    await setup(test);
    const button=page.getByRole('button',{name:'Export',exact:true});await button.focus();await page.keyboard.press('Enter');
@@ -59,7 +64,7 @@ for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
    const descriptor=descriptors[format];assert.equal(await link.evaluate(async e=>(await fetch(e.href)).headers.get('content-type')),descriptor[1]);
    const pending=page.waitForEvent('download');await link.tap();const download=await pending;
    assert(download.suggestedFilename().endsWith(`.${descriptor[0]}`));
-   const label=`${engine}-${records.length}-${format}-${bitrate}-${rate}-${channels}`;
+   const label=`${engine}-${records.length}-${format}-${bitrate}-${rate}-${channels}-${mode}`;
    const output=`${outputs}/${label}.${descriptor[0]}`;await download.saveAs(output);
    const stream=JSON.parse(execFileSync('ffprobe',['-v','error','-show_streams','-of','json',output],{encoding:'utf8'})).streams[0];
    assert.equal(stream.codec_name,descriptor[2]);if(format==='m4a')assert.equal(stream.profile,'LC');if(format==='mp3')assert.equal(Number(stream.bit_rate),bitrate*1000);assert.equal(stream.channels,channels);assert.equal(Number(stream.sample_rate),format==='opus'?48000:rate);
@@ -112,6 +117,7 @@ for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
   }
   for(const format of ['mp3','m4a','wav','flac','opus'])await run({format,path:longPath});
   for(const format of ['mp3','m4a','wav','flac','opus'])await run({format,path:tinyPath});
+  await run({format:'opus',bitrate:128,mode:'vbr'});
   await run({format:'mp3',path:'tests/fixtures/video.mp4'});
   await setup({format:'opus'});await page.evaluate(()=>window.__failTruncate=true);await page.getByRole('button',{name:'Export',exact:true}).click();
   await page.getByText('Not enough device storage for this output.',{exact:true}).waitFor();assert.equal(await countStores(),0);
@@ -122,7 +128,7 @@ for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
   await page.getByRole('combobox',{name:'Sample rate',exact:true}).selectOption('48000');assert(await page.getByRole('button',{name:'Export',exact:true}).isEnabled());
   await page.getByRole('button',{name:'Remove reference.wav',exact:true}).click();
   await setup({format:'mp3',bitrate:320,rate:16000});await page.getByText('At this sample rate, choose MP3 at 128 kbps or increase the sample rate.',{exact:true}).waitFor();assert(await page.getByRole('button',{name:'Export',exact:true}).isDisabled());
-  await page.getByLabel('Bitrate (kbps)').selectOption('128');assert(await page.getByRole('button',{name:'Export',exact:true}).isEnabled());await page.getByRole('button',{name:'Remove reference.wav',exact:true}).click();
+  await page.getByRole('combobox',{name:'Bitrate (kbps)',exact:true}).selectOption('128');assert(await page.getByRole('button',{name:'Export',exact:true}).isEnabled());await page.getByRole('button',{name:'Remove reference.wav',exact:true}).click();
   await setup({format:'m4a',bitrate:256,rate:16000,channels:1});await page.getByText('AAC bitrate is too high for this rate and channel count. Lower the bitrate or increase the sample rate.',{exact:true}).waitFor();
   await page.screenshot({path:`${root}/captures/${engine}-desktop-error.png`,fullPage:true,animations:'disabled'});
   await page.setViewportSize({width:390,height:844});await setAppearance(page,'dark');await page.waitForFunction(()=>getComputedStyle(document.querySelector('.panel')).backgroundColor==='rgb(29, 31, 36)');
