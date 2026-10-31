@@ -1,3 +1,4 @@
+import { previewExcerpt } from "./preview-plan";
 import { speech } from "./pcm/speech";
 import { createSpeechProcessor } from "./pcm/speech-runtime";
 import { isolate } from "./pcm/isolate";
@@ -61,6 +62,7 @@ async function execute({
     controller.signal,
     decodeStats,
   );
+  if (plan.previewRange) stream = previewExcerpt(stream, plan.previewRange);
   for (const step of plan.steps) {
     switch (step.kind) {
       case "trim":
