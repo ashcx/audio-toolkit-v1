@@ -1,6 +1,6 @@
 # Sprint 26 evidence. Verified encoding modes
 
-Base `codex/sprint-25-playback` at `f1ae301`. Branch `codex/sprint-26-encoding`. The PR records the exact head. This sprint is stacked on Sprint 25 because it consumes the Export card.
+Base `main` at `32356a4` after Sprint 25 merged. Branch `codex/sprint-26-encoding`. The PR records the exact head. The original child PR merged into the Sprint 25 branch instead of `main`; this branch is rebased onto `main` so the Export card changes stand alone.
 
 | Requirement | Artifact | State |
 | --- | --- | --- |
