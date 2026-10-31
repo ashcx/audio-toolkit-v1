@@ -1,5 +1,5 @@
 {
-  "appUrl": "http://127.0.0.1:4174/audio-toolkit-v1/",
+  "appUrl": "http://127.0.0.1:5185/audio-toolkit-v1/",
   "browser": "chrome",
   "captures": [
     "docs/sprint-evidence/sprint-24/captures/01-loudness-rail.png",
@@ -8,6 +8,7 @@
     "docs/sprint-evidence/sprint-24/captures/04-preview-compressor.png",
     "docs/sprint-evidence/sprint-24/captures/05-export-result.png",
     "docs/sprint-evidence/sprint-24/captures/06-ceiling-limited.png",
+    "docs/sprint-evidence/sprint-24/captures/08-peak-result.png",
     "docs/sprint-evidence/sprint-24/captures/07-mobile-loudness.png"
   ],
   "exports": [
@@ -15,7 +16,8 @@
       "format": "mp3",
       "name": "tone.audio.mp3",
       "result": "target reached with compressor gain reduction"
-    }
+    },
+    ".artifacts/peak-0-target.wav"
   ],
   "order": [
     "Reduce loud/quiet differences",
@@ -23,5 +25,6 @@
   ],
   "preview": "Compressor reduced peaks by up to 1.5 dB in this excerpt.",
   "limited": "Peak ceiling limited loudness. Achieved -34.3 LUFS at an estimated -2.0 dBTP.",
+  "peakResult": "Peak target applied at the Peak step. Estimated true peak 0.0 dBTP against a 0.0 dBTP target.",
   "pageErrors": []
 }

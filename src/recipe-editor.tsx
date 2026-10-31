@@ -256,7 +256,7 @@ function StepFields({
         </> : <>
           <DbControl label="Peak target (dBTP)" value={targetDbtp} min={-6} max={0} unit="dBTP" errorId={errorId}
             onChange={targetDbtp => onChange({ id: step.id, kind: "normalize", mode: "peak", targetDbtp })} />
-          <small class="panel-description">Peak mode matches the estimated true peak with a meter guard below the target. The loudness target is not used.</small>
+          <small class="panel-description">Peak mode aims at the requested true peak. The reported peak is this app's estimate, so another meter can read a little differently. The loudness target is not used.</small>
         </>}
       </>;
     }

@@ -1,6 +1,6 @@
 # Sprint 24 verification
 
-2026-10-31. Base `4d4395a`. Branch `codex/sprint-24-loudness`. Final checks were run in the worktree `/private/tmp/audio-sprint24` against system Chrome on `http://127.0.0.1:5185/audio-toolkit-v1/`.
+2026-10-31. Base `32356a4`. Branch `codex/sprint-24-loudness`. Final checks were run in the worktree `/private/tmp/audio-sprint24` against system Chrome on `http://127.0.0.1:5185/audio-toolkit-v1/`.
 
 ## Commands and results
 
@@ -14,16 +14,16 @@
 
 ## Adversarial checks
 
-- A 16 kHz burst at -8 LUFS with a -0.3 dBTP ceiling reported an estimated -1.3 dBTP in the app. ffmpeg measured the exported WAV at -0.4 dBTP, so the ceiling held. The 1.0 dB guard covers the measured 0.83 to 0.90 dB meter under-read.
+- A 16 kHz burst at -8 LUFS with a -0.3 dBTP ceiling reported an estimated -1.3 dBTP in the app. ffmpeg measured the exported WAV at -0.4 dBTP, 0.1 dB below the requested ceiling. That stays inside the ceiling but is not an exact hit. The 1.0 dB guard covers a few tenths of a dB of meter disagreement in either direction; a phase sweep near Nyquist read up to 0.64 dB above ffmpeg, so the guard is not a general accuracy bound.
 - Normalize then Gain +6 reports `Loudness target reached at the Normalize step. Achieved -14.0 LUFS. Later steps can change the final level.` ffmpeg measures -8.0 LUFS.
 - Normalize then Compressor 100% reports the same qualification plus the gain reduction. ffmpeg measures -19.9 LUFS.
-- A 0 dBTP Peak target exported at -0.6 dBTP by ffmpeg with an estimated -1.0 dBTP result. The -6 dBTP target uses the same guard.
+- A 0 dBTP Peak target exported at -0.0 dBTP by ffmpeg, matching the app's estimate. Peak mode aims at the target directly; the 1.0 dB guard is only for loudness ceiling decisions.
 - Silence reports `Loudness target not reached. The audio was silent or below the measurement gate.`
 - The rail magnet attracts at -14 and -23 at +0.02 and escapes at +0.03.
 
 ## Review
 
-Two independent reviewers covered the sprint. Their first round found four blocking issues: the ceiling under-read, the unqualified final-loudness claim, the peak mode using dBFS sample peak instead of dBTP true peak, and stale checks. All four were fixed and reproduced clean. The second round resolved the behavior findings; the only remaining stale-check finding was fixed in later commits. After the rebase onto Sprint 25, the root reran the updated checks on the merged tree successfully. The peak result now says `Peak target applied` because the 1.0 dB guard sits below the requested target.
+Two independent reviewers covered the sprint. Their first round found four blocking issues: the ceiling under-read, the unqualified final-loudness claim, the peak mode using dBFS sample peak instead of dBTP true peak, and stale checks. All four were fixed and reproduced clean. The second round resolved the behavior findings; the only remaining stale-check finding was fixed in later commits. After the rebase onto Sprint 25, the root reran the updated checks on the merged tree successfully. A later review round found the evidence overstated two results, the base commit was stale, and peak mode silently missed its own target by 1.0 dB. This revision corrects all three: a -0.3 dBTP ceiling whose export measured -0.4 dBTP is described as 0.1 dB inside the ceiling, not "held"; the base is `32356a4`; and peak mode no longer applies the loudness guard, so a 0 dBTP request exported at -0.0 dBTP and reports `Peak target applied at the Peak step. Estimated true peak 0.0 dBTP against a 0.0 dBTP target.`
 
 ## Gaps
 

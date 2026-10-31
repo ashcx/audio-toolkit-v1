@@ -116,7 +116,7 @@ for(const [engine, browserType] of [['chromium',chromium], ['webkit',webkit]].fi
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
     await page.screenshot({path:`${root}/captures/${engine}-mobile-dark.png`,fullPage:true,animations:'disabled'});
     await remove('signal.wav');
-    const normalizedPeak=10**((-6-1)/20);
+    const normalizedPeak=10**(-6/20);
     for(const [label,steps,expectedPeak] of [
       ['normalize-before-trim',[['normalize',-6],['trim',[0,1]]],normalizedPeak/4],
       ['normalize-after-trim',[['trim',[0,1]],['normalize',-6]],normalizedPeak],

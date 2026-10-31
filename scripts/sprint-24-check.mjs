@@ -60,7 +60,7 @@ await capture(page, '01-loudness-rail');
 await page.getByRole('radio', { name: 'Peak', exact: true }).check();
 assert.equal(await page.getByRole('slider', { name: 'Loudness target', exact: true }).count(), 0);
 await page.getByRole('slider', { name: 'Peak target (dBTP) slider', exact: true }).waitFor();
-await page.getByText('Peak mode matches the estimated true peak with a meter guard below the target. The loudness target is not used.', { exact: true }).waitFor();
+await page.getByText('Peak mode aims at the requested true peak. The reported peak is this app\'s estimate, so another meter can read a little differently. The loudness target is not used.', { exact: true }).waitFor();
 await capture(page, '02-peak-mode');
 
 await page.getByRole('radio', { name: 'Loudness', exact: true }).check();
@@ -138,6 +138,29 @@ const limitedMessage = limited.getByText(/Peak ceiling limited loudness\. Achiev
 await limitedMessage.waitFor();
 observations.limited = await limitedMessage.innerText();
 await capture(limited, '06-ceiling-limited');
+
+const peak = await browser.newPage({ viewport: { width: 1440, height: 1100 } });
+peak.on('pageerror', error => errors.push(error.message));
+await peak.goto(appUrl);
+await peak.getByRole('heading', { name: 'Audio Toolkit' }).waitFor();
+await peak.getByLabel('Choose audio or video files').setInputFiles('tests/fixtures/tone.wav');
+await peak.locator('[data-inspection=ready]').waitFor();
+await addStep(peak, 'normalize');
+await peak.getByRole('radio', { name: 'Peak', exact: true }).check();
+await setRange(peak, 'Peak target (dBTP) slider', 0);
+await peak.getByRole('combobox', { name: 'Format', exact: true }).selectOption('wav');
+await peak.getByRole('button', { name: 'Export', exact: true }).click();
+const peakLink = peak.getByRole('link', { name: /Download exported audio/ });
+await peakLink.waitFor({ timeout: 60000 });
+await mkdir('.artifacts', { recursive: true });
+const [peakDownload] = await Promise.all([peak.waitForEvent('download'), peakLink.click()]);
+await peakDownload.saveAs('.artifacts/peak-0-target.wav');
+observations.exports.push('.artifacts/peak-0-target.wav');
+const peakMessage = peak.getByText(/Peak target applied at the Peak step\. Estimated true peak -?\d+\.\d dBTP against a 0\.0 dBTP target\./);
+await peakMessage.waitFor();
+observations.peakResult = await peakMessage.innerText();
+assert(observations.peakResult.includes('Estimated true peak 0.0 dBTP against a 0.0 dBTP target.'), `peak target must be reached exactly at its own meter: ${observations.peakResult}`);
+await capture(peak, '08-peak-result');
 
 const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
 mobile.on('pageerror', error => errors.push(error.message));

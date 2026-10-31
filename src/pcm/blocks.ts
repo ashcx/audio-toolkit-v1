@@ -2,9 +2,10 @@ import { LoudnessMeter, type LoudnessMeasurement } from "./loudness.ts";
 import type { Recipe } from "../recipe";
 
 export const BLOCK_FRAMES = 4096;
-// The BS.1770 true-peak meter can under-read ffmpeg by about 0.9 dB on
-// high-frequency content near Nyquist. Ceiling and true-peak target decisions
-// keep this margin. Reported peaks stay the measured value, not the padded one.
+// The BS.1770 true-peak meter can differ from ffmpeg near Nyquist in either
+// direction; a phase sweep read up to 0.64 dB above it. Loudness-mode ceiling
+// decisions keep this margin. A peak-mode target aims at the requested dBTP
+// directly. Reported peaks stay the measured value, not a padded one.
 export const TRUE_PEAK_CEILING_GUARD_DB = 1.0;
 export type PcmBlock = Readonly<{
   origin: number;
@@ -142,9 +143,7 @@ export async function* normalize(
         }
       } else if (truePeakMode) {
         const peak = measurement.truePeak > 0 ? measurement.truePeak : measurement.samplePeak;
-        requestedGain =
-          10 ** (targetDbtp / 20) /
-          (peak * 10 ** (TRUE_PEAK_CEILING_GUARD_DB / 20));
+        requestedGain = 10 ** (targetDbtp / 20) / peak;
         gainFactor = Math.min(1000, requestedGain);
       } else {
         // Legacy peak recipes keep their sample-peak meaning.

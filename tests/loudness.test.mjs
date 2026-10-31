@@ -141,7 +141,7 @@ test('a requested loudness gain cannot push a quiet source past the ceiling', as
   assert.equal(run.closed, 1);
 });
 
-test('true-peak peak mode targets dBTP with the ceiling guard', async () => {
+test('true-peak peak mode reaches the requested dBTP target', async () => {
   const planes = [sine(12000, 0.5, 0.9, Math.PI / 4), sine(12000, 0.5, 0.9, Math.PI / 4)];
   const run = context();
   const output = await collect(normalize(source(planes), {
@@ -151,7 +151,7 @@ test('true-peak peak mode targets dBTP with the ceiling guard', async () => {
   assert.equal(run.report.peakTargetDbtp, -1);
   assert.equal(run.report.requestedLufs, null);
   assert.equal(run.report.limitedByCeiling, false);
-  assert(Math.abs(db(measured.truePeak) - (-1 - 1.0)) < 0.15, `measured ${db(measured.truePeak)}`);
+  assert(Math.abs(db(measured.truePeak) - -1) < 0.01, `measured ${db(measured.truePeak)}`);
   assert.equal(run.closed, 1);
 });
 
