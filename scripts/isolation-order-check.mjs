@@ -23,7 +23,7 @@ for(const[engine,type]of[['chromium',chromium],['webkit',webkit]]){
     if(kind==='resample')await page.getByRole('combobox',{name:'Sample rate',exact:true}).selectOption('16000');
     if(kind==='trim'){await page.getByLabel('Trim all start (time)').fill('0.25');await page.getByLabel('Trim all end (time)').fill('0.75');}
     if(kind==='isolation')await page.getByRole('combobox',{name:'Keep',exact:true}).selectOption(isolationFirst?'music':'voice');
-    if(kind==='normalize')await setSlider(page,'Peak target (dBTP) slider',-6);
+    if(kind==='normalize'){if(await page.getByRole('radio',{name:'Peak',exact:true}).count())await page.getByRole('radio',{name:'Peak',exact:true}).check();await setSlider(page,'Peak target (dBTP) slider',-6);}
    }
    await page.getByRole('button',{name:'Export',exact:true}).click();const link=page.getByRole('link',{name:/Download exported audio/});await link.waitFor();const pending=page.waitForEvent('download');await link.click();const output=await pending,path=`${root}/${engine}-${isolationFirst?'after':'before'}.wav`;await output.saveAs(path);
    const info=JSON.parse(execFileSync('ffprobe',['-v','error','-f','wav','-show_streams','-of','json',path],{encoding:'utf8'})).streams[0];const bytes=execFileSync('ffmpeg',['-v','error','-f','wav','-i',path,'-f','f32le','-']);const samples=new Float32Array(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength));
