@@ -1,6 +1,6 @@
 import { useState } from "preact/hooks";
 import type { FileEntry } from "./media";
-import { formatBytes, formatDuration } from "./format";
+import { formatBytes, formatDuration, formatClock } from "./format";
 import { resolveTrim, type TrimRangeDraft } from "./recipe";
 import type { ExecutionPlan } from "./planner";
 import type { BatchJob } from "./batch";
@@ -63,7 +63,6 @@ export function FileRow({
   const errorId =
     result?.kind === "failed" ? `trim-error-${entry.id}` : undefined;
   const effective = result?.kind === "ready" ? result.trim : null;
-  const short = (seconds: number) => Number(seconds.toFixed(3));
   return (
     <li data-file-id={entry.id} data-inspection={entry.inspection.kind} data-job-state={exported?.kind}>
       <span class="file-name" title={entry.file.name}>
@@ -83,11 +82,11 @@ export function FileRow({
         )}
         {effective && (
           <small>
-            {short(effective.start)} s to{" "}
-            {effective.end === null ? "end" : `${short(effective.end)} s`}
+            {formatClock(effective.start)} to{" "}
+            {effective.end === null ? "end" : formatClock(effective.end)}
             {effective.duration === null
               ? ""
-              : ` · ${short(effective.duration)} s kept`}
+              : ` · ${formatClock(effective.duration)} kept`}
             {override ? " · Custom" : ""}
           </small>
         )}

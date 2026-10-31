@@ -1,0 +1,12 @@
+{
+  "failure": {
+    "exportDisabled": true,
+    "focus": "Retry cleanup",
+    "probe": "One cleanup failure injected"
+  },
+  "retry": {
+    "exportDisabled": false,
+    "focus": "Export",
+    "probe": "Cleanup retry completed"
+  }
+}

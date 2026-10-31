@@ -1,0 +1,19 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>UI cleanup recovery check</title>
+<div style="padding:8px;display:flex;gap:12px;align-items:center"><button id="inject">Fail next output cleanup</button><button id="inject-zip">Fail next ZIP cleanup</button><output id="probe-status">No failure injected</output></div>
+<div id="app"></div>
+<script type="module">
+let fail=false,failZip=false,injected=false,failedKey=null;
+const status=document.querySelector('#probe-status');
+document.querySelector('#inject-zip').onclick=()=>{failZip=true;status.textContent='Next ZIP cleanup will fail once';};
+document.querySelector('#inject').onclick=()=>{fail=true;status.textContent='Next cleanup will fail once';};
+const original=FileSystemDirectoryHandle.prototype.removeEntry;
+FileSystemDirectoryHandle.prototype.removeEntry=async function(...args){
+ let zip=false;
+ if(failZip){try{const file=await(await this.getFileHandle(args[0])).getFile();const bytes=new Uint8Array(await file.slice(0,4).arrayBuffer());zip=bytes[0]===80&&bytes[1]===75&&bytes[2]===3&&bytes[3]===4;}catch{}}
+ if(fail||zip){fail=false;failZip=false;injected=true;failedKey=args[0];status.textContent='One cleanup failure injected';throw Error('UI cleanup probe failure');}
+ const result=await original.apply(this,args);
+ if(injected&&args[0]===failedKey)status.textContent='Cleanup retry completed';
+ return result;
+};
+await import('../src/main.tsx');
+</script>

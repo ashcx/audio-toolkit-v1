@@ -1,3 +1,4 @@
+import {setSlider} from './browser-controls.mjs';
 import {chromium,webkit} from 'playwright';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
@@ -20,9 +21,9 @@ for(const[engine,type]of[['chromium',chromium],['webkit',webkit]]){
     await page.getByLabel('Add step',{exact:true}).selectOption(kind);
     if(kind==='channels')await page.getByRole('radio',{name:'Mono',exact:true}).check();
     if(kind==='resample')await page.getByRole('combobox',{name:'Sample rate',exact:true}).selectOption('16000');
-    if(kind==='trim'){await page.getByLabel('Batch trim start (seconds)').fill('.25');await page.getByLabel('Batch trim end (seconds)').fill('.75');}
+    if(kind==='trim'){await page.getByLabel('Batch trim start (time)').fill('.25');await page.getByLabel('Batch trim end (time)').fill('.75');}
     if(kind==='isolation')await page.getByRole('combobox',{name:'Keep',exact:true}).selectOption(isolationFirst?'music':'voice');
-    if(kind==='normalize')await page.getByLabel('Peak target (dBFS) precise',{exact:true}).fill('-6');
+    if(kind==='normalize')await setSlider(page,'Peak target (dBFS) slider',-6);
    }
    await page.getByRole('button',{name:'Export',exact:true}).click();const link=page.getByRole('link',{name:'Download',exact:true});await link.waitFor();const pending=page.waitForEvent('download');await link.click();const output=await pending,path=`${root}/${engine}-${isolationFirst?'after':'before'}.wav`;await output.saveAs(path);
    const info=JSON.parse(execFileSync('ffprobe',['-v','error','-show_streams','-of','json',path],{encoding:'utf8'})).streams[0];const bytes=execFileSync('ffmpeg',['-v','error','-i',path,'-f','f32le','-']);const samples=new Float32Array(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength));

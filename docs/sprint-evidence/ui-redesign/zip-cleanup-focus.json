@@ -1,0 +1,13 @@
+{
+  "beforeFix": {
+    "focus": "BODY"
+  },
+  "failure": {
+    "focus": "Retry ZIP cleanup",
+    "probe": "One cleanup failure injected"
+  },
+  "retry": {
+    "focus": "Export",
+    "probe": "Cleanup retry completed"
+  }
+}

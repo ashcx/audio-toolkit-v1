@@ -1,0 +1,12 @@
+[
+  {
+    "name": "long-tone.audio.wav",
+    "bytes": 24044,
+    "sha256": "e76e34d69ad3c69432a3a07b5bfae94965ccf07fec6b66a50f62f0dc9db46078"
+  },
+  {
+    "name": "s19-2s.audio.wav",
+    "bytes": 288044,
+    "sha256": "0ba01dbc4a56d0d95656a13072dad58007b5dfe50b763aab81b081459dace20d"
+  }
+]

@@ -623,3 +623,7 @@ The user requested planning only. Deliver these changes after Sprint 17 through 
 - [ ] Improve trim interaction with a visual range where feasible, precise time entry, clear batch versus per-file scope, and source-time correctness. Do not claim waveform support without a bounded implementation and evidence.
 - [ ] Keep individual downloads and ZIP delivery. Add direct folder saving only where browser capability and user-granted access permit. Handle cancellation, denied access, name collisions, partial failures, and unsupported browsers without losing results.
 - [ ] Verify light and dark desktop/mobile states, keyboard, touch, screen readers, actual audio output, cleanup, and the supported-browser fallback. Keep unavailable physical-device evidence marked not verified.
+
+## 29. UI refinement requested2026-10-31
+
+Supersede the duplicated numeric gain/normalization controls and separate trim rails with one shared start/end rail and clock-formatted times. Gain/normalization use sliders and measure original-source peak/average on expansion, with explicit RMS dBFS labels. Reduce visible secondary buttons through accessible menus and match the image-compressor spacing/hierarchy. Preserve source-time precision, ordered processing, per-file overrides, downloads, cancellation and cleanup recovery. Implementation/evidence are in `todo/ui-redesign.md` and `docs/sprint-evidence/ui-redesign/`.

@@ -1,0 +1,11 @@
+# Current UI interrogate
+
+Intent. Rigorous UI-specific audit of the actual current application, followed separately by the user's authorized redesign. Baseline4ea3ef0. Two read-only reviewers, Terra high and Luna high, no nested agents or shared writes/browser. Main owns actual Chrome observations and reproduction. Reference is actual https://ashcx.github.io/image-compressor-v1/ captured in captures/image-reference.jpg.
+
+Verified. Actual619.439s test input and542.609s trim produce raw seconds, two native range rails, two number fields and an expanded trim card381.4CSSpx tall. Heading exposes grip/settings/up/down/remove, with disabled ordering buttons. Gain has duplicate slider/number inputs and no source-level readout. Source/executable probes from both reviewers match these structural findings.
+
+Terra reproduced shorter-file recovery: resolveTrim({start:7,end:null},5) fails while10s is ready; current TrimFields hides handles when resolver fails. Redesign must keep repair controls. Actual DSP probe with44100Hz input and1.0001..1.0002s retains4frames while toFixed(3) printsidentical1.000 endpoints. Display must not silently change source precision. Analysis currently occurs only inside export normalization, so new on-demand metrics need their own cancellation/source scope.
+
+Luna grounded redundant controls, narrow two-column fields and repeated raw-second labels in source/captures. Dropped its interpretation that baseline trimInputs0 might count different types: parent captured that metric after adding Gain collapsed Trim. Its initial-viewport upload hierarchy is a design recommendation, not a proven functional failure. Mobile overflow and dark-mode defects were not independently reproduced by the panel and are not claimed. No invented participant/device evidence. Main screenshot supplied by user agrees with the separate-rails/long-decimals issue.
+
+Recommendations accepted as feature scope. Shared two-handle rail, compact clock fields, slider-only dB controls, on-demand ORIGINAL source peak/RMS, More menu with accessible order actions, consistent reference-derived layout and spacing. The audit reviewers did not implement fixes; main's separately authorized feature owns changes and final review.

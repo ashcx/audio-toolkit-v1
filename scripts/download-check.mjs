@@ -1,3 +1,4 @@
+import {saveAction} from './browser-controls.mjs';
 import {setAppearance} from './browser-controls.mjs';
 import {chromium,webkit} from 'playwright';
 import {mkdir,writeFile,readFile,copyFile} from 'node:fs/promises';
@@ -20,29 +21,54 @@ for(const [engine,type] of [['chromium',chromium],['webkit',webkit]].filter(([na
   page=context.pages()[0];page.setDefaultTimeout(120000);const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.goto(process.env.APP_URL??'http://127.0.0.1:4183/audio-toolkit-v1/');
   const payload=await readFile('tests/fixtures/tone.wav');await page.getByLabel('Choose audio or video files').setInputFiles(['TONE.wav','TONE.wav','../音楽?.wav'].map(name=>({name,mimeType:'audio/wav',buffer:payload})));
   await page.waitForFunction(()=>document.querySelectorAll('[data-inspection=ready]').length===3);await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('wav');await page.getByRole('button',{name:'Export',exact:true}).click();await page.waitForFunction(()=>document.querySelectorAll('[data-job-state=done]').length===3);
-  const runs=await page.evaluate(()=>window.__runs);const individual=page.getByRole('link',{name:'Download',exact:true});const expected=[];
+  let runs=await page.evaluate(()=>window.__runs);const individual=page.getByRole('link',{name:'Download',exact:true});const expected=[];
   for(let i=0;i<3;i++){const pending=page.waitForEvent('download');await individual.nth(i).click();const download=await pending;const path=`${root}/${engine}-entry-${i}.wav`;await download.saveAs(path);expected.push({name:await individual.nth(i).getAttribute('download'),browserName:download.suggestedFilename(),path});}
-  async function zip(){await page.getByRole('button',{name:'Create ZIP',exact:true}).click();await page.getByRole('link',{name:'Download ZIP',exact:true}).waitFor();}
-  console.log(engine,'exported');await zip();for(let repeat=0;repeat<2;repeat++){const pending=page.waitForEvent('download');await page.getByRole('link',{name:'Download ZIP',exact:true}).click();const download=await pending;await download.saveAs(`${root}/${engine}-${repeat}.zip`);}
+  async function zip(){await (await saveAction(page,'Create ZIP','button')).click();await (await saveAction(page,'Download ZIP','link')).waitFor();}
+  console.log(engine,'exported');await zip();for(let repeat=0;repeat<2;repeat++){const pending=page.waitForEvent('download');await (await saveAction(page,'Download ZIP','link')).click();const download=await pending;await download.saveAs(`${root}/${engine}-${repeat}.zip`);}
   execFileSync('python3',['-c',`import sys,json,zipfile,pathlib\nz=zipfile.ZipFile(sys.argv[1]); expected=json.loads(sys.argv[2]); assert z.testzip() is None; assert z.namelist()==[e['name'] for e in expected]; assert all(i.compress_type==0 for i in z.infolist()); assert all(z.read(e['name'])==pathlib.Path(e['path']).read_bytes() for e in expected)`,`${root}/${engine}-0.zip`,JSON.stringify(expected)]);
   assert((await readFile(`${root}/${engine}-0.zip`)).equals(await readFile(`${root}/${engine}-1.zip`)));
-  console.log(engine,'downloaded');await page.evaluate(()=>window.__failWrite=true);await page.getByRole('button',{name:'Create ZIP',exact:true}).click();await page.waitForFunction(()=>document.body.textContent.includes('Not enough temporary storage for the ZIP.')||document.body.textContent.includes('Retry ZIP cleanup'));assert.equal(await individual.count(),3);assert.equal(await page.getByRole('link',{name:'Download ZIP',exact:true}).count(),0);await page.evaluate(()=>window.__failWrite=false);if(await page.getByRole('button',{name:'Retry ZIP cleanup',exact:true}).count()){console.log(engine,'quota required cleanup retry',await page.evaluate(()=>window.__removeErrors));await page.getByRole('button',{name:'Retry ZIP cleanup',exact:true}).click();await page.waitForFunction(()=>!document.body.textContent.includes('Retry ZIP cleanup'));}await zip();assert.equal(await page.evaluate(()=>window.__runs),runs);
-  await page.evaluate(()=>{window.__holdWrite=true;window.__releaseWrite=null;});await page.getByRole('button',{name:'Create ZIP',exact:true}).click();await page.waitForFunction(()=>window.__releaseWrite);assert(await page.getByRole('button',{name:/Remove /}).first().isDisabled());await page.getByRole('button',{name:'Cancel ZIP',exact:true}).click();assert(await page.getByRole('button',{name:'Export',exact:true}).isDisabled());await page.evaluate(()=>{window.__holdWrite=false;window.__releaseWrite();});await page.waitForFunction(()=>!document.body.textContent.includes('Cleaning up ZIP'));assert.equal(await page.getByRole('link',{name:'Download ZIP',exact:true}).count(),0);await zip();
-  await page.evaluate(()=>window.__failRemove=true);await page.getByRole('button',{name:'Create ZIP',exact:true}).click();await page.getByRole('button',{name:'Retry ZIP cleanup',exact:true}).waitFor();assert(await page.getByRole('button',{name:'Export',exact:true}).isDisabled());await page.evaluate(()=>window.__failRemove=false);await page.getByRole('button',{name:'Retry ZIP cleanup',exact:true}).click();await page.waitForFunction(()=>!document.body.textContent.includes('Retry ZIP cleanup'));await zip();
-  await page.getByRole('button',{name:/Remove /}).first().click();await page.getByRole('link',{name:'Download ZIP',exact:true}).waitFor({state:'detached'});assert.equal(await individual.count(),2);await zip();
-  await page.setViewportSize({width:390,height:844});await setAppearance(page,'dark');await page.waitForFunction(()=>document.documentElement.dataset.theme==='dark'&&getComputedStyle(document.querySelector('.icon-button')).backgroundColor==='rgb(28, 30, 35)');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:`${root}/${engine}-mobile.png`,fullPage:true});
-  await page.getByRole('button',{name:'Clear results',exact:true}).click();await page.waitForFunction(()=>document.querySelectorAll('[data-job-state]').length===0);await page.waitForFunction(async()=>{const d=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1');for await(const e of d.values())return false;return true;});
+  async function freshResults(){
+   await (await saveAction(page,'Clear results')).click();
+   await page.waitForFunction(()=>document.querySelectorAll('[data-job-state]').length===0);
+   await page.getByRole('button',{name:'Export',exact:true}).click();
+   await page.waitForFunction(()=>document.querySelectorAll('[data-job-state=done]').length===3);
+   runs=await page.evaluate(()=>window.__runs);
+  }
+  console.log(engine,'downloaded');await freshResults();
+  await page.evaluate(()=>window.__failWrite=true);await (await saveAction(page,'Create ZIP')).click();
+  await page.waitForFunction(()=>document.body.textContent.includes('Not enough temporary storage for the ZIP.')||document.body.textContent.includes('Retry ZIP cleanup'));
+  assert.equal(await individual.count(),3);assert.equal(await page.locator('.delivery-options a[download]').count(),0);
+  await page.evaluate(()=>window.__failWrite=false);
+  if(await page.getByRole('button',{name:'Retry ZIP cleanup',exact:true}).count())await page.getByRole('button',{name:'Retry ZIP cleanup',exact:true}).click();
+  await zip();assert.equal(await page.evaluate(()=>window.__runs),runs);
+  await freshResults();await page.evaluate(()=>{window.__holdWrite=true;window.__releaseWrite=null;});
+  await (await saveAction(page,'Create ZIP')).click();await page.waitForFunction(()=>window.__releaseWrite);
+  assert(await page.getByRole('button',{name:/Remove /}).first().isDisabled());
+  await page.getByRole('button',{name:'Cancel ZIP',exact:true}).click();assert(await page.getByRole('button',{name:'Export',exact:true}).isDisabled());
+  await page.evaluate(()=>{window.__holdWrite=false;window.__releaseWrite();});
+  await page.waitForFunction(()=>!document.body.textContent.includes('Cleaning up ZIP'));
+  assert.equal(await page.locator('.delivery-options a[download]').count(),0);await zip();
+  await freshResults();await page.evaluate(()=>{window.__holdWrite=true;window.__releaseWrite=null;window.__failRemove=true;});
+  await (await saveAction(page,'Create ZIP')).click();await page.waitForFunction(()=>window.__releaseWrite);
+  await page.getByRole('button',{name:'Cancel ZIP',exact:true}).click();
+  await page.evaluate(()=>{window.__holdWrite=false;window.__releaseWrite();});
+  await page.getByRole('button',{name:'Retry ZIP cleanup',exact:true}).waitFor();assert(await page.getByRole('button',{name:'Export',exact:true}).isDisabled());
+  await page.evaluate(()=>window.__failRemove=false);await page.getByRole('button',{name:'Retry ZIP cleanup',exact:true}).click();
+  await page.waitForFunction(()=>!document.body.textContent.includes('Retry ZIP cleanup'));await zip();
+  await page.getByRole('button',{name:/Remove /}).first().click();await page.locator('.delivery-options a[download]').waitFor({state:'detached'});assert.equal(await individual.count(),2);await zip();
+  await page.setViewportSize({width:390,height:844});await setAppearance(page,'dark');await page.waitForFunction(()=>document.documentElement.dataset.theme==='dark'&&getComputedStyle(document.body).backgroundColor==='rgb(18, 19, 22)');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:`${root}/${engine}-mobile.png`,fullPage:true});
+  await (await saveAction(page,'Clear results','button')).click();await page.waitForFunction(()=>document.querySelectorAll('[data-job-state]').length===0);await page.waitForFunction(async()=>{const d=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1');for await(const e of d.values())return false;return true;});
   await page.evaluate(()=>window.__failNextWrite=true);await page.getByRole('button',{name:'Export',exact:true}).click();await page.waitForFunction(()=>document.querySelectorAll('[data-job-state=done]').length===1&&document.querySelectorAll('[data-job-state=failed]').length===1);await zip();
-  const partial=page.waitForEvent('download');await page.getByRole('link',{name:'Download ZIP',exact:true}).click();await(await partial).saveAs(`${root}/${engine}-partial.zip`);execFileSync('python3',['-c',`import zipfile,sys\nz=zipfile.ZipFile(sys.argv[1]); assert len(z.infolist())==1; assert z.testzip() is None`,`${root}/${engine}-partial.zip`]);await page.getByRole('button',{name:'Clear results',exact:true}).click();await page.waitForFunction(()=>document.querySelectorAll('[data-job-state]').length===0);
+  const partial=page.waitForEvent('download');await (await saveAction(page,'Download ZIP','link')).click();await(await partial).saveAs(`${root}/${engine}-partial.zip`);execFileSync('python3',['-c',`import zipfile,sys\nz=zipfile.ZipFile(sys.argv[1]); assert len(z.infolist())==1; assert z.testzip() is None`,`${root}/${engine}-partial.zip`]);await (await saveAction(page,'Clear results','button')).click();await page.waitForFunction(()=>document.querySelectorAll('[data-job-state]').length===0);
   let batch=null;
   if(engine==='chromium'&&!process.env.SKIP_LARGE){
    for(let i=0;i<2;i++)await page.getByRole('button',{name:/Remove /}).first().click();
    execFileSync('ffmpeg',['-v','error','-y','-f','lavfi','-i','sine=frequency=440:sample_rate=48000:duration=10','-ac','2',`${root}/ten-seconds.wav`]);const paths=[];for(let i=0;i<50;i++){const path=`${root}/clip-${i}.wav`;await copyFile(`${root}/ten-seconds.wav`,path);paths.push(path);}
    await page.getByLabel('Choose audio or video files').setInputFiles(paths);await page.waitForFunction(()=>document.querySelectorAll('[data-inspection=ready]').length===50);await page.getByRole('button',{name:'Export',exact:true}).click();await page.waitForFunction(()=>document.querySelectorAll('[data-job-state=done]').length===50);await page.evaluate(()=>window.__maxBeat=0);await zip();
-   const pending=page.waitForEvent('download');await page.getByRole('link',{name:'Download ZIP',exact:true}).click();await(await pending).saveAs(`${root}/fifty-clips.zip`);
+   const pending=page.waitForEvent('download');await (await saveAction(page,'Download ZIP','link')).click();await(await pending).saveAs(`${root}/fifty-clips.zip`);
    const total=JSON.parse(execFileSync('python3',['-c',`import zipfile,json,sys\nz=zipfile.ZipFile(sys.argv[1]); assert len(z.infolist())==50; assert z.testzip() is None; assert all(i.compress_type==0 for i in z.infolist()); print(json.dumps({'entries':len(z.infolist()),'bytes':sum(i.file_size for i in z.infolist())}))`,`${root}/fifty-clips.zip`],{encoding:'utf8'}));
    batch={...total,...await page.evaluate(()=>({maxZipWrite:window.__maxWrite,heartbeatMaxMs:window.__maxBeat}))};assert(batch.maxZipWrite<=1048576);assert(batch.heartbeatMaxMs<1000);
-   await page.getByRole('button',{name:'Clear results',exact:true}).click();await page.waitForFunction(async()=>{const d=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1');for await(const e of d.values())return false;return true;});
+   await (await saveAction(page,'Clear results','button')).click();await page.waitForFunction(async()=>{const d=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1');for await(const e of d.values())return false;return true;});
   }
   assert.deepEqual(errors,[]);await memory.stop();assert(!memory.report.budgetExceeded);results.push({engine,entries:expected.map(e=>e.name),storedExactBytes:true,repeatedDownloads:true,quotaRecovery:true,cancelPendingWrite:true,failedCleanupRetry:true,sourceInvalidation:true,partialFailureZip:true,remainingStores:0,batch,memory:memory.report});await writeFile(`${root}/results.json`,JSON.stringify(results,null,2)+'\n');console.log(engine,'download checks passed');
  }catch(error){if(page){console.log('diagnostic',await page.evaluate(()=>window.__removeErrors));await page.screenshot({path:`${root}/${engine}-failure.png`,fullPage:true}).catch(()=>{});await writeFile(`${root}/${engine}-failure.txt`,await page.locator('body').innerText().catch(()=>''));}throw error;}finally{await memory.stop();await context.close();}

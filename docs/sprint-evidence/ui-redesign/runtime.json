@@ -1,0 +1,8 @@
+{
+  "levels": "Peak-12.0dBFSAverage RMS-15.1dBFS",
+  "numberFields": 0,
+  "scripts": [
+    "http://127.0.0.1:4184/audio-toolkit-v1/assets/index-CWfz5-xf.js"
+  ],
+  "width": 1650
+}

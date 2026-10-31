@@ -1,0 +1,21 @@
+{
+  "mobile390": {
+    "headerActions": [
+      "Drag Trim",
+      "Trim settings",
+      "More actions for Trim",
+      "Drag Gain",
+      "Gain settings",
+      "More actions for Gain"
+    ],
+    "height": 844,
+    "overflow": false,
+    "trimHeight": 235.4774475097656,
+    "width": 390
+  },
+  "mobile320": {
+    "height": 755,
+    "overflow": false,
+    "width": 320
+  }
+}
