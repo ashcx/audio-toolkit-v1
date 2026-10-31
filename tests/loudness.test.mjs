@@ -122,6 +122,25 @@ test('loudness normalization enforces the true-peak ceiling and reports the achi
   assert.equal(run.closed, 1);
 });
 
+test('a requested loudness gain cannot push a quiet source past the ceiling', async () => {
+  // The source true peak (-10.5 dBFS) is below the -6 dBTP ceiling, but the
+  // gain needed to reach -8 LUFS would put it far above. The ceiling must use
+  // the post-gain peak, not the source peak alone.
+  const bursts = new Float32Array(rate * 4);
+  for (let start = 0; start < bursts.length; start += rate / 2)
+    for (let index = 0; index < rate * 0.02; index++)
+      bursts[start + index] = 0.3 * Math.sin((2 * Math.PI * 1000 * index) / rate);
+  const run = context();
+  const output = await collect(normalize(source([bursts, bursts.slice()]), {
+    kind: 'normalize', mode: 'loudness', targetLufs: -8, ceilingDbtp: -6,
+  }, run));
+  const achieved = measure(output);
+  assert.equal(run.report.limitedByCeiling, true);
+  assert(run.report.achievedLufs < -8 - 1, `achieved ${run.report.achievedLufs} LUFS`);
+  assert(db(achieved.truePeak) <= -6 + 1e-6, `achieved ${db(achieved.truePeak)} dBTP`);
+  assert.equal(run.closed, 1);
+});
+
 test('peak normalization still reaches its sample-peak target without a loudness ceiling', async () => {
   const planes = [sine(1000, 2, 0.5), sine(1000, 2, 0.5)];
   const run = context();

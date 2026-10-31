@@ -131,7 +131,8 @@ export async function* normalize(
         const ceiling = 10 ** (ceilingDbtp / 20);
         const guardedTruePeak =
           measurement.truePeak * 10 ** (TRUE_PEAK_CEILING_GUARD_DB / 20);
-        if (guardedTruePeak > ceiling) {
+        // Compare the peak after the requested gain, not the source peak alone.
+        if (guardedTruePeak * gainFactor > ceiling) {
           gainFactor = ceiling / guardedTruePeak;
           limitedByCeiling = true;
         }

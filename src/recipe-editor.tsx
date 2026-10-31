@@ -242,7 +242,7 @@ function StepFields({
             onChange({ id: step.id, kind: "normalize", mode: "loudness", targetLufs, ceilingDbtp })} />
           <DbControl label="True-peak ceiling (dBTP)" value={ceilingDbtp} min={-6} max={0} unit="dBTP" errorId={errorId}
             onChange={ceilingDbtp => onChange({ id: step.id, kind: "normalize", mode: "loudness", targetLufs, ceilingDbtp })} />
-          <small class="panel-description">Gated integrated loudness is measured in 400 ms blocks. The true-peak ceiling can prevent the requested loudness; the export reports the achieved result.</small>
+          <small class="panel-description">Gated integrated loudness is measured in 400 ms blocks. The true-peak ceiling can prevent the requested loudness; the export reports the achieved result at this step. Later gain or compressor steps can change the final level.</small>
         </> : <>
           <DbControl label="Peak target (dBFS)" value={targetDbfs} min={-60} max={0} errorId={errorId}
             onChange={targetDbfs => onChange({ id: step.id, kind: "normalize", mode: "peak", targetDbfs })} />
