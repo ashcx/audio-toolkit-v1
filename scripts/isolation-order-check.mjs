@@ -8,7 +8,7 @@ const root=process.env.ISOLATION_ORDER_DIR??'.artifacts/isolation-order';
 await mkdir(root,{recursive:true});const records=[];
 for(const[engine,type]of[['chromium',chromium],['webkit',webkit]]){
  if(process.env.ISOLATION_CHECK_ENGINE&&process.env.ISOLATION_CHECK_ENGINE!==engine)continue;
- const context=await type.launchPersistentContext(`.artifacts/isolation-order-profiles/${crypto.randomUUID()}`,{headless:true,acceptDownloads:true});
+ const context=await type.launchPersistentContext(`.artifacts/isolation-order-profiles/${crypto.randomUUID()}`,{channel:engine==='chromium'?'chrome':undefined,headless:true,acceptDownloads:true});
  try{
   await context.addInitScript(()=>{window.__stats=[];window.Worker=new Proxy(Worker,{construct(target,args){const worker=Reflect.construct(target,args);worker.addEventListener('message',({data})=>{if(data.stats)window.__stats.push(data.stats);});return worker;}});});
   const page=context.pages()[0]??await context.newPage();await page.reload();page.setDefaultTimeout(120000);const errors=[];page.on('pageerror',error=>errors.push(error.message));
