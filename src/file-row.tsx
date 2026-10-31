@@ -221,7 +221,7 @@ export function FileRow({
                 )}
               {pcmStats && pcmStats.peakTargetDbtp !== null && pcmStats.truePeakDbtp !== null && (
                 <small>
-                  {pcmStats.limitedNormalizations > 0 ? "Limited by the maximum gain" : "Peak target reached"} at the Peak step.
+                  {pcmStats.limitedNormalizations > 0 ? "Limited by the maximum gain" : "Peak target applied"} at the Peak step.
                   {` Estimated true peak ${pcmStats.truePeakDbtp.toFixed(1)} dBTP.`}
                   {laterNote}
                 </small>

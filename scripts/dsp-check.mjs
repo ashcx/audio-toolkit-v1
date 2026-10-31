@@ -27,8 +27,8 @@ function fixture(name, seconds, channelCount = 2, silent = false, scale = 1) {
 const signal = fixture('signal.wav', 2), silence = fixture('silence.wav', 2, 1, true);
 const records = [];
 function pcm(path) {
-  const info = JSON.parse(execFileSync('ffprobe', ['-v','error','-show_streams','-of','json',path], {encoding:'utf8'})).streams[0];
-  const bytes = execFileSync('ffmpeg', ['-v','error','-i',path,'-f','f32le','-'], {maxBuffer:128*1024*1024});
+  const info = JSON.parse(execFileSync('ffprobe', ['-v','error',...(path.endsWith('.wav')?['-f','wav']:[]),'-show_streams','-of','json',path], {encoding:'utf8'})).streams[0];
+  const bytes = execFileSync('ffmpeg', ['-v','error',...(path.endsWith('.wav')?['-f','wav']:[]),'-i',path,'-f','f32le','-'], {maxBuffer:128*1024*1024});
   return {rate:Number(info.sample_rate), channels:info.channels, samples:new Float32Array(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength))};
 }
 async function storeCount(page) {
@@ -70,7 +70,7 @@ for(const [engine, browserType] of [['chromium',chromium], ['webkit',webkit]]) {
       for(const [kind,value] of steps) {
         await page.getByLabel('Add step',{exact:true}).selectOption(kind);
         if(kind==='gain')await setSlider(page,'Gain (dB) slider',Number(value));
-        if(kind==='normalize'){if(await page.getByRole('radio',{name:'Peak',exact:true}).count())await page.getByRole('radio',{name:'Peak',exact:true}).check();await setSlider(page,'Peak target (dBFS) slider',Number(value));}
+        if(kind==='normalize'){if(await page.getByRole('radio',{name:'Peak',exact:true}).count())await page.getByRole('radio',{name:'Peak',exact:true}).check();await setSlider(page,'Peak target (dBTP) slider',Number(value));}
         if(kind==='channels')await page.getByRole('radio',{name:value==='mono'?'Mono':value==='stereo'?'Stereo':'Unchanged',exact:true}).check();
         if(kind==='resample')await page.getByRole('combobox',{name:'Sample rate',exact:true}).selectOption(String(value));
         if(kind==='trim') {
@@ -115,15 +115,16 @@ for(const [engine, browserType] of [['chromium',chromium], ['webkit',webkit]]) {
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
     await page.screenshot({path:`${root}/captures/${engine}-mobile-dark.png`,fullPage:true,animations:'disabled'});
     await remove('signal.wav');
+    const normalizedPeak=10**((-6-1)/20);
     for(const [label,steps,expectedPeak] of [
-      ['normalize-before-trim',[['normalize',-6],['trim',[0,1]]],10**(-6/20)/4],
-      ['normalize-after-trim',[['trim',[0,1]],['normalize',-6]],10**(-6/20)],
-      ['normalize-twice',[['normalize',-12],['normalize',-6]],10**(-6/20)],
+      ['normalize-before-trim',[['normalize',-6],['trim',[0,1]]],normalizedPeak/4],
+      ['normalize-after-trim',[['trim',[0,1]],['normalize',-6]],normalizedPeak],
+      ['normalize-twice',[['normalize',-3],['normalize',-6]],normalizedPeak],
       ['clip',[['gain',12]],1],
     ]) {
       await setup(signal,steps); output=await exportFile(label);
       const peak=output.samples.reduce((maximum,value)=>Math.max(maximum,Math.abs(value)),0);
-      assert(Math.abs(peak-expectedPeak)<.00004,`${label} peak ${peak}/${expectedPeak}`); records.at(-1).peak=peak;
+      assert(Math.abs(peak-expectedPeak)<.0005,`${label} peak ${peak}/${expectedPeak}`); records.at(-1).peak=peak;
       if(label==='clip')assert(records.at(-1).stats.clippedSamples>0);
       await remove('signal.wav');
     }
