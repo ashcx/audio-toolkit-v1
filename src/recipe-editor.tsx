@@ -115,9 +115,9 @@ function StepFields({
         <TrimFields
           errorId={errorId}
           duration={duration}
-          scope={files.length > 1 ? "All files · longest duration shown" : undefined}
+          scope="Applies to all files. Files shorter than the selected start cannot be exported."
           range={step.range}
-          prefix="Batch trim"
+          prefix="Trim all"
           onChange={(range) => onChange({ ...step, range })}
         />
       );

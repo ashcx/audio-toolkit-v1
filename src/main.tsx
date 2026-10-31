@@ -15,9 +15,8 @@ import {
   newRecipe,
   recipeSchema,
   type RecipeDraft,
-  type TrimRangeDraft,
 } from "./recipe";
-import type { FileId } from "./media";
+import { exportStatus } from "./file-summary";
 
 type Theme = "system" | "light" | "dark";
 function initialTheme(): Theme {
@@ -31,7 +30,7 @@ function initialTheme(): Theme {
 
 function App() {
   const [theme, setTheme] = useState<Theme>(initialTheme);
-  const { entries: files, add, remove } = useFiles();
+  const { entries: files, add, remove, clear } = useFiles();
   const exports = useExport(files);
   const completed = [...exports.jobs.values()].flatMap(job => job.state.kind === "done" ? [job.state] : []);
   const archive = useArchive(completed.map(result => result.url).join("|"));
@@ -51,9 +50,9 @@ function App() {
   const dragDepth = useRef(0);
   const [recipeDraft, setDraft] = useState<RecipeDraft>(newRecipe);
   const [explicitFormat, setExplicitFormat] = useState(false);
-  const [overrides, setOverrides] = useState(new Map<FileId, TrimRangeDraft>());
-  const draft = explicitFormat ? recipeDraft : {...recipeDraft, export: automaticExport(recipeDraft,files,overrides)};
-  const preview = usePreview(JSON.stringify([draft, [...overrides], files.map(entry => [entry.id, entry.inspection])]));
+  const [clearing, setClearing] = useState(false);
+  const draft = explicitFormat ? recipeDraft : {...recipeDraft, export: automaticExport(recipeDraft,files)};
+  const preview = usePreview(JSON.stringify([draft, files.map(entry => [entry.id, entry.inspection])]));
   const locked = deliveryLocked;
   const workLocked = locked || preview.busy;
   const settings = useRef<HTMLDialogElement>(null);
@@ -70,7 +69,6 @@ function App() {
       const effective = snapshotForFile(
         parsedRecipe.data,
         entry,
-        overrides.get(entry.id),
       );
       return [
         entry.id,
@@ -89,17 +87,27 @@ function App() {
       : [];
   });
   const trim = draft.steps.find((step) => step.kind === "trim");
+  const previewCleanup = preview.state.kind === "cleanup" ? preview.state : null;
   const changeRecipe = (next: RecipeDraft) => {
     if (locked) return false;
-    if (trim && !next.steps.some((step) => step.kind === "trim")) {
-      if ((overrides.size > 0 || trim.range.start !== null || trim.range.end !== null) && !confirm("Remove trim and individual ranges?"))
-        return false;
-      setOverrides(new Map());
-    }
-
     setDraft(next);
     return true;
   };
+  const clearAll = () => {
+    if (clearing) return;
+    setClearing(true);
+    preview.clear();
+    void archive.clear();
+    folder.cancel();
+    exports.cancelAll();
+  };
+  useLayoutEffect(() => {
+    if (!clearing) return;
+    if (preview.busy || archive.busy || folder.busy || exports.busy) return;
+    for (const id of exports.jobs.keys()) exports.clear(id);
+    clear();
+    setClearing(false);
+  }, [clearing, preview.busy, archive.busy, folder.busy, exports.busy, exports.cleanupCount]);
   useLayoutEffect(() => {
     if (!completed.length && !exports.busy && !archive.busy && !folder.busy) return;
     const protect = (event: BeforeUnloadEvent) => { event.preventDefault();event.returnValue = ""; };
@@ -247,9 +255,10 @@ function App() {
                     job={exports.jobs.get(entry.id)}
                     preview={preview.state.kind !== "idle" && preview.state.fileId === entry.id ? preview.state : undefined}
                     previewDisabled={workLocked || exports.cleanupCount > 0 || !parsedRecipe.success}
+                    hasRecipeSteps={draft.steps.length > 0}
                     onPreview={() => {
                       if (workLocked || exports.cleanupCount > 0 || !parsedRecipe.success) return;
-                      const effective = snapshotForFile(parsedRecipe.data, entry, overrides.get(entry.id));
+                      const effective = snapshotForFile(parsedRecipe.data, entry);
                       if (effective.kind === "ready") preview.start(entry, effective.snapshot);
                     }}
                     onClearPreview={preview.clear}
@@ -257,30 +266,11 @@ function App() {
                     downloadBusy={archive.busy || folder.busy}
                     onCancel={() => exports.cancel(entry.id)}
                     onRetry={() => { if (!preview.busy) exports.retry(entry.id); }}
-                    override={overrides.get(entry.id)}
-                    onOverride={(range) => {
-
-                      setOverrides((previous) =>
-                        new Map(previous).set(entry.id, range),
-                      );
-                    }}
-                    onReset={() => {
-
-                      setOverrides((previous) => {
-                        const next = new Map(previous);
-                        next.delete(entry.id);
-                        return next;
-                      });
-                    }}
                     onRemove={() => {
                       pendingFocus.current = index;
+                      if (preview.state.kind !== "idle" && preview.state.fileId === entry.id) preview.clear();
                       exports.clear(entry.id);
                       remove(entry.id);
-                      setOverrides((previous) => {
-                        const next = new Map(previous);
-                        next.delete(entry.id);
-                        return next;
-                      });
                     }}
                   />
                 ))}
@@ -309,63 +299,74 @@ function App() {
             return changed;
           }}>
         <div class="run-actions">
-          {preview.state.kind === "cleanup" && !files.map(entry => entry.id).includes(preview.state.fileId) && <>
-            <span role="status">{preview.state.message}</span><button type="button" onClick={preview.clear}>Retry preview cleanup</button>
-          </>}
-          {completed.length > 0 && <details class="delivery-menu" onKeyDown={event=>{
-            if(event.key === "Escape") {event.currentTarget.open=false;event.currentTarget.querySelector<HTMLElement>("summary")?.focus();}
-          }}>
-            <summary role="button" class="button">Save results</summary>
-            <div class="delivery-options">
-              {archive.state.kind === "ready" ? <a class="button" href={archive.state.url} download={archive.state.output.name}>Download ZIP</a>
-                : <button type="button" disabled={workLocked || exports.cleanupCount > 0} onClick={() => archive.start(completed.map(result => result.output.file))}>Create ZIP</button>}
-              {folder.supported && <button type="button" disabled={workLocked || exports.cleanupCount > 0} onClick={event => {
-                event.currentTarget.closest("details")?.removeAttribute("open");
-                void folder.start(completed.map(result => result.output.file));
-              }}>Save to folder</button>}
-              <button type="button" disabled={locked} onClick={() => {
-                pendingResultFocus.current = true;
-                void archive.clear(); for (const id of exports.jobs.keys()) exports.clear(id);
-              }}>Clear results</button>
-            </div>
-          </details>}
-          {folder.state.kind === "choosing" && <span role="status">Choose a folder for a new batch folder.</span>}
-          {folder.state.kind === "saving" && <span role="status">Saving {folder.state.completed} / {folder.state.total}</span>}
-          {(folder.state.kind === "choosing" || folder.state.kind === "saving") && <button type="button" onClick={folder.cancel}>Cancel folder save</button>}
-          {folder.state.kind === "cancelling" && <span role="status">Cancelling folder save…</span>}
-          {folder.state.kind === "failed" && <span role="status">{folder.state.message}</span>}
-          {folder.state.kind === "result" && <div class="folder-report" role="status">
-            <p>{folder.state.report.cancelled ? "Cancelled. " : ""}{folder.state.report.saved.length} saved to {folder.state.report.folder}. {folder.state.report.failed.length} failed, {folder.state.report.remaining} not saved.</p>
-            {folder.state.report.failed.map(item => <p>{item.name}: {item.message}</p>)}
-          </div>}
-          {archive.state.kind === "building" && <><progress aria-label="ZIP progress" value={archive.state.progress.loaded} max={archive.state.progress.total || 1} /><button type="button" onClick={archive.cancel}>Cancel ZIP</button></>}
-          {(archive.state.kind === "cancelling" || archive.state.kind === "releasing") && <span role="status">Cleaning up ZIP…</span>}
-          {(archive.state.kind === "failed" || archive.state.kind === "cleanup") && <span role="status">{archive.state.message}</span>}
-          {archive.state.kind === "cleanup" && <button ref={zipCleanupButton} type="button" onClick={() => {pendingResultFocus.current=true;void archive.clear();}}>Retry ZIP cleanup</button>}
-          <button
-            ref={exportButton}
-            class="button primary"
-            type="button"
-            disabled={workLocked || exports.cleanupCount > 0 || !jobs.length}
-            onClick={() => void exports.run(jobs)}
-          >
-            Export
-          </button>
-          {exports.busy && <button type="button" onClick={exports.cancelAll}>Cancel all</button>}
-          {!workLocked && exports.cleanupCount === 0 && [...exports.jobs.values()].some(job => job.state.kind === "failed") &&
-            <button type="button" onClick={() => exports.retry()}>Retry failed</button>}
-          {exports.cleanupCount > 0 && <>
-            <span role="status">Temporary files need cleanup.</span>
-            <button ref={cleanupButton} type="button" disabled={locked} onClick={() => {pendingResultFocus.current=true;void exports.retryCleanup();}}>Retry cleanup</button>
-          </>}
-          {exports.jobs.size > 0 && <span role="status">{[
-            ["done", "done"], ["running", "active"], ["waiting", "waiting"],
-            ["cancelling", "cancelling"], ["failed", "failed"], ["cancelled", "cancelled"],
-          ].flatMap(([kind, label]) => {
-            const count = [...exports.jobs.values()].filter(job => job.state.kind === kind).length;
-            return count ? [`${count} ${label}`] : [];
-          }).join(" · ")}</span>}
-          {exports.busy && <small>{exports.cleaning ? "Cleaning up…" : "Keep this page open. Cancellation waits for cleanup."}</small>}
+          <div class="run-status" aria-live="polite">
+            {clearing && <span>Cancelling and cleaning up before clearing…</span>}
+            {previewCleanup && !files.some(entry => entry.id === previewCleanup.fileId) && <>
+              <span>{previewCleanup.message}</span><button type="button" class="text-button" onClick={preview.clear}>Retry preview cleanup</button>
+            </>}
+            {folder.state.kind === "choosing" && <span>Choose a folder for a new batch folder.</span>}
+            {folder.state.kind === "saving" && <span>Saving {folder.state.completed} / {folder.state.total}</span>}
+            {(folder.state.kind === "choosing" || folder.state.kind === "saving") && <button type="button" class="text-button" onClick={folder.cancel}>Cancel folder save</button>}
+            {folder.state.kind === "cancelling" && <span>Cancelling folder save…</span>}
+            {folder.state.kind === "failed" && <span>{folder.state.message}</span>}
+            {folder.state.kind === "result" && <div class="folder-report">
+              <p>{folder.state.report.cancelled ? "Cancelled. " : ""}{folder.state.report.saved.length} saved to {folder.state.report.folder}. {folder.state.report.failed.length} failed, {folder.state.report.remaining} not saved.</p>
+              {folder.state.report.failed.map(item => <p>{item.name}: {item.message}</p>)}
+            </div>}
+            {archive.state.kind === "building" && <>
+              <progress aria-label="ZIP progress" value={archive.state.progress.loaded} max={archive.state.progress.total || 1} />
+              <span>Creating ZIP</span>
+              <button type="button" class="text-button" onClick={archive.cancel}>Cancel ZIP</button>
+            </>}
+            {(archive.state.kind === "cancelling" || archive.state.kind === "releasing") && <span>Cleaning up ZIP…</span>}
+            {(archive.state.kind === "failed" || archive.state.kind === "cleanup") && <span>{archive.state.message}</span>}
+            {archive.state.kind === "cleanup" && <button ref={zipCleanupButton} type="button" class="text-button" onClick={() => {pendingResultFocus.current=true;void archive.clear();}}>Retry ZIP cleanup</button>}
+            {exports.cleanupCount > 0 && <>
+              <span>Temporary files need cleanup.</span>
+              <button ref={cleanupButton} type="button" class="text-button" disabled={locked} onClick={() => {pendingResultFocus.current=true;void exports.retryCleanup();}}>Retry cleanup</button>
+            </>}
+            {exports.jobs.size > 0 && <span class="run-count">{exportStatus([...exports.jobs.values()])}</span>}
+            {exports.busy && <button type="button" class="text-button" onClick={exports.cancelAll}>Cancel all</button>}
+            {!workLocked && exports.cleanupCount === 0 && [...exports.jobs.values()].some(job => job.state.kind === "failed") &&
+              <button type="button" class="text-button" onClick={() => exports.retry()}>Retry failed</button>}
+            {completed.length > 0 && !clearing && <small>Clear all removes unsaved exports. Saved downloads stay on your device.</small>}
+            {exports.busy && <small>{exports.cleaning ? "Cleaning up…" : "Keep this page open. Cancellation waits for cleanup."}</small>}
+          </div>
+          <div class="run-actions-group">
+            {files.length > 0 && <button
+              type="button"
+              disabled={clearing}
+              title="Removes loaded files and unsaved exports. Files saved to your device stay."
+              onClick={clearAll}
+            >Clear all</button>}
+            {completed.length > 0 && <details class="delivery-menu" onKeyDown={event=>{
+              if(event.key === "Escape") {event.currentTarget.open=false;event.currentTarget.querySelector<HTMLElement>("summary")?.focus();}
+            }}>
+              <summary role="button" class="button">Save to device</summary>
+              <div class="delivery-options">
+                {archive.state.kind === "ready" ? <a class="button" href={archive.state.url} download={archive.state.output.name}>Download ZIP</a>
+                  : <button type="button" disabled={workLocked || exports.cleanupCount > 0} onClick={() => archive.start(completed.map(result => result.output.file))}>Create ZIP</button>}
+                {folder.supported && <button type="button" disabled={workLocked || exports.cleanupCount > 0} onClick={event => {
+                  event.currentTarget.closest("details")?.removeAttribute("open");
+                  void folder.start(completed.map(result => result.output.file));
+                }}>Save to folder</button>}
+                <button type="button" disabled={locked} onClick={() => {
+                  pendingResultFocus.current = true;
+                  void archive.clear();
+                  for (const id of exports.jobs.keys()) exports.clear(id);
+                }}>Clear results</button>
+              </div>
+            </details>}
+            <button
+              ref={exportButton}
+              class="button primary"
+              type="button"
+              disabled={workLocked || exports.cleanupCount > 0 || !jobs.length}
+              onClick={() => void exports.run(jobs)}
+            >
+              Export
+            </button>
+          </div>
         </div>
           </ExportEditor>
           </div>

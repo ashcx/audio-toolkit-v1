@@ -66,5 +66,10 @@ export function useFiles() {
       active.current.get(id)?.abort();
       setEntries((previous) => previous.filter((entry) => entry.id !== id));
     },
+    clear() {
+      for (const controller of active.current.values()) controller.abort();
+      active.current.clear();
+      setEntries([]);
+    },
   };
 }
