@@ -21,7 +21,7 @@ for(const[engine,type]of[['chromium',chromium],['webkit',webkit]]){
     await page.getByLabel('Add step',{exact:true}).selectOption(kind);
     if(kind==='channels')await page.getByRole('radio',{name:'Mono',exact:true}).check();
     if(kind==='resample')await page.getByRole('combobox',{name:'Sample rate',exact:true}).selectOption('16000');
-    if(kind==='trim'){await page.getByLabel('Batch trim start (time)').fill('.25');await page.getByLabel('Batch trim end (time)').fill('.75');}
+    if(kind==='trim'){await page.getByLabel('Trim all start (time)').fill('.25');await page.getByLabel('Trim all end (time)').fill('.75');}
     if(kind==='isolation')await page.getByRole('combobox',{name:'Keep',exact:true}).selectOption(isolationFirst?'music':'voice');
     if(kind==='normalize')await setSlider(page,'Peak target (dBFS) slider',-6);
    }

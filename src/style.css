@@ -166,7 +166,8 @@ input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border: 3px s
 .validation-error { color: var(--bad); font-size: 12px; margin: 12px 0 0; }
 .notice { padding: 12px 16px; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface-subtle); margin-bottom: 16px; font-size: 13px; }
 .run-actions { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 16px; font-size: 12px; color: var(--muted-strong); }
-.run-status { flex: 1 1 260px; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; text-align: left; }
+.run-status { flex: 1 1 260px; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; text-align: left; overflow-wrap: anywhere; }
+.run-status > * { min-width: 0; max-width: 100%; }
 .run-status > small { flex-basis: 100%; text-align: left; }
 .run-count { font-variant-numeric: tabular-nums; }
 .run-actions-group { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; margin-left: auto; }

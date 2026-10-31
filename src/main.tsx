@@ -58,6 +58,7 @@ function App() {
   const settings = useRef<HTMLDialogElement>(null);
   const exportButton = useRef<HTMLButtonElement>(null);
   const pendingResultFocus = useRef(false);
+  const pendingClearFocus = useRef(false);
   const cleanupButton = useRef<HTMLButtonElement>(null);
   const zipCleanupButton = useRef<HTMLButtonElement>(null);
   const settingsButton = useRef<HTMLButtonElement>(null);
@@ -95,6 +96,9 @@ function App() {
   };
   const clearAll = () => {
     if (clearing) return;
+    setDraft(current => ({ ...current, export: draft.export }));
+    setExplicitFormat(true);
+    pendingClearFocus.current = true;
     setClearing(true);
     preview.clear();
     void archive.clear();
@@ -115,6 +119,11 @@ function App() {
     return () => window.removeEventListener("beforeunload", protect);
   }, [completed.length, exports.busy, archive.busy, folder.busy]);
   const picker = useRef<HTMLInputElement>(null);
+  useLayoutEffect(() => {
+    if (clearing || !pendingClearFocus.current) return;
+    pendingClearFocus.current = false;
+    picker.current?.focus();
+  }, [clearing, files.length]);
   useLayoutEffect(() => {
     if (!pendingResultFocus.current) return;
     if (archive.state.kind === "cleanup") {pendingResultFocus.current=false;zipCleanupButton.current?.focus();return;}

@@ -94,6 +94,9 @@ export function FileRow({
   const downloadLabel = previousSettings
     ? `Download previous export for ${entry.file.name}`
     : `Download exported audio for ${entry.file.name}`;
+  const playLabel = previousSettings
+    ? `Play previous export ${entry.file.name}`
+    : `Play exported audio ${entry.file.name}`;
   return (
     <li data-file-id={entry.id} data-inspection={entry.inspection.kind} data-job-state={exported?.kind}>
       <span class="file-name" title={entry.file.name}>
@@ -176,7 +179,7 @@ export function FileRow({
               <small>{previousSettings ? "Previous export" : "Exported audio"}</small>
               {job?.spec.plan.kind === "copy" && <small>No re-encoding.</small>}
               {exportedPlayable
-                ? <audio controls preload="none" src={exported.url} aria-label={`Play exported audio ${entry.file.name}`} onPlay={pauseOthers} />
+                ? <audio controls preload="none" src={exported.url} aria-label={playLabel} onPlay={pauseOthers} />
                 : <small class="file-note">This exported format cannot play here. Download it to listen.</small>}
               {exported.report.kind === "pcm" &&
                 exported.report.stats.limitedNormalizations > 0 && (
