@@ -33,3 +33,7 @@ Images are trim-baseline.png, workspace-desktop.png, workspace-dark.png and work
 ## Independent review
 
 Terra and Luna independently inspected the scoped diff and each ran `node --experimental-strip-types --test tests/ui-controls.test.mjs tests/export-default.test.mjs`. Both observed nine passing tests and no verified findings. Added-comment and suppression audits found none. Reviewers did not repeat Chrome interactions. The root inspected the implementation and desktop screenshot. The pending device and recording checks above remain open.
+
+## Final root checks
+
+The root verified an actual 320 CSS-pixel viewport in Chrome by reading `innerWidth` and `document.documentElement.scrollWidth`, both 320. See workspace-320.jpg. The earlier 355-pixel observation remains historical. A 33.7-second CDP screencast records pencil expansion, continuous rail gestures and precise entry in interaction.mp4. The viewport override was reset after capture. Physical trackpad/touch checks remain unverified.
