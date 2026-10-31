@@ -8,7 +8,7 @@ Date: 2026-10-31. Branch: `codex/sprint-24-loudness`.
 
 - Preview panel: `Compressor reduced peaks by up to 1.5 dB in this excerpt.` The preview state carries the processed pass `DspStats`, including `compressorMaxGainReductionDb`.
 - MP3 export result: `Loudness target reached. Achieved -14.0 LUFS.` and `Compressor max gain reduction 1.5 dB.`
-- High-crest export result: `Peak ceiling limited loudness. Achieved -34.3 LUFS at -2.0 dBTP.` The requested target was -14 LUFS at a -1 dBTP ceiling, so success is not claimed.
+- High-crest export result: `Peak ceiling limited loudness. Achieved -34.3 LUFS at an estimated -2.0 dBTP.` The requested target was -14 LUFS at a -1 dBTP ceiling, so success is not claimed.
 - `pageErrors` is empty. The browser check JSON records the exact strings.
 
 After the review fixes, a 16 kHz burst export at -8 LUFS with a -0.3 dBTP ceiling reported `Peak ceiling limited loudness. Achieved -11.1 LUFS at an estimated -1.3 dBTP.` ffmpeg measured the exported file at -0.4 dBTP, so the ceiling held. A Normalize then Compressor 100% flow now reads `Loudness target reached at the Normalize step. Achieved -14.0 LUFS. Later steps can change the final level.` ffmpeg measures that file at -19.9 LUFS; the result no longer claims a final loudness. A Normalize then Gain +6 flow is qualified the same way, and a later Channels step is included in the same detection. A 0 dBTP Peak-mode export measured -0.6 dBTP by ffmpeg with an estimated -1.0 dBTP result. `scripts/sprint-24-check.mjs` also passes at the fixed head against `http://127.0.0.1:5185/audio-toolkit-v1/`.

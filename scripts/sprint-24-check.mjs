@@ -134,7 +134,7 @@ await setRange(limited, 'True-peak ceiling (dBTP) slider', -1);
 await limited.getByRole('combobox', { name: 'Format', exact: true }).selectOption('wav');
 await limited.getByRole('button', { name: 'Export', exact: true }).click();
 await limited.getByRole('link', { name: 'Download', exact: true }).waitFor({ timeout: 60000 });
-const limitedMessage = limited.getByText(/Peak ceiling limited loudness\. Achieved -?\d+\.\d LUFS at -?\d+\.\d dBTP\./);
+const limitedMessage = limited.getByText(/Peak ceiling limited loudness\. Achieved -?\d+\.\d LUFS at an estimated -?\d+\.\d dBTP\./);
 await limitedMessage.waitFor();
 observations.limited = await limitedMessage.innerText();
 await capture(limited, '06-ceiling-limited');

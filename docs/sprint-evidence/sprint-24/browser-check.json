@@ -22,6 +22,6 @@
     "Normalize"
   ],
   "preview": "Compressor reduced peaks by up to 1.5 dB in this excerpt.",
-  "limited": "Peak ceiling limited loudness. Achieved -34.3 LUFS at -2.0 dBTP.",
+  "limited": "Peak ceiling limited loudness. Achieved -34.3 LUFS at an estimated -2.0 dBTP.",
   "pageErrors": []
 }
