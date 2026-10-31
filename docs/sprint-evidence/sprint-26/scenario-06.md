@@ -4,4 +4,4 @@ The completed export row rendered `Exported audio` and a direct player. The play
 
 The recipe preview remains a WAV excerpt comparison and is labelled as an estimate when normalization or isolation is present. No-recipe Preview stays hidden after changing the output format or Opus mode; `scripts/sprint-26-check.mjs` asserts this before each export.
 
-Evidence: `result.json`, `scripts/sprint-26-check.mjs`, `captures/01-opus-cbr.png`, `captures/02-opus-vbr.png`.
+Evidence: `result.json`, `scripts/sprint-26-check.mjs`, `captures/08-encoded-player.png`, `captures/01-opus-cbr.png`, `captures/02-opus-vbr.png`.
