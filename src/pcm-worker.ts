@@ -50,6 +50,7 @@ async function execute({
       loudnessRequestedLufs: null,
       loudnessAchievedLufs: null,
       truePeakDbtp: null,
+      peakTargetDbtp: null,
       compressorMaxGainReductionDb: 0,
       clippedSamples: 0,
     };
@@ -62,6 +63,7 @@ async function execute({
       stats.loudnessRequestedLufs = report.requestedLufs;
       stats.loudnessAchievedLufs = report.achievedLufs;
       stats.truePeakDbtp = report.truePeakDbtp;
+      stats.peakTargetDbtp = report.peakTargetDbtp;
       stats.normalizationLimitedByCeiling = report.limitedByCeiling;
     },
     checkpoint: () => {

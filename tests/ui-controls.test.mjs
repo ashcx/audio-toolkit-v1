@@ -77,9 +77,12 @@ test('the loudness rail is monotonic, preserves every 0.5 LUFS step and exposes 
 test('the loudness rail magnetises near a mark without trapping the pointer',()=>{
  const fourteen=positionForLufs(-14);
  assert.equal(lufsFromPosition(fourteen),-14);
- assert.equal(lufsFromPosition(fourteen+0.005),-14);
- const escaped=lufsFromPosition(fourteen+0.05);
+ assert.equal(lufsFromPosition(fourteen+0.02),-14);
+ const escaped=lufsFromPosition(fourteen+0.03);
  assert.notEqual(escaped,-14);assert(escaped>-14);
+ const ebu=positionForLufs(-23);
+ assert.equal(lufsFromPosition(ebu+0.02),-23);
+ assert.notEqual(lufsFromPosition(ebu+0.03),-23);
  assert(lufsFromPosition(fourteen+0.1)>escaped,'moving farther away keeps increasing the target');
  assert.equal(stepLufs(-14,1),-13.5);assert.equal(stepLufs(-14,-1),-14.5);
  assert.equal(stepLufs(LOUDNESS_MAX,1),LOUDNESS_MAX);assert.equal(stepLufs(LOUDNESS_MIN,-1),LOUDNESS_MIN);

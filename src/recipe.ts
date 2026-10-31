@@ -58,6 +58,17 @@ export const stepSchema = z
           .max(0, "Peak target must be between -60 and 0 dBFS.")
           .brand<"PeakTargetDbfs">()
           .optional(),
+        targetDbtp: z
+          .number({ error: "Enter a true-peak target." })
+          .finite()
+          .min(-6, "True-peak target must be between -6 and 0 dBTP.")
+          .max(0, "True-peak target must be between -6 and 0 dBTP.")
+          .refine(
+            (value) => Math.abs(value * 10 - Math.round(value * 10)) < 1e-9,
+            "True-peak target must be in 0.1 dB steps.",
+          )
+          .brand<"TruePeakTargetDbtp">()
+          .optional(),
         targetLufs: z
           .number({ error: "Enter a loudness target." })
           .finite()
@@ -82,7 +93,7 @@ export const stepSchema = z
           .optional(),
       })
       .superRefine((step, context) => {
-        const reject = (field: "targetDbfs" | "targetLufs" | "ceilingDbtp", message: string) =>
+        const reject = (field: "targetDbfs" | "targetDbtp" | "targetLufs" | "ceilingDbtp", message: string) =>
           context.addIssue({ code: "custom", message, path: [field] });
         if (step.mode === "loudness") {
           if (step.targetLufs === undefined)
@@ -91,9 +102,13 @@ export const stepSchema = z
             reject("ceilingDbtp", "Loudness mode requires a true-peak ceiling.");
           if (step.targetDbfs !== undefined)
             reject("targetDbfs", "Loudness mode cannot also use a peak target.");
+          if (step.targetDbtp !== undefined)
+            reject("targetDbtp", "Loudness mode cannot also use a true-peak target.");
         } else {
-          if (step.targetDbfs === undefined)
-            reject("targetDbfs", "Peak mode requires a peak target.");
+          if (step.targetDbtp !== undefined && step.targetDbfs !== undefined)
+            reject("targetDbfs", "Peak mode cannot use both sample peak and true peak.");
+          if (step.targetDbtp === undefined && step.targetDbfs === undefined)
+            reject("targetDbtp", "Peak mode requires a peak target.");
           if (step.targetLufs !== undefined)
             reject("targetLufs", "Peak mode cannot also use a loudness target.");
           if (step.ceilingDbtp !== undefined)

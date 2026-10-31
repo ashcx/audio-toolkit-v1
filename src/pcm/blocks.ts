@@ -2,9 +2,10 @@ import { LoudnessMeter, type LoudnessMeasurement } from "./loudness.ts";
 import type { Recipe } from "../recipe";
 
 export const BLOCK_FRAMES = 4096;
-// The true-peak meter has a documented measurement tolerance, so ceiling decisions
+// The BS.1770 true-peak meter can under-read ffmpeg by about 0.9 dB on
+// high-frequency content near Nyquist. Ceiling and true-peak target decisions
 // keep this margin. Reported peaks stay the measured value, not the padded one.
-export const TRUE_PEAK_CEILING_GUARD_DB = 0.4;
+export const TRUE_PEAK_CEILING_GUARD_DB = 1.0;
 export type PcmBlock = Readonly<{
   origin: number;
   offset: number;
@@ -25,6 +26,7 @@ export type NormalizationReport = Readonly<{
   requestedLufs: number | null;
   achievedLufs: number | null;
   truePeakDbtp: number | null;
+  peakTargetDbtp: number | null;
   limited: boolean;
   limitedByCeiling: boolean;
 }>;
@@ -112,7 +114,9 @@ export async function* normalize(
       short: false,
     };
     const loudnessMode = step.mode === "loudness";
+    const truePeakMode = !loudnessMode && step.targetDbtp !== undefined;
     const targetDbfs = step.targetDbfs ?? -1;
+    const targetDbtp = step.targetDbtp ?? -0.3;
     const targetLufs = step.targetLufs ?? -14;
     const ceilingDbtp = step.ceilingDbtp ?? -0.3;
     const silent =
@@ -123,19 +127,29 @@ export async function* normalize(
     let gainFactor = 1;
     let limitedByCeiling = false;
     if (!silent) {
-      requestedGain = loudnessMode
-        ? 10 ** ((targetLufs - (measurement.integratedLufs ?? targetLufs)) / 20)
-        : 10 ** (targetDbfs / 20) / measurement.samplePeak;
-      gainFactor = Math.min(1000, requestedGain);
-      if (loudnessMode && measurement.truePeak > 0) {
-        const ceiling = 10 ** (ceilingDbtp / 20);
-        const guardedTruePeak =
-          measurement.truePeak * 10 ** (TRUE_PEAK_CEILING_GUARD_DB / 20);
-        // Compare the peak after the requested gain, not the source peak alone.
-        if (guardedTruePeak * gainFactor > ceiling) {
-          gainFactor = ceiling / guardedTruePeak;
-          limitedByCeiling = true;
+      if (loudnessMode) {
+        requestedGain = 10 ** ((targetLufs - (measurement.integratedLufs ?? targetLufs)) / 20);
+        gainFactor = Math.min(1000, requestedGain);
+        if (measurement.truePeak > 0) {
+          const ceiling = 10 ** (ceilingDbtp / 20);
+          const guardedTruePeak =
+            measurement.truePeak * 10 ** (TRUE_PEAK_CEILING_GUARD_DB / 20);
+          // Compare the peak after the requested gain, not the source peak alone.
+          if (guardedTruePeak * gainFactor > ceiling) {
+            gainFactor = ceiling / guardedTruePeak;
+            limitedByCeiling = true;
+          }
         }
+      } else if (truePeakMode) {
+        const peak = measurement.truePeak > 0 ? measurement.truePeak : measurement.samplePeak;
+        requestedGain =
+          10 ** (targetDbtp / 20) /
+          (peak * 10 ** (TRUE_PEAK_CEILING_GUARD_DB / 20));
+        gainFactor = Math.min(1000, requestedGain);
+      } else {
+        // Legacy peak recipes keep their sample-peak meaning.
+        requestedGain = 10 ** (targetDbfs / 20) / measurement.samplePeak;
+        gainFactor = Math.min(1000, requestedGain);
       }
     }
     if (!Number.isFinite(gainFactor) || gainFactor <= 0) gainFactor = 1;
@@ -148,12 +162,13 @@ export async function* normalize(
     context.onNormalization?.({
       mode: loudnessMode ? "loudness" : "peak",
       measuredLufs: measurement.integratedLufs,
-      requestedLufs: loudnessMode && !silent ? targetLufs : null,
+      requestedLufs: loudnessMode ? targetLufs : null,
       achievedLufs,
       truePeakDbtp:
         measurement.truePeak > 0
           ? 20 * Math.log10(measurement.truePeak * gainFactor)
           : null,
+      peakTargetDbtp: truePeakMode ? targetDbtp : null,
       limited,
       limitedByCeiling,
     });

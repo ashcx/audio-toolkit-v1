@@ -23,7 +23,7 @@ const ANCHORS = [
   { value: -9.5, position: 0.8 },
   { value: LOUDNESS_MAX, position: 1 },
 ] as const;
-const MAGNET_ZONE = 0.012;
+const MAGNET_ZONE = 0.025;
 
 const clamp = (value: number, min: number, max: number) =>
   Math.max(min, Math.min(max, value));

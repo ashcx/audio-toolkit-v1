@@ -40,6 +40,7 @@ export type DspStats = {
   loudnessRequestedLufs: number | null;
   loudnessAchievedLufs: number | null;
   truePeakDbtp: number | null;
+  peakTargetDbtp: number | null;
   compressorMaxGainReductionDb: number;
   clippedSamples: number;
 };

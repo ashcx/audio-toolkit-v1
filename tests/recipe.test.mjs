@@ -47,6 +47,11 @@ test('normalize defaults to loudness while legacy peak recipes keep their meanin
  assert.equal(parsed.steps[0].mode,'peak');
  assert.equal(parsed.steps[0].targetDbfs,-1);
  assert.equal(parsed.steps[0].targetLufs,undefined);
+ assert.equal(parsed.steps[0].targetDbtp,undefined);
+ const truePeak={id:crypto.randomUUID(),kind:'normalize',mode:'peak',targetDbtp:-0.3};
+ const parsedTruePeak=recipeSchema.parse({...newRecipe(),steps:[truePeak]});
+ assert.equal(parsedTruePeak.steps[0].targetDbtp,-0.3);
+ assert.equal(parsedTruePeak.steps[0].targetDbfs,undefined);
 });
 test('normalize rejects mixed mode fields and out-of-range loudness or ceiling values', () => {
  const base=newRecipe();
@@ -56,10 +61,13 @@ test('normalize rejects mixed mode fields and out-of-range loudness or ceiling v
   step({mode:'loudness',targetLufs:-8,ceilingDbtp:0}),
   step({mode:'peak',targetDbfs:-60}),
   step({mode:'peak',targetDbfs:0}),
+  step({mode:'peak',targetDbtp:-6}),
+  step({mode:'peak',targetDbtp:0}),
  ];
  for(const value of valid)assert.equal(recipeSchema.safeParse({...base,steps:[value]}).success,true,JSON.stringify(value));
  const invalid=[
   step({mode:'loudness',targetLufs:-14,ceilingDbtp:-1,targetDbfs:-1}),
+  step({mode:'loudness',targetLufs:-14,ceilingDbtp:-1,targetDbtp:-1}),
   step({mode:'loudness',targetLufs:-14}),
   step({mode:'loudness',ceilingDbtp:-1}),
   step({mode:'loudness',targetLufs:-14.2,ceilingDbtp:-1}),
@@ -70,6 +78,9 @@ test('normalize rejects mixed mode fields and out-of-range loudness or ceiling v
   step({mode:'peak',targetDbfs:-1,ceilingDbtp:-1}),
   step({mode:'peak'}),
   step({mode:'peak',targetDbfs:-61}),
+  step({mode:'peak',targetDbtp:-6.1}),
+  step({mode:'peak',targetDbtp:0.1}),
+  step({mode:'peak',targetDbtp:-1,targetDbfs:-1}),
  ];
  for(const value of invalid)assert.equal(recipeSchema.safeParse({...base,steps:[value]}).success,false,JSON.stringify(value));
 });

@@ -59,8 +59,8 @@ await capture(page, '01-loudness-rail');
 
 await page.getByRole('radio', { name: 'Peak', exact: true }).check();
 assert.equal(await page.getByRole('slider', { name: 'Loudness target', exact: true }).count(), 0);
-await page.getByRole('slider', { name: 'Peak target (dBFS) slider', exact: true }).waitFor();
-await page.getByText('Peak mode matches the highest sample. The loudness target is not used in Peak mode.', { exact: true }).waitFor();
+await page.getByRole('slider', { name: 'Peak target (dBTP) slider', exact: true }).waitFor();
+await page.getByText('Peak mode matches the estimated true peak with a meter guard below the target. The loudness target is not used.', { exact: true }).waitFor();
 await capture(page, '02-peak-mode');
 
 await page.getByRole('radio', { name: 'Loudness', exact: true }).check();

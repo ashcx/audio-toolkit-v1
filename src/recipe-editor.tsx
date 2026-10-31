@@ -42,10 +42,13 @@ function summary(step: StepDraft): string {
         : "Set gain";
     case "normalize": {
       const mode = step.mode ?? "peak";
-      if (mode === "peak")
+      if (mode === "peak") {
+        if (Number.isFinite(step.targetDbtp))
+          return `Peak · ${step.targetDbtp} dBTP`;
         return Number.isFinite(step.targetDbfs)
-          ? `Peak · ${step.targetDbfs} dBFS`
+          ? `Peak · ${step.targetDbfs} dBFS (legacy)`
           : "Set peak target";
+      }
       return Number.isFinite(step.targetLufs) && Number.isFinite(step.ceilingDbtp)
         ? `Loudness · ${step.targetLufs} LUFS · ${step.ceilingDbtp} dBTP`
         : "Set loudness target";
@@ -229,24 +232,31 @@ function StepFields({
       const mode = step.mode ?? "peak";
       const targetLufs = step.targetLufs ?? -14;
       const ceilingDbtp = step.ceilingDbtp ?? -0.3;
-      const targetDbfs = step.targetDbfs ?? -1;
+      const targetDbtp = step.targetDbtp ?? -0.3;
+      const legacyDbfs = step.targetDbfs;
       return <>
         <SourceLevels files={files} enabled={analysisEnabled} />
         <Choices label="Normalize mode" value={mode} options={[
           { value: "loudness", label: "Loudness" }, { value: "peak", label: "Peak" },
         ]} onChange={next => onChange(next === "loudness"
           ? { id: step.id, kind: "normalize", mode: "loudness", targetLufs, ceilingDbtp }
-          : { id: step.id, kind: "normalize", mode: "peak", targetDbfs })} />
+          : { id: step.id, kind: "normalize", mode: "peak", targetDbtp })} />
         {mode === "loudness" ? <>
           <LoudnessRail value={targetLufs} errorId={errorId} onChange={targetLufs =>
             onChange({ id: step.id, kind: "normalize", mode: "loudness", targetLufs, ceilingDbtp })} />
           <DbControl label="True-peak ceiling (dBTP)" value={ceilingDbtp} min={-6} max={0} unit="dBTP" errorId={errorId}
             onChange={ceilingDbtp => onChange({ id: step.id, kind: "normalize", mode: "loudness", targetLufs, ceilingDbtp })} />
           <small class="panel-description">Gated integrated loudness is measured in 400 ms blocks. The true-peak ceiling can prevent the requested loudness; the export reports the achieved result at this step. Later gain or compressor steps can change the final level.</small>
-        </> : <>
-          <DbControl label="Peak target (dBFS)" value={targetDbfs} min={-60} max={0} errorId={errorId}
+        </> : legacyDbfs !== undefined ? <>
+          <DbControl label="Legacy peak target (dBFS)" value={legacyDbfs} min={-60} max={0} unit="dBFS" errorId={errorId}
             onChange={targetDbfs => onChange({ id: step.id, kind: "normalize", mode: "peak", targetDbfs })} />
-          <small class="panel-description">Peak mode matches the highest sample. The loudness target is not used in Peak mode.</small>
+          <small class="panel-description">This recipe keeps its original sample-peak meaning. New peak steps use true peak.</small>
+          <button type="button" class="text-button"
+            onClick={() => onChange({ id: step.id, kind: "normalize", mode: "peak", targetDbtp })}>Use a true-peak target</button>
+        </> : <>
+          <DbControl label="Peak target (dBTP)" value={targetDbtp} min={-6} max={0} unit="dBTP" errorId={errorId}
+            onChange={targetDbtp => onChange({ id: step.id, kind: "normalize", mode: "peak", targetDbtp })} />
+          <small class="panel-description">Peak mode matches the estimated true peak with a meter guard below the target. The loudness target is not used.</small>
         </>}
       </>;
     }
