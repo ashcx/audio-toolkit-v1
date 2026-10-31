@@ -10,8 +10,9 @@ Base `4d4395a` (`origin/main`). Branch `codex/sprint-25-playback`.
 | Preview gated by a non-empty recipe and no current export | `scenario-02.md`, `captures/03-preview-desktop.png`, `captures/05-previous-export.png` | verified |
 | Exported and previous play bars, no Listen disclosure | `scenario-02.md`, `captures/04-export-desktop.png`, `captures/05-previous-export.png` | verified |
 | Download icon bound to the completed output | `scenario-03.md`, `scripts/sprint-25-check.mjs` | verified |
-| Clear all keeps recipe and export preferences, releases temp outputs | `scenario-05.md`, `captures/06-cleared.png` | verified |
-| Left status and right actions, 320 px wrapping, both themes | `scenario-06.md`, `captures/07-error-320-dark.png`, `captures/08-export-320-dark.png` | verified |
+| Clear all keeps recipe and export preferences, releases temp outputs | `scenario-05.md`, `captures/06-cleared.png`, `captures/06b-auto-format-cleared.png` | verified; explicit and automatic formats retained |
+| Left status and right actions, 320 px wrapping, both themes | `scenario-06.md`, `captures/07-error-320-light.png`, `captures/07-error-320-dark.png`, `captures/08-export-320-dark.png` | verified |
 | Stream-copy explanation | `scenario-02.md`, `captures/09-stream-copy.png` | verified |
 | WebKit/Safari, physical devices, listening | none | unavailable, not claimed |
-| Cleanup-failure Clear all and separate keyboard pass | none | not re-driven in this run, recorded as a gap |
+| Clear all during preview, cleanup-failure retry, keyboard focus and long status token | `scenario-05.md`, `scenario-06.md`, `captures/05b-cleanup-retry.png`, `captures/07b-long-token-320-dark.png` | verified |
+| WebKit/Safari, physical devices, listening, Save to folder | none | unavailable or not exercised, not claimed |

@@ -7,7 +7,7 @@
 - `npm test` from `/private/tmp/audio-sprint25`: 100 tests, 100 pass, 0 fail.
 - `npm run build`: pass. Vite reports only its Node 22.11 and chunk-size warnings.
 - `npm run verify:static`: pass, including AAC and isolation hashes.
-- `APP_URL=http://127.0.0.1:5183/audio-toolkit-v1/ node scripts/sprint-25-check.mjs`: pass. It recreated the captures and `result.json`.
+- `APP_URL=http://127.0.0.1:5183/audio-toolkit-v1/ node scripts/sprint-25-check.mjs`: pass. It recreated the captures and `result.json`, including preview cancellation, Clear all during preview, cleanup retry, automatic-format retention, focus recovery and the 320 long-token check.
 - `RECIPE_CHECK_ENGINE=chromium APP_URL=http://127.0.0.1:5183/audio-toolkit-v1/ node scripts/recipe-check.mjs`: pass for shared Trim all, validation recovery, keyboard and drag reorder, trim removal and mobile order.
 - `PATH=/opt/homebrew/bin:$PATH FORMAT_CHECK_ENGINE=chromium FORMAT_CHECK_FORMAT=mp3 APP_URL=http://127.0.0.1:5183/audio-toolkit-v1/ node scripts/format-check.mjs`: 12 downloaded MP3 checks pass, including a gain fixture whose decoded waveform differs from the source.
 
@@ -32,6 +32,6 @@
 
 - WebKit/Safari was not run. The Chromium path is verified.
 - Physical-device and listening acceptance were not performed and are not claimed.
-- Clear all during a simulated cleanup failure, and a separate keyboard-only pass, were not re-driven. The existing Batch cleanup-retry path is unchanged; `scripts/batch-check.mjs` and `scripts/cleanup-check.mjs` were updated for the new labels but not run in this sprint.
+- WebKit/Safari, physical-device and listening acceptance, and Save to folder were not exercised. The focused Chromium checks are the verified surface.
 - The full four-format matrix was not rerun. A focused MP3 format check passed.
 - `Clear results` remains inside Save to device as a distinct action. It clears results while keeping files. Clear all is the new top-level action.
