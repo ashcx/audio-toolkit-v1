@@ -35,3 +35,7 @@
 - WebKit/Safari, physical-device and listening acceptance, and Save to folder were not exercised. The focused Chromium checks are the verified surface.
 - The full four-format matrix was not rerun. A focused MP3 format check passed.
 - `Clear results` remains inside Save to device as a distinct action. It clears results while keeping files. Clear all is the new top-level action.
+
+## Residual
+
+The batch Save to device path (ZIP and folder) still includes retained previous outputs and has no batch-level Previous marker. Per-file playback and download are correctly labeled. This is a follow-up outside the per-file download contract verified here.
