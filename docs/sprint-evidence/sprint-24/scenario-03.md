@@ -11,4 +11,4 @@ Date: 2026-10-31. Branch: `codex/sprint-24-loudness`.
 - Planner behavior: a disabled or zero-amount compressor is a bypass and can still stream-copy; an enabled compressor changes the signal and reports "Compression requires re-encoding."
 - Browser Peak-mode evidence: `captures/02-peak-mode.png`.
 
-Commands: `npm test` (116 tests pass) includes the migration, mixed-field, bounds and planner cases.
+Commands: `npm test` (117 tests pass at the final head) includes the migration, mixed-field, bounds and planner cases.

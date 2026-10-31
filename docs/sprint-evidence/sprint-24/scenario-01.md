@@ -33,9 +33,15 @@ Tolerance: 0.5 dB for true peak and 0.5 LU for integrated loudness, except the 0
 
 Final runner output: `PASS: all independent loudness/true-peak tolerances met.`
 
+## Review fix
+
+The first implementation compared the source true peak with the ceiling before applying the requested gain. A quiet, high-crest source targeted upward therefore bypassed the ceiling. The reviewer reproduced it in Chrome: the transient fixture at -8 LUFS with a -0.3 dBTP ceiling reported `Loudness target reached. Achieved -8.0 LUFS.` and `Clipped samples.`
+
+The comparison now uses `guardedTruePeak * gainFactor`, so it judges the peak after gain. A regression test builds a quiet burst signal whose source peak is below the ceiling but whose requested gain would exceed it; it fails against the old comparison and passes now. The same Chrome flow at the fixed head reports `Peak ceiling limited loudness. Achieved -18.5 LUFS at -0.7 dBTP.` with no clipped samples. The full suite is 117 passing tests.
+
 ## Unit-level checks
 
-`tests/loudness.test.mjs` covers the 48 kHz coefficient fixture, a 1 kHz stereo -20 dBFS sine near -20 LUFS (two equal channels add 3 dB over mono), silence, 100 ms short audio, gated tone plus silence, the 4x intersample fixture, loudness-ceiling limiting, and peak mode reaching its sample-peak target.
+`tests/loudness.test.mjs` covers the 48 kHz coefficient fixture, a 1 kHz stereo -20 dBFS sine near -20 LUFS (two equal channels add 3 dB over mono), silence, 100 ms short audio, gated tone plus silence, the 4x intersample fixture, loudness-ceiling limiting including the gain-pushed quiet-source case, and peak mode reaching its sample-peak target.
 
 ## Gaps
 

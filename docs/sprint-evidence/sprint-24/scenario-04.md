@@ -11,6 +11,8 @@ Date: 2026-10-31. Branch: `codex/sprint-24-loudness`.
 - High-crest export result: `Peak ceiling limited loudness. Achieved -33.7 LUFS at -1.4 dBTP.` The requested target was -14 LUFS at a -1 dBTP ceiling, so success is not claimed.
 - `pageErrors` is empty. The browser check JSON records the exact strings.
 
+After the review fix in `scenario-01.md`, the same high-crest flow at a -0.3 dBTP ceiling and -8 LUFS target reports `Peak ceiling limited loudness. Achieved -18.5 LUFS at -0.7 dBTP.` with no clipped samples. `scripts/sprint-24-check.mjs` also passes at the fixed head against `http://127.0.0.1:5185/audio-toolkit-v1/`.
+
 ## Evidence
 
 - `browser-check.json`
