@@ -12,7 +12,7 @@
       "sampleRate": 48000,
       "duration": 20.0065,
       "sizeBytes": 323484,
-      "elapsedMs": 506,
+      "elapsedMs": 324,
       "packets": {
         "count": 1001,
         "unique": 1,
@@ -33,7 +33,7 @@
       "sampleRate": 48000,
       "duration": 20.0065,
       "sizeBytes": 324806,
-      "elapsedMs": 215,
+      "elapsedMs": 217,
       "packets": {
         "count": 1001,
         "unique": 74,
@@ -54,7 +54,7 @@
       "sampleRate": 48000,
       "duration": 20,
       "sizeBytes": 320808,
-      "elapsedMs": 319,
+      "elapsedMs": 313,
       "packets": {
         "count": 835,
         "unique": 1,
@@ -75,7 +75,7 @@
       "sampleRate": 48000,
       "duration": 20.030687,
       "sizeBytes": 252714,
-      "elapsedMs": 316,
+      "elapsedMs": 315,
       "packets": {
         "count": 941,
         "unique": 67,
@@ -96,7 +96,7 @@
       "sampleRate": 48000,
       "duration": 20,
       "sizeBytes": 3840044,
-      "elapsedMs": 212,
+      "elapsedMs": 211,
       "packets": {
         "count": 235,
         "unique": 2,
@@ -117,7 +117,7 @@
       "sampleRate": 48000,
       "duration": 20,
       "sizeBytes": 1070690,
-      "elapsedMs": 321,
+      "elapsedMs": 318,
       "packets": {
         "count": 235,
         "unique": 21,
@@ -138,7 +138,7 @@
       "sampleRate": 48000,
       "duration": 20.0065,
       "sizeBytes": 323484,
-      "elapsedMs": 1013,
+      "elapsedMs": 211,
       "packets": {
         "count": 1001,
         "unique": 1,
@@ -159,7 +159,7 @@
       "sampleRate": 48000,
       "duration": 20.0065,
       "sizeBytes": 4221,
-      "elapsedMs": 226,
+      "elapsedMs": 210,
       "packets": {
         "count": 1001,
         "unique": 1,
@@ -180,7 +180,7 @@
       "sampleRate": 48000,
       "duration": 20.0065,
       "sizeBytes": 323484,
-      "elapsedMs": 212,
+      "elapsedMs": 211,
       "packets": {
         "count": 1001,
         "unique": 1,
@@ -201,7 +201,7 @@
       "sampleRate": 48000,
       "duration": 20.0065,
       "sizeBytes": 324699,
-      "elapsedMs": 213,
+      "elapsedMs": 211,
       "packets": {
         "count": 1001,
         "unique": 98,
@@ -222,7 +222,7 @@
       "sampleRate": 48000,
       "duration": 20,
       "sizeBytes": 3840044,
-      "elapsedMs": 118,
+      "elapsedMs": 114,
       "packets": {
         "count": 235,
         "unique": 2,
