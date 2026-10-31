@@ -1,6 +1,6 @@
 import { BLOCK_FRAMES, frameTime, type PcmBlock, type PcmCheckpoint, type PcmReplay, type PcmStream } from "./blocks.ts";
 import { resample } from "./resample.ts";
-import { isolationWindows, isolationWindowCount, ISOLATION_RATE } from "./isolation-window.ts";
+import { isolationWindows, isolationWindowCount, ISOLATION_RATE, type IsolationOverlap } from "./isolation-window.ts";
 import type { InferenceReply, IsolationMode } from "../inference/protocol";
 import type { JobOperation } from "../job-events";
 import type { DspStats } from "./protocol";
@@ -94,6 +94,7 @@ async function* subtractVoice(original: PcmStream, voice: PcmStream): PcmStream 
 
 export async function* isolate(source: PcmStream, keep: IsolationMode, context: {
   signal: AbortSignal;
+  overlap?: IsolationOverlap;
   checkpoint: () => Promise<PcmCheckpoint>;
   event: (event: JobOperation) => void;
   infer: (planes: readonly Float32Array[]) => Promise<Extract<InferenceReply, { kind: "done" }>>;
@@ -103,7 +104,7 @@ export async function* isolate(source: PcmStream, keep: IsolationMode, context: 
   context.event({ kind: "phase", phase: "Analyzing for isolation" });
   const audio = await analyze(source, context.checkpoint), windows = { windows: 0, maxWindowFrames: 0 };
   try {
-    const total = isolationWindowCount(audio.frames);
+    const total = isolationWindowCount(audio.frames, context.overlap);
     let completed = 0;
     context.event({ kind: "isolation-progress", completed, total });
     const standardized = async function* () {
@@ -115,11 +116,11 @@ export async function* isolate(source: PcmStream, keep: IsolationMode, context: 
     const separated = isolationWindows(standardized(), audio, async planes => {
       context.signal.throwIfAborted();
       const result = await context.infer(planes);
-      context.stats.isolationLoads += result.attempts;
+      context.stats.isolationLoads += result.loads ?? result.attempts;
       if (!context.stats.isolationBackends.includes(result.backend)) context.stats.isolationBackends.push(result.backend);
       context.event({ kind: "isolation-progress", completed: ++completed, total });
       return result.planes;
-    }, windows);
+    }, windows, context.overlap);
     const restored = async function* () {
       for await (const block of separated) yield { ...block, planes: block.planes.map(plane => plane.map(value => value * audio.deviation)) };
     };

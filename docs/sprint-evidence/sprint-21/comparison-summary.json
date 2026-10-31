@@ -1,0 +1,64 @@
+{
+  "scope": "Five interleaved warm runs per profile on the full live fixture lasting 19.043265 seconds in actual Mac Chrome. Processing includes decode, checkpoints, inference, overlap and WAV encode. Excludes initial fixture fetch/source inspection and output validation.",
+  "promotion": "Not accepted. Owned peak memory, other supported engines, affected-passage listening and broader workload verification remain open.",
+  "baselineMs": 30931.90000000596,
+  "summaries": [
+    {
+      "profile": "baseline",
+      "runs": 5,
+      "medianMs": 30931.90000000596,
+      "rangeMs": [
+        30175,
+        31284.09999999404
+      ],
+      "medianSecondsPerAudioMinute": 97.45776105968956,
+      "windows": 5,
+      "loads": 5,
+      "sha256": "9915590b139f7e4f992f6e9980c4dde08765f57f4b87ef36fd5e084e210fe213",
+      "changePercent": 0
+    },
+    {
+      "profile": "overlap55",
+      "runs": 5,
+      "medianMs": 35965.5,
+      "rangeMs": [
+        35406.29999998212,
+        37681.30000001192
+      ],
+      "medianSecondsPerAudioMinute": 113.31722608024691,
+      "windows": 6,
+      "loads": 6,
+      "sha256": "083298b0ad17074a8ff0157fc0e4429636cd2d36dbb3a6638b042d416e49814f",
+      "changePercent": 16.273167829952474
+    },
+    {
+      "profile": "reuse2",
+      "runs": 5,
+      "medianMs": 26012.20000001788,
+      "rangeMs": [
+        25852.69999998808,
+        26698.100000023842
+      ],
+      "medianSecondsPerAudioMinute": 81.95716306589996,
+      "windows": 5,
+      "loads": 3,
+      "sha256": "9915590b139f7e4f992f6e9980c4dde08765f57f4b87ef36fd5e084e210fe213",
+      "changePercent": -15.904939560735453
+    },
+    {
+      "profile": "overlap55-reuse2",
+      "runs": 5,
+      "medianMs": 29731.399999976158,
+      "rangeMs": [
+        29064.600000023842,
+        30124.79999998212
+      ],
+      "medianSecondsPerAudioMinute": 93.6753215019825,
+      "windows": 6,
+      "loads": 3,
+      "sha256": "083298b0ad17074a8ff0157fc0e4429636cd2d36dbb3a6638b042d416e49814f",
+      "changePercent": -3.8811065599900774
+    }
+  ],
+  "sessionReuseOutput": "Byte-identical PCM16 WAV within each overlap group."
+}

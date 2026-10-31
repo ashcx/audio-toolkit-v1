@@ -1,0 +1,8 @@
+{
+  "scope": "All existing user Chrome processes, including unrelated tabs and the later UI verification pause. This is not owned benchmark memory or per-profile growth.",
+  "samples": 439,
+  "maximumAllChromeRssBytes": 4016095232,
+  "maximumObservedInferenceRendererRssBytes": 1160151040,
+  "inferenceRendererPid": 47427,
+  "attribution": "Renderer identified by CPU activity during model work; localhost tabs can share this renderer. GPU and shared processes are not allocated to this job."
+}

@@ -1,5 +1,7 @@
 # Audio Toolkit TODO roadmap
 
+[The refinement plan](todo/workspace-audio-refinement-sprints.md) authorizes Sprints 21–23, with a PR after each sprint. Sprint 21 prioritizes isolation speed with artifact checks and experiments at 55% window overlap. Sprint 22 refines the existing layout and fixes trim. Sprint 23 adds short processed previews. Sprint 24 normalization/compression remains planned.
+
 Prepared 2026-10-29. Implementation resumed on 2026-10-29. Current user instructions require working branches and PRs targeting main, with no direct-main commits/pushes or merge without explicit permission. Existing GitHub Pages automation deploys main only after an authorized merge. The user can perform real-device acceptance. Sprints 1–8 are complete within their scope; Sprint 9 is in progress after resuming from [the checkpoint](todo/RESUME.md). [Feature requirements](todo/audio-toolkit-plan.md) remain authoritative and unchecked until evidence exists.
 
 The user confirmed the public repository `ashcx/audio-toolkit-v1`. Production path is `/audio-toolkit-v1/`; the current page returned HTTP 200 and deployment run40858999659 succeeded. This verifies hosting, not unfinished app functionality. Future sprints deliver working branches and PRs targeting main; historical deployment links remain evidence.

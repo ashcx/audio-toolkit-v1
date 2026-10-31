@@ -26,6 +26,7 @@ async function execute({
   file,
   plan,
   name,
+  isolation,
 }: Extract<WorkerInput, { kind: "start" }>) {
   const controller = new AbortController(),
     stats: DspStats = {
@@ -85,7 +86,7 @@ async function execute({
       case "isolation":
         stream = isolate(stream, step.keep, {
           signal: controller.signal, checkpoint: () => checkpoint(client), event: report,
-          infer: planes => inference.run(planes), stats,
+          infer: planes => inference.run(planes), stats, overlap: isolation?.overlap,
         });
         break;
       default: {

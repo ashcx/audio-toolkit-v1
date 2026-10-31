@@ -1,0 +1,17 @@
+11:15  up 8 days, 11:25, 4 users, load averages: 5.00 3.63 3.22
+10
+47427 181.5 540224 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/155.0.8059.85/Helpers/Google Chrome Helper (Aperitif Renderer).app/Contents/MacOS/Google Chrome Helper (Aperitif Renderer)
+48205  86.1  22160 /Library/Apple/System/Library/CoreServices/XProtect.app/Contents/MacOS/XProtectRemediatorColdSnap
+48794  54.4   9744 /usr/libexec/historicalaudiod
+  777  27.6  22416 /usr/sbin/coreaudiod
+95811  22.8 959360 /Applications/ChatGPT.app/Contents/Frameworks/Codex Framework.framework/Versions/156.0.8078.48/Helpers/Codex (Renderer).app/Contents/MacOS/Codex (Renderer)
+95812  16.2 249264 /Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex
+  605  15.5 104368 /System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer
+95767   8.8 301648 /Applications/ChatGPT.app/Contents/MacOS/ChatGPT
+  540   8.2   9888 /System/Library/PrivateFrameworks/MediaRemote.framework/Support/mediaremoted
+80108   6.0  14672 /usr/libexec/trustd
+13445   5.3 120976 /Applications/Google Chrome.app/Contents/Frameworks/Google Chrome Framework.framework/Versions/155.0.8059.85/Helpers/Google Chrome Helper (Aperitif).app/Contents/MacOS/Google Chrome Helper (Aperitif)
+95782   4.2  66640 /Applications/ChatGPT.app/Contents/Frameworks/Codex Framework.framework/Versions/156.0.8078.48/Helpers/Codex (Service).app/Contents/MacOS/Codex (Service)
+ 1297   2.7 128208 /System/Library/CoreServices/Finder.app/Contents/MacOS/Finder
+  758   2.6  41616 /System/Library/DriverExtensions/AppleCentauriAlpha.dext/AppleCentauriAlpha
+95881   2.2 164608 /Applications/ChatGPT.app/Contents/Frameworks/Codex Framework.framework/Versions/156.0.8078.48/Helpers/Codex (Renderer).app/Contents/MacOS/Codex (Renderer)

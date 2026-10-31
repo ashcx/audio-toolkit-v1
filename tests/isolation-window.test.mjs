@@ -21,3 +21,17 @@ test('window boundaries do not depend on decoder chunk boundaries',async()=>{
  }
  assert.deepEqual(outputs[0],outputs[1]);
 });
+test('55 percent overlap preserves every sample and its progress total across boundaries',async()=>{
+ for(const frames of [1,485100,533609,533610,533611,970337]){
+  const stats={windows:0,maxWindowFrames:0};let received=0;
+  for await(const block of isolationWindows(signal(frames,4093),{frames,channels:2,origin:.37},async planes=>planes,stats,.55)){
+   assert.equal(block.offset,received);assert(block.planes.every(plane=>plane.every(Number.isFinite)));
+   for(let i=0;i<block.planes[0].length;i++)assert(Math.abs(block.planes[0][i]-(Math.sin((received+i)*.019)*.3+.001))<1e-6);
+   received+=block.planes[0].length;
+  }
+  assert.equal(received,frames);assert.equal(stats.windows,isolationWindowCount(frames,.55));assert(stats.maxWindowFrames<=ISOLATION_WINDOW);
+ }
+});
+test('unsupported overlaps fail before inference',async()=>{
+ await assert.rejects(async()=>{for await(const block of isolationWindows(signal(441,127),{frames:441,channels:2,origin:0},async()=>assert.fail('Unsupported overlap must not infer'),{windows:0,maxWindowFrames:0},.9))void block;},/overlap is unsupported/);
+});

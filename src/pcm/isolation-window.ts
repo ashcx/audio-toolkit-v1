@@ -2,12 +2,18 @@ import { BLOCK_FRAMES, type PcmStream, type PcmBlock } from "./blocks.ts";
 
 export const ISOLATION_RATE = 44100;
 export const ISOLATION_WINDOW = 485100;
-const HOP = ISOLATION_WINDOW / 2;
+export type IsolationOverlap = 0.5 | 0.55;
+function geometry(overlap: IsolationOverlap) {
+  if (overlap !== 0.5 && overlap !== 0.55) throw new Error("This isolation overlap is unsupported.");
+  const hop = Math.round(ISOLATION_WINDOW * (1 - overlap));
+  return { hop, border: ISOLATION_WINDOW - hop };
+}
 const FADE = Math.floor(ISOLATION_WINDOW / 10);
-export function isolationWindowCount(frames: number) {
+export function isolationWindowCount(frames: number, overlap: IsolationOverlap = 0.5) {
   if (!frames) return 0;
-  const total = frames + (frames > 2 * HOP ? 2 * HOP : 0);
-  return 1 + Math.max(0, Math.ceil((total - ISOLATION_WINDOW) / HOP));
+  const { hop, border } = geometry(overlap);
+  const total = frames + (frames > 2 * border ? 2 * border : 0);
+  return 1 + Math.max(0, Math.ceil((total - ISOLATION_WINDOW) / hop));
 }
 export type WindowStats = { windows: number; maxWindowFrames: number };
 export type WindowInference = (planes: Float32Array[]) => Promise<readonly Float32Array[]>;
@@ -73,10 +79,11 @@ async function* reflected(source: PcmStream, frames: number, count: number, orig
   } finally { await input.close(); }
 }
 
-export async function* isolationWindows(source: PcmStream, shape: { frames: number; channels: number; origin: number }, infer: WindowInference, stats: WindowStats): PcmStream {
+export async function* isolationWindows(source: PcmStream, shape: { frames: number; channels: number; origin: number }, infer: WindowInference, stats: WindowStats, overlap: IsolationOverlap = 0.5): PcmStream {
   const { frames, channels: count, origin } = shape;
   if (!frames) return;
-  const border = frames > 2 * HOP ? HOP : 0, total = frames + 2 * border;
+  const { hop, border: padding } = geometry(overlap);
+  const border = frames > 2 * padding ? padding : 0, total = frames + 2 * border;
   const input = reader(reflected(source, frames, count, origin, border), count);
   const buffer = Array.from({ length: count }, () => new Float32Array(ISOLATION_WINDOW));
   const accumulated = Array.from({ length: count }, () => new Float64Array(ISOLATION_WINDOW));
@@ -96,7 +103,7 @@ export async function* isolationWindows(source: PcmStream, shape: { frames: numb
         weights[index] += weight;
         for (let channel = 0; channel < count; channel++) accumulated[channel][index] += separated[channel][index] * weight;
       }
-      const emit = last ? filled : HOP;
+      const emit = last ? filled : hop;
       const from = Math.max(0, border - start), end = Math.min(emit, border + frames - start);
       for (let offset = from; offset < end; offset += BLOCK_FRAMES) {
         const length = Math.min(BLOCK_FRAMES, end - offset);
@@ -104,10 +111,10 @@ export async function* isolationWindows(source: PcmStream, shape: { frames: numb
         yield { origin, offset: start + offset - border, rate: ISOLATION_RATE, planes };
       }
       if (last) break;
-      start += HOP;filled -= HOP;
-      buffer.forEach(plane => plane.copyWithin(0, HOP));
-      accumulated.forEach(plane => { plane.copyWithin(0, HOP);plane.fill(0, ISOLATION_WINDOW - HOP); });
-      weights.copyWithin(0, HOP);weights.fill(0, ISOLATION_WINDOW - HOP);
+      start += hop;filled -= hop;
+      buffer.forEach(plane => plane.copyWithin(0, hop));
+      accumulated.forEach(plane => { plane.copyWithin(0, hop);plane.fill(0, ISOLATION_WINDOW - hop); });
+      weights.copyWithin(0, hop);weights.fill(0, ISOLATION_WINDOW - hop);
     }
   } finally { await input.close(); }
 }
