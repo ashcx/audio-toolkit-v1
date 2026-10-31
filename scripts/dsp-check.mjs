@@ -70,23 +70,23 @@ for(const [engine, browserType] of [['chromium',chromium], ['webkit',webkit]]) {
       for(const [kind,value] of steps) {
         await page.getByLabel('Add step',{exact:true}).selectOption(kind);
         if(kind==='gain')await setSlider(page,'Gain (dB) slider',Number(value));
-        if(kind==='normalize')await setSlider(page,'Peak target (dBFS) slider',Number(value));
+        if(kind==='normalize'){if(await page.getByRole('radio',{name:'Peak',exact:true}).count())await page.getByRole('radio',{name:'Peak',exact:true}).check();await setSlider(page,'Peak target (dBFS) slider',Number(value));}
         if(kind==='channels')await page.getByRole('radio',{name:value==='mono'?'Mono':value==='stereo'?'Stereo':'Unchanged',exact:true}).check();
         if(kind==='resample')await page.getByRole('combobox',{name:'Sample rate',exact:true}).selectOption(String(value));
         if(kind==='trim') {
-          await page.getByLabel('Batch trim start (time)').fill(String(value[0]));
-          await page.getByLabel('Batch trim end (time)').fill(String(value[1]));
+          await page.getByLabel('Trim all start (time)').fill(String(value[0]));
+          await page.getByLabel('Trim all end (time)').fill(String(value[1]));
         }
       }
     }
     async function exportFile(label) {
       await page.getByRole('button',{name:'Export',exact:true}).click();
-      const link = page.getByRole('link',{name:'Download',exact:true});
+      const link = page.getByRole('link',{name:/Download exported audio/});
       await link.waitFor({timeout:60000});
-      assert.equal(await page.getByText('Previous settings',{exact:true}).count(),0);
+      assert.equal(await page.getByText('Previous export',{exact:true}).count(),0);
       const pending = page.waitForEvent('download'); await link.click(); const download = await pending;
       const path = `${outputs}/${engine}-${label}.wav`; await download.saveAs(path);
-      const result = pcm(path), stats = await page.evaluate(()=>window.__dsp.at(-1));
+      const result = pcm(path); await page.waitForFunction(()=>window.__dsp.some(entry=>entry&&entry.terminalEncoders===1),null,{timeout:60000}); const stats = await page.evaluate(()=>window.__dsp.findLast(entry=>entry&&entry.terminalEncoders===1));
       assert(stats); assert.equal(stats.decodePasses,1); assert.equal(stats.terminalEncoders,1);
       assert(stats.maxBlockFrames<=4096); assert.equal(stats.encodedFrames,result.samples.length/result.channels);
       assert.equal(await storeCount(page),1,'only final output remains after checkpoints');
@@ -108,7 +108,7 @@ for(const [engine, browserType] of [['chromium',chromium], ['webkit',webkit]]) {
     for(let i=0;i<output.samples.length;i++)maxError=Math.max(maxError,Math.abs(output.samples[i]-(original.samples[(start+i)*2]+original.samples[(start+i)*2+1])/2*factor));
     assert(maxError<1/32768,`trim/gain/channel error ${maxError}`); records.at(-1).maxError=maxError;
     await page.getByRole('button',{name:'Gain settings',exact:true}).click(); await setSlider(page,'Gain (dB) slider',-3);
-    await page.getByText('Previous settings',{exact:true}).waitFor();
+    await page.getByText('Previous export',{exact:true}).waitFor();
     await page.screenshot({path:`${root}/captures/${engine}-desktop.png`,fullPage:true,animations:'disabled'});
     await page.setViewportSize({width:390,height:844}); await setAppearance(page,'dark');
     await page.waitForFunction(()=>getComputedStyle(document.querySelector('.panel')).backgroundColor==='rgb(29, 31, 36)');
@@ -131,7 +131,7 @@ for(const [engine, browserType] of [['chromium',chromium], ['webkit',webkit]]) {
     assert.equal(output.channels,2); assert(output.samples.every(value=>value===0)); await remove('silence.wav');
     const quiet=fixture('quiet.wav',2,1,false,.0001);await setup(quiet,[['normalize',-6]]);output=await exportFile('quiet');
     assert.equal(records.at(-1).stats.limitedNormalizations,1);assert(output.samples.every(value=>Math.abs(value)<=.1));
-    await page.getByText('Normalization limited.',{exact:true}).waitFor();await remove('quiet.wav');
+    await page.getByText(/Normalization limited\.|Limited by the maximum gain\./).waitFor();await remove('quiet.wav');
     for(const rate of [44100,32000,24000,16000]) {
       await setup(signal,[['resample',rate]]); output=await exportFile(`rate-${rate}`);
       assert.equal(output.rate,rate); assert.equal(output.samples.length,rate*2*2);
@@ -142,10 +142,8 @@ for(const [engine, browserType] of [['chromium',chromium], ['webkit',webkit]]) {
     await setup(signal,[['resample',44100],['resample',48000],['trim',[.25,.75]]]);
     output=await exportFile('resample-before-trim');assert.equal(output.samples.length/output.channels,24000);assert.equal(output.rate,48000);
     await remove('signal.wav');
-    await setup(signal,[['trim',[.1,.7]]]);
-    await page.getByRole('button',{name:'Trim signal.wav',exact:true}).click();
-    await page.getByLabel('Trim signal.wav start (time)').fill('.3');await page.getByLabel('Trim signal.wav end (time)').fill('.6');
-    output=await exportFile('trim-override');assert.equal(output.samples.length/output.channels,14400);await remove('signal.wav');
+    await setup(signal,[['trim',[.3,.6]]]);
+    output=await exportFile('trim-shared');assert.equal(output.samples.length/output.channels,14400);await remove('signal.wav');
     const surround=fixture('surround.wav',1,3);await setup(surround,[]);
     await page.getByRole('button',{name:'Export',exact:true}).click();
     await page.getByText('Processing supports mono or stereo audio from 8 to 384 kHz.',{exact:true}).waitFor();
@@ -171,7 +169,7 @@ for(const [engine, browserType] of [['chromium',chromium], ['webkit',webkit]]) {
     await page.getByRole('button',{name:'Export',exact:true}).click();await page.locator('[data-job-state=running]').waitFor();
     await page.getByRole('button',{name:'Remove signal.wav',exact:true}).click();await page.evaluate(()=>window.__pauseWrites=false);
     await assertEventually(async()=>assert.equal(await storeCount(page),0));
-    assert.equal(await page.getByRole('link',{name:'Download',exact:true}).count(),0);
+    assert.equal(await page.getByRole('link',{name:/Download exported audio/}).count(),0);
     assert.deepEqual(errors,[]);assert(!requests.some(url=>!url.startsWith(new URL(appUrl).origin)&&!url.startsWith('blob:')));
     records.push({engine,label:'recovery',pageErrors:errors,externalRequests:0});
   } finally {await context.close();}

@@ -21,22 +21,21 @@ test('invalid ranges, duplicate singleton steps and invalid encoding settings ca
  assert.equal(recipeSchema.safeParse({...newRecipe(),export:{format:'m4a',bitrateKbps:320}}).success,false);
  for(const format of ['original','mp3','m4a','wav','flac','opus'])assert(recipeSchema.safeParse({...newRecipe(),export:newExport(format)}).success);
 });
-test('per-file overrides and clamping do not mutate the shared recipe',()=>{
+test('shared trim clamps per file and does not mutate the shared recipe',()=>{
  const draft=trimmed(0.5,9);const recipe=recipeSchema.parse(draft);const a=file(2),b=file(4);
- const first=snapshotForFile(recipe,a,{start:1,end:3});const second=snapshotForFile(recipe,b);
+ const first=snapshotForFile(recipe,a);const second=snapshotForFile(recipe,b);
  assert.equal(first.kind,'ready');assert.equal(second.kind,'ready');
- assert.deepEqual(first.snapshot.trim,{start:1,end:2,duration:1});
+ assert.deepEqual(first.snapshot.trim,{start:0.5,end:2,duration:1.5});
  assert.deepEqual(second.snapshot.trim,{start:0.5,end:4,duration:3.5});
  assert.equal(recipe.steps[0].range.end,9);
- draft.steps[0].range.start=1.5;assert.equal(first.snapshot.trim.start,1);
+ draft.steps[0].range.start=1.5;assert.equal(first.snapshot.trim.start,0.5);
  assert.throws(()=>{first.snapshot.recipe.steps[0].range.start=0;},TypeError);
  assert.throws(()=>{first.snapshot.recipe.export.format='wav';},TypeError);
 });
-test('one invalid file range stays isolated; reset restores inheritance',()=>{
- const recipe=recipeSchema.parse(trimmed(0.25,null));const a=file(2),b=file(5);
- assert.equal(snapshotForFile(recipe,a,{start:3,end:null}).kind,'failed');
+test('one invalid file range stays isolated and unknown duration keeps the open end',()=>{
+ const recipe=recipeSchema.parse(trimmed(3,null));const a=file(2),b=file(5);
+ assert.equal(snapshotForFile(recipe,a).kind,'failed');
  const valid=snapshotForFile(recipe,b);assert.equal(valid.kind,'ready');assert.equal(valid.snapshot.trim.end,5);
- const reset=snapshotForFile(recipe,a);assert.equal(reset.kind,'ready');assert.deepEqual(reset.snapshot.trim,{start:0.25,end:2,duration:1.75});
  const unknown=snapshotForFile(recipe,file(null));assert.equal(unknown.kind,'ready');assert.equal(unknown.snapshot.trim.end,null);
 });
 

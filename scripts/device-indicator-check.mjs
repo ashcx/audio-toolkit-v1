@@ -3,7 +3,7 @@ import {setAppearance} from './browser-controls.mjs';
 import {chromium,webkit} from 'playwright';import {mkdir,writeFile} from 'node:fs/promises';import assert from 'node:assert/strict';
 const root=process.env.DEVICE_EVIDENCE_DIR??'.artifacts/device-indicator/browser';await mkdir(root,{recursive:true});const records=[];
 for(const[engine,type]of[['chromium',chromium],['webkit',webkit]]){
- const context=await type.launchPersistentContext(`${root}/${engine}-profile`,{headless:true});
+ const context=await type.launchPersistentContext(`${root}/${engine}-profile`,{channel:engine==='chromium'?'chrome':undefined,headless:true});
  try{
   await context.addInitScript(()=>{
    window.__mode='native';window.__calls=0;const Original=Worker;
@@ -33,12 +33,12 @@ for(const[engine,type]of[['chromium',chromium],['webkit',webkit]]){
    if(mode==='fallback')await badge.filter({hasText:'CPU · switched from GPU'}).waitFor();
    if(mode==='native')await badge.filter({hasText:/^CPU$/}).waitFor();
    await page.getByText(/Separating \d+ \/ \d+/).waitFor();assert.equal(await page.locator('[data-job-state=running] progress[value]').count(),1);
-   await page.getByRole('link',{name:'Download',exact:true}).waitFor();const expected=mode==='gpu'?'GPU + CPU':mode==='fallback'?'CPU · switched from GPU':'CPU';assert.equal(await badge.innerText(),expected);
+   const expected=mode==='gpu'?'GPU + CPU':mode==='fallback'?'CPU · switched from GPU':'CPU';assert.equal(await badge.innerText(),expected);await page.getByRole('link',{name:/Download exported audio/}).waitFor();assert.equal(await badge.count(),0,'processor badge is removed from successful rows');
    for(const theme of ['light','dark']){
     await setAppearance(page,theme);await page.waitForFunction(theme=>document.documentElement.dataset.theme===theme,theme);await page.setViewportSize({width:theme==='dark'?390:1280,height:844});await page.waitForTimeout(200);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:`${root}/${engine}-${mode}-${theme}.png`,fullPage:true});
    }
-   await (await saveAction(page,'Clear results','button')).click();await badge.waitFor({state:'detached'});await page.waitForFunction(async()=>{const d=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1');for await(const e of d.values())return false;return true;});
-   records.push({engine,mode,expected,actualCpuInference:true,gpuEventsSimulated:mode!=='native',progressRetained:true,completedBadge:true,themes:['light','dark'],viewports:[1280,390],remainingStores:0});console.log(engine,mode,'passed');
+   await (await saveAction(page,'Clear results','button')).click();await page.waitForFunction(async()=>{const d=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1');for await(const e of d.values())return false;return true;});
+   records.push({engine,mode,expected,actualCpuInference:true,gpuEventsSimulated:mode!=='native',progressRetained:true,runningBadge:true,completedBadge:false,themes:['light','dark'],viewports:[1280,390],remainingStores:0});console.log(engine,mode,'passed');
   }
   assert.deepEqual(errors,[]);await writeFile(`${root}/results.json`,JSON.stringify(records,null,2)+'\n');
  }finally{await context.close();}

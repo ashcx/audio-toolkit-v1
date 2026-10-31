@@ -6,15 +6,15 @@ import {newRecipe,newStep,recipeSchema,snapshotForFile} from '../src/recipe.ts';
 import {createFileId} from '../src/media.ts';
 import {gain,trim} from '../src/pcm/blocks.ts';
 const entry={id:createFileId(),file:new File(['audio'],'source.wav'),inspection:{kind:'ready',metadata:{container:'wav',codec:'pcm-s16',duration:50,startTime:2,sampleRate:10000,channels:1,hasVideo:false,presentation:null}}};
-function snapshot(steps=[],override){const result=snapshotForFile(recipeSchema.parse({...newRecipe(),steps}),entry,override);assert.equal(result.kind,'ready');return result.snapshot;}
+function snapshot(steps=[]){const result=snapshotForFile(recipeSchema.parse({...newRecipe(),steps}),entry);assert.equal(result.kind,'ready');return result.snapshot;}
 async function collect(source){const values=[];for await(const block of source)values.push(block);return values;}
 const settle=()=>new Promise(resolve=>setTimeout(resolve,0));
 test('preview resolves per-file trim without reordering the recipe or changing its export',()=>{
- const snap=snapshot([newStep('normalize'),{...newStep('trim'),range:{start:2,end:40}},newStep('gain')],{start:20,end:30});
+ const snap=snapshot([newStep('normalize'),{...newStep('trim'),range:{start:2,end:40}},newStep('gain')]);
  const plans=previewPlans(snap);
- assert.deepEqual(plans.range,{start:20,end:30});assert.equal(plans.estimate,true);
+ assert.deepEqual(plans.range,{start:2,end:17});assert.equal(plans.estimate,true);
  assert.deepEqual(plans.processed.steps.map(s=>s.kind),['normalize','trim','gain']);
- assert.equal(plans.processed.steps[1].range.start,20);assert.equal(plans.processed.snapshot.source.startTime,2);
+ assert.equal(plans.processed.steps[1].range.start,2);assert.equal(plans.processed.snapshot.source.startTime,2);
  assert.deepEqual(plans.original.steps,[]);assert.equal(plans.processed.snapshot.recipe.export.format,'wav');assert.equal(snap.recipe.export.format,'mp3');
  assert.deepEqual(previewPlans(snapshot()).range,{start:0,end:15});
 });

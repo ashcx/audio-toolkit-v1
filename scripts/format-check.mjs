@@ -31,7 +31,7 @@ function decode(path,filter){
 const records=[];
 for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
  if(process.env.FORMAT_CHECK_ENGINE&&process.env.FORMAT_CHECK_ENGINE!==engine)continue;
- const context=await type.launchPersistentContext(`.artifacts/format-check-profiles/${randomUUID()}`,{headless:true,acceptDownloads:true,hasTouch:true,viewport:{width:1440,height:1000}});
+ const context=await type.launchPersistentContext(`.artifacts/format-check-profiles/${randomUUID()}`,{channel:engine==='chromium'?'chrome':undefined,headless:true,acceptDownloads:true,hasTouch:true,viewport:{width:1440,height:1000}});
  try{
   const page=await context.newPage(),errors=[],requests=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>requests.push(r.url()));
   await page.addInitScript(()=>{
@@ -54,8 +54,8 @@ for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
    if(process.env.FORMAT_CHECK_FORMAT&&process.env.FORMAT_CHECK_FORMAT!==format)return;
    await setup(test);
    const button=page.getByRole('button',{name:'Export',exact:true});await button.focus();await page.keyboard.press('Enter');
-   const link=page.getByRole('link',{name:'Download',exact:true});await link.waitFor({timeout:60000});
-   assert.equal(await page.getByText('Previous settings',{exact:true}).count(),0);
+   const link=page.getByRole('link',{name:/Download exported audio/});await link.waitFor({timeout:60000});
+   assert.equal(await page.getByText('Previous export',{exact:true}).count(),0);
    const descriptor=descriptors[format];assert.equal(await link.evaluate(async e=>(await fetch(e.href)).headers.get('content-type')),descriptor[1]);
    const pending=page.waitForEvent('download');await link.tap();const download=await pending;
    assert(download.suggestedFilename().endsWith(`.${descriptor[0]}`));
@@ -64,7 +64,7 @@ for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
    const stream=JSON.parse(execFileSync('ffprobe',['-v','error','-show_streams','-of','json',output],{encoding:'utf8'})).streams[0];
    assert.equal(stream.codec_name,descriptor[2]);if(format==='m4a')assert.equal(stream.profile,'LC');if(format==='mp3')assert.equal(Number(stream.bit_rate),bitrate*1000);assert.equal(stream.channels,channels);assert.equal(Number(stream.sample_rate),format==='opus'?48000:rate);
    if(format==='flac')assert.equal(Number(stream.bits_per_raw_sample),24);
-   const stats=await page.evaluate(()=>window.__stats.at(-1));assert.equal(stats.decodePasses,1);assert.equal(stats.terminalEncoders,1);assert(stats.maxBlockFrames<=4096);
+   await page.waitForFunction(()=>window.__stats.some(entry=>entry&&entry.terminalEncoders===1),null,{timeout:60000});const stats=await page.evaluate(()=>window.__stats.findLast(entry=>entry&&entry.terminalEncoders===1));assert.equal(stats.decodePasses,1);assert.equal(stats.terminalEncoders,1);assert(stats.maxBlockFrames<=4096);
    assert.equal(stats.encoder,format==='wav'?'pcm':['mp3','flac'].includes(format)?'wasm':format==='opus'?'native':'wasm');
    const samples=decode(output),decodedFrames=samples.length/channels;
    const targetRate=format==='opus'?48000:rate;
@@ -115,7 +115,7 @@ for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
   await run({format:'mp3',path:'tests/fixtures/video.mp4'});
   await setup({format:'opus'});await page.evaluate(()=>window.__failTruncate=true);await page.getByRole('button',{name:'Export',exact:true}).click();
   await page.getByText('Not enough device storage for this output.',{exact:true}).waitFor();assert.equal(await countStores(),0);
-  assert.equal(await page.getByRole('link',{name:'Download',exact:true}).count(),0);await page.getByRole('button',{name:'Export',exact:true}).click();await page.getByRole('link',{name:'Download',exact:true}).waitFor();
+  assert.equal(await page.getByRole('link',{name:/Download exported audio/}).count(),0);await page.getByRole('button',{name:'Export',exact:true}).click();await page.getByRole('link',{name:/Download exported audio/}).waitFor();
   await page.getByRole('button',{name:'Remove reference.wav',exact:true}).click();
   await page.waitForFunction(async()=>{const d=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1');for await(const f of d.values())return false;return true;});
   await setup({format:'opus',rate:44100});await page.getByText('Opus needs 16, 24 or 48 kHz. Add a sample rate step.',{exact:true}).waitFor();assert(await page.getByRole('button',{name:'Export',exact:true}).isDisabled());

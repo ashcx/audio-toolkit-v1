@@ -15,7 +15,7 @@ export const trimRangeSchema = z
     if (range.end !== null && (range.start ?? 0) >= range.end)
       context.addIssue({
         code: "custom",
-        message: "Trim start must be before end.",
+        message: "Trim all start must be before end.",
         path: ["end"],
       });
   })
@@ -117,7 +117,7 @@ export const recipeSchema = z
       if (seen.has(step.id)) issue("Each step needs a unique identity.");
       seen.add(step.id);
       if (step.kind === "trim") {
-        if (trim) issue("Use only one trim step.");
+        if (trim) issue("Use only one Trim all step.");
         trim = true;
       }
       if (step.kind === "speech") {
@@ -140,7 +140,7 @@ export type TrimRangeDraft = z.input<typeof trimRangeSchema>;
 export type ExportDraft = z.input<typeof exportSchema>;
 export type ExportFormat = ExportDraft["format"];
 export const STEP_NAMES = {
-  trim: "Trim",
+  trim: "Trim all",
   gain: "Gain",
   normalize: "Normalize peaks",
   channels: "Channels",
@@ -241,7 +241,6 @@ export type SnapshotResult =
 export function snapshotForFile(
   recipe: Recipe,
   entry: FileEntry,
-  override?: TrimRangeDraft,
 ): SnapshotResult {
   if (entry.inspection.kind !== "ready")
     return {
@@ -264,7 +263,7 @@ export function snapshotForFile(
         trim: null,
       }),
     };
-  const resolved = resolveTrim(override ?? trim.range, meta.duration);
+  const resolved = resolveTrim(trim.range, meta.duration);
   if (resolved.kind === "failed") return resolved;
   const { start, end } = resolved.trim;
   const perFile = recipeSchema.parse({
@@ -300,7 +299,7 @@ export function resolveTrim(
       ? parsed.data.end
       : Math.min(parsed.data.end ?? sourceDuration, sourceDuration);
   if (end !== null && start >= end)
-    return { kind: "failed", message: "Trim starts at or after the file end." };
+    return { kind: "failed", message: "Trim all starts at or after the file end." };
   return {
     kind: "ready",
     trim: Object.freeze({
