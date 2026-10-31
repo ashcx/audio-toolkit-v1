@@ -35,6 +35,12 @@ export type DspStats = {
   isolationBackends: ("wasm" | "webgpu+wasm")[];
   normalizationPasses: number;
   limitedNormalizations: number;
+  normalizationLimitedByCeiling: boolean;
+  loudnessMeasuredLufs: number | null;
+  loudnessRequestedLufs: number | null;
+  loudnessAchievedLufs: number | null;
+  truePeakDbtp: number | null;
+  compressorMaxGainReductionDb: number;
   clippedSamples: number;
 };
 export type WorkerResult =
