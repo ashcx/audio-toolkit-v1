@@ -77,6 +77,7 @@ export const exportSchema = z
     z.strictObject({ format: z.literal("flac") }),
     z.strictObject({
       format: z.literal("mp3"),
+      mode: z.literal("cbr").default("cbr"),
       bitrateKbps: z.union([
         z.literal(128),
         z.literal(192),
@@ -86,10 +87,12 @@ export const exportSchema = z
     }),
     z.strictObject({
       format: z.literal("m4a"),
+      mode: z.literal("vbr").default("vbr"),
       bitrateKbps: z.union([z.literal(128), z.literal(192), z.literal(256)]),
     }),
     z.strictObject({
       format: z.literal("opus"),
+      mode: z.enum(["cbr", "vbr"]).default("cbr"),
       bitrateKbps: z.union([
         z.literal(64),
         z.literal(96),
@@ -165,11 +168,11 @@ export function isExportFormat(value: string): value is ExportFormat {
 export function newExport(format: ExportFormat): ExportDraft {
   switch (format) {
     case "mp3":
-      return { format, bitrateKbps: 192 };
+      return { format, mode: "cbr", bitrateKbps: 192 };
     case "m4a":
-      return { format, bitrateKbps: 192 };
+      return { format, mode: "vbr", bitrateKbps: 192 };
     case "opus":
-      return { format, bitrateKbps: 128 };
+      return { format, mode: "cbr", bitrateKbps: 128 };
     case "original":
     case "wav":
     case "flac":
