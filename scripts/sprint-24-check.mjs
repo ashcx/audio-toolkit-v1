@@ -97,7 +97,7 @@ await capture(page, '04-preview-compressor');
 await page.getByRole('button', { name: 'Close preview', exact: true }).click();
 
 await page.getByRole('button', { name: 'Export', exact: true }).click();
-const downloadLink = page.getByRole('link', { name: 'Download', exact: true });
+const downloadLink = page.getByRole('link', { name: /Download exported audio/ });
 await downloadLink.waitFor({ timeout: 60000 });
 await page.getByText(/Loudness target reached\. Achieved -14\.\d LUFS\./).waitFor();
 await page.getByText(/Compressor max gain reduction \d+\.\d dB\./).waitFor();
@@ -133,7 +133,7 @@ await addStep(limited, 'normalize');
 await setRange(limited, 'True-peak ceiling (dBTP) slider', -1);
 await limited.getByRole('combobox', { name: 'Format', exact: true }).selectOption('wav');
 await limited.getByRole('button', { name: 'Export', exact: true }).click();
-await limited.getByRole('link', { name: 'Download', exact: true }).waitFor({ timeout: 60000 });
+await limited.getByRole('link', { name: /Download exported audio/ }).waitFor({ timeout: 60000 });
 const limitedMessage = limited.getByText(/Peak ceiling limited loudness\. Achieved -?\d+\.\d LUFS at an estimated -?\d+\.\d dBTP\./);
 await limitedMessage.waitFor();
 observations.limited = await limitedMessage.innerText();
