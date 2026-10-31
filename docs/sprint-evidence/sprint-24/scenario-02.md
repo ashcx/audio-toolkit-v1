@@ -6,8 +6,8 @@ Date: 2026-10-31. Branch: `codex/sprint-24-loudness`.
 
 - The rail is a custom `role="slider"` with pointer capture, Arrow/Home/End/PageUp/PageDown keys, and 0.5 LUFS quantization. It uses a monotonic piecewise-linear anchor map, not a logarithm of a negative value.
 - Anchors: -30 at 0, -23 at 0.18, -16 at 0.44, -14 at 0.55, -9.5 at 0.8, -8 at 1. Every 0.5 LUFS value round-trips through `positionForLufs` and `lufsForPosition`.
-- Magnetic attraction applies within 0.012 of a mark's rail position. The next pointer position is computed from the raw pointer coordinate each time, so moving away escapes the mark. `tests/ui-controls.test.mjs` checks -14 attraction and escape at +0.05 and +0.1.
-- The true-peak ceiling and peak target use native range sliders at 0.1 dB steps. Peak mode hides the loudness rail and states that the loudness target is not used.
+- Magnetic attraction applies within 0.025 of a mark's rail position. The next pointer position is computed from the raw pointer coordinate each time, so moving away escapes the mark. `tests/ui-controls.test.mjs` checks attraction at +0.02 and escape at +0.03 for -14 and -23; both are outside the value quantization alone, so the test proves the magnet.
+- The true-peak ceiling and new true-peak target use native range sliders at 0.1 dB steps. New Peak steps span -6 to 0 dBTP and default to -0.3 dBTP. A legacy peak recipe keeps its -60 to 0 dBFS sample-peak slider and can be converted with `Use a true-peak target`. Peak mode hides the loudness rail.
 
 ## Reference marks and classification decision
 
