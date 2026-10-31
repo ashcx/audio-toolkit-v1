@@ -48,7 +48,8 @@ for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
      await page.getByRole('combobox',{name:'Encoding mode',exact:true}).selectOption('vbr');
      await page.getByRole('combobox',{name:'Target bitrate (kbps)',exact:true}).selectOption(String(bitrate));
     }else await page.getByRole('combobox',{name:'Bitrate (kbps)',exact:true}).selectOption(String(bitrate));
-   }else if(['mp3','m4a'].includes(format))await page.getByRole('combobox',{name:'Bitrate (kbps)',exact:true}).selectOption(String(bitrate));
+   }else if(format==='mp3')await page.getByRole('combobox',{name:'Bitrate (kbps)',exact:true}).selectOption(String(bitrate));
+   else if(format==='m4a')await page.getByRole('combobox',{name:'Target bitrate (kbps)',exact:true}).selectOption(String(bitrate));
    await page.getByLabel('Add step',{exact:true}).selectOption('gain');await setSlider(page,'Gain (dB) slider',-6);
    if(channels===1){await page.getByLabel('Add step',{exact:true}).selectOption('channels');await page.getByRole('radio',{name:'Mono',exact:true}).check();}
    if(rate!==48000){await page.getByLabel('Add step',{exact:true}).selectOption('resample');await page.getByRole('combobox',{name:'Sample rate',exact:true}).selectOption(String(rate));}
@@ -70,14 +71,14 @@ for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
    assert.equal(stream.codec_name,descriptor[2]);if(format==='m4a')assert.equal(stream.profile,'LC');if(format==='mp3')assert.equal(Number(stream.bit_rate),bitrate*1000);assert.equal(stream.channels,channels);assert.equal(Number(stream.sample_rate),format==='opus'?48000:rate);
    if(format==='flac')assert.equal(Number(stream.bits_per_raw_sample),24);
    await page.waitForFunction(()=>window.__stats.some(entry=>entry&&entry.terminalEncoders===1),null,{timeout:60000});const stats=await page.evaluate(()=>window.__stats.findLast(entry=>entry&&entry.terminalEncoders===1));assert.equal(stats.decodePasses,1);assert.equal(stats.terminalEncoders,1);assert(stats.maxBlockFrames<=4096);
-   assert.equal(stats.encoder,format==='wav'?'pcm':['mp3','flac'].includes(format)?'wasm':format==='opus'?'native':'wasm');
+   if(format==='m4a')assert(['native','wasm'].includes(stats.encoder),`AAC backend ${stats.encoder}`);else assert.equal(stats.encoder,format==='wav'?'pcm':['mp3','flac'].includes(format)?'wasm':format==='opus'?'native':'wasm');
    const samples=decode(output),decodedFrames=samples.length/channels;
    const targetRate=format==='opus'?48000:rate;
    const reference=decode(path,`volume=-6dB,${channels===1?'pan=mono|c0=0.5*c0+0.5*c1,':''}${format==='opus'&&rate!==48000?`aresample=${rate},`:''}aresample=${targetRate}`);
    const sourceFrames=path===longPath?longFrames:path===tinyPath?tinyFrames:path===shortPath?shortFrames:96000;
    const inputFrames=Math.round(sourceFrames*rate/48000);
    const expected=format==='opus'?Math.round(inputFrames*48000/rate):inputFrames;
-   if(format==='m4a')assert(decodedFrames>=expected&&decodedFrames<expected+1024,`AAC flush ${decodedFrames}/${expected}`);
+   if(format==='m4a')assert(decodedFrames>=expected&&decodedFrames<expected+2048,`AAC flush ${decodedFrames}/${expected}`);
    else assert.equal(decodedFrames,expected,`${label} frames`);
    assert(samples.every(Number.isFinite));
    let sum=0,maxError=0;

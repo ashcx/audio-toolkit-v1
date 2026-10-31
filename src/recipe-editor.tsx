@@ -463,7 +463,7 @@ export function ExportEditor({value,onChange,disabled,children}: {
       <h2 id="export-title">Export</h2>
       <fieldset class="export-lock" disabled={disabled}>
 
-        <div class="export-fields">
+        <div class={`export-fields${modes.length > 1 ? " has-mode" : ""}`}>
           <label class="field">
             Format
             <select
@@ -498,7 +498,7 @@ export function ExportEditor({value,onChange,disabled,children}: {
           )}
           {"bitrateKbps" in value.export && (
             <label class="field">
-              {format === "opus" && mode === "vbr" ? "Target bitrate (kbps)" : "Bitrate (kbps)"}
+              {format === "m4a" || (format === "opus" && mode === "vbr") ? "Target bitrate (kbps)" : "Bitrate (kbps)"}
               <select
                 value={value.export.bitrateKbps}
                 onChange={(event) => {
