@@ -22,9 +22,9 @@ export const ENCODING_MODES = {
   ],
   m4a: [
     {
-      value: "cbr",
-      label: "Constant bitrate (CBR)",
-      description: "Constant bitrate. Native and fallback AAC expose no verified variable mode.",
+      value: "vbr",
+      label: "Variable bitrate (VBR)",
+      description: "Variable bitrate. The AAC encoder adapts the bitrate to the content; the bitrate is a target, not a fixed size.",
     },
   ],
   opus: [
@@ -53,7 +53,8 @@ export function encoderBitrateMode(settings: {
   format: ExportFormat;
   mode?: EncodingMode;
 }): "constant" | "variable" {
-  return settings.format === "opus" && settings.mode === "vbr"
+  return (settings.format === "opus" || settings.format === "m4a") &&
+    settings.mode === "vbr"
     ? "variable"
     : "constant";
 }

@@ -36,7 +36,7 @@ writeFileSync(fixtures.silence, wav(20, 'silence'));
 writeFileSync(fixtures.transient, wav(20, 'transient'));
 const browser = await chromium.launch({ channel: 'chrome' });
 const observations = { appUrl, browser: 'chrome', rows: [], captures: [] };
-async function exportOne({ format, bitrate, mode, fixture = fixtures.tone, capture }) {
+async function exportOne({ format, bitrate, mode, fixture = fixtures.tone, capture, resultCapture }) {
   const context = await browser.newContext({ acceptDownloads: true, viewport: { width: 1440, height: 1100 } });
   const page = await context.newPage();
   const errors = [];
@@ -60,11 +60,16 @@ async function exportOne({ format, bitrate, mode, fixture = fixtures.tone, captu
     if (mode === 'vbr' && !/Variable bitrate/.test(note)) throw new Error(`opus vbr note: ${note}`);
     if (mode === 'cbr' && !/Constant bitrate/.test(note)) throw new Error(`opus cbr note: ${note}`);
     modeLabel = await modeSelect.inputValue();
-  } else if (format === 'mp3' || format === 'm4a') {
-    if (await page.getByRole('combobox', { name: 'Encoding mode', exact: true }).count()) throw new Error(`${format}: unsupported Encoding mode control`);
+  } else if (format === 'mp3') {
+    if (await page.getByRole('combobox', { name: 'Encoding mode', exact: true }).count()) throw new Error('mp3: unsupported Encoding mode control');
     const note = await page.locator('.export-panel .panel-description').innerText();
-    if (!/Constant bitrate/.test(note)) throw new Error(`${format}: constant-mode note missing: ${note}`);
+    if (!/Constant bitrate/.test(note)) throw new Error(`mp3: constant-mode note missing: ${note}`);
     await page.getByRole('combobox', { name: 'Bitrate (kbps)', exact: true }).selectOption(String(bitrate));
+  } else if (format === 'm4a') {
+    if (await page.getByRole('combobox', { name: 'Encoding mode', exact: true }).count()) throw new Error('m4a: unsupported Encoding mode control');
+    const note = await page.locator('.export-panel .panel-description').innerText();
+    if (!/Variable bitrate/.test(note)) throw new Error(`m4a: adaptive-mode note missing: ${note}`);
+    await page.getByRole('combobox', { name: 'Target bitrate (kbps)', exact: true }).selectOption(String(bitrate));
   } else if (format === 'wav' || format === 'flac') {
     if (await page.getByRole('combobox', { name: 'Encoding mode', exact: true }).count()) throw new Error(`${format}: mode control must be hidden`);
     if (await page.getByRole('combobox', { name: 'Bitrate (kbps)', exact: true }).count()) throw new Error(`${format}: bitrate control must be hidden`);
@@ -80,6 +85,8 @@ async function exportOne({ format, bitrate, mode, fixture = fixtures.tone, captu
     });
   }
   if (capture) {
+    await page.locator('.export-panel').scrollIntoViewIfNeeded();
+    await page.waitForTimeout(500);
     await page.locator('.export-panel').screenshot({ path: `${root}/captures/${capture}.png`, animations: 'disabled', timeout: 60000 });
     observations.captures.push(`${root}/captures/${capture}.png`);
   }
@@ -120,20 +127,27 @@ async function exportOne({ format, bitrate, mode, fixture = fixtures.tone, captu
   if (row.channels !== 2) throw new Error(`${format} ${mode ?? ''}: channels ${row.channels}`);
   if (errors.length) throw new Error(`${format}: ${errors.join('; ')}`);
   observations.rows.push(row);
+  if (resultCapture) {
+    await page.waitForTimeout(400);
+    await page.locator('li[data-inspection=ready]').screenshot({ path: `${root}/captures/${resultCapture}.png`, animations: 'disabled', timeout: 60000 });
+    observations.captures.push(`${root}/captures/${resultCapture}.png`);
+  }
   await context.close();
   return row;
 }
 try {
   await exportOne({ format: 'opus', bitrate: 128, mode: 'cbr', capture: '01-opus-cbr' });
-  await exportOne({ format: 'opus', bitrate: 128, mode: 'vbr', capture: '02-opus-vbr' });
+  await exportOne({ format: 'opus', bitrate: 128, mode: 'vbr', capture: '02-opus-vbr', resultCapture: '08-encoded-player' });
   await exportOne({ format: 'mp3', bitrate: 128, capture: '03-mp3-cbr' });
-  await exportOne({ format: 'm4a', bitrate: 128, capture: '04-aac-cbr' });
+  await exportOne({ format: 'm4a', bitrate: 128, capture: '04-aac-adaptive' });
   await exportOne({ format: 'wav', capture: '05-wav-controls' });
   await exportOne({ format: 'flac', capture: '06-flac-controls' });
   await exportOne({ format: 'opus', bitrate: 128, mode: 'cbr', fixture: fixtures.silence, capture: null });
   await exportOne({ format: 'opus', bitrate: 128, mode: 'vbr', fixture: fixtures.silence, capture: null });
   await exportOne({ format: 'opus', bitrate: 128, mode: 'cbr', fixture: fixtures.transient, capture: null });
   await exportOne({ format: 'opus', bitrate: 128, mode: 'vbr', fixture: fixtures.transient, capture: null });
+  await exportOne({ format: 'm4a', bitrate: 128, fixture: fixtures.silence, capture: null });
+  await exportOne({ format: 'm4a', bitrate: 128, fixture: fixtures.transient, capture: null });
   await exportOne({ format: 'original', fixture: fixtures.tone, capture: '07-stream-copy' });
   const opusCbr = observations.rows.find(row => row.format === 'opus' && row.mode === 'cbr' && row.fixture === 'tone-20s.wav');
   const opusVbr = observations.rows.find(row => row.format === 'opus' && row.mode === 'vbr' && row.fixture === 'tone-20s.wav');

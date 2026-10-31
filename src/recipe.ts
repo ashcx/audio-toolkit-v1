@@ -87,7 +87,7 @@ export const exportSchema = z
     }),
     z.strictObject({
       format: z.literal("m4a"),
-      mode: z.literal("cbr").default("cbr"),
+      mode: z.literal("vbr").default("vbr"),
       bitrateKbps: z.union([z.literal(128), z.literal(192), z.literal(256)]),
     }),
     z.strictObject({
@@ -170,7 +170,7 @@ export function newExport(format: ExportFormat): ExportDraft {
     case "mp3":
       return { format, mode: "cbr", bitrateKbps: 192 };
     case "m4a":
-      return { format, mode: "cbr", bitrateKbps: 192 };
+      return { format, mode: "vbr", bitrateKbps: 192 };
     case "opus":
       return { format, mode: "cbr", bitrateKbps: 128 };
     case "original":
