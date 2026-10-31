@@ -58,3 +58,11 @@ test('analysis worker is terminated on completion, abort and clone failure; late
   third.onmessage({data:{kind:'error',message:'Unavailable'}});await assert.rejects(failed,/Unavailable/);assert.equal(third.terminated,1);
  }finally{globalThis.Worker=original;}
 });
+
+test('compact time labels round only their display and carry across minute boundaries',async()=>{
+ const {formatTime,formatTrimTime}=await import('../src/format.ts');
+ for(const [value,summary,trim] of [[0,'00:00','00:00'],[542.609,'09:03','09:02.6'],[59.96,'01:00','01:00'],[3601.125,'60:01','60:01.1'],[1.0001,'00:01','00:01']]){
+  assert.equal(formatTime(value),summary);assert.equal(formatTrimTime(value),trim);
+  assert(Math.abs(parseClock(formatClock(value))-value)<1e-9);
+ }
+});

@@ -7,8 +7,9 @@ import { useFolderSave } from "./use-folder-save";
 import { useArchive } from "./use-archive";
 import { useExport } from "./use-export";
 import { compilePlan } from "./planner";
+import { automaticExport } from "./export-default";
 import { snapshotForFile } from "./recipe";
-import { RecipeEditor } from "./recipe-editor";
+import { RecipeEditor, ExportEditor } from "./recipe-editor";
 import {
   newRecipe,
   recipeSchema,
@@ -47,8 +48,10 @@ function App() {
   },[]);
   const [dragging, setDragging] = useState(false);
   const dragDepth = useRef(0);
-  const [draft, setDraft] = useState<RecipeDraft>(newRecipe);
+  const [recipeDraft, setDraft] = useState<RecipeDraft>(newRecipe);
+  const [explicitFormat, setExplicitFormat] = useState(false);
   const [overrides, setOverrides] = useState(new Map<FileId, TrimRangeDraft>());
+  const draft = explicitFormat ? recipeDraft : {...recipeDraft, export: automaticExport(recipeDraft,files,overrides)};
   const settings = useRef<HTMLDialogElement>(null);
   const exportButton = useRef<HTMLButtonElement>(null);
   const pendingResultFocus = useRef(false);
@@ -272,6 +275,7 @@ function App() {
               </ul>
             )}
           </section>
+          <div class="recipe-column">
           <fieldset class="recipe-lock" disabled={locked}>
           <RecipeEditor
             files={files}
@@ -287,7 +291,11 @@ function App() {
             }
           />
           </fieldset>
-        </div>
+          <ExportEditor value={draft} disabled={locked} onChange={(next,explicit) => {
+            const changed = changeRecipe(next);
+            if (changed && explicit) setExplicitFormat(true);
+            return changed;
+          }}>
         <div class="run-actions">
           {completed.length > 0 && <details class="delivery-menu" onKeyDown={event=>{
             if(event.key === "Escape") {event.currentTarget.open=false;event.currentTarget.querySelector<HTMLElement>("summary")?.focus();}
@@ -343,6 +351,9 @@ function App() {
             return count ? [`${count} ${label}`] : [];
           }).join(" · ")}</span>}
           {exports.busy && <small>{exports.cleaning ? "Cleaning up…" : "Keep this page open. Cancellation waits for cleanup."}</small>}
+        </div>
+          </ExportEditor>
+          </div>
         </div>
       </main>
       <dialog ref={settings} class="settings-dialog" aria-labelledby="settings-title" onClose={() => settingsButton.current?.focus()}>

@@ -6,12 +6,7 @@ export function formatBytes(bytes: number): string {
 }
 export function formatDuration(duration: number | null): string {
   if (duration === null) return "Duration unknown";
-  const total = Math.round(duration);
-  const seconds = (total % 60).toString().padStart(2, "0");
-  const minutes = Math.floor(total / 60);
-  return minutes < 60
-    ? `${minutes}:${seconds}`
-    : `${Math.floor(minutes / 60)}:${(minutes % 60).toString().padStart(2, "0")}:${seconds}`;
+  return formatTime(duration);
 }
 
 export function formatClock(seconds: number): string {
@@ -22,6 +17,17 @@ export function formatClock(seconds: number): string {
   const minutes = Math.floor(whole / 60);
   const clock = `${minutes < 60 ? minutes : `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, "0")}`}:${String(whole % 60).padStart(2, "0")}`;
   return clock + fraction;
+}
+export function formatTime(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds < 0) return "";
+  const whole = Math.round(seconds);
+  return `${String(Math.floor(whole / 60)).padStart(2, "0")}:${String(whole % 60).padStart(2, "0")}`;
+}
+export function formatTrimTime(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds < 0) return "";
+  const tenths = Math.round(seconds * 10);
+  const whole = Math.floor(tenths / 10);
+  return `${String(Math.floor(whole / 60)).padStart(2, "0")}:${String(whole % 60).padStart(2, "0")}${tenths % 10 ? `.${tenths % 10}` : ""}`;
 }
 export function parseClock(value: string): number | null {
   if (!value.trim()) return null;

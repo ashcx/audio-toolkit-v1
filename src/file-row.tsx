@@ -1,6 +1,6 @@
 import { useState } from "preact/hooks";
 import type { FileEntry } from "./media";
-import { formatBytes, formatDuration, formatClock } from "./format";
+import { formatBytes, formatDuration, formatTime } from "./format";
 import { resolveTrim, type TrimRangeDraft } from "./recipe";
 import type { ExecutionPlan } from "./planner";
 import type { BatchJob } from "./batch";
@@ -82,11 +82,11 @@ export function FileRow({
         )}
         {effective && (
           <small>
-            {formatClock(effective.start)} to{" "}
-            {effective.end === null ? "end" : formatClock(effective.end)}
+            {formatTime(effective.start)} to{" "}
+            {effective.end === null ? "end" : formatTime(effective.end)}
             {effective.duration === null
               ? ""
-              : ` · ${formatClock(effective.duration)} kept`}
+              : ` · ${formatTime(effective.duration)} kept`}
             {override ? " · Custom" : ""}
           </small>
         )}

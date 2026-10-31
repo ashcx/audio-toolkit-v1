@@ -98,7 +98,7 @@ export function compilePlan(
       return {
         kind: "failed",
         message:
-          "This codec has no supported original-audio container. Choose another format.",
+          "This codec has no supported stream-copy container. Choose another format.",
       };
     return Object.freeze({
       kind: "copy",
