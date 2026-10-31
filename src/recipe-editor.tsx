@@ -14,6 +14,7 @@ import {
   type StepDraft,
 } from "./recipe";
 import { TrimFields } from "./trim-fields";
+import { defaultEncodingMode, encodingModesFor } from "./encoding-modes";
 import { formatTime } from "./format";
 import { levelDb } from "./levels";
 import { useLevels } from "./use-levels";
@@ -445,12 +446,16 @@ export function ExportEditor({value,onChange,disabled,children}: {
   disabled: boolean;
   children: ComponentChildren;
 }) {
+  const format = value.export.format;
+  const modes = encodingModesFor(format);
+  const mode = "mode" in value.export ? value.export.mode ?? defaultEncodingMode(format) : defaultEncodingMode(format);
+  const modeDescription = modes.find(option => option.value === mode)?.description;
   const bitrates =
-    value.export.format === "mp3"
+    format === "mp3"
       ? [128, 192, 256, 320]
-      : value.export.format === "m4a"
+      : format === "m4a"
         ? [128, 192, 256]
-        : value.export.format === "opus"
+        : format === "opus"
           ? [64, 96, 128, 160, 192]
           : [];
   return (
@@ -462,21 +467,38 @@ export function ExportEditor({value,onChange,disabled,children}: {
           <label class="field">
             Format
             <select
-              value={value.export.format}
+              value={format}
               onChange={(event) => {
-                const format = event.currentTarget.value;
-                if (isExportFormat(format))
-                  onChange({ ...value, export: newExport(format) }, true);
+                const nextFormat = event.currentTarget.value;
+                if (isExportFormat(nextFormat))
+                  onChange({ ...value, export: newExport(nextFormat) }, true);
               }}
             >
-              {Object.entries(FORMAT_NAMES).map(([format, label]) => (
-                <option value={format}>{label}</option>
+              {Object.entries(FORMAT_NAMES).map(([option, label]) => (
+                <option value={option}>{label}</option>
               ))}
             </select>
           </label>
+          {modes.length > 1 && (
+            <label class="field">
+              Encoding mode
+              <select
+                value={mode}
+                onChange={(event) => {
+                  const next = exportSchema.safeParse({
+                    ...value.export,
+                    mode: event.currentTarget.value,
+                  });
+                  if (next.success) onChange({ ...value, export: next.data });
+                }}
+              >
+                {modes.map(option => <option value={option.value}>{option.label}</option>)}
+              </select>
+            </label>
+          )}
           {"bitrateKbps" in value.export && (
             <label class="field">
-              Bitrate (kbps)
+              {format === "opus" && mode === "vbr" ? "Target bitrate (kbps)" : "Bitrate (kbps)"}
               <select
                 value={value.export.bitrateKbps}
                 onChange={(event) => {
@@ -495,7 +517,8 @@ export function ExportEditor({value,onChange,disabled,children}: {
           )}
         </div>
       </fieldset>
-      {value.export.format === "original" && <p class="panel-description">Preserves the encoded audio without re-encoding. Effects and accurate trims need an encoded format.</p>}
+      {format === "original" && <p class="panel-description">Preserves the encoded audio without re-encoding. Effects and accurate trims need an encoded format.</p>}
+      {modeDescription && format !== "original" && <p class="panel-description">{modeDescription}</p>}
       {children}
     </section>
   );
