@@ -12,4 +12,10 @@ Independent Terra and Luna reviews each ran `node --experimental-strip-types --t
 
 ## Live checks
 
-Pending final integrated Chrome verification. No audible quality, physical-device, latency or speedup claim is established by unit tests.
+Actual Chrome processed a synthetic 30-second WAV with gain into original and processed 15-second WAV previews. Both native players reported duration 15 seconds and readyState 4. Playback was user-triggered through native controls. Starting Processed paused Original after the play event. No export job or download was created.
+
+Editing gain invalidated both retained players. With batch trim 10–28 seconds, the preview displayed 00:10–00:25 and both players again reported 15 seconds. Preview preparation disabled Export. Cancelling preparation returned to idle with Export enabled. An actual 320 CSS-pixel viewport had document scrollWidth 320. Desktop, trimmed and narrow screenshots are saved alongside this report. The viewport override was reset.
+
+The integrated 91-test suite and production build passed. Terra's follow-up review of the automatic-export integration and player CSS passed eight focused tests with no verified regressions. A roughly 30-second actual Chrome screencast records on-demand preview generation, closure, recipe editing and regeneration in interaction.mp4.
+
+Physical devices, subjective listening acceptance and context-sensitive full-file equivalence remain unverified. Excerpt estimation is explicitly labelled. No audio-quality or speedup claim is established by these UI checks.
