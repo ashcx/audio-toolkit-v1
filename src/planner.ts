@@ -59,6 +59,8 @@ function changesSignal(
     case "speech":
     case "isolation":
       return true;
+    case "compress":
+      return step.enabled && step.amount > 0;
     default: {
       const unreachable: never = step;
       return unreachable;
@@ -69,6 +71,7 @@ const PCM_REASONS = {
   trim: "Accurate trimming requires re-encoding.",
   gain: "Gain requires re-encoding.",
   normalize: "Normalization requires re-encoding.",
+  compress: "Compression requires re-encoding.",
   channels: "Changing channels requires re-encoding.",
   resample: "Changing sample rate requires re-encoding.",
   isolation: "Voice / music isolation requires re-encoding.",

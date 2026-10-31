@@ -46,15 +46,70 @@ export const stepSchema = z
         .max(12, "Gain must be between -12 and 12 dB.")
         .brand<"GainDb">(),
     }),
+    z
+      .strictObject({
+        id: stepId,
+        kind: z.literal("normalize"),
+        mode: z.enum(["loudness", "peak"]).default("peak"),
+        targetDbfs: z
+          .number({ error: "Enter a peak target." })
+          .finite()
+          .min(-60, "Peak target must be between -60 and 0 dBFS.")
+          .max(0, "Peak target must be between -60 and 0 dBFS.")
+          .brand<"PeakTargetDbfs">()
+          .optional(),
+        targetLufs: z
+          .number({ error: "Enter a loudness target." })
+          .finite()
+          .min(-30, "Loudness target must be between -30 and -8 LUFS.")
+          .max(-8, "Loudness target must be between -30 and -8 LUFS.")
+          .refine(
+            (value) => Math.abs(value * 2 - Math.round(value * 2)) < 1e-9,
+            "Loudness target must be in 0.5 LUFS steps.",
+          )
+          .brand<"LoudnessTargetLufs">()
+          .optional(),
+        ceilingDbtp: z
+          .number({ error: "Enter a true-peak ceiling." })
+          .finite()
+          .min(-6, "True-peak ceiling must be between -6 and 0 dBTP.")
+          .max(0, "True-peak ceiling must be between -6 and 0 dBTP.")
+          .refine(
+            (value) => Math.abs(value * 10 - Math.round(value * 10)) < 1e-9,
+            "True-peak ceiling must be in 0.1 dB steps.",
+          )
+          .brand<"TruePeakCeilingDbtp">()
+          .optional(),
+      })
+      .superRefine((step, context) => {
+        const reject = (field: "targetDbfs" | "targetLufs" | "ceilingDbtp", message: string) =>
+          context.addIssue({ code: "custom", message, path: [field] });
+        if (step.mode === "loudness") {
+          if (step.targetLufs === undefined)
+            reject("targetLufs", "Loudness mode requires a loudness target.");
+          if (step.ceilingDbtp === undefined)
+            reject("ceilingDbtp", "Loudness mode requires a true-peak ceiling.");
+          if (step.targetDbfs !== undefined)
+            reject("targetDbfs", "Loudness mode cannot also use a peak target.");
+        } else {
+          if (step.targetDbfs === undefined)
+            reject("targetDbfs", "Peak mode requires a peak target.");
+          if (step.targetLufs !== undefined)
+            reject("targetLufs", "Peak mode cannot also use a loudness target.");
+          if (step.ceilingDbtp !== undefined)
+            reject("ceilingDbtp", "Peak mode cannot also use a true-peak ceiling.");
+        }
+      }),
     z.strictObject({
       id: stepId,
-      kind: z.literal("normalize"),
-      targetDbfs: z
-        .number({ error: "Enter a peak target." })
+      kind: z.literal("compress"),
+      enabled: z.boolean(),
+      amount: z
+        .number({ error: "Enter a compression amount." })
         .finite()
-        .min(-60, "Peak target must be between -60 and 0 dBFS.")
-        .max(0, "Peak target must be between -60 and 0 dBFS.")
-        .brand<"PeakTargetDbfs">(),
+        .min(0, "Compression amount must be between 0 and 100.")
+        .max(100, "Compression amount must be between 0 and 100."),
+      preset: z.enum(["speech", "music"]),
     }),
     z.strictObject({
       id: stepId,
@@ -142,7 +197,8 @@ export type ExportFormat = ExportDraft["format"];
 export const STEP_NAMES = {
   trim: "Trim all",
   gain: "Gain",
-  normalize: "Normalize peaks",
+  normalize: "Normalize",
+  compress: "Reduce loud/quiet differences",
   channels: "Channels",
   resample: "Sample rate",
   isolation: "Voice / music",
@@ -191,7 +247,15 @@ export function newStep(kind: StepKind): StepDraft {
     case "gain":
       return { id, kind, db: 0 };
     case "normalize":
-      return { id, kind, targetDbfs: -1 };
+      return {
+        id,
+        kind,
+        mode: "loudness",
+        targetLufs: -14,
+        ceilingDbtp: -0.3,
+      };
+    case "compress":
+      return { id, kind, enabled: false, amount: 50, preset: "speech" };
     case "channels":
       return { id, kind, channels: "original" };
     case "resample":
