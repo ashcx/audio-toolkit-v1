@@ -11,6 +11,7 @@ import {
   type OggOutputFormatOptions,
 } from "mediabunny";
 import type { Recipe } from "../recipe";
+import { encoderBitrateMode } from "../encoding-modes";
 import { exportShapeError } from "../export-format";
 
 export function encoderSettings(
@@ -19,7 +20,10 @@ export function encoderSettings(
 ) {
   const quality =
     "bitrateKbps" in settings
-      ? new Quality({ bitrate: settings.bitrateKbps * 1000, bitrateMode: "constant" })
+      ? new Quality({
+          bitrate: settings.bitrateKbps * 1000,
+          bitrateMode: encoderBitrateMode(settings),
+        })
       : undefined;
   const config = (codec: AudioEncodingConfig["codec"]) => ({ codec, quality });
   switch (settings.format) {
@@ -64,8 +68,13 @@ export async function prepareEncoder(
       backend = "wasm";
     }
   }
-  if (!(await canEncodeAudio(config.codec, options)))
+  if (!(await canEncodeAudio(config.codec, options))) {
+    if (settings.format === "opus")
+      throw new Error(
+        "This browser cannot encode Opus with the selected bitrate mode. Choose another encoding mode or format.",
+      );
     throw new Error("This format cannot encode the selected rate and channels. Try another format or sample rate.");
+  }
   return backend;
 }
 

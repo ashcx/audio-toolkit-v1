@@ -110,8 +110,9 @@ p { margin: 0; }
 .step-edit { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; padding: 8px; background: transparent; border: 0; color: var(--muted-strong); }
 .step-title { display: flex; align-items: center; gap: 8px; }
 .expansion-indicator { color: var(--muted); font-size: 12px; }
-.export-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.export-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
 .export-fields .field:only-child { grid-column: 1 / -1; }
+.export-fields.has-mode { grid-template-columns: minmax(0, 1fr); }
 .field { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; font-size: 12px; color: var(--muted-strong); }
 .field select { width: 100%; min-width: 0; }
 .panel-description { display: block; margin-top: 12px; color: var(--muted-strong); font-size: 12px; }
