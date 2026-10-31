@@ -1,0 +1,246 @@
+{
+  "appUrl": "http://127.0.0.1:5184/audio-toolkit-v1/",
+  "browser": "chrome",
+  "rows": [
+    {
+      "fixture": "tone-20s.wav",
+      "format": "opus",
+      "mode": "cbr",
+      "bitrate": 128,
+      "codec": "opus",
+      "channels": 2,
+      "sampleRate": 48000,
+      "duration": 20.0065,
+      "sizeBytes": 323484,
+      "elapsedMs": 506,
+      "packets": {
+        "count": 1001,
+        "unique": 1,
+        "min": 320,
+        "median": 320,
+        "max": 320,
+        "mean": 320
+      },
+      "errors": []
+    },
+    {
+      "fixture": "tone-20s.wav",
+      "format": "opus",
+      "mode": "vbr",
+      "bitrate": 128,
+      "codec": "opus",
+      "channels": 2,
+      "sampleRate": 48000,
+      "duration": 20.0065,
+      "sizeBytes": 324806,
+      "elapsedMs": 215,
+      "packets": {
+        "count": 1001,
+        "unique": 74,
+        "min": 259,
+        "median": 334,
+        "max": 510,
+        "mean": 321.3
+      },
+      "errors": []
+    },
+    {
+      "fixture": "tone-20s.wav",
+      "format": "mp3",
+      "mode": null,
+      "bitrate": 128,
+      "codec": "mp3",
+      "channels": 2,
+      "sampleRate": 48000,
+      "duration": 20,
+      "sizeBytes": 320808,
+      "elapsedMs": 319,
+      "packets": {
+        "count": 835,
+        "unique": 1,
+        "min": 384,
+        "median": 384,
+        "max": 384,
+        "mean": 384
+      },
+      "errors": []
+    },
+    {
+      "fixture": "tone-20s.wav",
+      "format": "m4a",
+      "mode": null,
+      "bitrate": 128,
+      "codec": "aac",
+      "channels": 2,
+      "sampleRate": 48000,
+      "duration": 20.030687,
+      "sizeBytes": 252714,
+      "elapsedMs": 316,
+      "packets": {
+        "count": 941,
+        "unique": 67,
+        "min": 6,
+        "median": 320,
+        "max": 363,
+        "mean": 263.6
+      },
+      "errors": []
+    },
+    {
+      "fixture": "tone-20s.wav",
+      "format": "wav",
+      "mode": null,
+      "bitrate": null,
+      "codec": "pcm_s16le",
+      "channels": 2,
+      "sampleRate": 48000,
+      "duration": 20,
+      "sizeBytes": 3840044,
+      "elapsedMs": 212,
+      "packets": {
+        "count": 235,
+        "unique": 2,
+        "min": 6144,
+        "median": 16384,
+        "max": 16384,
+        "mean": 16340.4
+      },
+      "errors": []
+    },
+    {
+      "fixture": "tone-20s.wav",
+      "format": "flac",
+      "mode": null,
+      "bitrate": null,
+      "codec": "flac",
+      "channels": 2,
+      "sampleRate": 48000,
+      "duration": 20,
+      "sizeBytes": 1070690,
+      "elapsedMs": 321,
+      "packets": {
+        "count": 235,
+        "unique": 21,
+        "min": 1739,
+        "median": 4568,
+        "max": 4579,
+        "mean": 4555.9
+      },
+      "errors": []
+    },
+    {
+      "fixture": "silence-20s.wav",
+      "format": "opus",
+      "mode": "cbr",
+      "bitrate": 128,
+      "codec": "opus",
+      "channels": 2,
+      "sampleRate": 48000,
+      "duration": 20.0065,
+      "sizeBytes": 323484,
+      "elapsedMs": 1013,
+      "packets": {
+        "count": 1001,
+        "unique": 1,
+        "min": 320,
+        "median": 320,
+        "max": 320,
+        "mean": 320
+      },
+      "errors": []
+    },
+    {
+      "fixture": "silence-20s.wav",
+      "format": "opus",
+      "mode": "vbr",
+      "bitrate": 128,
+      "codec": "opus",
+      "channels": 2,
+      "sampleRate": 48000,
+      "duration": 20.0065,
+      "sizeBytes": 4221,
+      "elapsedMs": 226,
+      "packets": {
+        "count": 1001,
+        "unique": 1,
+        "min": 3,
+        "median": 3,
+        "max": 3,
+        "mean": 3
+      },
+      "errors": []
+    },
+    {
+      "fixture": "transient-20s.wav",
+      "format": "opus",
+      "mode": "cbr",
+      "bitrate": 128,
+      "codec": "opus",
+      "channels": 2,
+      "sampleRate": 48000,
+      "duration": 20.0065,
+      "sizeBytes": 323484,
+      "elapsedMs": 212,
+      "packets": {
+        "count": 1001,
+        "unique": 1,
+        "min": 320,
+        "median": 320,
+        "max": 320,
+        "mean": 320
+      },
+      "errors": []
+    },
+    {
+      "fixture": "transient-20s.wav",
+      "format": "opus",
+      "mode": "vbr",
+      "bitrate": 128,
+      "codec": "opus",
+      "channels": 2,
+      "sampleRate": 48000,
+      "duration": 20.0065,
+      "sizeBytes": 324699,
+      "elapsedMs": 213,
+      "packets": {
+        "count": 1001,
+        "unique": 98,
+        "min": 187,
+        "median": 321,
+        "max": 496,
+        "mean": 321.3
+      },
+      "errors": []
+    },
+    {
+      "fixture": "tone-20s.wav",
+      "format": "original",
+      "mode": null,
+      "bitrate": null,
+      "codec": "pcm_s16le",
+      "channels": 2,
+      "sampleRate": 48000,
+      "duration": 20,
+      "sizeBytes": 3840044,
+      "elapsedMs": 118,
+      "packets": {
+        "count": 235,
+        "unique": 2,
+        "min": 6144,
+        "median": 16384,
+        "max": 16384,
+        "mean": 16340.4
+      },
+      "errors": []
+    }
+  ],
+  "captures": [
+    "docs/sprint-evidence/sprint-26/captures/01-opus-cbr.png",
+    "docs/sprint-evidence/sprint-26/captures/02-opus-vbr.png",
+    "docs/sprint-evidence/sprint-26/captures/03-mp3-cbr.png",
+    "docs/sprint-evidence/sprint-26/captures/04-aac-cbr.png",
+    "docs/sprint-evidence/sprint-26/captures/05-wav-controls.png",
+    "docs/sprint-evidence/sprint-26/captures/06-flac-controls.png",
+    "docs/sprint-evidence/sprint-26/captures/07-stream-copy.png"
+  ]
+}
