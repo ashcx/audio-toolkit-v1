@@ -5,6 +5,7 @@ import {resample} from '../src/pcm/resample.ts';
 async function* source(planes,rate=48000,chunk=4096,origin=0){for(let offset=0;offset<planes[0].length;offset+=chunk)yield{planes:planes.map(p=>p.slice(offset,offset+chunk)),rate,origin,offset};}
 async function collect(stream){const chunks=[];for await(const block of stream){assert(block.planes[0].length<=BLOCK_FRAMES);chunks.push(block);}const count=chunks.reduce((n,b)=>n+b.planes[0].length,0);const planes=chunks.length?chunks[0].planes.map(()=>new Float32Array(count)):[];let cursor=0;for(const b of chunks){b.planes.forEach((p,c)=>planes[c].set(p,cursor));cursor+=b.planes[0].length;}return{planes,chunks,count};}
 const tone=(frequency,frames=48000,rate=48000)=>Float32Array.from({length:frames},(_,i)=>.5*Math.sin(2*Math.PI*frequency*i/rate));
+const peakStep=targetDbfs=>({kind:'normalize',mode:'peak',targetDbfs});
 const rms=plane=>Math.sqrt(plane.reduce((s,x)=>s+x*x,0)/plane.length);
 function context(){let opened=0,closed=0;return{get opened(){return opened;},get closed(){return closed;},signal:new AbortController().signal,async checkpoint(){opened++;const values=[];return{async append(block){values.push(block);},async seal(){return{read:()=> (async function*(){yield* values;})()};},async discard(){closed++;}};}};}
 test('trim retains half-open source positions; gain and mono/stereo mappings are deterministic',async()=>{
@@ -17,14 +18,14 @@ test('trim retains half-open source positions; gain and mono/stereo mappings are
 test('normalization at its actual position changes trim results; silence is finite and checkpoints always close',async()=>{
  const data=Float32Array.from({length:48000},(_,i)=>i<24000?.2:.8),target=10**(-1/20);
  const before=context(),after=context();
- const normThenTrim=await collect(trim(normalize(source([data]),-1,before),0,.5));
- const trimThenNorm=await collect(normalize(trim(source([data]),0,.5),-1,after));
+ const normThenTrim=await collect(trim(normalize(source([data]),peakStep(-1),before),0,.5));
+ const trimThenNorm=await collect(normalize(trim(source([data]),0,.5),peakStep(-1),after));
  assert(Math.abs(normThenTrim.planes[0][100]-.25*target)<1e-7);assert(Math.abs(trimThenNorm.planes[0][100]-target)<1e-7);
- const silence=context();const silent=await collect(normalize(source([new Float32Array(10000)]),-1,silence));assert(silent.planes[0].every(x=>x===0));
- const nearSilent=await collect(normalize(source([Float32Array.of(1e-11)]),-1,context()));assert.equal(nearSilent.planes[0][0],Math.fround(1e-11));
- let limited=0;const quiet=await collect(normalize(source([Float32Array.of(1e-4)]),-1,{...context(),onNormalizationLimit:()=>limited++}));assert(Math.abs(quiet.planes[0][0]-.1)<1e-7);assert.equal(limited,1);
+ const silence=context();const silent=await collect(normalize(source([new Float32Array(10000)]),peakStep(-1),silence));assert(silent.planes[0].every(x=>x===0));
+ const nearSilent=await collect(normalize(source([Float32Array.of(1e-11)]),peakStep(-1),context()));assert.equal(nearSilent.planes[0][0],Math.fround(1e-11));
+ let limited=0;const quiet=await collect(normalize(source([Float32Array.of(1e-4)]),peakStep(-1),{...context(),onNormalizationLimit:()=>limited++}));assert(Math.abs(quiet.planes[0][0]-.1)<1e-7);assert.equal(limited,1);
  assert.equal(before.closed,1);assert.equal(after.closed,1);assert.equal(silence.closed,1);
- const cancelled=context();const controller=new AbortController();controller.abort();await assert.rejects(collect(normalize(source([data]),-1,{...cancelled,signal:controller.signal})),{name:'AbortError'});assert.equal(cancelled.closed,1);
+ const cancelled=context();const controller=new AbortController();controller.abort();await assert.rejects(collect(normalize(source([data]),peakStep(-1),{...cancelled,signal:controller.signal})),{name:'AbortError'});assert.equal(cancelled.closed,1);
 });
 test('streaming sinc resampling preserves rate, duration, passband and arbitrary block boundaries',async()=>{
  const input=tone(1000);
