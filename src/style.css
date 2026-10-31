@@ -61,6 +61,11 @@ p { margin: 0; }
 .file-result small { color: var(--muted-strong); overflow-wrap: anywhere; }
 .file-result progress { width: 80px; height: 6px; accent-color: var(--accent); }
 .file-result .button { background: transparent; }
+.file-preview { flex-basis: 100%; min-width: 0; display: grid; gap: 8px; padding-top: 8px; font-size: 12px; }
+.file-preview small { color: var(--muted-strong); }
+.file-preview label { display: grid; gap: 4px; min-width: 0; }
+.file-preview audio { display: block; width: 100%; min-width: 0; }
+.file-preview > button { justify-self: start; }
 .file-error, .file-name .file-error, .file-result .file-error { color: var(--bad); }
 .playback { min-width: 0; }
 .playback summary { min-height: 44px; display: flex; align-items: center; padding: 8px 12px; cursor: pointer; border-radius: 8px; }
