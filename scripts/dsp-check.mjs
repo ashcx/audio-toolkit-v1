@@ -37,8 +37,9 @@ async function storeCount(page) {
     let count=0; for await(const entry of directory.values()) count++; return count;
   });
 }
-for(const [engine, browserType] of [['chromium',chromium], ['webkit',webkit]]) {
-  const context = await browserType.launchPersistentContext(`.artifacts/dsp-profiles/${randomUUID()}/${engine}`, {headless:true, acceptDownloads:true, hasTouch:true, viewport:{width:1440,height:1000}});
+const engines = new Set((process.env.DSP_CHECK_ENGINE ?? 'chromium,webkit').split(','));
+for(const [engine, browserType] of [['chromium',chromium], ['webkit',webkit]].filter(([name]) => engines.has(name))) {
+  const context = await browserType.launchPersistentContext(`.artifacts/dsp-profiles/${randomUUID()}/${engine}`, {headless:true, acceptDownloads:true, hasTouch:true, viewport:{width:1440,height:1000}, ...(engine === 'chromium' ? {channel:'chrome'} : {})});
   try {
     const page = await context.newPage(), errors = [], requests = [];
     page.on('pageerror',error=>errors.push(error.message));
