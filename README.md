@@ -1,42 +1,121 @@
 # Audio Toolkit
 
-Local audio processing with an ordered recipe: extract original audio, trim, adjust gain, normalize peaks, change channels or sample rate, and isolate voice/music. Export MP3, AAC/M4A, WAV, FLAC or Opus/OGG. Export the batch and download individual results or a stored ZIP. Save to a chosen folder when the browser supports it.
+Process audio and video soundtracks entirely in your browser. Nothing is uploaded — no account, no server, no waiting on a queue. Your files stay on your machine.
 
-The integrated branch has automated Chromium/WebKit evidence. Physical Mac/Safari/iPhone/iPad/Android and listening acceptance remain open. PR delivery and production deployment are separate; this branch has not been merged or deployed.
+**[Open the live app →](https://ashcx.github.io/audio-toolkit-v1/)**
 
-## Develop and verify
+## What it does
 
-Requires Node.js 22+, npm, FFmpeg/ffprobe and Playwright browser dependencies for browser checks.
+Load a batch of audio or video files and run them through one shared recipe:
+
+- **Extract** audio from a video, or keep the compressed stream untouched
+- **Trim** with a single two-handle rail and clock-formatted start and end fields
+- **Gain** and **normalize** with sliders, including loudness and true-peak targets
+- **Reduce loud/quiet differences** with compression
+- **Change** channel layout or sample rate
+- **Isolate** voice from music into two stems
+- **Clean up** speech with a local voice-isolation model
+- **Preview** the real processed output before exporting
+- **Export** to MP3, M4A (AAC), WAV, FLAC, OGG (Opus), or a direct stream copy
+- **Save** results one by one, as a ZIP, or into a folder you pick
+
+Steps run in the order you place them. Each file keeps its own trim override, playback and download.
+
+## How to use it
+
+1. Open **[the live app](https://ashcx.github.io/audio-toolkit-v1/)**.
+2. Choose or drop your audio and video files.
+3. Add recipe steps in the order you want them to run. Drag to reorder.
+4. Pick an output format.
+5. Press **Export**. One export processes the current batch.
+6. Download files individually, or open **Save results** for a ZIP or a chosen folder.
+
+Save your downloads before closing the tab. There is no session restore and no background processing.
+
+## Supported formats
+
+| | |
+| --- | --- |
+| **Input** | MP3, AAC/M4A, WAV, FLAC, Ogg Vorbis/Opus, MP4, MOV, WebM, Matroska |
+| **Output** | MP3, M4A (AAC), WAV, FLAC, OGG (Opus), direct stream copy |
+
+Input support still depends on what your browser can decode. A codec may export correctly while refusing to play back natively.
+
+## What works today
+
+Sprints 1–26 are merged, and the app runs live at the link above.
+
+- File intake, workspace, ordered recipes and per-file trim
+- Trim, gain, normalization with loudness and true peak, and compression
+- Channel and sample-rate conversion
+- All five export formats plus direct stream copy
+- Batch processing with cancellation, retry and per-file fault isolation
+- Preview of the actual processed output
+- Individual downloads, stored ZIP and folder saving
+- Voice/music isolation (two stems) and speech cleanup
+
+## What is not done yet
+
+- **Real-device testing.** Automated checks cover Linux Chromium and Playwright WebKit only. Branded Chrome on macOS, Safari on iPhone and iPad, and Android are not verified.
+- **Listening acceptance.** Isolation and loudness quality has not been signed off by ear.
+- **Firefox is unsupported.**
+- **Sprints 27–29 are planned, not built:** browser Demucs v4 performance, four-stem export, and waveform playback with per-track trimming.
+- **Long files and huge batches** are measured only for specific synthetic workloads, not proven in general.
+
+[TODO.md](TODO.md) tracks sprint-by-sprint status and every open gate.
+
+## Run it locally
+
+Requires Node.js 22.12 or newer (Vite rejects older releases) and npm.
 
 ```sh
 npm ci
-npx playwright install chromium webkit
-npm test
-npm run verify:static
+npm run dev
+```
+
+Open http://127.0.0.1:5173/audio-toolkit-v1/ .
+
+For a production build:
+
+```sh
 npm run build
 npm run preview -- --port 4184
 ```
 
-Open http://127.0.0.1:4184/audio-toolkit-v1/ . In a second terminal:
+Open http://127.0.0.1:4184/audio-toolkit-v1/ .
+
+### Checks
 
 ```sh
+npm test              # unit tests
+npm run typecheck     # TypeScript
+npm run verify:static # static audit
+```
+
+Browser checks need Playwright and FFmpeg/ffprobe:
+
+```sh
+npx playwright install chromium webkit
 APP_URL=http://127.0.0.1:4184/audio-toolkit-v1/ npm run verify:browser
 ```
 
-The browser command runs workspace, intake, recipe, copy, DSP, format, batch, cleanup, download and privacy checks sequentially, stops on failure and writes an ignored `.artifacts/release-check/results.json`. The production preview must serve the matching build and stay unchanged during the suites. To rerun a failed stage, `RELEASE_CHECK_FROM=privacy` (or another stage name) checks preceding successes and URL only; it does not verify build contents. Rebuilds require a fresh full run. Linux WebKit may need `npx playwright install-deps webkit`. Browser contexts and servers bind locally. Synthetic fixtures are checked in; regenerate with `node scripts/generate-fixtures.mjs`. Private `test_songs/`, generated media, profiles and upstream checkout are ignored.
+The browser command runs the workspace, intake, recipe, copy, DSP, format, batch, cleanup, download and privacy suites in order. It stops on the first failure and writes `.artifacts/release-check/results.json`. Rebuilds need a fresh full run.
 
-Large synthetic workload commands: `node scripts/download-check.mjs` includes 50 ten-second clips; `PCM_ONLY=1 node scripts/download-limits.mjs` checks one ten-minute WAV conversion. The full limits driver also verifies 20 synthetic one-hour AAC/M4A sources (about 1.7 MB each) using matching-container original-audio byte copying. It does not establish hour-long re-encoding or video remux limits. These are measurements of specified workloads, not unlimited-file claims.
+## Privacy
 
-## Use
+Everything runs in your browser tab. No audio, filenames or results are sent anywhere. Nothing persists between sessions, and folder permission is not retained.
 
-Choose audio/video files, build an ordered recipe, select an output format and Export. Each Export processes the current batch. File rows keep duration, individual trim, processing state, playback and download. Gain and normalization use sliders. Opening either step measures original-audio peak and average RMS in dBFS locally. Trim uses one two-handle rail with clock-formatted start/end fields. Grips support pointer/touch dragging and arrow-key ordering; More holds secondary actions. Appearance and licenses are in Settings.
+See [privacy notes](docs/privacy.md) for the details.
 
-Download completed files individually or open Save results for ZIP, folder saving and clearing results. Where available, Save to folder asks for access and creates a new batch subfolder. Existing files stay intact. Cancellation or partial failures leave downloads available; the result reports saved, failed and skipped files. No folder permission is retained across sessions. Failed files do not enter the archive. Cancel waits for temporary writes and cleanup. If storage cleanup fails, use its retry control before starting more work. Clear results releases this tab's outputs. Save downloads before closing: there is no session restoration or background-processing promise.
+## More documentation
 
-See [formats and limits](docs/formats-and-limits.md), [architecture](docs/architecture.md), [privacy](docs/privacy.md) and [release acceptance](docs/release-acceptance.md).
+- [Formats and measured limits](docs/formats-and-limits.md)
+- [Architecture](docs/architecture.md)
+- [Privacy](docs/privacy.md)
+- [Release acceptance](docs/release-acceptance.md)
+- [Feature requirements](todo/audio-toolkit-plan.md)
+- [Third-party licenses](THIRD_PARTY_LICENSES.md)
 
-## Development records
+## License
 
-[TODO.md](TODO.md) tracks sprint delivery and open gates. [Feature requirements](todo/audio-toolkit-plan.md) own scope. [Third-party provenance](THIRD_PARTY_LICENSES.md) records pinned libraries, source/rebuild links, notices and remaining audit boundaries. [Sprint 12 evidence](docs/sprint-evidence/sprint-12/coverage.md) separates actual automation from unverified devices.
-
-AudioTools.dev was inspected as an ignored reference. The image compressor is a read-only design reference, not a build dependency. This workspace supplies a navigation handoff; it does not implement changes in the tools hub or image app.
+MIT — see [LICENSE](LICENSE).
