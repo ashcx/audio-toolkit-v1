@@ -15,7 +15,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   page.on('request',request=>requests.push(request.url()));
   await page.goto(appUrl);
   await page.getByRole('heading',{name:'Audio Toolkit'}).waitFor();
-  assert.equal(await page.getByRole('link',{name:'Back to Media Toolkit'}).getAttribute('href'),'https://ashcx.github.io/media-toolkit/');
+  assert.equal(await page.getByRole('link',{name:'Back to Tools'}).getAttribute('href'),'https://ashcx.github.io/tools/');
   for(const viewport of [{width:1440,height:1000},{width:390,height:844}]){
    await page.setViewportSize(viewport);
    for(const theme of ['light','dark']){

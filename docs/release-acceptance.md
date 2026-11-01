@@ -19,7 +19,7 @@ Real-device and subjective acceptance cannot be replaced by emulated viewports o
 
 ## Static and sibling handoff
 
-Expected hub destination: `https://ashcx.github.io/media-toolkit/`. Expected image destination: `https://ashcx.github.io/image-compressor-v1/`. Audio route: `/audio-toolkit-v1/`. Local link attributes and the license/source assets are checked; no sibling repository was edited or its deployment claimed. Hub maintainers can link to the audio route once the candidate is approved and actually deployed.
+Expected hub destination: `https://ashcx.github.io/tools/`. Expected image destination: `https://ashcx.github.io/image-compressor-v1/`. Audio route: `/audio-toolkit-v1/`. Local link attributes and the license/source assets are checked; no sibling repository was edited or its deployment claimed. Hub maintainers can link to the audio route once the candidate is approved and actually deployed.
 
 After explicit merge/deployment authorization, check the deployed commit, Pages action, base path, model/worker responses and a real exported download. Keep deployment separate from passing local automation. Open provenance boundaries and device/listening rows remain release gates; see THIRD_PARTY_LICENSES.md and Sprint 12 coverage.
 

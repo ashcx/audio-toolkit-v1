@@ -8,7 +8,7 @@ Output files and processing checkpoints use origin-private browser storage. In-m
 
 Theme preference is stored in localStorage. No media, filenames or recipes are deliberately stored there. Closing/reloading does not restore jobs or downloads. A forced close, crash or mobile process kill may interrupt asynchronous cleanup and leave temporary storage behind. The app does not delete unknown files that might belong to another open tab. To remove all origin data after closing app tabs, use the browser's site-data controls for this origin; that also affects other apps sharing the origin.
 
-The header links to the media hub and Settings links to licenses. Navigation to those external pages follows normal browser behavior; sibling apps are outside this app's processing/privacy evidence.
+The header links to the tools hub and Settings links to licenses. Navigation to those external pages follows normal browser behavior; sibling apps are outside this app's processing/privacy evidence.
 
 Save to folder is optional and capability-dependent. It asks for a local directory through the browser and writes completed outputs into a new batch subfolder. No directory handles are deliberately persisted, uploaded or reused across sessions. Completed saved files remain in the chosen folder after Clear results or closing the tab. Cancellation stops further files; a failed write attempts to remove only its own partial file, and any cleanup failure reports that path. It does not remove existing user files or prior successful saves. A browser or process crash may leave a partial/empty batch folder. Individual/ZIP downloads remain available when folder access is unavailable, denied or cancelled.
 

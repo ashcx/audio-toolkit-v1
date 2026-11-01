@@ -1,0 +1,6 @@
+ts	phase	decision	why	evidence	result
+2026-10-31T00:00:00Z	frame	Prioritize speed with artifact checks	User corrected quality-first priority	todo/workspace-audio-refinement-sprints.md	open
+2026-10-31T03:15:00Z	baseline	Keep work in separate sprint worktrees	Avoid concurrent writes and preserve user changes	/tmp/audio-sprint21,/tmp/audio-sprint22,/tmp/audio-sprint23	open
+2026-10-31T03:16:00Z	trim	Fix rail pointer ownership	Chrome rail drag updates only on pointerdown	/tmp/audio-sprint22/src/trim-fields.tsx	reproduced
+2026-10-31T03:17:00Z	isolation	Reject unsupported true larger model windows	Bundled model has fixed spectral input shape	public/vendor/neural/scnet.int8.onnx	open
+2026-10-31T03:59:41.774898+00:00	handoff	Publish three reviewed sprint PRs	User requested a PR after each sprint	https://github.com/ashcx/audio-toolkit-v1/pull/24,https://github.com/ashcx/audio-toolkit-v1/pull/25,https://github.com/ashcx/audio-toolkit-v1/pull/26	96 combined tests and build pass; no merge

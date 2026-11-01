@@ -1,5 +1,26 @@
 # Audio Toolkit TODO roadmap
 
+## Pending individual sprint plans
+
+These files are the authoritative execution checklists. The grouped documents retain shared research and historical context.
+
+| Sprint | Outcome | Status |
+| --- | --- | --- |
+| [24](todo/sprint-24-loudness-compression.md) | Add loudness, true-peak control and compression | Planned |
+| [25](todo/sprint-25-compact-playback.md) | Compact the workspace and clarify playback | Planned |
+| [26](todo/sprint-26-encoding-modes.md) | Expose verified CBR, VBR and supported encoding modes | Planned |
+| [27](todo/sprint-27-demucs-runtime.md) | Evaluate and optimize browser Demucs v4 | Planned |
+| [28](todo/sprint-28-stem-selection.md) | Select and export four stems or instrumentals | Planned |
+| [29](todo/sprint-29-waveform-trimming.md) | Add waveform playback and individual-track trimming | Planned |
+
+Sprint 27 may run first for separation speed. Sprint 28 follows 27. Sprint 25 precedes 26 and the base waveform UI in 29; four-stem waveform audition also requires 28. Sprint 24 can proceed independently after the completed preview foundation. All six remain planning-only.
+
+[Sprints 27–29](todo/demucs-waveform-sprints.md) add research-backed planning for optimized browser Demucs v4, selectable four-stem/instrumental outputs, and compact waveform playback with individual-track trimming. These are planning-only. Sprint 27 can be prioritized for speed; waveform handles never edit the batch range.
+
+The next planning addition is [Sprints 25–26](todo/compact-playback-encoding-sprints.md). Sprint 25 combines compact metadata, aligned Export actions, Trim all, inline playback and clear exported-download behavior. Sprint 26 adds only encoding modes verified in the actual format/backend. Sprint 24's loudness and compressor work remains separate. These additional sprints are planning-only and may run before Sprint 24.
+
+The 2026-10-31 follow-up is planned as [Sprints 21–24](todo/workspace-audio-refinement-sprints.md). It prioritizes the reported SCNet-S audio artifacts, including quality comparisons at 55% window overlap and larger processing windows, then combines existing-layout refinements and trim fixes, excerpt previews, and normalization/compression into four sprints. This addition is planning-only and does not mark historical acceptance gaps complete.
+
 Prepared 2026-10-29. Implementation resumed on 2026-10-29. Current user instructions require working branches and PRs targeting main, with no direct-main commits/pushes or merge without explicit permission. Existing GitHub Pages automation deploys main only after an authorized merge. The user can perform real-device acceptance. Sprints 1–8 are complete within their scope; Sprint 9 is in progress after resuming from [the checkpoint](todo/RESUME.md). [Feature requirements](todo/audio-toolkit-plan.md) remain authoritative and unchecked until evidence exists.
 
 The user confirmed the public repository `ashcx/audio-toolkit-v1`. Production path is `/audio-toolkit-v1/`; the current page returned HTTP 200 and deployment run40858999659 succeeded. This verifies hosting, not unfinished app functionality. Future sprints deliver working branches and PRs targeting main; historical deployment links remain evidence.

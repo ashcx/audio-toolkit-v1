@@ -1,0 +1,8 @@
+ts	phase	decision	why	evidence	result
+2026-10-31T20:10:47+08:00	frame	Build Sprints 24-26 as three separate reviewable PRs	User asked for a PR after each sprint	todo/sprint-24..26	open
+2026-10-31T20:12:00+08:00	baseline	Use origin/main worktrees, not the older main checkout	Local main is behind merged Sprints 21-23	git worktree list	open
+2026-10-31T20:14:00+08:00	sprint24	Keep recipe version 1 and default legacy normalize to peak	No persistence exists; old peak recipes must keep meaning	tests/recipe.test.mjs	open
+2026-10-31T20:15:00+08:00	sprint24	Use K-weighting and 400 ms gating for loudness	BS.1770 is the measurable standard; RMS is not LUFS	todo/sprint-24	open
+2026-10-31T20:16:00+08:00	sprint25	Remove the per-file trim override path	No restored state can enter the app; dead precedence is worse than deletion	todo/sprint-25	open
+2026-10-31T20:17:00+08:00	sprint26	Expose only Opus CBR/VBR	Measured: Opus frames 320 B fixed vs 259-452 B variable; MP3 384 B fixed; AAC unchanged across modes	.artifacts/encode-audit	verified
+2026-10-31T20:18:00+08:00	sprint26	Stack 26 on 25 and target its branch	26 consumes 25's Export card; do not bundle 25's diff into 26	playbooks/opening-a-pr.md	open
