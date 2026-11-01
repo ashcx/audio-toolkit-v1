@@ -1,6 +1,33 @@
 # Audio Toolkit TODO roadmap
 
-[The refinement plan](todo/workspace-audio-refinement-sprints.md) authorizes Sprints 21–23, with a PR after each sprint. Sprint 21 prioritizes isolation speed with artifact checks and experiments at 55% window overlap. Sprint 22 refines the existing layout and fixes trim. Sprint 23 adds short processed previews. Sprint 24 normalization/compression remains planned.
+## Delivered refinement sprints
+
+[The refinement plan](todo/workspace-audio-refinement-sprints.md) authorizes Sprints 21–23. Sprints 24–26 have individual checklist files below. Merged means the PR landed; it does not by itself establish the sprint's listening, device or acceptance gates.
+
+| Sprint | Outcome | Status |
+| --- | --- | --- |
+| [21](todo/workspace-audio-refinement-sprints.md) | Test isolation overlap and bounded model reuse | Merged, [PR #24](https://github.com/ashcx/audio-toolkit-v1/pull/24) |
+| [22](todo/workspace-audio-refinement-sprints.md) | Balance panels and fix trim dragging | Merged, [PR #25](https://github.com/ashcx/audio-toolkit-v1/pull/25), [PR #27](https://github.com/ashcx/audio-toolkit-v1/pull/27) |
+| [23](todo/workspace-audio-refinement-sprints.md) | Compare processed excerpts before export | Merged, [PR #26](https://github.com/ashcx/audio-toolkit-v1/pull/26) |
+| [24](todo/sprint-24-loudness-compression.md) | Add loudness, true-peak control and compression | Merged, [PR #29](https://github.com/ashcx/audio-toolkit-v1/pull/29) |
+| [25](todo/sprint-25-compact-playback.md) | Compact the workspace and clarify playback | Merged, [PR #28](https://github.com/ashcx/audio-toolkit-v1/pull/28) |
+| [26](todo/sprint-26-encoding-modes.md) | Expose verified CBR, VBR and supported encoding modes | Merged, [PR #31](https://github.com/ashcx/audio-toolkit-v1/pull/31), [PR #32](https://github.com/ashcx/audio-toolkit-v1/pull/32) |
+
+## Pending individual sprint plans
+
+These files are the authoritative execution checklists. The grouped documents retain shared research and historical context.
+
+| Sprint | Outcome | Status |
+| --- | --- | --- |
+| [27](todo/sprint-27-demucs-runtime.md) | Evaluate and optimize browser Demucs v4 | Planned |
+| [28](todo/sprint-28-stem-selection.md) | Select and export four stems or instrumentals | Planned |
+| [29](todo/sprint-29-waveform-trimming.md) | Add waveform playback and individual-track trimming | Planned |
+
+Sprint 27 may run first for separation speed. Sprint 28 follows 27. Four-stem waveform audition in 29 also requires 28. All three remain planning-only.
+
+[Sprints 27–29](todo/demucs-waveform-sprints.md) add research-backed planning for optimized browser Demucs v4, selectable four-stem/instrumental outputs, and compact waveform playback with individual-track trimming. Waveform handles never edit the batch range.
+
+[Sprints 25–26](todo/compact-playback-encoding-sprints.md) plan compact metadata, aligned Export actions, Trim all, inline playback and clear exported-download behavior, then only encoding modes verified in the actual format and backend. Both are delivered.
 
 Prepared 2026-10-29. Implementation resumed on 2026-10-29. Current user instructions require working branches and PRs targeting main, with no direct-main commits/pushes or merge without explicit permission. Existing GitHub Pages automation deploys main only after an authorized merge. The user can perform real-device acceptance. Sprints 1–8 are complete within their scope; Sprint 9 is in progress after resuming from [the checkpoint](todo/RESUME.md). [Feature requirements](todo/audio-toolkit-plan.md) remain authoritative and unchecked until evidence exists.
 
