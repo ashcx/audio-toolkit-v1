@@ -86,7 +86,7 @@ function IsolationNote() {
   }, []);
   return <small class="panel-description" data-isolation-device={gpu === null ? "checking" : gpu.usable ? "gpu" : "cpu"}>
     {gpu && !gpu.usable && `${gpu.reason} Isolation will run on the CPU, slower than real time: about 80 seconds per minute of audio on a fast laptop. `}
-    The first use downloads an 85 MB model, which the browser keeps for later. Some voice, music or reverb may remain.
+    The first use downloads an 85 MB model, which the browser may reuse from its cache. Every job re-checks it. Some voice, music or reverb may remain.
   </small>;
 }
 function SourceLevels({ files, enabled }: {files: readonly FileEntry[]; enabled: boolean}) {

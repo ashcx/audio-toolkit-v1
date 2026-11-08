@@ -1,6 +1,6 @@
 # Privacy and temporary storage
 
-The application reads selected File objects locally and processes media in this browser. There is no app upload endpoint or telemetry integration. Tools, codecs, models and WASM download as static assets from the app origin when needed. The isolation model is 85 MB, fetched from the app origin on first use and kept in the browser cache. The static hosting provider receives normal asset requests and connection metadata. Local-only media processing does not mean network-free startup.
+The application reads selected File objects locally and processes media in this browser. There is no app upload endpoint or telemetry integration. Tools, codecs, models and WASM download as static assets from the app origin when needed. The isolation model is 85 MB, fetched from the app origin on first use. The browser may reuse its cached copy, but the app sets no cache headers, so reuse is not guaranteed, and every job re-verifies the model's hash. The static hosting provider receives normal asset requests and connection metadata. Local-only media processing does not mean network-free startup.
 
 The privacy driver observes real voice inference and ZIP creation in Chromium/WebKit, asserts static GET requests under the same-origin base path plus local object-URL reads, with no bodies or source filenames, checks lazy model loading and served notices, and reloads the workspace. This establishes the observed flows only; it is not a proof about browser extensions, the hosting provider or every possible browser implementation.
 
