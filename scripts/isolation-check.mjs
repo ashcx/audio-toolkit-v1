@@ -4,7 +4,7 @@ import {mkdir,writeFile,readFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import assert from 'node:assert/strict';
 
-const evidence=process.env.ISOLATION_EVIDENCE_DIR??'docs/sprint-evidence/sprint-27';
+const evidence=process.env.ISOLATION_EVIDENCE_DIR??'.artifacts/sprint-27/evidence';
 const outputs=process.env.ISOLATION_OUTPUT_DIR??'.artifacts/sprint-27/app-check';
 const music=process.env.ISOLATION_MUSIC_DIR??'../../../.artifacts/music16';
 const ffmpeg=process.env.FFMPEG??'/opt/homebrew/bin/ffmpeg',ffprobe=process.env.FFPROBE??'/opt/homebrew/bin/ffprobe';

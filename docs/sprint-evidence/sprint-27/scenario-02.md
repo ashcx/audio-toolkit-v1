@@ -39,7 +39,7 @@ Ranges are in scenario-03. On 60 s and 3 min inputs the slowest Demucs WebGPU ru
 - **Loads.** SCNet created one worker and session per window (12, 34 and 56), or half that with reuse. Demucs created one session per run.
 - **Determinism.** Each candidate gave one vocals hash across all its runs on an input.
 - **Real GPU work.** Demucs WebGPU issued 1363 compute dispatches per window and WASM issued none.
-- **Patch check.** The stride-patched copy of `neural.js` used for the overlap experiment gives byte-identical outputs to the vendored copy at 25% overlap on both providers (`identity` mode).
+- **Patch check.** The stride-patched copy of `neural.js` used for the overlap experiment gave byte-identical outputs to the vendored copy at 25% overlap on both providers (`identity` mode). The patch and the harness are removed from the tree (see [protocol.md](protocol.md)).
 
 ## Limiters
 

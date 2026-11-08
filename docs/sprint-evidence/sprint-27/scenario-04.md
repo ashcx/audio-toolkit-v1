@@ -25,7 +25,7 @@ The 10 min SCNet run took about 7.1 s per window, against 3.6 s at 3 min and 4.7
 
 ## Overlap speed (Demucs WebGPU, 60 s input)
 
-Each row has five interleaved runs plus a warmup. The only variable is the hybrid stride, set through the stride-patched `neural.js`. That patch was shown byte-identical to the vendored file at 25%.
+Each row has five interleaved runs plus a warmup. The only variable is the hybrid stride, set through the stride-patched `neural.js`. That patch was shown byte-identical to the vendored file at 25%. The patch and harness are removed from the tree (see [protocol.md](protocol.md)).
 
 | Overlap | Stride | Windows | Median s | Range s | Median RTF | Relative to 25% |
 | --- | --- | --- | --- | --- | --- | --- |

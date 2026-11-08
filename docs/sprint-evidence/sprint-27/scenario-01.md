@@ -4,6 +4,8 @@ Status is partially met. The adapter, framing, normalization, source order and e
 
 Tested code revision is `196122b` on `codex/sprint-27-demucs`, branched from main `3f5a2b6`. Measured on this Mac in Chrome 156.0.8078.81 (Playwright `channel: 'chrome'`, headless). WebGPU used a real Apple `metal-3` adapter, not a fallback adapter. Model provenance, hash and license status are in [provenance.md](provenance.md).
 
+Raw dumps removed. The investigation scripts and their bulky JSON output were deleted in the independent-review round because the shipped pipeline no longer uses them. This file keeps their conclusions. Each is reproducible from git history: the numpy diagnostics (`demucs-framing-check.py`, `demucs-sensitivity.py`, `demucs-node-probe.py`, `demucs-norm-conditioning.py`) were added in `bf967c7`; the vendored-adapter browser checks (`demucs-check.html`, `demucs-node-check.html`) in `196122b`; and the raw outputs `framing-check.json`, `sensitivity.json`, `node-bisection-*.json`, `norm-conditioning-*.json`, `optimization-disabled.json` and `browser-check.json` in `138c6a7`. Check them out of those commits to rerun or inspect them.
+
 These checks use synthetic mixtures: a bass line, noise-burst percussion, a formant-shaped lead and a sustained pad. They prove numeric agreement, framing and source order. They say nothing about separation quality on music. No lawful recordings were available on this machine.
 
 ## Commands
@@ -14,18 +16,14 @@ All commands run from the worktree root. The Python venv is `/private/tmp/claude
 | --- | --- | --- |
 | Fixtures | `venv27/bin/python scripts/demucs-fixtures.py` | 0 |
 | Reference | `venv27/bin/python scripts/demucs-reference.py .artifacts/models/htdemucs_fp16.onnx .artifacts/sprint-27/fixtures .artifacts/sprint-27/reference` | 0 |
-| Framing check | `venv27/bin/python scripts/demucs-framing-check.py .artifacts/models/htdemucs_fp16.onnx .artifacts/sprint-27/fixtures short docs/sprint-evidence/sprint-27/framing-check.json` | 0 |
-| Float32 sensitivity | `venv27/bin/python scripts/demucs-sensitivity.py .artifacts/models/htdemucs_fp16.onnx .artifacts/sprint-27/fixtures .artifacts/sprint-27/sensitivity-quick.json tiny short` | 0 |
 | Window tensors | `venv27/bin/python scripts/demucs-tensors.py .artifacts/models/htdemucs_fp16.onnx .artifacts/sprint-27/fixtures <tiny\|short> .artifacts/sprint-27/tensors` | 0 |
-| Browser check | `node scripts/demucs-check.mjs` | 0 |
-| Optimizer off | `DEMUCS_OPTIMIZATION=disabled DEMUCS_FIXTURES=tiny DEMUCS_TENSORS=tiny DEMUCS_REPORT=.artifacts/sprint-27/opt-disabled.json node scripts/demucs-check.mjs` | 1 (old tolerance assertion; numbers recorded) |
-| Node fingerprints | `venv27/bin/python scripts/demucs-node-probe.py .artifacts/models/htdemucs_fp16.onnx .artifacts/sprint-27/tensors <tiny\|short> .artifacts/sprint-27/nodes` | 0 |
-| Node bisection | `DEMUCS_NODES=<tiny\|short> DEMUCS_REPORT=docs/sprint-evidence/sprint-27/node-bisection-<tiny\|short>.json node scripts/demucs-check.mjs` | 0 |
-| Norm conditioning | `venv27/bin/python scripts/demucs-norm-conditioning.py .artifacts/models/htdemucs_fp16.onnx .artifacts/sprint-27/tensors <tiny\|short> <out>` | 0 |
+| Pipeline check | `node scripts/demucs-check.mjs` (writes `.artifacts/sprint-27/pipeline-check.json`) | 0 |
 | Types | `npx tsc --noEmit` | 0 |
-| Unit tests | `npm test` (127 pass) | 0 |
+| Unit tests | `npm test` | 0 |
 
-`node scripts/demucs-check.mjs` passes when the model hash matches, every stem is finite and as long as its input, and the adapter's first-window feeds match the reference tensors within float32 rounding (120 dB floor). It records the runtime agreement per stem without gating on it, because that agreement is the open gap below.
+The framing, float32 sensitivity, optimizer-off, node-fingerprint, node-bisection and norm-conditioning rows ran at `bf967c7`, `196122b` and `138c6a7` with scripts that are no longer in the tree (see the note above). The optimizer-off run exited 1 on the old tolerance assertion; its numbers were recorded.
+
+`node scripts/demucs-check.mjs` drives `scripts/demucs-pipeline-check.html`, which runs the app's `isolate()` on ORT-Web and compares vocals and drums + bass + other with the numpy reference. It passes when every output is finite and as long as its input, the SNR clears the per-fixture floor in the script, and the first-window feeds match the reference tensors within float32 rounding (120 dB floor). The result is in [pipeline-check.json](pipeline-check.json).
 
 ## Fixtures
 
@@ -53,7 +51,7 @@ The reference and the browser page both refuse to run unless the file is 8503460
 
 ### The model confirms the framing
 
-`framing-check.json` reruns `short` with one deliberate deviation at a time. It scores how closely the four stems sum back to the mix, and how well the bass stem tracks the synthesized bass.
+The framing check (`framing-check.json` at `138c6a7`) reruns `short` with one deliberate deviation at a time. It scores how closely the four stems sum back to the mix, and how well the bass stem tracks the synthesized bass.
 
 | Variant | Stem-sum SNR | Bass correlation |
 | --- | --- | --- |
@@ -92,11 +90,11 @@ The vendored `separate()` with `model: 'htdemucs'` does not run this file unchan
 
 Everything else in the vendored hybrid path matches this file's metadata. Read from the pretty-printed bundle, it uses reflect pad 1536 (`hop/2*3`), 336 frames from `ceil(L/hop)`, a two-frame trim, the dropped Nyquist bin, normalized periodic Hann, track mono mean and unbiased std (it adds 1e-8; upstream Demucs adds none; unblend adds 1e-5 to std), a 0.75 stride, demucs's triangular weight indexed from 0 for the last window, centered short-window padding, and source order drums, bass, other, vocals. The first-window comparison measures this directly. The tensors the vendored code builds through `demucsHybridSession` match the numpy reference's at 144.6 to 145.9 dB SNR, with max abs differences of 2.4e-7 to 1.9e-6. That is float32 rounding.
 
-The adapter is `src/inference/demucs-session.ts`. `demucsHybridSession(session)` declares `mix` (with the 343980 segment) and `mix_spec` inputs. It splits the complex-as-channels feed into `spec_real`/`spec_imag`, passes `mix` as `audio`, and rejoins `out_spec_real`/`out_spec_imag` into complex-as-channels order. It also checks output shapes. No DSP is duplicated.
+The adapter was `demucsHybridSession` in `src/inference/demucs-session.ts` at `196122b`; it is removed, because the shipped pipeline feeds the model directly. It declared `mix` (with the 343980 segment) and `mix_spec` inputs. It splits the complex-as-channels feed into `spec_real`/`spec_imag`, passes `mix` as `audio`, and rejoins `out_spec_real`/`out_spec_imag` into complex-as-channels order. It also checks output shapes. No DSP is duplicated.
 
 ## Browser against reference
 
-Full-length stems against the numpy reference, all four sources, measured in `browser-check.json`.
+Full-length stems against the numpy reference, all four sources, measured with the vendored adapter at `196122b` (`browser-check.json` at `138c6a7`, removed). The shipped pipeline's numbers are in [pipeline-check.json](pipeline-check.json).
 
 | Fixture | WASM SNR (min to max over stems) | WebGPU SNR | WASM max abs | WebGPU max abs |
 | --- | --- | --- | --- | --- |
@@ -118,7 +116,7 @@ Feeding the reference's exact window tensors to ORT-Web gives raw outputs at the
 | short | 61.5 to 62.2 / 65.4 dB | 82.3 to 82.7 / 80.5 dB |
 | tiny | 19.4 to 20.0 / 5.0 dB | 39.0 to 39.4 / 27.4 dB |
 
-Node bisection (`node-bisection-*.json`) fingerprints 506 compute-node outputs on both runtimes. The first non-silent divergence is the same on both windows and both providers.
+Node bisection (`node-bisection-*.json` at `138c6a7`) fingerprints 506 compute-node outputs on both runtimes. The first non-silent divergence is the same on both windows and both providers.
 
 | Node | tiny WASM | tiny WebGPU | short WASM | short WebGPU |
 | --- | --- | --- | --- | --- |
@@ -128,7 +126,7 @@ Node bisection (`node-bisection-*.json`) fingerprints 506 compute-node outputs o
 | First InstanceNormalization (GroupNorm over 515970 elements) | 55.3 dB | 78.6 dB | 62.6 dB | 75.3 dB |
 | Final ConvTranspose | 3.3 dB | 31.9 dB | 64.9 dB | 80.0 dB |
 
-Given an input that matches native to 93 to 131 dB, ORT-Web's InstanceNormalization output matches to only 55 to 79 dB. The error then compounds through the graph's 100 normalization nodes (74 InstanceNormalization, 26 LayerNormalization). The near-silent tiny window has a far higher error gain, which is why it diverges. I infer, but have not proven, that ORT-Web's reductions accumulate long float32 sums less precisely than native ORT. Supporting that: normalization inputs are well conditioned (mean²/variance at most 0.77, `norm-conditioning-*.json`), so variance cancellation is ruled out.
+Given an input that matches native to 93 to 131 dB, ORT-Web's InstanceNormalization output matches to only 55 to 79 dB. The error then compounds through the graph's 100 normalization nodes (74 InstanceNormalization, 26 LayerNormalization). The near-silent tiny window has a far higher error gain, which is why it diverges. I infer, but have not proven, that ORT-Web's reductions accumulate long float32 sums less precisely than native ORT. Supporting that: normalization inputs are well conditioned (mean²/variance at most 0.77, `norm-conditioning-*.json` at `138c6a7`), so variance cancellation is ruled out.
 
 Setting `graphOptimizationLevel: 'disabled'` gave bit-identical WASM numbers on `tiny`. I did not confirm that the vendored `load()` delivered the option to ORT, so the optimizer is not ruled in or out.
 

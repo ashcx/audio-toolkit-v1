@@ -1,10 +1,10 @@
 # Scenario 27-06. Cancellation, GPU failure, CPU fallback and resource release
 
-Status is partially met for the benchmark's Demucs runner. Cancellation and injected GPU failures behave correctly. A real GPU-unavailable browser exposed a silent CPU fallback that Phase 3 must guard against. This tests the probe runner (`probes/demucs-bench.ts` with `probes/demucs-bench-worker.ts`), not an app integration.
+Status is partially met for the benchmark's Demucs runner. Cancellation and injected GPU failures behave correctly. A real GPU-unavailable browser exposed a silent CPU fallback that Phase 3 must guard against. This tests the benchmark's probe runner (`probes/demucs-bench.ts` with `probes/demucs-bench-worker.ts`, added in `0b5ae16` and since removed), not an app integration. The app integration is covered by `scripts/isolation-check.mjs` and `tests/inference-runner.test.mjs`.
 
 The runner terminates the worker on cancel and rejects with `AbortError`. If a WebGPU attempt fails after the model fetch (at session creation or during a run), it retries once with a new WASM worker. This mirrors `InferenceRunner`'s policy for SCNet.
 
-Command: `BENCH_MODE=cancel BENCH_INPUTS=m60 BENCH_REPORT=.artifacts/sprint-27/bench-cancel.json node scripts/demucs-bench.mjs` (exit 0). Each case uses a fresh Chrome profile and the 60 s input. After each case the same page runs an uncancelled retry. Memory is the dedicated browser's RSS total, sampled before the run, at peak, 3 s after the outcome, and 3 s after the retry.
+Command (at `0b5ae16`): `BENCH_MODE=cancel BENCH_INPUTS=m60 BENCH_REPORT=.artifacts/sprint-27/bench-cancel.json node scripts/demucs-bench.mjs` (exit 0). Each case uses a fresh Chrome profile and the 60 s input. After each case the same page runs an uncancelled retry. Memory is the dedicated browser's RSS total, sampled before the run, at peak, 3 s after the outcome, and 3 s after the retry.
 
 | Case | Outcome | Stop to rejection | Memory MiB: before / peak / 3 s later / after retry | Retry |
 | --- | --- | --- | --- | --- |

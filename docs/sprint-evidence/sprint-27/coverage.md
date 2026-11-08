@@ -8,7 +8,7 @@ Measured on one Apple M5 (16 GiB) in Chrome 156 through Playwright, headless. No
 
 | Scenario | Status | Evidence |
 | --- | --- | --- |
-| 27-01 Model bytes, preprocessing and outputs against a reference | Met for the vendored adapter (Phase 1) and for the shipped streaming pipeline (Phase 3). The ORT-Web gap on near-silent windows stays open. | [scenario-01.md](scenario-01.md), [browser-check.json](browser-check.json), [pipeline-check.json](pipeline-check.json) |
+| 27-01 Model bytes, preprocessing and outputs against a reference | Met for the vendored adapter at `196122b` (Phase 1; raw output removed, conclusions in the scenario) and for the shipped streaming pipeline (Phase 3). The ORT-Web gap on near-silent windows stays open. | [scenario-01.md](scenario-01.md), [pipeline-check.json](pipeline-check.json) |
 | 27-02 SCNet, SCNet reuse, initial and optimized Demucs on the same device | Met for speed, not for quality. OBRA Fast not run. | [scenario-02.md](scenario-02.md), [results.json](results.json) |
 | 27-03 Five interleaved warm trials, cold setup separate | Met | [scenario-03.md](scenario-03.md), [protocol.md](protocol.md) |
 | 27-04 Short, 3, 5 and 10 minute inputs, limits recorded | Met. Phase 3 adds a 10 min app export with bounded memory. | [scenario-04.md](scenario-04.md), [app-check.json](app-check.json) |
@@ -42,7 +42,7 @@ Run from the worktree root on the final revision.
 | `npx tsc --noEmit` | 0 |
 | `npm run build` | 0 |
 | `npm run verify:static` | 0 |
-| `DEMUCS_PIPELINE=app node scripts/demucs-check.mjs` (WASM and WebGPU) | 0 |
+| `node scripts/demucs-check.mjs` (WASM and WebGPU) | 0 |
 | `ISOLATION_LONG_SECONDS=600 node scripts/isolation-check.mjs` | 0 |
 
 ## Open

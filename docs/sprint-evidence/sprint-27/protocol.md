@@ -2,6 +2,10 @@
 
 This covers the Phase 2 speed measurements behind scenarios 27-02, 27-03, 27-04 and 27-06, plus overlap speed for 27-05. The question is whether browser Demucs v4 separates faster than the SCNet isolation the app ships today, on the same machine, browser and inputs.
 
+## Tooling removed
+
+The benchmark harness (`scripts/demucs-bench.mjs`, `demucs-bench.html`, `demucs-bench-prepare.mjs`, `demucs-bench-summary.mjs`, `demucs-placement.mjs`, `probes/demucs-bench*.ts`) was deleted in the independent-review round. It measured the vendored `separate()` path and the SCNet candidates, neither of which ships, and its stride patch and `overlap`, `identity`, `cancel` and `profile` modes were investigation tools. The commands below ran at `0b5ae16` (harness added) with `e2f1fb5` adding [results.json](results.json); check those out to rerun them. The shipped path's end-to-end time, memory and cancellation are measured by `scripts/isolation-check.mjs` and recorded in [app-check.json](app-check.json). No replacement benchmark with a median and real-time factor was written, because that driver already reports elapsed time per export.
+
 ## Revision, machine and browser
 
 | Item | Value |
