@@ -12,7 +12,7 @@ const site=join(root,'.artifacts/s27-root');
 const env=process.env;
 const mode=env.BENCH_MODE??'warm';
 const inputs=(env.BENCH_INPUTS??'excerpt10').split(',');
-const candidates=(env.BENCH_CANDIDATES??'scnet-main,scnet-reuse2,demucs-webgpu,demucs-wasm').split(',');
+const candidates=(env.BENCH_CANDIDATES??'demucs-webgpu,demucs-wasm').split(',');
 const rounds=Number(env.BENCH_ROUNDS??5);
 const overlaps=(env.BENCH_OVERLAPS??'0.1,0.25,0.4,0.5').split(',').map(Number);
 const runLimitMs=Number(env.BENCH_RUN_LIMIT_MS??900_000);
@@ -81,7 +81,7 @@ async function once(session,inputName,spec,label){
   Object.assign(record,outcome.value);
   const ok=record.vocals.complete&&record.vocals.finite&&record.accompaniment.complete&&record.accompaniment.finite&&record.vocals.rms>0&&record.accompaniment.rms>0;
   if(!ok)throw Error('Output incomplete, nonfinite or silent');
-  if(saveOutputs&&label==='round 1'&&spec.candidate!=='scnet-app'){await mkdir(saveOutputs,{recursive:true});for(const which of ['vocals','accompaniment'])await writeFile(join(saveOutputs,`${inputName}.${spec.candidate}${spec.overlap?'.o'+spec.overlap:''}.${which}.wav`),Buffer.from(await page.evaluate(w=>window.bench.wav(w),which),'base64'));}
+  if(saveOutputs&&label==='round 1'&&spec.candidate!=='app'){await mkdir(saveOutputs,{recursive:true});for(const which of ['vocals','accompaniment'])await writeFile(join(saveOutputs,`${inputName}.${spec.candidate}${spec.overlap?'.o'+spec.overlap:''}.${which}.wav`),Buffer.from(await page.evaluate(w=>window.bench.wav(w),which),'base64'));}
   record.ok=true;
   console.log(label,inputName,spec.candidate,spec.overlap??'',`${(record.wallMs/1000).toFixed(2)} s`,`RTF ${record.realTimeFactor.toFixed(2)}`,`windows ${record.windows}`,`loads ${record.loads}`,record.backends.join('+'),`peak +${(record.memory.peakIncreaseBytes/2**20).toFixed(0)} MiB`);
  }catch(error){
@@ -156,7 +156,7 @@ try{
    console.log(item.name,record.ok?'completed':'rejected',record.error??'',record.stopToRejectMs!=null?`stop->reject ${record.stopToRejectMs.toFixed(1)} ms`:'',record.backends??'',`retry ${record.retry?.ok}`,`mem before ${(record.memoryBeforeBytes/2**20).toFixed(0)} peak ${(record.peakBytes/2**20).toFixed(0)} settled ${(record.memoryAfterSettleBytes/2**20).toFixed(0)} MiB`);
   }
  }else if(mode==='profile'){
-  const provider=candidates[0].endsWith('wasm')?'wasm':'webgpu',model=candidates[0].startsWith('scnet')?'scnet':'demucs';
+  const provider=candidates[0].endsWith('wasm')?'wasm':'webgpu',model='demucs';
   const session=await browserSession(),page=await session.context.newPage(),kernels=[];
   const placement=[];page.on('console',message=>{const text=message.text();if(text.includes('[profiling]'))kernels.push(text);else if(/ExecutionProvider|placed|assigned|Node\(s\)/i.test(text))placement.push(text);});
   try{
@@ -164,7 +164,7 @@ try{
    await page.evaluate(name=>window.bench.load(name),inputs[0]);
    const cdp=await session.context.newCDPSession(page);
    await cdp.send('Profiler.enable');await cdp.send('Profiler.setSamplingInterval',{interval:500});await cdp.send('Profiler.start');
-   const outcome=model==='scnet'?{timings:await page.evaluate(p=>window.bench.profileScnetWindow(p),provider)}:await page.evaluate(p=>window.bench.profile(p),provider);
+   const outcome=await page.evaluate(p=>window.bench.profile(p),provider);
    const {profile}=await cdp.send('Profiler.stop');
    const dir=join(root,'.artifacts/sprint-27/profile');await mkdir(dir,{recursive:true});
    await writeFile(join(dir,`${model}-${provider}-${inputs[0]}.cpuprofile`),JSON.stringify(profile));

@@ -1,14 +1,11 @@
-import { InferenceRunner } from "../src/inference/runner";
-import { isolationWindows } from "../src/pcm/isolation-window";
-import { BLOCK_FRAMES, type PcmStream } from "../src/pcm/blocks";
 import { inspectMedia, createFileId } from "../src/media";
 import { recipeSchema, newStep, snapshotForFile } from "../src/recipe";
 import { compilePlan } from "../src/planner";
 import { processAudio } from "../src/process-audio";
-import { runDemucs, profileScnet, type DemucsBenchReply, type DemucsBenchRequest, type DemucsBenchTimings } from "./demucs-bench-core";
+import { runDemucs, type DemucsBenchReply, type DemucsBenchRequest, type DemucsBenchTimings } from "./demucs-bench-core";
 
 type Planes = Float32Array<ArrayBuffer>[];
-type Candidate = "scnet-app" | "scnet-main" | "scnet-reuse2" | "demucs-webgpu" | "demucs-wasm";
+type Candidate = "app" | "demucs-webgpu" | "demucs-wasm";
 export type RunSpec = {
   candidate: Candidate;
   overlap?: number;
@@ -36,46 +33,6 @@ async function load(name: string) {
   if (data.length !== 2 * frames) throw new Error(`${name} has ${data.length} samples`);
   input = { name, planes: [data.slice(0, frames), data.slice(frames)] };
   return frames;
-}
-
-async function* blocks(planes: Planes): PcmStream {
-  for (let offset = 0; offset < planes[0].length; offset += BLOCK_FRAMES) {
-    const length = Math.min(BLOCK_FRAMES, planes[0].length - offset);
-    yield { origin: 0, offset, rate: 44100, planes: planes.map(plane => plane.subarray(offset, offset + length)) };
-  }
-}
-
-/** The shipped isolate() path from standardization to music, without decode, checkpoint storage or encoding. */
-async function scnet(planes: Planes, workerWindows: 1 | 2, marks: Mark[], start: number, cancel: RunSpec["cancel"]) {
-  const frames = planes[0].length, channels = planes.length;
-  let mean = 0, squared = 0;
-  for (let index = 0; index < frames; index++) {
-    let value = 0; for (const plane of planes) value += plane[index] / channels;
-    const difference = value - mean; mean += difference / (index + 1); squared += difference * (value - mean);
-  }
-  const deviation = Math.sqrt(squared / Math.max(1, frames - 1)) + 1e-8;
-  const standardized = planes.map(plane => plane.map(value => (value - mean) / deviation));
-  const runner = new InferenceRunner(workerWindows), stats = { windows: 0, maxWindowFrames: 0 };
-  const voice = planes.map(() => new Float32Array(frames));
-  let loads = 0, completed = 0;
-  const backends = new Set<string>();
-  const mark = (event: string) => marks.push({ at: performance.now() - start, event });
-  try {
-    for await (const block of isolationWindows(blocks(standardized), { frames, channels, origin: 0 }, async window => {
-      const result = await runner.run(window as Planes, event => {
-        mark(event.kind === "phase" ? event.phase : event.kind);
-        if (cancel === "fetch" && event.kind === "phase" && event.phase === "Loading isolation tools") queueMicrotask(() => runner.stop());
-        if (cancel === "session" && event.kind === "phase" && event.phase === "Loading model") runner.stop();
-      });
-      loads += result.loads; backends.add(result.backend); completed++; mark("window-done");
-      if (cancel === "first-window" && completed === 1) runner.stop();
-      return result.planes;
-    }, stats, 0.5)) {
-      block.planes.forEach((plane, channel) => { for (let i = 0; i < plane.length; i++) voice[channel][block.offset + i] = plane[i] * deviation; });
-    }
-  } finally { runner.stop(); }
-  const accompaniment = planes.map((plane, channel) => plane.map((value, index) => value - voice[channel][index]));
-  return { vocals: voice, accompaniment, windows: stats.windows, loads, backends: [...backends] };
 }
 
 function demucsWorker(request: Omit<DemucsBenchRequest, "planes">, planes: Planes, marks: Mark[], start: number, cancel: RunSpec["cancel"], retain: boolean) {
@@ -119,8 +76,8 @@ function wavFile(planes: Planes, name: string) {
   return new File([view.buffer], name, { type: "audio/wav" });
 }
 
-/** The shipped app path: processAudio from a 16-bit WAV file through decode, checkpoints, SCNet isolation and WAV encoding (music kept). */
-async function scnetApp(planes: Planes, marks: Mark[], start: number) {
+/** The shipped app path: processAudio from a 16-bit WAV file through decode, checkpoints, Demucs isolation and WAV encoding (music kept). */
+async function app(planes: Planes, marks: Mark[], start: number) {
   const file = wavFile(planes, "input.wav"), signal = new AbortController().signal;
   const inspection = await inspectMedia(file, signal);
   if (inspection.kind !== "ready") throw new Error(inspection.message);
@@ -153,15 +110,13 @@ async function run(spec: RunSpec) {
   if (!input) throw new Error("Load an input first");
   const planes = input.planes, frames = planes[0].length, marks: Mark[] = [], start = performance.now();
   current = { marks, start };
-  if (spec.candidate === "scnet-app") {
-    const app = await scnetApp(planes, marks, start), wallMs = app.appMs;
-    const expectedBytes = 44 + frames * 4, complete = app.bytes === expectedBytes;
-    return { ...spec, input: input.name, frames, audioSeconds: frames / 44100, wallMs, realTimeFactor: frames / 44100 / (wallMs / 1000), windows: app.stats.isolationWindows, loads: app.stats.isolationLoads, backends: app.stats.isolationBackends, attempts: 1, timings: null, marks, stats: app.stats,
-      vocals: { complete, finite: true, rms: 1, note: "processAudio keeps music only; vocals not exported" }, accompaniment: { complete, finite: true, rms: 1, wavBytes: app.bytes, expectedBytes, note: "output WAV size checked, samples not decoded" }, vocalsPlusAccompanimentMaxError: null };
+  if (spec.candidate === "app") {
+    const result = await app(planes, marks, start), wallMs = result.appMs;
+    const expectedBytes = 44 + frames * 4, complete = result.bytes === expectedBytes;
+    return { ...spec, input: input.name, frames, audioSeconds: frames / 44100, wallMs, realTimeFactor: frames / 44100 / (wallMs / 1000), windows: result.stats.isolationWindows, loads: result.stats.isolationLoads, backends: result.stats.isolationBackends, attempts: 1, timings: null, marks, stats: result.stats,
+      vocals: { complete, finite: true, rms: 1, note: "processAudio keeps music only; vocals not exported" }, accompaniment: { complete, finite: true, rms: 1, wavBytes: result.bytes, expectedBytes, note: "output WAV size checked, samples not decoded" }, vocalsPlusAccompanimentMaxError: null };
   }
-  const result = spec.candidate === "scnet-main" || spec.candidate === "scnet-reuse2"
-    ? await scnet(planes, spec.candidate === "scnet-main" ? 1 : 2, marks, start, spec.cancel)
-    : await demucs(planes, spec.candidate === "demucs-webgpu" ? "webgpu" : "wasm", spec, marks, start);
+  const result = await demucs(planes, spec.candidate === "demucs-webgpu" ? "webgpu" : "wasm", spec, marks, start);
   const wallMs = performance.now() - start;
   last = { vocals: result.vocals, accompaniment: result.accompaniment };
   let mixError = 0;
@@ -197,12 +152,6 @@ async function profile(provider: "webgpu" | "wasm") {
   return { wallMs: performance.now() - start, timings: reply.timings };
 }
 
-async function profileScnetWindow(provider: "webgpu" | "wasm") {
-  if (!input) throw new Error("Load an input first");
-  const window = input.planes.map(plane => plane.slice(0, 485100));
-  return profileScnet(window, new URL("vendor/neural/scnet.int8.onnx", base).href, new URL("vendor/neural/", base).href, provider);
-}
-
 function wav(which: "vocals" | "accompaniment") {
   if (!last) throw new Error("No output yet");
   const planes = last[which], frames = planes[0].length, view = new DataView(new ArrayBuffer(44 + frames * 4));
@@ -222,5 +171,5 @@ async function gpu() {
   return { vendor, architecture, device, description, isFallbackAdapter: isFallbackAdapter ?? null, timestampQuery: adapter.features.has("timestamp-query") };
 }
 
-Object.assign(window, { bench: { load, run, attempt, wav, gpu, profile, profileScnetWindow, release: () => { retainedWorker?.terminate(); retainedWorker = null; last = null; } } });
+Object.assign(window, { bench: { load, run, attempt, wav, gpu, profile, release: () => { retainedWorker?.terminate(); retainedWorker = null; last = null; } } });
 document.querySelector("#status")!.textContent = "Ready";

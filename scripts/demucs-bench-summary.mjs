@@ -5,19 +5,6 @@ if(!output||!reports.length)throw Error('Usage: node scripts/demucs-bench-summar
 const median=values=>{const sorted=[...values].sort((a,b)=>a-b),mid=sorted.length>>1;return sorted.length%2?sorted[mid]:(sorted[mid-1]+sorted[mid])/2;};
 const round=(value,digits=0)=>value==null?null:Math.round(value*10**digits)/10**digits;
 
-function scnetPhases(marks){
- const totals={workerAndModelFetchMs:0,sessionMs:0,separateMs:0};let open=null;
- for(const {at,event} of marks){
-  if(event==='Loading isolation tools')open={tools:at};
-  else if(open&&event==='Loading model')open.model=at;
-  else if(open&&event==='Separating')open.separate=at;
-  else if(open&&event==='window-done'){
-   const model=open.model??open.tools,separate=open.separate??model;
-   totals.workerAndModelFetchMs+=model-open.tools;totals.sessionMs+=separate-model;totals.separateMs+=at-separate;open=null;
-  }
- }
- return totals;
-}
 
 const groups=new Map(),meta=[];
 for(const path of reports){
@@ -51,11 +38,7 @@ const rows=[...groups.values()].map(group=>{
   row.medianPhases=Object.fromEntries(keys.map(key=>[key,round(median(runs.map(run=>run.timings[key])),1)]));
   row.medianInferenceMsPerWindow=round(median(runs.map(run=>run.timings.inferenceMs/run.timings.windows)),1);
   row.medianTransformsMsPerWindow=round(median(runs.map(run=>run.timings.normalizeAndTransformsMs/run.timings.windows)),1);
- }else if(runs[0]?.candidate?.startsWith('scnet')&&runs[0].candidate!=='scnet-app'){
-  const phases=runs.map(run=>scnetPhases(run.marks));
-  row.medianPhases=Object.fromEntries(Object.keys(phases[0]).map(key=>[key,round(median(phases.map(phase=>phase[key])),1)]));
-  row.medianSeparateMsPerWindow=round(median(runs.map((run,index)=>phases[index].separateMs/run.windows)),1);
- }else if(runs[0]?.candidate==='scnet-app'){
+ }else if(runs[0]?.candidate==='app'){
   const isolation=runs.map(run=>{const first=run.marks.find(mark=>mark.event==='isolation-progress'),done=[...run.marks].reverse().find(mark=>mark.event==='isolation-progress');return done&&first?done.at-first.at:null;});
   const total=runs.map(run=>run.wallMs);
   row.medianOutsideIsolationS=round(median(total.map((value,index)=>value-isolation[index]))/1000,2);

@@ -115,30 +115,3 @@ export async function runDemucs(data: DemucsBenchRequest, post: Post) {
     post({ kind: "error", provider, stage, message: error instanceof Error ? error.message : String(error) });
   }
 }
-
-/** Unreported SCNet profile: one shipped-size window through the same separate() call and session options as src/inference/worker.ts. */
-export async function profileScnet(planes: Float32Array<ArrayBuffer>[], modelUrl: string, wasmPaths: string, provider: Provider) {
-  const ort = provider === "webgpu" ? await import("demucs-ort-webgpu") : null;
-  if (ort) ort.env.webgpu.profiling = { mode: "default" };
-  const bytes = new Uint8Array(await (await fetch(modelUrl)).arrayBuffer());
-  let started = performance.now();
-  const session = await strided.load(bytes, { backend: provider, executionProviders: provider === "wasm" ? ["wasm"] : ["webgpu", "wasm"], wasmPaths, threads: 1, sessionOptions: { enableCpuMemArena: false, enableMemPattern: false, logSeverityLevel: 0, logVerbosityLevel: 0 } });
-  const sessionMs = performance.now() - started;
-  let inferenceMs = 0, runs = 0;
-  const before = dispatches;
-  started = performance.now();
-  await strided.separate(planes, {
-    sampleRate: 44100, model: "scnet", targets: ["vocals"], step: 1, standardize: false,
-    session: async () => ({
-      inputs: session.inputs.map((input: { name: string }) => ({ name: input.name })), outputs: session.outputs,
-      async run(feeds: Record<string, { data: Float32Array; dims: number[]; type: string }>) {
-        const t = performance.now();
-        try { return await session.run(feeds as Parameters<typeof session.run>[0]) as Record<string, { data: Float32Array; dims: number[] }>; }
-        finally { inferenceMs += performance.now() - t; runs++; }
-      },
-    }),
-  });
-  const separateMs = performance.now() - started;
-  session.free();
-  return { sessionMs, separateMs, inferenceMs, runs, gpuDispatches: dispatches - before };
-}
