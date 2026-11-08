@@ -1,5 +1,4 @@
-import type { IsolationOverlap } from "./isolation-window";
-import type { InferenceRequest, InferenceReply } from "../inference/protocol";
+import type { InferenceBackend, InferenceRequest, InferenceReply } from "../inference/protocol";
 import type { JobOperation } from "../job-events";
 import type { ExecutionPlan } from "../planner";
 export type PcmPlan = Extract<ExecutionPlan, { kind: "pcm" }> & Readonly<{ previewRange?: import("../preview-plan").PreviewRange }>;
@@ -32,7 +31,7 @@ export type DspStats = {
   isolationWindows: number;
   maxIsolationFrames: number;
   isolationLoads: number;
-  isolationBackends: ("wasm" | "webgpu+wasm")[];
+  isolationBackends: InferenceBackend[];
   normalizationPasses: number;
   limitedNormalizations: number;
   normalizationLimitedByCeiling: boolean;
@@ -50,8 +49,7 @@ export type WorkerResult =
   | JobOperation
   | { kind: "done"; outputId: string; stats: DspStats }
   | { kind: "error"; message: string };
-export type IsolationExperiment = { overlap?: IsolationOverlap; workerWindows?: 1 | 2 };
 export type WorkerInput =
-  | { kind: "start"; file: File; plan: PcmPlan; name: string; isolation?: Pick<IsolationExperiment, "overlap"> }
+  | { kind: "start"; file: File; plan: PcmPlan; name: string }
   | { kind: "storage"; sequence: number; reply: StorageReply }
   | { kind: "inference"; sequence: number; reply: InferenceReply };

@@ -27,6 +27,7 @@ import {
   stepLufs,
 } from "./loudness-rail";
 import type { FileEntry } from "./media";
+import { usableGpu, type GpuSupport } from "./inference/gpu";
 
 function summary(step: StepDraft): string {
   switch (step.kind) {
@@ -75,6 +76,18 @@ function summary(step: StepDraft): string {
       return unreachable;
     }
   }
+}
+function IsolationNote() {
+  const [gpu, setGpu] = useState<GpuSupport | null>(null);
+  useEffect(() => {
+    let current = true;
+    void usableGpu().then(value => { if (current) setGpu(value); });
+    return () => { current = false; };
+  }, []);
+  return <small class="panel-description" data-isolation-device={gpu === null ? "checking" : gpu.usable ? "gpu" : "cpu"}>
+    {gpu && !gpu.usable && `${gpu.reason} Isolation will run on the CPU, slower than real time: about 80 seconds per minute of audio on a fast laptop. `}
+    The first use downloads an 85 MB model, which the browser keeps for later. Some voice, music or reverb may remain.
+  </small>;
 }
 function SourceLevels({ files, enabled }: {files: readonly FileEntry[]; enabled: boolean}) {
   const state = useLevels(files,enabled);
@@ -344,7 +357,7 @@ function StepFields({
             <option value="music">Music</option>
           </select>
         </label>
-        <small class="panel-description">May take several minutes. Some voice, music or reverb may remain.</small>
+        <IsolationNote />
         </>
       );
     default: {

@@ -64,6 +64,13 @@
       "file": "vendor/neural/runtime-types.d.ts",
       "sha256": "2a9dd57c4f30750fb41c199cc35e064cc9d2b81b38b7f80a437c28fc235ab83f",
       "source": "@audio/neural-runtime@0.2.0/index.d.ts"
+    },
+    {
+      "file": "public/vendor/neural/htdemucs_fp16.onnx",
+      "sha256": "742a4f8594a48d6306da303b8b2dd8be2b54389b88557db034408b436effd775",
+      "bytes": 85034606,
+      "source": "https://huggingface.co/Ryan5453/unblend/resolve/30b749fd691312b1e4b3f8fe79df0b51cde836cd/htdemucs_fp16.onnx",
+      "license": "Unresolved. The file's metadata says unlicensed and the model card grants nothing; bundled by the user's decision (docs/sprint-evidence/sprint-27/provenance.md)."
     }
   ]
 }
