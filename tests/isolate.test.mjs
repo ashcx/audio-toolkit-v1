@@ -5,7 +5,7 @@ import {resample} from '../src/pcm/resample.ts';
 function source(frames,rate,channels=1,frequency=440){return(async function*(){for(let offset=0;offset<frames;offset+=127){const length=Math.min(127,frames-offset);yield{origin:.625,offset,rate,planes:Array.from({length:channels},(_,c)=>Float32Array.from({length},(_,i)=>.1*Math.sin((offset+i)*2*Math.PI*(frequency+c*200)/rate)+.003))};}})();}
 async function collect(stream){const samples=[];let frames=0;for await(const block of stream){assert.equal(block.origin,.625);assert.equal(block.offset,frames);assert(block.planes[0].length<=4096);samples.push(...block.planes[0]);frames+=block.planes[0].length;}return Float32Array.from(samples);}
 const COEFFICIENTS=[.1,.2,.3,.4];
-function stems(planes,scale=1){return{kind:'done',backend:'wasm',attempts:1,loads:1,stems:COEFFICIENTS.map(coefficient=>planes.map(plane=>plane.map(value=>value*coefficient*scale)))};}
+function stems(planes,scale=1){return{kind:'done',backend:'wasm',loads:1,stems:COEFFICIENTS.map(coefficient=>planes.map(plane=>plane.map(value=>value*coefficient*scale)))};}
 const monoMean=samples=>samples.reduce((sum,value)=>sum+value,0)/samples.length;
 function context(){let released=false,windows=0;const records=[];const stats={isolationPasses:0,isolationWindows:0,maxIsolationFrames:0,isolationLoads:0,isolationBackends:[]};return{
  signal:new AbortController().signal,stats,event:()=>{},get released(){return released;},

@@ -8,6 +8,8 @@ export const DEMUCS_MODEL = {
   rate: 44100,
 } as const;
 export type DemucsSource = (typeof DEMUCS_MODEL.sources)[number];
+/** Stems in model order (drums, bass, other, vocals), each with one plane per input channel. */
+export type Stems = Float32Array<ArrayBuffer>[][];
 
 const PROGRESS_STEP = 1024 * 1024;
 type Pin = { bytes: number; sha256: string };

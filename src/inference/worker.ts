@@ -1,6 +1,6 @@
 import { load } from "../../vendor/neural/neural.js";
-import type { InferenceBackend, InferenceInput, InferenceResult, Stems } from "./protocol";
-import { DEMUCS_MODEL, fetchModelBytes } from "./demucs-model";
+import type { InferenceBackend, InferenceInput, InferenceResult } from "./protocol";
+import { DEMUCS_MODEL, fetchModelBytes, type Stems } from "./demucs-model";
 import { separateSegment } from "./demucs-segment";
 import { usableGpu } from "./gpu";
 

@@ -1,9 +1,6 @@
-import type { Recipe } from "../recipe";
 import type { JobEvent } from "../job-events";
-export type IsolationMode = Extract<Recipe["steps"][number], { kind: "isolation" }>["keep"];
+import type { Stems } from "./demucs-model";
 export type InferenceBackend = "wasm" | "webgpu+wasm";
-/** Stems in model order (drums, bass, other, vocals), each with one plane per input channel. */
-export type Stems = Float32Array<ArrayBuffer>[][];
 export type InferenceInput = {
   planes: Float32Array<ArrayBuffer>[];
   backend: "auto" | "wasm";
@@ -14,6 +11,5 @@ export type InferenceResult =
   | { kind: "done"; stems: Stems; backend: InferenceBackend; gpuDispatches: number }
   | { kind: "error"; message: string; stage: "model" | "session" | "run"; backend: InferenceBackend };
 export type InferenceRequest = { kind: "inference"; sequence: number; planes: Float32Array<ArrayBuffer>[] };
-export type InferenceReply =
-  | { kind: "done"; stems: Stems; backend: InferenceBackend; attempts: number; loads: number }
-  | { kind: "error"; message: string };
+export type InferenceDone = { kind: "done"; stems: Stems; backend: InferenceBackend; loads: number };
+export type InferenceReply = InferenceDone | { kind: "error"; message: string };

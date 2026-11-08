@@ -1,12 +1,9 @@
 import { BLOCK_FRAMES, type PcmBlock, type PcmStream } from "./blocks.ts";
-import { DEMUCS_MODEL, type DemucsSource } from "../inference/demucs-model.ts";
+import { DEMUCS_MODEL, type DemucsSource, type Stems } from "../inference/demucs-model.ts";
 
 const { segment: DEMUCS_SEGMENT, stride: DEMUCS_STRIDE, sources: DEMUCS_SOURCES, rate: ISOLATION_RATE } = DEMUCS_MODEL;
-export type DemucsStems = readonly (readonly Float32Array[])[];
 const HISTORY = DEMUCS_STRIDE + DEMUCS_SEGMENT, HALF = DEMUCS_SEGMENT >> 1;
 const weight = (index: number) => (index < HALF ? index + 1 : DEMUCS_SEGMENT - index) / HALF;
-
-export type WindowStats = { windows: number; maxWindowFrames: number };
 
 function planeReader(source: PcmStream, count: number) {
   const iterator = source[Symbol.asyncIterator]();
@@ -40,7 +37,7 @@ export function demucsWindowCount(frames: number) {
  * centered over real earlier audio with zeros past the end, and each stem is weighted by Demucs's triangle.
  * Yields the weighted sum of the chosen sources at the input's length.
  */
-export async function* demucsWindows(source: PcmStream, shape: { frames: number; channels: number; origin: number }, sources: readonly DemucsSource[], infer: (planes: Float32Array[]) => Promise<DemucsStems>, stats: WindowStats): PcmStream {
+export async function* demucsWindows(source: PcmStream, shape: { frames: number; channels: number; origin: number }, sources: readonly DemucsSource[], infer: (planes: Float32Array[]) => Promise<Stems>): PcmStream {
   const { frames, channels, origin } = shape;
   if (!frames) return;
   const picked = sources.map(name => DEMUCS_SOURCES.indexOf(name));
@@ -59,7 +56,6 @@ export async function* demucsWindows(source: PcmStream, shape: { frames: number;
         planes.set(plane.subarray(from - base, end - base), from - start);
         return planes;
       });
-      stats.windows++;stats.maxWindowFrames = Math.max(stats.maxWindowFrames, DEMUCS_SEGMENT);
       const stems = await infer(window);
       if (stems.length !== DEMUCS_SOURCES.length || stems.some(stem => stem.length !== channels || stem.some(plane => plane.length !== DEMUCS_SEGMENT))) throw new Error("The isolation model returned incomplete audio.");
       const trim = offset - start;

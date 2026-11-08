@@ -2,7 +2,7 @@ import { BLOCK_FRAMES, frameTime, type PcmBlock, type PcmCheckpoint, type PcmRep
 import { resample } from "./resample.ts";
 import { demucsWindows, demucsWindowCount } from "./demucs-window.ts";
 import { DEMUCS_MODEL, type DemucsSource } from "../inference/demucs-model.ts";
-import type { InferenceReply, IsolationMode } from "../inference/protocol";
+import type { InferenceDone } from "../inference/protocol";
 import type { JobOperation } from "../job-events";
 import type { DspStats } from "./protocol";
 
@@ -69,18 +69,20 @@ export async function* fitIsolationFrames(source: PcmStream, frames: number | ((
   }
 }
 
-const DEMUCS_KEEP: Record<IsolationMode, readonly DemucsSource[]> = { voice: ["vocals"], music: ["drums", "bass", "other"] };
+const DEMUCS_KEEP = { voice: ["vocals"], music: ["drums", "bass", "other"] } as const satisfies Record<string, readonly DemucsSource[]>;
+export type IsolationMode = keyof typeof DEMUCS_KEEP;
 
 export async function* isolate(source: PcmStream, keep: IsolationMode, context: {
   signal: AbortSignal;
   checkpoint: () => Promise<PcmCheckpoint>;
   event: (event: JobOperation) => void;
-  infer: (planes: readonly Float32Array[]) => Promise<Extract<InferenceReply, { kind: "done" }>>;
+  infer: (planes: readonly Float32Array[]) => Promise<InferenceDone>;
   stats: Pick<DspStats, "isolationPasses" | "isolationWindows" | "maxIsolationFrames" | "isolationLoads" | "isolationBackends">;
 }): PcmStream {
   context.signal.throwIfAborted();context.stats.isolationPasses++;
   context.event({ kind: "phase", phase: "Analyzing for isolation" });
-  const audio = await analyze(source, context.checkpoint), windows = { windows: 0, maxWindowFrames: 0 };
+  const audio = await analyze(source, context.checkpoint);
+  let maxWindowFrames = 0;
   try {
     const sources = DEMUCS_KEEP[keep], total = demucsWindowCount(audio.frames);
     let completed = 0;
@@ -94,17 +96,18 @@ export async function* isolate(source: PcmStream, keep: IsolationMode, context: 
     const separated = demucsWindows(standardized(), audio, sources, async planes => {
       context.signal.throwIfAborted();
       const result = await context.infer(planes);
+      maxWindowFrames = Math.max(maxWindowFrames, planes[0].length);
       context.stats.isolationLoads += result.loads;
       if (!context.stats.isolationBackends.includes(result.backend)) context.stats.isolationBackends.push(result.backend);
       context.event({ kind: "isolation-progress", completed: ++completed, total });
       return result.stems;
-    }, windows);
+    });
     const offset = keep === "music" ? audio.mean : 0;
     const restored = async function* () {
       for await (const block of separated) yield { ...block, planes: block.planes.map(plane => plane.map(value => value * audio.deviation + offset)) };
     };
     yield* fitIsolationFrames(audio.originalRate === ISOLATION_RATE ? restored() : resample(restored(), audio.originalRate), audio.originalFrames, audio.origin, audio.originalRate);
     context.event({ kind: "phase", phase: "Processing / encoding" });
-    context.stats.isolationWindows += windows.windows;context.stats.maxIsolationFrames = Math.max(context.stats.maxIsolationFrames, windows.maxWindowFrames);
+    context.stats.isolationWindows += completed;context.stats.maxIsolationFrames = Math.max(context.stats.maxIsolationFrames, maxWindowFrames);
   } finally { await audio.release(); }
 }

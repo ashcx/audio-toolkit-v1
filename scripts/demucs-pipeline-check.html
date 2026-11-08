@@ -29,7 +29,7 @@ try{
  for(const name of names){
   show('Separating '+name);
   const frames=manifest[name].frames,mix=await planes(`fixtures/${name}.mix.f32`,frames),cache=[];let firstFeeds=null,calls=0;
-  const infer=async window=>{const stems=await separateSegment([window[0],window[1]],async feeds=>{firstFeeds??=feeds;return session.run(feeds);});const reply={kind:'done',stems,backend:provider,attempts:1,loads:0};cache.push(reply);return reply;};
+  const infer=async window=>{const stems=await separateSegment([window[0],window[1]],async feeds=>{firstFeeds??=feeds;return session.run(feeds);});const reply={kind:'done',stems,backend:provider,loads:0};cache.push(reply);return reply;};
   const started=performance.now(),vocals=await run(mix,'voice',infer);
   const windows=vocals.windows;calls=0;
   const accompaniment=await run(mix,'music',async window=>cache[calls++]);

@@ -21,8 +21,8 @@ function upstream(frames,channels,sources){
  return out.map(plane=>plane.map((value,index)=>value/total[index]));
 }
 async function streamed(frames,channels,sources,infer=model()){
- const stats={windows:0,maxWindowFrames:0},planes=Array.from({length:channels},()=>new Float32Array(frames));let received=0;
- for await(const block of demucsWindows(signal(frames,channels),{frames,channels,origin:.37},sources,infer,stats)){
+ const stats={windows:0,maxWindowFrames:0},counted=async planes=>{stats.windows++;stats.maxWindowFrames=Math.max(stats.maxWindowFrames,planes[0].length);return infer(planes);},planes=Array.from({length:channels},()=>new Float32Array(frames));let received=0;
+ for await(const block of demucsWindows(signal(frames,channels),{frames,channels,origin:.37},sources,counted)){
   assert.equal(block.offset,received);assert.equal(block.origin,.37);assert(block.planes[0].length<=4096);
   block.planes.forEach((plane,c)=>planes[c].set(plane,received));received+=block.planes[0].length;
  }

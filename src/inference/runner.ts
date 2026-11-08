@@ -3,6 +3,11 @@ import type { InferenceBackend, InferenceInput, InferenceResult } from "./protoc
 
 type Outcome = Extract<InferenceResult, { kind: "done" | "error" }>;
 
+/** How long a worker may stay silent while downloading or loading the model before it is stopped. */
+export const LOAD_WATCHDOG_MS = 120_000;
+/** How long one window may take to separate before the worker is stopped. */
+export const SEPARATE_WATCHDOG_MS = 300_000;
+
 export class InferenceRunner {
   private retained: { worker: Worker; backend: InferenceInput["backend"] } | null = null;
   private backend: InferenceInput["backend"] = "auto";
@@ -51,7 +56,7 @@ export class InferenceRunner {
           else reject(new Error(message));
         }, milliseconds);
       };
-      arm(120_000);
+      arm(LOAD_WATCHDOG_MS);
       this.active = { reject: reason => { clearTimeout(timer);reject(reason); } };
       worker.onmessage = ({ data }: MessageEvent<InferenceResult>) => {
         if (!this.active || this.retained?.worker !== worker) return;
@@ -59,10 +64,10 @@ export class InferenceRunner {
           selected = data.backend;
           if (this.device === null) this.setDevice(selected === "wasm" ? "cpu" : "preparing-gpu", event);
         }
-        else if (data.kind === "model-download") { arm(120_000);event(data); }
+        else if (data.kind === "model-download") { arm(LOAD_WATCHDOG_MS);event(data); }
         else if (data.kind === "phase") {
-          if (data.phase === "Loading model") { stage = "session";arm(120_000); }
-          if (data.phase === "Separating") { stage = "run";arm(300_000); }
+          if (data.phase === "Loading model") { stage = "session";arm(LOAD_WATCHDOG_MS); }
+          if (data.phase === "Separating") { stage = "run";arm(SEPARATE_WATCHDOG_MS); }
           event(data);
         }
         else if (finish(data.kind === "done")) resolve(data);
@@ -75,10 +80,9 @@ export class InferenceRunner {
       try { worker.postMessage({ planes: copy, backend } satisfies InferenceInput, copy.map(plane => plane.buffer)); }
       catch (error) { if (finish(false)) reject(error); }
     });
-    let attempts = 1;
     let result = await attempt(this.backend);
     if (result.kind === "error" && result.backend === "webgpu+wasm" && result.stage !== "model") {
-      this.backend = "wasm";attempts++;
+      this.backend = "wasm";
       this.setDevice("cpu-fallback", event);
       result = await attempt(this.backend);
     }
@@ -86,6 +90,6 @@ export class InferenceRunner {
     if (this.stopped) throw this.stopReason;
     const backend: InferenceBackend = result.backend === "webgpu+wasm" && result.gpuDispatches > 0 ? "webgpu+wasm" : "wasm";
     if (result.backend === "webgpu+wasm") this.setDevice(backend === "wasm" ? "cpu" : "gpu", event);
-    return { kind: "done" as const, stems: result.stems, backend, attempts, loads };
+    return { kind: "done" as const, stems: result.stems, backend, loads };
   }
 }
