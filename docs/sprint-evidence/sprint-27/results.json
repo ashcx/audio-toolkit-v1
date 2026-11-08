@@ -1,0 +1,950 @@
+{
+  "generatedAt": "2026-11-08T13:38:48.993Z",
+  "sources": [
+    {
+      "path": ".artifacts/sprint-27/bench-warm-short.json",
+      "mode": "warm",
+      "revision": "138c6a79915cad86f77f0185d3466cad434c1ad2",
+      "chrome": "156.0.8078.81",
+      "gpu": {
+        "vendor": "apple",
+        "architecture": "metal-3",
+        "device": "",
+        "description": "",
+        "isFallbackAdapter": false,
+        "timestampQuery": true
+      },
+      "startedAt": "2026-11-08T11:52:24.452Z",
+      "finishedAt": "2026-11-08T12:20:46.885Z",
+      "failures": 2
+    },
+    {
+      "path": ".artifacts/sprint-27/bench-warm-m180.json",
+      "mode": "warm",
+      "revision": "138c6a79915cad86f77f0185d3466cad434c1ad2",
+      "chrome": "156.0.8078.81",
+      "gpu": {
+        "vendor": "apple",
+        "architecture": "metal-3",
+        "device": "",
+        "description": "",
+        "isFallbackAdapter": false,
+        "timestampQuery": true
+      },
+      "startedAt": "2026-11-08T12:25:09.878Z",
+      "finishedAt": "2026-11-08T12:57:27.431Z",
+      "failures": 0
+    },
+    {
+      "path": ".artifacts/sprint-27/bench-overlap.json",
+      "mode": "overlap",
+      "revision": "0b5ae16fc5c153a8b22b86b6ee7376653062dd7e",
+      "chrome": "156.0.8078.81",
+      "gpu": {
+        "vendor": "apple",
+        "architecture": "metal-3",
+        "device": "",
+        "description": "",
+        "isFallbackAdapter": false,
+        "timestampQuery": true
+      },
+      "startedAt": "2026-11-08T12:57:42.680Z",
+      "finishedAt": "2026-11-08T13:04:32.303Z",
+      "failures": 0
+    },
+    {
+      "path": ".artifacts/sprint-27/bench-limit-wasm-m180.json",
+      "mode": "warm",
+      "revision": "0b5ae16fc5c153a8b22b86b6ee7376653062dd7e",
+      "chrome": "156.0.8078.81",
+      "gpu": {
+        "vendor": "apple",
+        "architecture": "metal-3",
+        "device": "",
+        "description": "",
+        "isFallbackAdapter": false,
+        "timestampQuery": true
+      },
+      "startedAt": "2026-11-08T13:14:10.956Z",
+      "finishedAt": "2026-11-08T13:18:09.498Z",
+      "failures": 0
+    },
+    {
+      "path": ".artifacts/sprint-27/bench-limits.json",
+      "mode": "warm",
+      "revision": "0b5ae16fc5c153a8b22b86b6ee7376653062dd7e",
+      "chrome": "156.0.8078.81",
+      "gpu": {
+        "vendor": "apple",
+        "architecture": "metal-3",
+        "device": "",
+        "description": "",
+        "isFallbackAdapter": false,
+        "timestampQuery": true
+      },
+      "startedAt": "2026-11-08T13:18:09.760Z",
+      "finishedAt": "2026-11-08T13:38:42.509Z",
+      "failures": 0
+    }
+  ],
+  "rows": [
+    {
+      "input": "excerpt10",
+      "candidate": "demucs-wasm",
+      "overlap": null,
+      "completed": 5,
+      "failures": 0,
+      "failureMessages": [],
+      "audioSeconds": 10,
+      "medianWallS": 15.37,
+      "rangeWallS": [
+        15,
+        15.61
+      ],
+      "medianRealTimeFactor": 0.65,
+      "windows": [
+        2
+      ],
+      "loads": [
+        1
+      ],
+      "backends": [
+        "wasm"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 1,
+      "medianPeakIncreaseMiB": 1520,
+      "maxPeakIncreaseMiB": 2007,
+      "maxPeakTotalMiB": 3023,
+      "medianLoadAverage": 2.25,
+      "medianPhases": {
+        "fetchMs": 73.4,
+        "sessionMs": 654.8,
+        "inferenceMs": 14235,
+        "adapterMs": 7.1,
+        "normalizeAndTransformsMs": 361.9,
+        "accompanimentMs": 1.2,
+        "transferMs": 0.1,
+        "gpuDispatches": 0
+      },
+      "medianInferenceMsPerWindow": 7117.5,
+      "medianTransformsMsPerWindow": 181
+    },
+    {
+      "input": "excerpt10",
+      "candidate": "demucs-webgpu",
+      "overlap": null,
+      "completed": 5,
+      "failures": 0,
+      "failureMessages": [],
+      "audioSeconds": 10,
+      "medianWallS": 3.07,
+      "rangeWallS": [
+        2.98,
+        3.13
+      ],
+      "medianRealTimeFactor": 3.26,
+      "windows": [
+        2
+      ],
+      "loads": [
+        1
+      ],
+      "backends": [
+        "webgpu"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 1,
+      "medianPeakIncreaseMiB": 2003,
+      "maxPeakIncreaseMiB": 2028,
+      "maxPeakTotalMiB": 3115,
+      "medianLoadAverage": 2.25,
+      "medianPhases": {
+        "fetchMs": 67.1,
+        "sessionMs": 1120.2,
+        "inferenceMs": 1394.4,
+        "adapterMs": 9.1,
+        "normalizeAndTransformsMs": 443.7,
+        "accompanimentMs": 1.5,
+        "transferMs": 0.2,
+        "gpuDispatches": 2726
+      },
+      "medianInferenceMsPerWindow": 697.2,
+      "medianTransformsMsPerWindow": 221.8
+    },
+    {
+      "input": "excerpt10",
+      "candidate": "scnet-app",
+      "overlap": null,
+      "completed": 4,
+      "failures": 1,
+      "failureMessages": [
+        "page.evaluate: Error: No output yet\n    at Object.Lc [as wav] (http://127.0.0.1:4277/audio-toolkit-v1/assets/demucs-bench-DoTMRCtL.js:55:44385)\n    at eval (eval at evaluate (:370:30), <anonymous>:1:17)\n    at UtilityScript.evaluate (<anonymous>:372:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "audioSeconds": 10,
+      "medianWallS": 3.78,
+      "rangeWallS": [
+        3.74,
+        3.83
+      ],
+      "medianRealTimeFactor": 2.65,
+      "windows": [
+        1
+      ],
+      "loads": [
+        1
+      ],
+      "backends": [
+        "webgpu+wasm"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 0,
+      "medianPeakIncreaseMiB": 1422,
+      "maxPeakIncreaseMiB": 1738,
+      "maxPeakTotalMiB": 2794,
+      "medianLoadAverage": 2.38,
+      "medianOutsideIsolationS": 0.23
+    },
+    {
+      "input": "excerpt10",
+      "candidate": "scnet-main",
+      "overlap": null,
+      "completed": 5,
+      "failures": 0,
+      "failureMessages": [],
+      "audioSeconds": 10,
+      "medianWallS": 3.5,
+      "rangeWallS": [
+        3.36,
+        3.64
+      ],
+      "medianRealTimeFactor": 2.86,
+      "windows": [
+        1
+      ],
+      "loads": [
+        1
+      ],
+      "backends": [
+        "webgpu+wasm"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 1,
+      "medianPeakIncreaseMiB": 1652,
+      "maxPeakIncreaseMiB": 1674,
+      "maxPeakTotalMiB": 2757,
+      "medianLoadAverage": 2.4,
+      "medianPhases": {
+        "workerAndModelFetchMs": 47.1,
+        "sessionMs": 291.8,
+        "separateMs": 3116.9
+      },
+      "medianSeparateMsPerWindow": 3116.9
+    },
+    {
+      "input": "excerpt10",
+      "candidate": "scnet-reuse2",
+      "overlap": null,
+      "completed": 5,
+      "failures": 0,
+      "failureMessages": [],
+      "audioSeconds": 10,
+      "medianWallS": 3.57,
+      "rangeWallS": [
+        3.41,
+        3.64
+      ],
+      "medianRealTimeFactor": 2.8,
+      "windows": [
+        1
+      ],
+      "loads": [
+        1
+      ],
+      "backends": [
+        "webgpu+wasm"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 1,
+      "medianPeakIncreaseMiB": 1669,
+      "maxPeakIncreaseMiB": 1708,
+      "maxPeakTotalMiB": 2735,
+      "medianLoadAverage": 2.3,
+      "medianPhases": {
+        "workerAndModelFetchMs": 48.3,
+        "sessionMs": 300.2,
+        "separateMs": 3201.4
+      },
+      "medianSeparateMsPerWindow": 3201.4
+    },
+    {
+      "input": "m180",
+      "candidate": "demucs-wasm",
+      "overlap": null,
+      "completed": 1,
+      "failures": 0,
+      "failureMessages": [],
+      "audioSeconds": 180,
+      "medianWallS": 237.55,
+      "rangeWallS": [
+        237.55,
+        237.55
+      ],
+      "medianRealTimeFactor": 0.76,
+      "windows": [
+        31
+      ],
+      "loads": [
+        1
+      ],
+      "backends": [
+        "wasm"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 1,
+      "medianPeakIncreaseMiB": 1463,
+      "maxPeakIncreaseMiB": 1463,
+      "maxPeakTotalMiB": 2745,
+      "medianLoadAverage": 3.35,
+      "medianPhases": {
+        "fetchMs": 144.9,
+        "sessionMs": 785,
+        "inferenceMs": 230391.8,
+        "adapterMs": 235.8,
+        "normalizeAndTransformsMs": 5938.5,
+        "accompanimentMs": 17.1,
+        "transferMs": 0.8,
+        "gpuDispatches": 0
+      },
+      "medianInferenceMsPerWindow": 7432,
+      "medianTransformsMsPerWindow": 191.6
+    },
+    {
+      "input": "m180",
+      "candidate": "demucs-webgpu",
+      "overlap": null,
+      "completed": 5,
+      "failures": 0,
+      "failureMessages": [],
+      "audioSeconds": 180,
+      "medianWallS": 35.6,
+      "rangeWallS": [
+        33.51,
+        39.39
+      ],
+      "medianRealTimeFactor": 5.06,
+      "windows": [
+        31
+      ],
+      "loads": [
+        1
+      ],
+      "backends": [
+        "webgpu"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 1,
+      "medianPeakIncreaseMiB": 2762,
+      "maxPeakIncreaseMiB": 3013,
+      "maxPeakTotalMiB": 4030,
+      "medianLoadAverage": 15.62,
+      "medianPhases": {
+        "fetchMs": 93.8,
+        "sessionMs": 1257.7,
+        "inferenceMs": 24459,
+        "adapterMs": 222.2,
+        "normalizeAndTransformsMs": 9615.2,
+        "accompanimentMs": 20.1,
+        "transferMs": 0.3,
+        "gpuDispatches": 42253
+      },
+      "medianInferenceMsPerWindow": 789,
+      "medianTransformsMsPerWindow": 310.2
+    },
+    {
+      "input": "m180",
+      "candidate": "scnet-main",
+      "overlap": null,
+      "completed": 5,
+      "failures": 0,
+      "failureMessages": [],
+      "audioSeconds": 180,
+      "medianWallS": 130.63,
+      "rangeWallS": [
+        123.42,
+        199.71
+      ],
+      "medianRealTimeFactor": 1.38,
+      "windows": [
+        34
+      ],
+      "loads": [
+        34
+      ],
+      "backends": [
+        "webgpu+wasm"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 1,
+      "medianPeakIncreaseMiB": 895,
+      "maxPeakIncreaseMiB": 5384,
+      "maxPeakTotalMiB": 6606,
+      "medianLoadAverage": 1.75,
+      "medianPhases": {
+        "workerAndModelFetchMs": 1419.8,
+        "sessionMs": 7119.4,
+        "separateMs": 121818
+      },
+      "medianSeparateMsPerWindow": 3582.9
+    },
+    {
+      "input": "m180",
+      "candidate": "scnet-reuse2",
+      "overlap": null,
+      "completed": 5,
+      "failures": 0,
+      "failureMessages": [],
+      "audioSeconds": 180,
+      "medianWallS": 134.51,
+      "rangeWallS": [
+        119.22,
+        170.9
+      ],
+      "medianRealTimeFactor": 1.34,
+      "windows": [
+        34
+      ],
+      "loads": [
+        17
+      ],
+      "backends": [
+        "webgpu+wasm"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 1,
+      "medianPeakIncreaseMiB": 2544,
+      "maxPeakIncreaseMiB": 4637,
+      "maxPeakTotalMiB": 5672,
+      "medianLoadAverage": 5.54,
+      "medianPhases": {
+        "workerAndModelFetchMs": 1141.3,
+        "sessionMs": 6819,
+        "separateMs": 124633.9
+      },
+      "medianSeparateMsPerWindow": 3665.7
+    },
+    {
+      "input": "m300",
+      "candidate": "demucs-webgpu",
+      "overlap": null,
+      "completed": 1,
+      "failures": 0,
+      "failureMessages": [],
+      "audioSeconds": 300,
+      "medianWallS": 53.76,
+      "rangeWallS": [
+        53.76,
+        53.76
+      ],
+      "medianRealTimeFactor": 5.58,
+      "windows": [
+        52
+      ],
+      "loads": [
+        1
+      ],
+      "backends": [
+        "webgpu"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 1,
+      "medianPeakIncreaseMiB": 958,
+      "maxPeakIncreaseMiB": 958,
+      "maxPeakTotalMiB": 2362,
+      "medianLoadAverage": 4.24,
+      "medianPhases": {
+        "fetchMs": 157.3,
+        "sessionMs": 1509.3,
+        "inferenceMs": 40521.2,
+        "adapterMs": 340.2,
+        "normalizeAndTransformsMs": 11147.5,
+        "accompanimentMs": 36.6,
+        "transferMs": 1.2,
+        "gpuDispatches": 70876
+      },
+      "medianInferenceMsPerWindow": 779.3,
+      "medianTransformsMsPerWindow": 214.4
+    },
+    {
+      "input": "m300",
+      "candidate": "scnet-main",
+      "overlap": null,
+      "completed": 1,
+      "failures": 0,
+      "failureMessages": [],
+      "audioSeconds": 300,
+      "medianWallS": 261.74,
+      "rangeWallS": [
+        261.74,
+        261.74
+      ],
+      "medianRealTimeFactor": 1.15,
+      "windows": [
+        56
+      ],
+      "loads": [
+        56
+      ],
+      "backends": [
+        "webgpu+wasm"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 1,
+      "medianPeakIncreaseMiB": 3814,
+      "maxPeakIncreaseMiB": 3814,
+      "maxPeakTotalMiB": 4991,
+      "medianLoadAverage": 3.22,
+      "medianPhases": {
+        "workerAndModelFetchMs": 8759.8,
+        "sessionMs": 35436.7,
+        "separateMs": 214719.8
+      },
+      "medianSeparateMsPerWindow": 3834.3
+    },
+    {
+      "input": "m60",
+      "candidate": "demucs-wasm",
+      "overlap": null,
+      "completed": 5,
+      "failures": 0,
+      "failureMessages": [],
+      "audioSeconds": 60,
+      "medianWallS": 81.35,
+      "rangeWallS": [
+        80.88,
+        84.01
+      ],
+      "medianRealTimeFactor": 0.74,
+      "windows": [
+        11
+      ],
+      "loads": [
+        1
+      ],
+      "backends": [
+        "wasm"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 1,
+      "medianPeakIncreaseMiB": 1672,
+      "maxPeakIncreaseMiB": 1818,
+      "maxPeakTotalMiB": 2882,
+      "medianLoadAverage": 2.07,
+      "medianPhases": {
+        "fetchMs": 85.7,
+        "sessionMs": 718.2,
+        "inferenceMs": 78527.6,
+        "adapterMs": 41.3,
+        "normalizeAndTransformsMs": 2042.6,
+        "accompanimentMs": 5.7,
+        "transferMs": 0.2,
+        "gpuDispatches": 0
+      },
+      "medianInferenceMsPerWindow": 7138.9,
+      "medianTransformsMsPerWindow": 185.7
+    },
+    {
+      "input": "m60",
+      "candidate": "demucs-webgpu",
+      "overlap": null,
+      "completed": 5,
+      "failures": 0,
+      "failureMessages": [],
+      "audioSeconds": 60,
+      "medianWallS": 13.28,
+      "rangeWallS": [
+        12.31,
+        13.61
+      ],
+      "medianRealTimeFactor": 4.52,
+      "windows": [
+        11
+      ],
+      "loads": [
+        1
+      ],
+      "backends": [
+        "webgpu"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 1,
+      "medianPeakIncreaseMiB": 1981,
+      "maxPeakIncreaseMiB": 2367,
+      "maxPeakTotalMiB": 3394,
+      "medianLoadAverage": 1.72,
+      "medianPhases": {
+        "fetchMs": 72.8,
+        "sessionMs": 1328.5,
+        "inferenceMs": 8525.7,
+        "adapterMs": 78.4,
+        "normalizeAndTransformsMs": 3263.1,
+        "accompanimentMs": 7.2,
+        "transferMs": 0.4,
+        "gpuDispatches": 14993
+      },
+      "medianInferenceMsPerWindow": 775.1,
+      "medianTransformsMsPerWindow": 296.6
+    },
+    {
+      "input": "m60",
+      "candidate": "demucs-webgpu",
+      "overlap": 0.1,
+      "completed": 5,
+      "failures": 0,
+      "failureMessages": [],
+      "audioSeconds": 60,
+      "medianWallS": 13.1,
+      "rangeWallS": [
+        11.74,
+        14.44
+      ],
+      "medianRealTimeFactor": 4.58,
+      "windows": [
+        9
+      ],
+      "loads": [
+        1
+      ],
+      "backends": [
+        "webgpu"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 1,
+      "medianPeakIncreaseMiB": 2023,
+      "maxPeakIncreaseMiB": 2247,
+      "maxPeakTotalMiB": 3044,
+      "medianLoadAverage": 6.32,
+      "medianPhases": {
+        "fetchMs": 91.1,
+        "sessionMs": 1199.2,
+        "inferenceMs": 8007.8,
+        "adapterMs": 97.7,
+        "normalizeAndTransformsMs": 3650,
+        "accompanimentMs": 10.6,
+        "transferMs": 0.8,
+        "gpuDispatches": 12267
+      },
+      "medianInferenceMsPerWindow": 889.8,
+      "medianTransformsMsPerWindow": 405.6
+    },
+    {
+      "input": "m60",
+      "candidate": "demucs-webgpu",
+      "overlap": 0.25,
+      "completed": 5,
+      "failures": 0,
+      "failureMessages": [],
+      "audioSeconds": 60,
+      "medianWallS": 15.17,
+      "rangeWallS": [
+        13.49,
+        18.36
+      ],
+      "medianRealTimeFactor": 3.95,
+      "windows": [
+        11
+      ],
+      "loads": [
+        1
+      ],
+      "backends": [
+        "webgpu"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 1,
+      "medianPeakIncreaseMiB": 1995,
+      "maxPeakIncreaseMiB": 2276,
+      "maxPeakTotalMiB": 3260,
+      "medianLoadAverage": 6.27,
+      "medianPhases": {
+        "fetchMs": 92.5,
+        "sessionMs": 1203,
+        "inferenceMs": 9377.9,
+        "adapterMs": 139.7,
+        "normalizeAndTransformsMs": 4325.3,
+        "accompanimentMs": 10.8,
+        "transferMs": 0.7,
+        "gpuDispatches": 14993
+      },
+      "medianInferenceMsPerWindow": 852.5,
+      "medianTransformsMsPerWindow": 393.2
+    },
+    {
+      "input": "m60",
+      "candidate": "demucs-webgpu",
+      "overlap": 0.4,
+      "completed": 5,
+      "failures": 0,
+      "failureMessages": [],
+      "audioSeconds": 60,
+      "medianWallS": 18,
+      "rangeWallS": [
+        15.71,
+        19.8
+      ],
+      "medianRealTimeFactor": 3.33,
+      "windows": [
+        13
+      ],
+      "loads": [
+        1
+      ],
+      "backends": [
+        "webgpu"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 1,
+      "medianPeakIncreaseMiB": 2255,
+      "maxPeakIncreaseMiB": 2299,
+      "maxPeakTotalMiB": 3194,
+      "medianLoadAverage": 5.56,
+      "medianPhases": {
+        "fetchMs": 91.9,
+        "sessionMs": 1233.3,
+        "inferenceMs": 11259.2,
+        "adapterMs": 161.4,
+        "normalizeAndTransformsMs": 5133.7,
+        "accompanimentMs": 12.1,
+        "transferMs": 0.8,
+        "gpuDispatches": 17719
+      },
+      "medianInferenceMsPerWindow": 866.1,
+      "medianTransformsMsPerWindow": 394.9
+    },
+    {
+      "input": "m60",
+      "candidate": "demucs-webgpu",
+      "overlap": 0.5,
+      "completed": 5,
+      "failures": 0,
+      "failureMessages": [],
+      "audioSeconds": 60,
+      "medianWallS": 21.16,
+      "rangeWallS": [
+        18.65,
+        24.77
+      ],
+      "medianRealTimeFactor": 2.84,
+      "windows": [
+        16
+      ],
+      "loads": [
+        1
+      ],
+      "backends": [
+        "webgpu"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 1,
+      "medianPeakIncreaseMiB": 2063,
+      "maxPeakIncreaseMiB": 2202,
+      "maxPeakTotalMiB": 3229,
+      "medianLoadAverage": 5.69,
+      "medianPhases": {
+        "fetchMs": 88.9,
+        "sessionMs": 1156.5,
+        "inferenceMs": 13853.2,
+        "adapterMs": 172.3,
+        "normalizeAndTransformsMs": 5858.6,
+        "accompanimentMs": 10.7,
+        "transferMs": 0.9,
+        "gpuDispatches": 21808
+      },
+      "medianInferenceMsPerWindow": 865.8,
+      "medianTransformsMsPerWindow": 366.2
+    },
+    {
+      "input": "m60",
+      "candidate": "scnet-app",
+      "overlap": null,
+      "completed": 4,
+      "failures": 1,
+      "failureMessages": [
+        "page.evaluate: Error: No output yet\n    at Object.Lc [as wav] (http://127.0.0.1:4277/audio-toolkit-v1/assets/demucs-bench-DoTMRCtL.js:55:44385)\n    at eval (eval at evaluate (:370:30), <anonymous>:1:17)\n    at UtilityScript.evaluate (<anonymous>:372:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)"
+      ],
+      "audioSeconds": 60,
+      "medianWallS": 56.08,
+      "rangeWallS": [
+        55.68,
+        58.54
+      ],
+      "medianRealTimeFactor": 1.07,
+      "windows": [
+        12
+      ],
+      "loads": [
+        12
+      ],
+      "backends": [
+        "webgpu+wasm"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 0,
+      "medianPeakIncreaseMiB": 3526,
+      "maxPeakIncreaseMiB": 4706,
+      "maxPeakTotalMiB": 5559,
+      "medianLoadAverage": 10.01,
+      "medianOutsideIsolationS": 0.63
+    },
+    {
+      "input": "m60",
+      "candidate": "scnet-main",
+      "overlap": null,
+      "completed": 5,
+      "failures": 0,
+      "failureMessages": [],
+      "audioSeconds": 60,
+      "medianWallS": 53.66,
+      "rangeWallS": [
+        44.38,
+        82.12
+      ],
+      "medianRealTimeFactor": 1.12,
+      "windows": [
+        12
+      ],
+      "loads": [
+        12
+      ],
+      "backends": [
+        "webgpu+wasm"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 1,
+      "medianPeakIncreaseMiB": 3385,
+      "maxPeakIncreaseMiB": 5013,
+      "maxPeakTotalMiB": 5893,
+      "medianLoadAverage": 4.31,
+      "medianPhases": {
+        "workerAndModelFetchMs": 1130.5,
+        "sessionMs": 6361.2,
+        "separateMs": 45691.5
+      },
+      "medianSeparateMsPerWindow": 3807.6
+    },
+    {
+      "input": "m60",
+      "candidate": "scnet-reuse2",
+      "overlap": null,
+      "completed": 5,
+      "failures": 0,
+      "failureMessages": [],
+      "audioSeconds": 60,
+      "medianWallS": 47.66,
+      "rangeWallS": [
+        43.06,
+        50.65
+      ],
+      "medianRealTimeFactor": 1.26,
+      "windows": [
+        12
+      ],
+      "loads": [
+        6
+      ],
+      "backends": [
+        "webgpu+wasm"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 1,
+      "medianPeakIncreaseMiB": 2085,
+      "maxPeakIncreaseMiB": 3219,
+      "maxPeakTotalMiB": 4283,
+      "medianLoadAverage": 1.73,
+      "medianPhases": {
+        "workerAndModelFetchMs": 427.2,
+        "sessionMs": 2660.2,
+        "separateMs": 44103
+      },
+      "medianSeparateMsPerWindow": 3675.2
+    },
+    {
+      "input": "m600",
+      "candidate": "demucs-webgpu",
+      "overlap": null,
+      "completed": 1,
+      "failures": 0,
+      "failureMessages": [],
+      "audioSeconds": 600,
+      "medianWallS": 119.63,
+      "rangeWallS": [
+        119.63,
+        119.63
+      ],
+      "medianRealTimeFactor": 5.02,
+      "windows": [
+        103
+      ],
+      "loads": [
+        1
+      ],
+      "backends": [
+        "webgpu"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 1,
+      "medianPeakIncreaseMiB": 2913,
+      "maxPeakIncreaseMiB": 2913,
+      "maxPeakTotalMiB": 4180,
+      "medianLoadAverage": 23.31,
+      "medianPhases": {
+        "fetchMs": 81.3,
+        "sessionMs": 1238.3,
+        "inferenceMs": 87639.9,
+        "adapterMs": 896.3,
+        "normalizeAndTransformsMs": 29652.3,
+        "accompanimentMs": 58.1,
+        "transferMs": 3.9,
+        "gpuDispatches": 140389
+      },
+      "medianInferenceMsPerWindow": 850.9,
+      "medianTransformsMsPerWindow": 287.9
+    },
+    {
+      "input": "m600",
+      "candidate": "scnet-main",
+      "overlap": null,
+      "completed": 1,
+      "failures": 0,
+      "failureMessages": [],
+      "audioSeconds": 600,
+      "medianWallS": 790.71,
+      "rangeWallS": [
+        790.71,
+        790.71
+      ],
+      "medianRealTimeFactor": 0.76,
+      "windows": [
+        111
+      ],
+      "loads": [
+        111
+      ],
+      "backends": [
+        "webgpu+wasm"
+      ],
+      "outputFramesComplete": true,
+      "distinctVocalsHashes": 1,
+      "medianPeakIncreaseMiB": 3895,
+      "maxPeakIncreaseMiB": 3895,
+      "maxPeakTotalMiB": 5099,
+      "medianLoadAverage": 7.36,
+      "medianPhases": {
+        "workerAndModelFetchMs": 99276.5,
+        "sessionMs": 102444,
+        "separateMs": 580002.7
+      },
+      "medianSeparateMsPerWindow": 5225.2
+    }
+  ]
+}

@@ -101,7 +101,7 @@ try{
   const session=await browserSession();
   try{
    for(const input of inputs){
-    for(const candidate of candidates)await once(session,input,specFor(candidate),'warmup');
+    if(env.BENCH_WARMUP!=='0')for(const candidate of candidates)await once(session,input,specFor(candidate),'warmup');
     for(let round=1;round<=rounds;round++){
      const order=round%2?candidates:[...candidates].reverse();
      for(const candidate of order)await once(session,input,specFor(candidate),`round ${round}`);
