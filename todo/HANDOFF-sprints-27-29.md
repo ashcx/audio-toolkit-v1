@@ -29,47 +29,19 @@ Commit history on the branch, oldest first:
 - `86b6c67` Demucs integration (streaming windows, worker, UI, tests, Chrome driver)
 - `ca58b5f`, `0d1daea`, `8543c38` SCNet removal and cleanup
 - `8ba5361` docs and evidence
-- `87d2336` step A of the review fix round (deleted dead investigation tooling and raw evidence dumps)
-- a final **work-in-progress** commit holding step B, which is not finished (see below)
+- Review fix round, all done: `87d2336` (A, dead tooling and raw dumps removed), `14aff67` and `9d1cc64` (B, one `src/inference/demucs-model.ts`), then C to F as separate commits: strict isolation step, DC offset once in music, product cleanups (`attempts`, `Stems`, `InferenceDone`, `protocol.ts` without `Recipe`, `WindowStats`, exported watchdog limits), the numpy pipeline check expecting the single-mean rule, docs, `*.onnx binary`, the Independent review section, decisions rows 18 to 20, and the `TODO.md` row.
 
-Verified by the coordinator before the review (at `8ba5361`): `npx tsc --noEmit`, `npm run build`, `npm run verify:static` exit 0, 124 tests pass. The agent also reported `node scripts/isolation-check.mjs` (real Chrome end to end) exit 0.
+All review fixes are done. What remains is verification by whoever pushes, and the push.
 
-### Unfinished step B (in the WIP commit)
+Checks last run on the review-fix head by the fix-round agent (output in the ignored `.artifacts/final/`): `npm test` 130 pass, `npx tsc --noEmit`, `npm run build`, `npm run verify:static`, `node scripts/demucs-check.mjs` (numpy reference, WASM and WebGPU) and `node scripts/isolation-check.mjs` all exit 0. The 10 minute run (`ISOLATION_LONG_SECONDS=600`) was last run at `8ba5361`. Do not trust this paragraph; re-run them.
 
-Goal of step B: one module `src/inference/demucs-model.ts` holding `{file, bytes, sha256, segment, stride, sources, rate}` and `fetchModelBytes(url, onProgress)`, imported by `src/pcm/demucs-window.ts`, `src/inference/demucs-segment.ts`, `src/inference/worker.ts`, `scripts/demucs-pipeline-check.html` and `scripts/isolation-check.mjs` instead of hardcoded copies. It must have unit tests (size overflow, truncated, hash mismatch, progress, success) and the ffmpeg path in `scripts/isolation-check.mjs` must come from PATH or an env var.
+The independent reviews covered `8ba5361`. The fixes were not re-reviewed, and `todo/sprint-27-demucs-runtime.md` still has the review box unticked for that reason.
 
-State at the pause:
-- `src/inference/demucs-session.ts` was renamed to `src/inference/demucs-model.ts`, and `tests/demucs-model.test.mjs` was added. Tests pass (129).
-- **`npx tsc --noEmit` fails** with `src/pcm/speech.ts(72,83): Argument of type 'number' is not assignable to parameter of type '44100'`. Cause is probably that the rate constant moved and lost its literal type. Fix the type, then recheck.
-- Not yet confirmed: whether `fetchModelBytes` moved out of `worker.ts`, whether the hardcoded constants are gone from `scripts/isolation-check.mjs`, and whether the ffmpeg path was changed. Check with `git diff 87d2336..HEAD --stat` and by grepping for `85034606`, `343980`, `257985` and `/opt/homebrew`.
-- Re-run `npm test`, `npx tsc --noEmit`, `npm run build`, `npm run verify:static` and `node scripts/isolation-check.mjs` after finishing.
+Not changed on purpose: Keep music is now `audio.mean` added once and Keep voice adds none, which departs from upstream Demucs (it adds the mean to every stem). The numpy pipeline check subtracts the extra means from its reference stems for that reason.
 
-### Remaining review fixes, steps C to F
+### Deferred to Sprint 28 on purpose
 
-These came from two independent reviews of the branch. Neither found a high or medium defect. Do them as separate commits.
-
-C. Revert the isolation step in `src/recipe.ts` from `z.object` to `z.strictObject` and delete the "retired engine key" test. An `engine` key never existed in any shipped build (`git log --all -S"engine" -- src/recipe.ts` shows only this branch).
-
-D. Fix the DC offset in `src/pcm/isolate.ts`. Keep music currently adds the track mean once per summed stem, so it carries 3x the source's DC offset. Make music add `audio.mean` once and voice add 0. Update `tests/isolate.test.mjs` to assert that with a nonzero-DC input.
-
-E. Product cleanups:
-- remove the unused `attempts` field and counter (`protocol.ts`, `runner.ts`, `client.ts`, `isolate.ts`, tests)
-- unify the `Stems` and `DemucsStems` types
-- export one `InferenceDone` type
-- stop `src/inference/protocol.ts` importing `Recipe`
-- drop the `WindowStats` out-parameter if the evidence fields allow
-- reword the leftover "The faster engine returned..." errors to "The isolation model returned..."
-- export the watchdog constants from `runner.ts` and use them in `tests/inference-runner.test.mjs`
-
-F. Docs:
-- `docs/architecture.md`: history is `STRIDE + SEGMENT` = 601,965 frames per channel (13.65 s Float32) plus Float64 accumulators of 343,980 frames, not "1.4 s".
-- `docs/formats-and-limits.md`: Keep music is now summed drums+bass+other, so non-44.1 kHz sources are resampled and band-limited at the model rate (96/192 kHz lose content above 22.05 kHz, 48 kHz takes a 48 to 44.1 to 48 round trip). The old music was original minus voice.
-- Soften "the browser keeps the model" in `src/recipe-editor.tsx` and `docs/privacy.md` to "may reuse its cached copy; no cache headers guaranteed; each job re-verifies the hash".
-- Add `*.onnx binary` to `.gitattributes`.
-- Add an "Independent review" section to the Sprint 27 evidence recording each finding as fixed, deferred or not applicable.
-- Tick `todo/sprint-27-demucs-runtime.md` boxes only where evidence exists, and update the `TODO.md` row for Sprint 27 (implemented on branch, listening and device gates open).
-
-Deferred to Sprint 28 on purpose: reshape `demucsWindows` to take `outputs: DemucsSource[][]` so several stems can stream out, and move mono handling out of the worker (stereo in, four stereo stems out). Chrome driver coverage on WebKit and non-macOS is also deferred.
+Reshape `demucsWindows` to take `outputs: DemucsSource[][]` so several stems can stream out, and move mono handling out of the worker (stereo in, four stereo stems out). Chrome driver coverage on WebKit and non-macOS is also deferred. The vendored `vendor/neural/neural.js` still contains a SCNet preset (verbatim upstream, hash-pinned); rebuilding it was not requested.
 
 Do not change the shipped DSP numerics, window geometry, overlap (25%), the model, or the worker's four-stem return contract.
 
