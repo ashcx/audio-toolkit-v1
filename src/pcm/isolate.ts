@@ -44,7 +44,7 @@ async function analyze(source: PcmStream, checkpoint: () => Promise<PcmCheckpoin
   } finally { await iterator.return?.(); }
 }
 
-export async function* fitIsolationFrames(source: PcmStream, frames: number | (() => number), origin: number, rate: number, correctionRate = ISOLATION_RATE): PcmStream {
+export async function* fitIsolationFrames(source: PcmStream, frames: number | (() => number), origin: number, rate: number, correctionRate: number = ISOLATION_RATE): PcmStream {
   const held: PcmBlock[] = [];
   let emitted = 0;
   for await (const block of source) {
