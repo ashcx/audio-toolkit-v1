@@ -1,0 +1,258 @@
+{
+  "model": {
+    "bytes": 85034606,
+    "sha256": "742a4f8594a48d6306da303b8b2dd8be2b54389b88557db034408b436effd775",
+    "metadata": {
+      "sources": "[\"drums\", \"bass\", \"other\", \"vocals\"]",
+      "sample_rate": "44100",
+      "audio_channels": "2",
+      "weight_precision": "fp16",
+      "compute_precision": "fp32",
+      "model_family": "demucs",
+      "architecture": "htdemucs",
+      "segment_samples": "343980",
+      "stft_n_fft": "4096",
+      "stft_hop_length": "1024",
+      "stft_win_length": "4096",
+      "stft_normalized": "true",
+      "stft_window": "hann",
+      "batch_mode": "dynamic",
+      "external_normalization": "true",
+      "license": "unlicensed",
+      "stft_pad_samples": "1536",
+      "stft_frame_trim": "2"
+    }
+  },
+  "onnxruntime": "1.31.1",
+  "numpy": "2.4.6",
+  "stftRoundTripInteriorMaxAbs": 1.5057954882990998e-12,
+  "inputs": [
+    [
+      "spec_real",
+      [
+        "batch",
+        2,
+        2048,
+        336
+      ]
+    ],
+    [
+      "spec_imag",
+      [
+        "batch",
+        2,
+        2048,
+        336
+      ]
+    ],
+    [
+      "audio",
+      [
+        "batch",
+        2,
+        343980
+      ]
+    ]
+  ],
+  "outputs": [
+    [
+      "out_spec_real",
+      [
+        "batch",
+        "Sliceout_spec_real_dim_1",
+        "Sliceout_spec_real_dim_2",
+        "Sliceout_spec_real_dim_3",
+        "Sliceout_spec_real_dim_4"
+      ]
+    ],
+    [
+      "out_spec_imag",
+      [
+        "batch",
+        "Sliceout_spec_real_dim_1",
+        "Sliceout_spec_imag_dim_2",
+        "Sliceout_spec_real_dim_3",
+        "Sliceout_spec_real_dim_4"
+      ]
+    ],
+    [
+      "out_wave",
+      [
+        "batch",
+        "Addout_wave_dim_1",
+        "Addout_wave_dim_2",
+        "Addout_wave_dim_3"
+      ]
+    ]
+  ],
+  "fixtures": {
+    "long": {
+      "frames": 1323001,
+      "segments": 6,
+      "outputFrames": 1323001,
+      "finite": true,
+      "sumMaxAbsError": 0.49732986383586575,
+      "sumSnrDb": 29.735300860069888,
+      "tailRms": {
+        "drums": 0.003236381384897093,
+        "bass": 0.26150617250362557,
+        "other": 0.052080385334329286,
+        "vocals": 0.16563856704617966
+      },
+      "mixTailRms": 0.31991297023982174,
+      "correlationWithSynthComponent": {
+        "drums": {
+          "drums": 0.9922976797196232,
+          "bass": -0.001764586332484363,
+          "other": 0.0023353825072940275,
+          "vocals": 0.006181954044039956
+        },
+        "bass": {
+          "drums": 4.799791408248952e-05,
+          "bass": 0.9999153202066101,
+          "other": -6.999384331740993e-05,
+          "vocals": 0.0003299468431139002
+        },
+        "other": {
+          "drums": -0.030781749072347563,
+          "bass": 0.002162897961632345,
+          "other": 0.9905668176648605,
+          "vocals": 0.013936800610170354
+        },
+        "vocals": {
+          "drums": 0.003106703595046738,
+          "bass": 0.0007644835091232244,
+          "other": 0.0005340105296824557,
+          "vocals": 0.998656136185972
+        }
+      },
+      "cpuSeconds": 5.6
+    },
+    "segment": {
+      "frames": 343980,
+      "segments": 2,
+      "outputFrames": 343980,
+      "finite": true,
+      "sumMaxAbsError": 0.5223960377630814,
+      "sumSnrDb": 29.210872820211236,
+      "tailRms": {
+        "drums": 0.10657222361885182,
+        "bass": 0.2567099276607291,
+        "other": 0.010349311662709415,
+        "vocals": 0.0005286555750102513
+      },
+      "mixTailRms": 0.2783598814504509,
+      "correlationWithSynthComponent": {
+        "drums": {
+          "drums": 0.9909889211749301,
+          "bass": -0.0029800319374707284,
+          "other": 0.0033028744197385286,
+          "vocals": 0.005568582928562582
+        },
+        "bass": {
+          "drums": -0.0009374449647791125,
+          "bass": 0.999934575204776,
+          "other": -0.00017510259138369438,
+          "vocals": 0.000330749008599484
+        },
+        "other": {
+          "drums": -0.02492449276050984,
+          "bass": 0.001840762554175328,
+          "other": 0.9924156019721699,
+          "vocals": 0.011570187028028561
+        },
+        "vocals": {
+          "drums": 0.004561665696253406,
+          "bass": 0.000641476766968857,
+          "other": 0.0007439663365842534,
+          "vocals": 0.9986492936321267
+        }
+      },
+      "cpuSeconds": 1.8
+    },
+    "short": {
+      "frames": 100000,
+      "segments": 1,
+      "outputFrames": 100000,
+      "finite": true,
+      "sumMaxAbsError": 0.2223337856713894,
+      "sumSnrDb": 28.758948780906287,
+      "tailRms": {
+        "drums": 0.0763912616892056,
+        "bass": 0.2594106967109158,
+        "other": 0.14774393912057898,
+        "vocals": 0.0008586106727878669
+      },
+      "mixTailRms": 0.3103357872332438,
+      "correlationWithSynthComponent": {
+        "drums": {
+          "drums": 0.8591938503244105,
+          "bass": -0.007592214929749132,
+          "other": 0.010378388057012985,
+          "vocals": 0.015554654327576137
+        },
+        "bass": {
+          "drums": -0.00292953554805768,
+          "bass": 0.9993206067893587,
+          "other": 0.0041476817797258675,
+          "vocals": 0.0015301189638427556
+        },
+        "other": {
+          "drums": 0.0941607655124578,
+          "bass": -0.0009671792837813574,
+          "other": 0.4039882252143564,
+          "vocals": 0.8947938610908781
+        },
+        "vocals": {
+          "drums": -0.06033217992575899,
+          "bass": -0.03060670911745133,
+          "other": 0.02024719336939802,
+          "vocals": 0.2979644566270793
+        }
+      },
+      "cpuSeconds": 0.9
+    },
+    "tiny": {
+      "frames": 4000,
+      "segments": 1,
+      "outputFrames": 4000,
+      "finite": true,
+      "sumMaxAbsError": 2.7305158874649194,
+      "sumSnrDb": 7.890392944509777,
+      "tailRms": {
+        "drums": 0.21809925661725732,
+        "bass": 0.10422223100313839,
+        "other": 0.14376397703861252,
+        "vocals": 0.03887437912308011
+      },
+      "mixTailRms": 0.3372723573450656,
+      "correlationWithSynthComponent": {
+        "drums": {
+          "drums": 0.15471342401632057,
+          "bass": 0.7589087691673095,
+          "other": 0.05477639002208546,
+          "vocals": 0.29784039214721275
+        },
+        "bass": {
+          "drums": 0.034765780731841764,
+          "bass": 0.487744466106173,
+          "other": 0.12440364220285045,
+          "vocals": 0.26881177597150796
+        },
+        "other": {
+          "drums": 0.3649980140475757,
+          "bass": 0.09864129299553596,
+          "other": 0.06061585732476816,
+          "vocals": 0.3925603470896256
+        },
+        "vocals": {
+          "drums": 0.011973057365862358,
+          "bass": 0.0803411712779409,
+          "other": 0.03210603349118902,
+          "vocals": 0.09124378739726596
+        }
+      },
+      "cpuSeconds": 0.9
+    }
+  }
+}

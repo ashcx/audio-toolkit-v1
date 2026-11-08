@@ -1,0 +1,1105 @@
+{
+  "fixture": "tiny",
+  "nodes": [
+    {
+      "node": "/decoder.2/dconv/layers.0/layers.0.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        128,
+        1,
+        4032
+      ],
+      "maxMeanSquaredOverVariance": 0.764929021766691,
+      "minVariance": 1.0388071077457373
+    },
+    {
+      "node": "/encoder.1/dconv/layers.1/layers.1.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        128,
+        1,
+        4032
+      ],
+      "maxMeanSquaredOverVariance": 0.7599429963178395,
+      "minVariance": 2.1853596927014527
+    },
+    {
+      "node": "/encoder.0/dconv/layers.1/layers.1.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        512,
+        1,
+        2016
+      ],
+      "maxMeanSquaredOverVariance": 0.5723873588665569,
+      "minVariance": 0.42118684661208944
+    },
+    {
+      "node": "/encoder.1/dconv/layers.0/layers.0.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        128,
+        1,
+        4032
+      ],
+      "maxMeanSquaredOverVariance": 0.53505908845229,
+      "minVariance": 1.2745604114506244
+    },
+    {
+      "node": "/encoder.1/dconv/layers.1/layers.1.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        128,
+        1,
+        64512
+      ],
+      "maxMeanSquaredOverVariance": 0.513676431773783,
+      "minVariance": 0.2984890329826553
+    },
+    {
+      "node": "/encoder.0/dconv/layers.1/layers.1.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        512,
+        1,
+        32256
+      ],
+      "maxMeanSquaredOverVariance": 0.44977185261134184,
+      "minVariance": 0.41442569960401604
+    },
+    {
+      "node": "/encoder.2/dconv/layers.1/layers.1.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        32,
+        1,
+        8064
+      ],
+      "maxMeanSquaredOverVariance": 0.4402044269352123,
+      "minVariance": 4.09023959413724
+    },
+    {
+      "node": "/encoder.2/dconv/layers.0/layers.0.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        32,
+        1,
+        129024
+      ],
+      "maxMeanSquaredOverVariance": 0.4012861496067925,
+      "minVariance": 0.401318502813782
+    },
+    {
+      "node": "/encoder.2/dconv/layers.1/layers.1.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        32,
+        1,
+        129024
+      ],
+      "maxMeanSquaredOverVariance": 0.37975710481829633,
+      "minVariance": 0.24526063288934535
+    },
+    {
+      "node": "/decoder.1/dconv/layers.0/layers.0.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        32,
+        1,
+        8064
+      ],
+      "maxMeanSquaredOverVariance": 0.28564101520212365,
+      "minVariance": 0.34839434386107576
+    },
+    {
+      "node": "/decoder.0/dconv/layers.0/layers.0.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        8,
+        1,
+        16128
+      ],
+      "maxMeanSquaredOverVariance": 0.2710528964777251,
+      "minVariance": 0.8230846622959348
+    },
+    {
+      "node": "/decoder.1/dconv/layers.0/layers.0.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        32,
+        1,
+        129024
+      ],
+      "maxMeanSquaredOverVariance": 0.2702394982914998,
+      "minVariance": 0.2293353301170696
+    },
+    {
+      "node": "/decoder.3/dconv/layers.1/layers.1.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        512,
+        1,
+        32256
+      ],
+      "maxMeanSquaredOverVariance": 0.2568951632920715,
+      "minVariance": 0.027382656211344322
+    },
+    {
+      "node": "/encoder.2/dconv/layers.0/layers.0.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        32,
+        1,
+        8064
+      ],
+      "maxMeanSquaredOverVariance": 0.22529490443079447,
+      "minVariance": 1.8567203988193652
+    },
+    {
+      "node": "/crosstransformer/layers.0/norm1/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        2688,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.22117296677064374,
+      "minVariance": 1.137943871481983
+    },
+    {
+      "node": "/decoder.1/dconv/layers.1/layers.1.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        32,
+        1,
+        8064
+      ],
+      "maxMeanSquaredOverVariance": 0.20192737070551592,
+      "minVariance": 0.29015677584475946
+    },
+    {
+      "node": "/encoder.3/dconv/layers.0/layers.0.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        8,
+        1,
+        16128
+      ],
+      "maxMeanSquaredOverVariance": 0.18807201426432196,
+      "minVariance": 7.570015635987432
+    },
+    {
+      "node": "/crosstransformer/layers.0/norm2/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        2688,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.16799410254739303,
+      "minVariance": 1.2973314066465216
+    },
+    {
+      "node": "/encoder.3/dconv/layers.0/layers.0.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        8,
+        1,
+        258048
+      ],
+      "maxMeanSquaredOverVariance": 0.13064959313742824,
+      "minVariance": 2.4331522263284198
+    },
+    {
+      "node": "/decoder.0/dconv/layers.0/layers.0.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        8,
+        1,
+        258048
+      ],
+      "maxMeanSquaredOverVariance": 0.1252964947781954,
+      "minVariance": 0.99367447265556
+    },
+    {
+      "node": "/decoder.2/dconv/layers.1/layers.1.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        128,
+        1,
+        4032
+      ],
+      "maxMeanSquaredOverVariance": 0.1246722021002128,
+      "minVariance": 6.11960651984182
+    },
+    {
+      "node": "/decoder.2/dconv/layers.0/layers.0.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        128,
+        1,
+        64512
+      ],
+      "maxMeanSquaredOverVariance": 0.12082815357431664,
+      "minVariance": 0.2397327564518143
+    },
+    {
+      "node": "/tencoder.3/dconv/layers.0/layers.0.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        1032192
+      ],
+      "maxMeanSquaredOverVariance": 0.11367403999266067,
+      "minVariance": 1.8848879104533633
+    },
+    {
+      "node": "/encoder.1/dconv/layers.0/layers.0.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        128,
+        1,
+        64512
+      ],
+      "maxMeanSquaredOverVariance": 0.09807259840304447,
+      "minVariance": 0.2097229465906114
+    },
+    {
+      "node": "/crosstransformer/layers.0/norm_out/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        1376256
+      ],
+      "maxMeanSquaredOverVariance": 0.09772873529391884,
+      "minVariance": 1.611007829592518
+    },
+    {
+      "node": "/encoder.3/dconv/layers.1/layers.1.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        8,
+        1,
+        16128
+      ],
+      "maxMeanSquaredOverVariance": 0.08229623376739953,
+      "minVariance": 4.5166254456316475
+    },
+    {
+      "node": "/decoder.0/dconv/layers.1/layers.1.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        8,
+        1,
+        16128
+      ],
+      "maxMeanSquaredOverVariance": 0.07677279775565553,
+      "minVariance": 0.7566514834997423
+    },
+    {
+      "node": "/crosstransformer/layers_t.0/norm1/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        1344,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.06530852449631756,
+      "minVariance": 3.1623227611621747
+    },
+    {
+      "node": "/tdecoder.3/dconv/layers.0/layers.0.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        8255520
+      ],
+      "maxMeanSquaredOverVariance": 0.06088631748046793,
+      "minVariance": 0.08216632350142938
+    },
+    {
+      "node": "/crosstransformer/layers_t.0/norm2/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        1344,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.056564238000707125,
+      "minVariance": 4.380703993821926
+    },
+    {
+      "node": "/decoder.0/dconv/layers.1/layers.1.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        8,
+        1,
+        258048
+      ],
+      "maxMeanSquaredOverVariance": 0.054042489577931674,
+      "minVariance": 0.7379102114559123
+    },
+    {
+      "node": "/tencoder.0/dconv/layers.1/layers.1.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        8255520
+      ],
+      "maxMeanSquaredOverVariance": 0.04075495645167047,
+      "minVariance": 0.6083522565354048
+    },
+    {
+      "node": "/encoder.0/dconv/layers.0/layers.0.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        512,
+        1,
+        2016
+      ],
+      "maxMeanSquaredOverVariance": 0.03906557225864108,
+      "minVariance": 0.2551713116521939
+    },
+    {
+      "node": "/tdecoder.2/dconv/layers.1/layers.1.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        257988
+      ],
+      "maxMeanSquaredOverVariance": 0.03774549026373911,
+      "minVariance": 3.8638373616487693
+    },
+    {
+      "node": "/tencoder.1/dconv/layers.1/layers.1.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        4127808
+      ],
+      "maxMeanSquaredOverVariance": 0.03141255936406604,
+      "minVariance": 0.15946472931261071
+    },
+    {
+      "node": "/tdecoder.1/dconv/layers.0/layers.0.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        129000
+      ],
+      "maxMeanSquaredOverVariance": 0.027088330938211187,
+      "minVariance": 7.590290504476719
+    },
+    {
+      "node": "/tencoder.1/dconv/layers.1/layers.1.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        257988
+      ],
+      "maxMeanSquaredOverVariance": 0.024212554905907832,
+      "minVariance": 3.2120040634432208
+    },
+    {
+      "node": "/decoder.3/dconv/layers.0/layers.0.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        512,
+        1,
+        32256
+      ],
+      "maxMeanSquaredOverVariance": 0.02403633473154595,
+      "minVariance": 0.01596115190404063
+    },
+    {
+      "node": "/tdecoder.1/dconv/layers.0/layers.0.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        2064000
+      ],
+      "maxMeanSquaredOverVariance": 0.022881929857113053,
+      "minVariance": 0.22408756534378935
+    },
+    {
+      "node": "/tdecoder.3/dconv/layers.1/layers.1.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        8255520
+      ],
+      "maxMeanSquaredOverVariance": 0.02266844808713828,
+      "minVariance": 0.12936530723992606
+    },
+    {
+      "node": "/encoder.0/dconv/layers.0/layers.0.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        512,
+        1,
+        32256
+      ],
+      "maxMeanSquaredOverVariance": 0.021613357663996007,
+      "minVariance": 0.06183965658505514
+    },
+    {
+      "node": "/tencoder.2/dconv/layers.0/layers.0.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        129000
+      ],
+      "maxMeanSquaredOverVariance": 0.021097022598613804,
+      "minVariance": 5.99692769634271
+    },
+    {
+      "node": "/tdecoder.2/dconv/layers.0/layers.0.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        257988
+      ],
+      "maxMeanSquaredOverVariance": 0.018786702196096162,
+      "minVariance": 2.356959442125833
+    },
+    {
+      "node": "/tencoder.0/dconv/layers.1/layers.1.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        515970
+      ],
+      "maxMeanSquaredOverVariance": 0.017628921664301633,
+      "minVariance": 1.6564009718015882
+    },
+    {
+      "node": "/tencoder.1/dconv/layers.0/layers.0.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        4127808
+      ],
+      "maxMeanSquaredOverVariance": 0.017399222197455193,
+      "minVariance": 0.06976092244872739
+    },
+    {
+      "node": "/tdecoder.0/dconv/layers.1/layers.1.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        64512
+      ],
+      "maxMeanSquaredOverVariance": 0.016834346807378636,
+      "minVariance": 4.432499694058634
+    },
+    {
+      "node": "/decoder.1/dconv/layers.1/layers.1.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        32,
+        1,
+        129024
+      ],
+      "maxMeanSquaredOverVariance": 0.013361266525366513,
+      "minVariance": 0.204250805110585
+    },
+    {
+      "node": "/decoder.3/dconv/layers.0/layers.0.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        512,
+        1,
+        2016
+      ],
+      "maxMeanSquaredOverVariance": 0.013157394574310982,
+      "minVariance": 2.723474695028587
+    },
+    {
+      "node": "/crosstransformer/norm_in_t/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        1344,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.011661777657487011,
+      "minVariance": 0.024369855080717477
+    },
+    {
+      "node": "/decoder.2/dconv/layers.1/layers.1.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        128,
+        1,
+        64512
+      ],
+      "maxMeanSquaredOverVariance": 0.011099142108124698,
+      "minVariance": 0.09390356708603395
+    },
+    {
+      "node": "/tdecoder.0/dconv/layers.0/layers.0.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        64512
+      ],
+      "maxMeanSquaredOverVariance": 0.01007371805892343,
+      "minVariance": 4.435432679704662
+    },
+    {
+      "node": "/tencoder.2/dconv/layers.1/layers.1.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        129000
+      ],
+      "maxMeanSquaredOverVariance": 0.009423127479044476,
+      "minVariance": 4.961354625770023
+    },
+    {
+      "node": "/tencoder.1/dconv/layers.0/layers.0.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        257988
+      ],
+      "maxMeanSquaredOverVariance": 0.009009202258096335,
+      "minVariance": 7.349464644043668
+    },
+    {
+      "node": "/tencoder.3/dconv/layers.1/layers.1.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        64512
+      ],
+      "maxMeanSquaredOverVariance": 0.008842277131896973,
+      "minVariance": 59.26509327318062
+    },
+    {
+      "node": "/crosstransformer/layers_t.4/norm2/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        1344,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.007714207263944269,
+      "minVariance": 2.1750111374551206
+    },
+    {
+      "node": "/crosstransformer/layers_t.0/norm_out/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        688128
+      ],
+      "maxMeanSquaredOverVariance": 0.007155991157862791,
+      "minVariance": 5.905543313158368
+    },
+    {
+      "node": "/crosstransformer/layers.1/norm2/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        1344,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.0070365779091068545,
+      "minVariance": 1.4512821307354242
+    },
+    {
+      "node": "/crosstransformer/layers_t.1/norm1/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        1344,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.0070365779091068545,
+      "minVariance": 1.4512821307354242
+    },
+    {
+      "node": "/crosstransformer/layers_t.1/norm3/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        1344,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.006887272563921905,
+      "minVariance": 1.6766801732275765
+    },
+    {
+      "node": "/crosstransformer/norm_in/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        2688,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.0064807977500778505,
+      "minVariance": 0.08913096585826376
+    },
+    {
+      "node": "/tdecoder.3/dconv/layers.1/layers.1.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        515970
+      ],
+      "maxMeanSquaredOverVariance": 0.006470633981127921,
+      "minVariance": 1.4341939254483826
+    },
+    {
+      "node": "/tencoder.0/dconv/layers.0/layers.0.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        515970
+      ],
+      "maxMeanSquaredOverVariance": 0.006291612399080214,
+      "minVariance": 2.1186491613329657
+    },
+    {
+      "node": "/tdecoder.2/dconv/layers.0/layers.0.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        4127808
+      ],
+      "maxMeanSquaredOverVariance": 0.005328908189334717,
+      "minVariance": 0.36987151145483443
+    },
+    {
+      "node": "/crosstransformer/layers.1/norm1/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        2688,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.005287312650855231,
+      "minVariance": 1.5102007446864667
+    },
+    {
+      "node": "/crosstransformer/layers_t.1/norm2/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        2688,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.005287312650855231,
+      "minVariance": 1.5102007446864667
+    },
+    {
+      "node": "/crosstransformer/layers.1/norm3/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        2688,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.0052415620393404284,
+      "minVariance": 1.5153494853560119
+    },
+    {
+      "node": "/encoder.3/dconv/layers.1/layers.1.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        8,
+        1,
+        258048
+      ],
+      "maxMeanSquaredOverVariance": 0.0052403170316615635,
+      "minVariance": 1.6379090360454396
+    },
+    {
+      "node": "/tencoder.2/dconv/layers.1/layers.1.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        2064000
+      ],
+      "maxMeanSquaredOverVariance": 0.0049558696893024085,
+      "minVariance": 0.8289471979181909
+    },
+    {
+      "node": "/tencoder.3/dconv/layers.1/layers.1.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        1032192
+      ],
+      "maxMeanSquaredOverVariance": 0.0042879674779154825,
+      "minVariance": 0.26768240016651446
+    },
+    {
+      "node": "/decoder.3/dconv/layers.1/layers.1.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        512,
+        1,
+        2016
+      ],
+      "maxMeanSquaredOverVariance": 0.004235750713117886,
+      "minVariance": 21.06364133730335
+    },
+    {
+      "node": "/crosstransformer/layers_t.2/norm2/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        1344,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.0037678548782612434,
+      "minVariance": 2.8228131084019203
+    },
+    {
+      "node": "/tencoder.0/dconv/layers.0/layers.0.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        8255520
+      ],
+      "maxMeanSquaredOverVariance": 0.0035242557224645487,
+      "minVariance": 0.15071857779703482
+    },
+    {
+      "node": "/tencoder.2/dconv/layers.0/layers.0.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        2064000
+      ],
+      "maxMeanSquaredOverVariance": 0.0032762145287589307,
+      "minVariance": 0.9514707913248263
+    },
+    {
+      "node": "/crosstransformer/layers_t.2/norm1/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        1344,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.002736071763355268,
+      "minVariance": 2.2027544410240782
+    },
+    {
+      "node": "/crosstransformer/layers.3/norm2/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        1344,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.0025969585296969047,
+      "minVariance": 2.780529924518559
+    },
+    {
+      "node": "/crosstransformer/layers_t.3/norm1/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        1344,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.0025969585296969047,
+      "minVariance": 2.780529924518559
+    },
+    {
+      "node": "/crosstransformer/layers_t.4/norm1/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        1344,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.002407528347032039,
+      "minVariance": 1.4465011950861557
+    },
+    {
+      "node": "/tdecoder.0/dconv/layers.0/layers.0.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        1032192
+      ],
+      "maxMeanSquaredOverVariance": 0.0022091961481276955,
+      "minVariance": 0.6707570567365989
+    },
+    {
+      "node": "/crosstransformer/layers_t.3/norm3/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        1344,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.0019594412618471795,
+      "minVariance": 2.8988172395827663
+    },
+    {
+      "node": "/crosstransformer/layers.2/norm2/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        2688,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.001958858064846875,
+      "minVariance": 2.702482046410685
+    },
+    {
+      "node": "/crosstransformer/layers.2/norm1/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        2688,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.0017904802680186052,
+      "minVariance": 2.4145712694229586
+    },
+    {
+      "node": "/crosstransformer/layers_t.4/norm_out/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        688128
+      ],
+      "maxMeanSquaredOverVariance": 0.001746905957116096,
+      "minVariance": 1529.4868314318778
+    },
+    {
+      "node": "/crosstransformer/layers_t.1/norm_out/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        688128
+      ],
+      "maxMeanSquaredOverVariance": 0.0014188734757121806,
+      "minVariance": 2.336853744116982
+    },
+    {
+      "node": "/crosstransformer/layers.3/norm1/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        2688,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.0011130247226580684,
+      "minVariance": 2.3134460581891276
+    },
+    {
+      "node": "/crosstransformer/layers_t.3/norm2/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        2688,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.0011130247226580684,
+      "minVariance": 2.3134460581891276
+    },
+    {
+      "node": "/tdecoder.1/dconv/layers.1/layers.1.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        129000
+      ],
+      "maxMeanSquaredOverVariance": 0.0010389291315913516,
+      "minVariance": 5.662362265788696
+    },
+    {
+      "node": "/crosstransformer/layers.4/norm2/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        2688,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.0010287257919527175,
+      "minVariance": 2.534054563048905
+    },
+    {
+      "node": "/crosstransformer/layers.3/norm3/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        2688,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.000981578737900233,
+      "minVariance": 2.5506949224050417
+    },
+    {
+      "node": "/crosstransformer/layers.4/norm1/LayerNormalization",
+      "op": "LayerNormalization",
+      "shape": [
+        1,
+        2688,
+        512
+      ],
+      "maxMeanSquaredOverVariance": 0.0009701573844739349,
+      "minVariance": 2.2698135468552807
+    },
+    {
+      "node": "/tdecoder.2/dconv/layers.1/layers.1.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        4127808
+      ],
+      "maxMeanSquaredOverVariance": 0.0004958325297948926,
+      "minVariance": 2.4274807242793144
+    },
+    {
+      "node": "/tdecoder.0/dconv/layers.1/layers.1.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        1032192
+      ],
+      "maxMeanSquaredOverVariance": 0.0004645420991601329,
+      "minVariance": 0.4445630521044389
+    },
+    {
+      "node": "/crosstransformer/layers_t.2/norm_out/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        688128
+      ],
+      "maxMeanSquaredOverVariance": 0.0004328998500642871,
+      "minVariance": 3.332542853137953
+    },
+    {
+      "node": "/tdecoder.3/dconv/layers.0/layers.0.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        515970
+      ],
+      "maxMeanSquaredOverVariance": 0.00042570731089011584,
+      "minVariance": 7.702808615863305
+    },
+    {
+      "node": "/crosstransformer/layers.4/norm_out/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        1376256
+      ],
+      "maxMeanSquaredOverVariance": 0.0002613543032444457,
+      "minVariance": 2951.687723058183
+    },
+    {
+      "node": "/crosstransformer/layers.2/norm_out/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        1376256
+      ],
+      "maxMeanSquaredOverVariance": 0.0001965888529576537,
+      "minVariance": 4.871346548143284
+    },
+    {
+      "node": "/crosstransformer/layers_t.3/norm_out/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        688128
+      ],
+      "maxMeanSquaredOverVariance": 0.00015071840406378462,
+      "minVariance": 3.355948544855826
+    },
+    {
+      "node": "/crosstransformer/layers.3/norm_out/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        1376256
+      ],
+      "maxMeanSquaredOverVariance": 0.0001321838628735947,
+      "minVariance": 2.9099464881951
+    },
+    {
+      "node": "/crosstransformer/layers.1/norm_out/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        1376256
+      ],
+      "maxMeanSquaredOverVariance": 0.00013107003766966543,
+      "minVariance": 2.8722291038192096
+    },
+    {
+      "node": "/tdecoder.1/dconv/layers.1/layers.1.4/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        2064000
+      ],
+      "maxMeanSquaredOverVariance": 0.00011669680723012198,
+      "minVariance": 0.2562049046360459
+    },
+    {
+      "node": "/tencoder.3/dconv/layers.0/layers.0.1/InstanceNormalization",
+      "op": "InstanceNormalization",
+      "shape": [
+        1,
+        1,
+        64512
+      ],
+      "maxMeanSquaredOverVariance": 7.037937856054973e-05,
+      "minVariance": 16.263849391028085
+    }
+  ]
+}
