@@ -78,7 +78,7 @@ If a requirement fails, retain its unchecked state and the failed evidence. Reve
 
 ## Exit criteria and PR delivery
 
-- [ ] Implementation and acceptance scenarios have linked evidence, with any unverified platform/listening checks named explicitly.
+- [x] Implementation and acceptance scenarios have linked evidence, with any unverified platform/listening checks named explicitly.
 - [ ] Unit/build/live checks and applicable resource checks pass at the final head, with independent review recorded.
 - [ ] Deliver one working-branch PR for this sprint. Do not bundle another sprint's feature changes into its review diff.
 - [ ] If based on an unmerged parent, target that branch and clearly state the dependency. After the parent merges, retarget the child to main before merging it.

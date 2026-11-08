@@ -27,28 +27,49 @@ Measured on one Apple M5 (16 GiB) in Chrome 156 through Playwright, headless. No
 | Adapter check and evidence-based device label | Missing, fallback or SwiftShader adapters select WASM. The GPU label needs GPU dispatches; a WebGPU session without dispatches is labelled and recorded as CPU. | `src/inference/gpu.ts`; runner test; app-gpu-running.png, app-cpu-done.png |
 | CPU path and user warning | Without WebGPU the editor states CPU is slower than real time and that first use downloads 85 MB; export completes labelled CPU | app-cpu-editor.png, app-cpu-done.png |
 | Preview and export use the same path | Preview isolates on the GPU through the same worker | app-gpu-preview.png |
-| Recipe compatibility | Isolation steps with or without an `engine` key parse; the key is dropped | `tests/recipe.test.mjs` |
+| Recipe compatibility | The isolation step takes only `keep`; an unknown key is rejected like on every other step. No `engine` key ever shipped (`git log --all -S"engine" -- src/recipe.ts` matches only this branch's `86b6c67`), so nothing needs migrating. | `tests/recipe.test.mjs` |
 | Results report how separation ran | "Separated with Demucs on the GPU / CPU" | app-gpu-done.png, app-cpu-done.png |
 | No third-party requests | Only same-origin, blob and data URLs observed during the GPU journey | app-check.json |
 | SCNet removed | Code, model, pins, license files and SCNet-only drivers removed; the vendored `neural.js` bundle, its type file and the upstream NOTICE still name SCNet | commits `ca58b5f`, `0d1daea` |
 
 ## Commands
 
-Run from the worktree root on the final revision.
+Run from the worktree root. The first six rows were rerun on the review-fix head (after `66a47ab`, with the pipeline check's expected stems adjusted for the single-mean DC rule); output went to the ignored `.artifacts/final/`.
 
 | Command | Exit |
 | --- | --- |
-| `npm test` (124 tests) | 0 |
+| `npm test` (130 tests) | 0 |
 | `npx tsc --noEmit` | 0 |
 | `npm run build` | 0 |
 | `npm run verify:static` | 0 |
-| `node scripts/demucs-check.mjs` (WASM and WebGPU) | 0 |
-| `ISOLATION_LONG_SECONDS=600 node scripts/isolation-check.mjs` | 0 |
+| `node scripts/demucs-check.mjs` (WASM and WebGPU, numpy reference) | 0 |
+| `node scripts/isolation-check.mjs` (real Chrome, GPU and CPU journeys) | 0 |
+| `ISOLATION_LONG_SECONDS=600 node scripts/isolation-check.mjs` | 0 at `8ba5361`, not repeated on the review-fix head |
+
+## Independent review
+
+Two independent reviews of the branch, run by agents that did not write it, covered `8ba5361` (per the hand-off; their transcripts are not in the repo). Neither found a high or medium defect. Each finding and its disposition:
+
+| Finding | Disposition |
+| --- | --- |
+| Investigation and benchmark tooling and eight raw JSON dumps shipped with the PR | Fixed in `87d2336` |
+| Model size, hash, segment and stride copied into several files, and a hardcoded ffmpeg path in the driver | Fixed in `14aff67` and `9d1cc64`: one `src/inference/demucs-model.ts`, with `fetchModelBytes` unit-tested for overflow, truncation, hash mismatch, progress and success; the driver reads `FFMPEG` and `FFPROBE` |
+| Isolation step tolerated an `engine` key that never shipped | Fixed in `82ee5e8` |
+| Keep music carried three times the source's DC offset (mean added once per summed stem) | Fixed in `4cdd087`: music adds the mean once, voice adds none; a nonzero-DC test fails on the old code |
+| Unused `attempts` field, `Stems` and `DemucsStems` duplicates, two `done` reply shapes, `protocol.ts` importing `Recipe`, `WindowStats` out-parameter, inline watchdog limits | Fixed in `e04291c`. The window count and largest window are now counted in `isolate.ts` from its own infer callback, so `isolationWindows` and `maxIsolationFrames` are still observed values |
+| Leftover "The faster engine returned..." error text | Not applicable at this head: no such string remains; model errors already read "The isolation model returned..." |
+| `docs/architecture.md` said "about 1.4 s" of history | Fixed in `66a47ab`: 601,965 frames per channel (13.65 s Float32) plus Float64 accumulators of 343,980 frames |
+| `docs/formats-and-limits.md` did not say Keep music is band-limited at the model rate | Fixed in `66a47ab` |
+| "The browser keeps the model" in the editor and `docs/privacy.md` overstated cache behavior | Fixed in `66a47ab`: the browser may reuse its cached copy, no cache headers are set, and every job re-verifies the hash |
+| `*.onnx` not marked binary | Fixed in `4abe816` |
+| `demucsWindows` takes one source list, so several stems cannot stream out; mono is averaged inside the worker | Deferred to Sprint 28 on purpose |
+| Chrome driver covers Chromium on macOS only | Deferred; WebKit and non-macOS stay open under "Other devices and browsers" |
+| Vendored `vendor/neural/neural.js` still contains a SCNet preset | Deferred: verbatim hash-pinned upstream; rebuilding it from the runtime package alone was not requested |
 
 ## Open
 
 - Listening (27-05) on vocals and accompaniment, joins, reverb tails, cymbals, bass and transients.
 - Other devices and browsers, including integrated GPUs, Safari and low-memory machines.
-- Independent review.
+- Independent review of the final head. The two reviews below covered `8ba5361`; the fixes were not re-reviewed.
 - Weight license.
 - An interaction recording; only screenshots were saved.

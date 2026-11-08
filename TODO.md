@@ -19,7 +19,7 @@ These files are the authoritative execution checklists. The grouped documents re
 
 | Sprint | Outcome | Status |
 | --- | --- | --- |
-| [27](todo/sprint-27-demucs-runtime.md) | Evaluate and optimize browser Demucs v4 | Implemented on `codex/sprint-27-demucs`; Demucs replaced SCNet; listening (27-05), physical-device and review gates open; [coverage](docs/sprint-evidence/sprint-27/coverage.md) |
+| [27](todo/sprint-27-demucs-runtime.md) | Evaluate and optimize browser Demucs v4 | Implemented on branch; listening and device gates open. Demucs replaced SCNet; [coverage](docs/sprint-evidence/sprint-27/coverage.md) |
 | [28](todo/sprint-28-stem-selection.md) | Select and export four stems or instrumentals | Planned |
 | [29](todo/sprint-29-waveform-trimming.md) | Add waveform playback and individual-track trimming | Planned |
 
