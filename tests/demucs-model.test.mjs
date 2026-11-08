@@ -35,3 +35,9 @@ test('an HTTP error is refused as unreachable',async t=>{
  serve(t,[],{status:404});
  await assert.rejects(load(),/Could not load the isolation model/);
 });
+test('an oversized download stops the stream instead of leaving it unread',async t=>{
+ let cancelled=false;
+ t.mock.method(globalThis,'fetch',async()=>new Response(new ReadableStream({start(controller){controller.enqueue(model);controller.enqueue(new Uint8Array(1));},cancel(){cancelled=true;}}),{status:200}));
+ await assert.rejects(load(),/could not be verified/);
+ assert.equal(cancelled,true);
+});

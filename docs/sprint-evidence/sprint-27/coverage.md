@@ -73,3 +73,7 @@ Two independent reviews of the branch, run by agents that did not write it, cove
 - Independent review of the final head. The two reviews below covered `8ba5361`; the fixes were not re-reviewed.
 - Weight license.
 - An interaction recording; only screenshots were saved.
+
+## Final re-review of the fix round
+
+A third independent review of `8ba5361..HEAD` found no high or medium defects. Applied: `pipeline-check.json` refreshed from a run at the final head, and `fetchModelBytes` now cancels the response body when a download is refused (with a test). Known gap, not fixed: the synthetic fixtures have a mix mean near 1e-4, so the numpy pipeline check cannot confirm the single-mean DC rule on its long and segment fixtures. That rule is covered end to end only by the unit test `voice plus music carries the input DC offset exactly once`. A fixture with a clear DC offset, or a `voice + music` check in `scripts/isolation-check.mjs`, is the follow-up.
