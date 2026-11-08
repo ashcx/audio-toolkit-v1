@@ -7,11 +7,13 @@ import assert from 'node:assert/strict';
 const evidence=process.env.ISOLATION_EVIDENCE_DIR??'.artifacts/sprint-27/evidence';
 const outputs=process.env.ISOLATION_OUTPUT_DIR??'.artifacts/sprint-27/app-check';
 const music=process.env.ISOLATION_MUSIC_DIR??'../../../.artifacts/music16';
-const ffmpeg=process.env.FFMPEG??'/opt/homebrew/bin/ffmpeg',ffprobe=process.env.FFPROBE??'/opt/homebrew/bin/ffprobe';
-const MODEL_BYTES=85034606,STRIDE=257985,SEGMENT=343980;
+const ffmpeg=process.env.FFMPEG??'ffmpeg',ffprobe=process.env.FFPROBE??'ffprobe';
 await mkdir(outputs,{recursive:true});await mkdir(evidence,{recursive:true});
-const server=process.env.APP_URL?null:await createServer({server:{host:'127.0.0.1',port:4275,strictPort:true},logLevel:'error'});
-await server?.listen();
+const hosted=!!process.env.APP_URL;
+const server=await createServer({server:hosted?{middlewareMode:true}:{host:'127.0.0.1',port:4275,strictPort:true},logLevel:'error'});
+if(!hosted)await server.listen();
+const {DEMUCS_MODEL}=await server.ssrLoadModule('/src/inference/demucs-model.ts');
+const {bytes:MODEL_BYTES,stride:STRIDE,segment:SEGMENT}=DEMUCS_MODEL;
 const app=process.env.APP_URL??'http://127.0.0.1:4275/audio-toolkit-v1/';
 const duration=path=>Number(execFileSync(ffprobe,['-v','error','-show_entries','format=duration','-of','csv=p=0',path],{encoding:'utf8'}));
 const decode=path=>{const pcm=execFileSync(ffmpeg,['-v','error','-i',path,'-f','f32le','-'],{maxBuffer:512*1024*1024});return new Float32Array(pcm.buffer.slice(pcm.byteOffset,pcm.byteOffset+pcm.byteLength));};
@@ -144,5 +146,5 @@ try{
   }finally{await browser.close();}
  }
 }catch(error){failed=true;record.error=String(error?.stack??error);console.error(error);}
-finally{await server?.close();await writeFile(`${evidence}/app-check.json`,JSON.stringify(record,null,2)+'\n');}
+finally{await server.close();await writeFile(`${evidence}/app-check.json`,JSON.stringify(record,null,2)+'\n');}
 assert(!failed,'Demucs app check failed');

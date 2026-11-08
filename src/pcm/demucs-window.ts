@@ -1,11 +1,7 @@
 import { BLOCK_FRAMES, type PcmBlock, type PcmStream } from "./blocks.ts";
+import { DEMUCS_MODEL, type DemucsSource } from "../inference/demucs-model.ts";
 
-export const ISOLATION_RATE = 44100;
-
-export const DEMUCS_SEGMENT = 343980;
-export const DEMUCS_STRIDE = Math.floor(0.75 * DEMUCS_SEGMENT);
-export const DEMUCS_SOURCES = ["drums", "bass", "other", "vocals"] as const;
-export type DemucsSource = (typeof DEMUCS_SOURCES)[number];
+const { segment: DEMUCS_SEGMENT, stride: DEMUCS_STRIDE, sources: DEMUCS_SOURCES, rate: ISOLATION_RATE } = DEMUCS_MODEL;
 export type DemucsStems = readonly (readonly Float32Array[])[];
 const HISTORY = DEMUCS_STRIDE + DEMUCS_SEGMENT, HALF = DEMUCS_SEGMENT >> 1;
 const weight = (index: number) => (index < HALF ? index + 1 : DEMUCS_SEGMENT - index) / HALF;
@@ -65,7 +61,7 @@ export async function* demucsWindows(source: PcmStream, shape: { frames: number;
       });
       stats.windows++;stats.maxWindowFrames = Math.max(stats.maxWindowFrames, DEMUCS_SEGMENT);
       const stems = await infer(window);
-      if (stems.length !== DEMUCS_SOURCES.length || stems.some(stem => stem.length !== channels || stem.some(plane => plane.length !== DEMUCS_SEGMENT))) throw new Error("The faster engine returned incomplete audio.");
+      if (stems.length !== DEMUCS_SOURCES.length || stems.some(stem => stem.length !== channels || stem.some(plane => plane.length !== DEMUCS_SEGMENT))) throw new Error("The isolation model returned incomplete audio.");
       const trim = offset - start;
       for (let index = 0; index < length; index++) {
         const scale = weight(index);

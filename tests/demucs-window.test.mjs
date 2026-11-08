@@ -1,7 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {demucsWindows,demucsWindowCount,DEMUCS_SEGMENT,DEMUCS_STRIDE,DEMUCS_SOURCES} from '../src/pcm/demucs-window.ts';
+import {demucsWindows,demucsWindowCount} from '../src/pcm/demucs-window.ts';
+import {DEMUCS_MODEL} from '../src/inference/demucs-model.ts';
 import {demucsSpectrogram,demucsWaveforms,separateSegment} from '../src/inference/demucs-segment.ts';
+const {segment:DEMUCS_SEGMENT,stride:DEMUCS_STRIDE,sources:DEMUCS_SOURCES}=DEMUCS_MODEL;
 
 const sample=(channel,position)=>channel?Math.cos(position*.017)*.2:Math.sin(position*.019)*.3+.001;
 function signal(frames,channels,chunk=4093){return(async function*(){for(let from=0;from<frames;from+=chunk){const length=Math.min(chunk,frames-from);yield{origin:.37,offset:from,rate:44100,planes:Array.from({length:channels},(_,c)=>Float32Array.from({length},(_,i)=>sample(c,from+i)))};}})();}

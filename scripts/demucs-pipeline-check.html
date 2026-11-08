@@ -3,7 +3,7 @@
 <p id="status">Ready</p><pre id="result">{}</pre>
 <script type="module">
 import {load} from '../vendor/neural/neural.js';
-import {DEMUCS_MODEL} from '../src/inference/demucs-session.ts';
+import {DEMUCS_MODEL} from '../src/inference/demucs-model.ts';
 import {separateSegment} from '../src/inference/demucs-segment.ts';
 import {isolate} from '../src/pcm/isolate.ts';
 const params=new URLSearchParams(location.search),provider=params.get('provider')??'wasm',names=(params.get('fixtures')??'tiny,short,segment,long').split(','),tensorNames=(params.get('tensors')??'').split(',').filter(Boolean);

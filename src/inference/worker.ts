@@ -1,33 +1,10 @@
 import { load } from "../../vendor/neural/neural.js";
 import type { InferenceBackend, InferenceInput, InferenceResult, Stems } from "./protocol";
-import { DEMUCS_MODEL } from "./demucs-session";
+import { DEMUCS_MODEL, fetchModelBytes } from "./demucs-model";
 import { separateSegment } from "./demucs-segment";
-import { DEMUCS_SEGMENT } from "../pcm/demucs-window";
 import { usableGpu } from "./gpu";
 
 const report = (message: InferenceResult, transfer: Transferable[] = []) => self.postMessage(message, { transfer });
-async function modelBytes(base: URL) {
-  const response = await fetch(new URL(DEMUCS_MODEL.file, base));
-  if (!response.ok || !response.body) throw new Error("Could not load the isolation model. Check your connection and retry.");
-  const bytes = new Uint8Array(DEMUCS_MODEL.bytes), reader = response.body.getReader();
-  let received = 0, reported = 0;
-  try {
-    for (;;) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      if (received + value.length > DEMUCS_MODEL.bytes) throw new Error("The isolation model could not be verified. Retry.");
-      bytes.set(value, received);received += value.length;
-      if (received - reported >= 1024 * 1024 || received === DEMUCS_MODEL.bytes) {
-        report({ kind: "model-download", loaded: received, total: DEMUCS_MODEL.bytes });reported = received;
-      }
-    }
-  } finally { reader.releaseLock(); }
-  if (received !== DEMUCS_MODEL.bytes) throw new Error("The isolation model download is incomplete. Retry.");
-  const hash = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", bytes)), value => value.toString(16).padStart(2, "0")).join("");
-  if (hash !== DEMUCS_MODEL.sha256) throw new Error("The isolation model could not be verified. Retry.");
-  return bytes;
-}
-
 // ORT can create a "webgpu" session that runs every kernel on CPU when no adapter exists, so GPU use is
 // judged by compute dispatches actually issued, not by the provider that was requested.
 let dispatches = 0;
@@ -41,13 +18,13 @@ self.onmessage = async ({ data }: MessageEvent<InferenceInput>) => {
   let backend: InferenceBackend = "wasm";
   let stage: "model" | "session" | "run" = "model";
   try {
-    if (data.planes.length < 1 || data.planes.length > 2 || data.planes.some(plane => plane.length !== DEMUCS_SEGMENT)) throw new Error("This isolation window is unsupported.");
+    if (data.planes.length < 1 || data.planes.length > 2 || data.planes.some(plane => plane.length !== DEMUCS_MODEL.segment)) throw new Error("This isolation window is unsupported.");
     if (retained) backend = retained.backend;
     else if (data.backend === "auto" && (await usableGpu()).usable) backend = "webgpu+wasm";
     report({ kind: "backend", backend });
     if (!retained) {
       const base = new URL(import.meta.env.BASE_URL + "vendor/neural/", self.location.href);
-      const bytes = await modelBytes(base);
+      const bytes = await fetchModelBytes(new URL(DEMUCS_MODEL.file, base), (loaded, total) => report({ kind: "model-download", loaded, total }));
       report({ kind: "phase", phase: "Loading model" });stage = "session";
       const session = await load(bytes, { backend: backend === "wasm" ? "wasm" : "webgpu", executionProviders: backend === "wasm" ? ["wasm"] : ["webgpu", "wasm"], wasmPaths: base.href, threads: 1, sessionOptions: { enableCpuMemArena: false, enableMemPattern: false } });
       retained = { backend, session };

@@ -1,6 +1,7 @@
-import { DEMUCS_SEGMENT } from "../pcm/demucs-window.ts";
+import { DEMUCS_MODEL } from "./demucs-model.ts";
 
-const N = 4096, HOP = 1024, BINS = N / 2, FRAMES = Math.ceil(DEMUCS_SEGMENT / HOP), PAD = 1536, TRIM = 2, SOURCES = 4;
+const { segment: DEMUCS_SEGMENT, sources } = DEMUCS_MODEL, SOURCES = sources.length;
+const N = 4096, HOP = 1024, BINS = N / 2, FRAMES = Math.ceil(DEMUCS_SEGMENT / HOP), PAD = 1536, TRIM = 2;
 const PADDED = FRAMES * HOP + 2 * PAD, CENTERED = PADDED + N, OUTPUT_START = N / 2 + PAD;
 const SCALE = 1 / Math.sqrt(N);
 const WINDOW = Float64Array.from({ length: N }, (_, index) => 0.5 - 0.5 * Math.cos((2 * Math.PI * index) / N));
@@ -101,7 +102,7 @@ export type DemucsRun = (feeds: Record<"spec_real" | "spec_imag" | "audio", Tens
 
 function output(outputs: Record<string, Tensor | undefined>, name: string, dims: number[]) {
   const value = outputs[name];
-  if (!value || value.dims.join() !== dims.join()) throw new Error(`The faster engine returned ${name} with an unsupported shape.`);
+  if (!value || value.dims.join() !== dims.join()) throw new Error(`The isolation model returned ${name} with an unsupported shape.`);
   return value.data;
 }
 

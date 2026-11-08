@@ -1,9 +1,12 @@
 import { BLOCK_FRAMES, frameTime, type PcmBlock, type PcmCheckpoint, type PcmReplay, type PcmStream } from "./blocks.ts";
 import { resample } from "./resample.ts";
-import { demucsWindows, demucsWindowCount, ISOLATION_RATE, type DemucsSource } from "./demucs-window.ts";
+import { demucsWindows, demucsWindowCount } from "./demucs-window.ts";
+import { DEMUCS_MODEL, type DemucsSource } from "../inference/demucs-model.ts";
 import type { InferenceReply, IsolationMode } from "../inference/protocol";
 import type { JobOperation } from "../job-events";
 import type { DspStats } from "./protocol";
+
+const ISOLATION_RATE = DEMUCS_MODEL.rate;
 
 type Analysis = {
   frames: number; channels: number; origin: number; originalFrames: number; originalRate: number;
