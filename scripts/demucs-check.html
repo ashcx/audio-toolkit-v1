@@ -1,0 +1,61 @@
+<!doctype html><meta charset="utf-8"><title>Demucs reference check</title>
+<h1>Demucs reference check</h1><p>Runs htdemucs_fp16.onnx through ORT-Web and compares every stem with the numpy reference. Synthetic mixtures prove numeric agreement, not separation quality.</p>
+<p id="status">Ready</p><pre id="result">{}</pre>
+<script type="module">
+import {load,separate} from '../vendor/neural/neural.js';
+import {DEMUCS_MODEL,demucsHybridSession} from '../src/inference/demucs-session.ts';
+const params=new URLSearchParams(location.search),provider=params.get('provider')??'wasm',names=(params.get('fixtures')??'tiny,short,segment,long').split(','),tensorNames=(params.get('tensors')??'').split(',').filter(Boolean),optimization=params.get('optimization')??'all';
+const root=new URL('../.artifacts/sprint-27/',location.href),vendor=new URL('../vendor/neural/',location.href);
+const result={provider,optimization,userAgent:navigator.userAgent,fixtures:{}};
+const show=status=>{document.querySelector('#status').textContent=status;document.querySelector('#result').textContent=JSON.stringify(result,null,2);};
+const planes=async(path,frames)=>{const response=await fetch(new URL(path,root));if(!response.ok)throw Error(`${path} HTTP ${response.status}`);const data=new Float32Array(await response.arrayBuffer());if(data.length!==2*frames)throw Error(`${path} has ${data.length} samples`);return [data.subarray(0,frames),data.subarray(frames)];};
+const hex=async bytes=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),value=>value.toString(16).padStart(2,'0')).join('');
+let dispatches=0;
+if(typeof GPUComputePassEncoder!=='undefined'){const dispatch=GPUComputePassEncoder.prototype.dispatchWorkgroups;GPUComputePassEncoder.prototype.dispatchWorkgroups=function(...args){dispatches++;return dispatch.apply(this,args);};}
+async function adapterInfo(){const adapter=await navigator.gpu?.requestAdapter().catch(()=>null);if(!adapter)return null;const {vendor,architecture,device,description,isFallbackAdapter}=adapter.info??{};return {vendor,architecture,device,description,isFallbackAdapter:isFallbackAdapter??null};}
+const flat=async path=>{const response=await fetch(new URL(path,root));if(!response.ok)throw Error(`${path} HTTP ${response.status}`);return new Float32Array(await response.arrayBuffer());};
+function diff(reference,actual){if(reference.length!==actual.length)return {lengthMismatch:[reference.length,actual.length]};let maxAbs=0,signal=0,noise=0;for(let i=0;i<reference.length;i++){const d=actual[i]-reference[i];maxAbs=Math.max(maxAbs,Math.abs(d));signal+=reference[i]**2;noise+=d*d;}return {maxAbs,snrDb:noise?10*Math.log10(signal/noise):Infinity};}
+async function tensorCheck(session,name,feeds){
+ const expected=Object.fromEntries(await Promise.all(['spec_real','spec_imag','audio','out_spec_real','out_spec_imag','out_wave'].map(async key=>[key,await flat(`tensors/${name}.${key}.f32`)])));
+ const pipelineFeeds=Object.fromEntries(['spec_real','spec_imag','audio'].map(key=>[key,diff(expected[key],feeds[key].data)]));
+ const outputs=await session.run({spec_real:{data:expected.spec_real,dims:[1,2,2048,336],type:'float32'},spec_imag:{data:expected.spec_imag,dims:[1,2,2048,336],type:'float32'},audio:{data:expected.audio,dims:[1,2,343980],type:'float32'}});
+ const runtimeOutputs=Object.fromEntries(['out_spec_real','out_spec_imag','out_wave'].map(key=>[key,{dims:outputs[key].dims,...diff(expected[key],outputs[key].data)}]));
+ return {pipelineFeeds,runtimeOutputs};
+}
+function compare(reference,actual){let maxAbs=0,signal=0,noise=0;for(let c=0;c<reference.length;c++)for(let i=0;i<reference[c].length;i++){const d=actual[c][i]-reference[c][i];maxAbs=Math.max(maxAbs,Math.abs(d));signal+=reference[c][i]**2;noise+=d*d;}return {maxAbs,snrDb:noise?10*Math.log10(signal/noise):Infinity};}
+const rms=(stem,count)=>Math.sqrt(stem.reduce((sum,plane)=>sum+plane.subarray(plane.length-count).reduce((s,v)=>s+v*v,0),0)/(2*count));
+try{
+ const manifest=await (await fetch(new URL('fixtures/fixtures.json',root))).json();
+ const response=await fetch(new URL('../.artifacts/models/htdemucs_fp16.onnx',location.href));if(!response.ok)throw Error('Model HTTP '+response.status);
+ const bytes=new Uint8Array(await response.arrayBuffer());
+ result.model={bytes:bytes.length,sha256:await hex(bytes)};
+ if(bytes.length!==DEMUCS_MODEL.bytes||result.model.sha256!==DEMUCS_MODEL.sha256)throw Error('Model bytes or hash mismatch');
+ result.gpuAdapter=await adapterInfo();
+ show('Creating session');
+ const session=await load(bytes,{backend:provider,executionProviders:[provider],graphOptimizationLevel:optimization,wasmPaths:vendor.href,threads:1,sessionOptions:{enableCpuMemArena:false,enableMemPattern:false}});
+ result.session={backend:session.backend,requestedExecutionProviders:[provider],inputs:session.inputs,outputs:session.outputs};
+ const [tinyL,tinyR]=await planes('fixtures/tiny.mix.f32',manifest.tiny.frames);
+ try{await separate([tinyL,tinyR],{sampleRate:44100,model:'htdemucs',weights:location.href,session:()=>({inputs:session.inputs,outputs:session.outputs,run:feeds=>session.run(feeds)})});result.unmodifiedPreset={ok:true};}
+ catch(error){result.unmodifiedPreset={ok:false,error:String(error?.message??error).slice(0,400)};}
+ for(const name of names){
+  show('Separating '+name);
+  const frames=manifest[name].frames,mix=await planes(`fixtures/${name}.mix.f32`,frames),before=dispatches,started=performance.now();
+  const windows=[];
+  let firstFeeds=null;
+  const recording={inputs:session.inputs,outputs:session.outputs,run:async feeds=>{firstFeeds??=feeds;return session.run(feeds);},free(){}};
+  const output=await separate(mix,{sampleRate:44100,model:'htdemucs',weights:location.href,session:()=>demucsHybridSession(recording),progress:p=>windows.push(p.chunk)});
+  const record={frames,windows:windows.length,gpuDispatches:dispatches-before,seconds:Math.round(performance.now()-started)/1000,stems:{}};
+  const tail=Math.min(4410,frames);
+  for(const source of DEMUCS_MODEL.sources){
+   const stem=output.stems[source],reference=await planes(`reference/${name}.${source}.f32`,frames);
+   const last=Math.min(44100,frames),lastSecond=compare(reference.map(plane=>plane.subarray(frames-last)),stem.map(plane=>plane.subarray(frames-last)));
+   record.stems[source]={outputFrames:stem.map(plane=>plane.length),finite:stem.every(plane=>plane.every(Number.isFinite)),tailRms:rms(stem,tail),referenceTailRms:rms(reference,tail),...compare(reference,stem),lastSecondSnrDb:lastSecond.snrDb};
+  }
+  record.residualMaxAbs=Math.max(...output.residual.map(plane=>plane.reduce((m,v)=>Math.max(m,Math.abs(v)),0)));
+  if(tensorNames.includes(name))record.firstWindow=await tensorCheck(session,name,firstFeeds);
+  result.fixtures[name]=record;show('Separated '+name);
+ }
+ session.free();result.done=true;show('Done');
+}catch(error){result.error=String(error?.stack??error);show('Failed');}
+window.__demucs=result;
+</script>
