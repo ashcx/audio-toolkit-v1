@@ -1,6 +1,6 @@
 # Sprint 27. Evaluate and optimize browser Demucs v4
 
-Status is planned. Updated 2026-10-31. This file authorizes planning only. Do not start app implementation, install or run a candidate model, create an implementation PR, merge or deploy without a separate user instruction.
+Status is implemented on branch `codex/sprint-27-demucs`, not merged. Updated 2026-11-08. By the user's later instruction Demucs replaced SCNet as the only isolation engine. Listening (27-05), physical-device checks and independent review remain open. Evidence and the requirement coverage table are in [coverage.md](../docs/sprint-evidence/sprint-27/coverage.md). Do not merge or deploy without a separate user instruction.
 
 ## Goal
 
@@ -33,16 +33,16 @@ Start from the OBRA-observed pinned htdemucs_fp16.onnx artifact, 44100 Hz and 34
 
 Depends on the current main processing baseline, not on Sprint 24. Goal is fast, usable separation that improves on the user's current SCNet experience. Studio-quality isolation and the fine-tuned multi-model ensemble are not default targets.
 
-- [ ] Pin the OBRA reference model, model hash, runtime version and public configuration before testing. Record relevant source and weight provenance. Establish a compatible packaging path before distribution.
-- [ ] Build a disposable local adapter/probe using standard four-stem HTDemucs. Verify sample rate, model metadata, input/output shapes, stem order, normalization, transform framing, overlap reconstruction and full-length endings against a trusted reference. Do not label an integration correct because it merely returns nonzero samples.
+- [x] Pin the OBRA reference model, model hash, runtime version and public configuration before testing. Record relevant source and weight provenance. Establish a compatible packaging path before distribution.
+- [x] Build a disposable local adapter/probe using standard four-stem HTDemucs. Verify sample rate, model metadata, input/output shapes, stem order, normalization, transform framing, overlap reconstruction and full-length endings against a trusted reference. Do not label an integration correct because it merely returns nonzero samples.
 - [ ] Benchmark actual current-main SCNet, experimental SCNet reuse, the initial Demucs adapter and the optimized Demucs adapter on the same lawful recordings. Use OBRA Fast on the same source/device/browser where comparable. Keep a full-four-stem comparison separate from a vocals/instrumental-only delivery comparison.
 - [ ] Start with the reference's 7.8-second model segment and 25% overlap. Compare supported 10%, 25%, 40% and 50% overlaps only after reconstruction is correct, one variable at a time. Lower-overlap speed settings need listening checks at boundaries and on the user's distracting passages.
-- [ ] Keep one session for a bounded run where owned-memory evidence supports it. Compare bounded lifetimes and session initialization costs. Do not recreate the model for every window by default simply to preserve the old adapter's structure.
-- [ ] Profile model setup, transforms, neural inference, GPU/CPU transitions, buffer transfers, reconstruction and encoding separately. Verify actual provider/kernel placement instead of treating a GPU badge as utilization proof.
+- [x] Keep one session for a bounded run where owned-memory evidence supports it. Compare bounded lifetimes and session initialization costs. Do not recreate the model for every window by default simply to preserve the old adapter's structure.
+- [x] Profile model setup, transforms, neural inference, GPU/CPU transitions, buffer transfers, reconstruction and encoding separately. Verify actual provider/kernel placement instead of treating a GPU badge as utilization proof.
 - [ ] Test a pinned ORT version and a compatible newer version only where there is a concrete optimization hypothesis. Evaluate graph optimization, stable-shape buffers, tensor disposal, buffer reuse and GPU-resident data. Test true reduced-precision computation only as a distinct candidate with output validation; FP16 storage alone is not that candidate.
-- [ ] Evaluate WASM thread counts only when the hosting surface can provide the required isolation headers. Preserve a functional single-thread fallback. Do not assume GitHub Pages supports the necessary headers or add a service-worker workaround without an explicit hosting decision.
-- [ ] Avoid simultaneous full-song model jobs when they compete for the same GPU/memory. Bound concurrency, cancellation time, temporary storage and result retention. Reuse downloaded model assets without confusing disk cache with an active session.
-- [ ] Use five interleaved warm runs per candidate, separately label cold download/setup, and record median/range, failures, completed windows, actual model loads, output duration, owned peak memory and end-to-end completion. Include short excerpts and 3-, 5- and 10-minute recordings when resource limits permit. Record early limits rather than crashing the browser.
+- [x] Evaluate WASM thread counts only when the hosting surface can provide the required isolation headers. Preserve a functional single-thread fallback. Do not assume GitHub Pages supports the necessary headers or add a service-worker workaround without an explicit hosting decision.
+- [x] Avoid simultaneous full-song model jobs when they compete for the same GPU/memory. Bound concurrency, cancellation time, temporary storage and result retention. Reuse downloaded model assets without confusing disk cache with an active session.
+- [x] Use five interleaved warm runs per candidate, separately label cold download/setup, and record median/range, failures, completed windows, actual model loads, output duration, owned peak memory and end-to-end completion. Include short excerpts and 3-, 5- and 10-minute recordings when resource limits permit. Record early limits rather than crashing the browser.
 - [ ] Save matched outputs for listening on vocals and accompaniment, including reverb tails, cymbals, bass, transients and joins. Prefer the fastest candidate with acceptable listening quality. Require a repeatable speed improvement beyond variation and no new distracting regression; do not substitute reconstruction error for source-separation quality.
 - [ ] Deliver a documented choice and a verified runtime adapter if it passes. If blocked, identify the exact failed model/runtime/resource condition, retain the working engine and keep the prototype evidence. Do not call an unmeasured default switch an optimization.
 
@@ -63,10 +63,10 @@ Check a scenario only when its evidence exists. A passing unit test alone does n
 
 ## Verification and evidence
 
-- [ ] Run focused behavioral checks for the changed contract, then `npm test` and `npm run build`. Run applicable existing browser/static/format checks. Record exact commands, exit status and tested revision.
+- [x] Run focused behavioral checks for the changed contract, then `npm test` and `npm run build`. Run applicable existing browser/static/format checks. Record exact commands, exit status and tested revision.
 - [ ] Drive the changed workflow in actual Chrome using the Chrome skill. Save screenshots and an interaction recording for user-facing controls. Distinguish observed browser results from physical-device coverage.
-- [ ] Record relevant processing/interaction time, memory, cancellation and cleanup checks. For a speed claim, read the benchmark checklist first, use interleaved matched runs, validate outputs and identify the limiter. No speed claim from unlike output scopes or failed work.
-- [ ] Record source provenance, unresolved gaps and decisions under `docs/sprint-evidence/sprint-27/`. Use a coverage table linking every requirement and scenario to its artifact.
+- [x] Record relevant processing/interaction time, memory, cancellation and cleanup checks. For a speed claim, read the benchmark checklist first, use interleaved matched runs, validate outputs and identify the limiter. No speed claim from unlike output scopes or failed work.
+- [x] Record source provenance, unresolved gaps and decisions under `docs/sprint-evidence/sprint-27/`. Use a coverage table linking every requirement and scenario to its artifact.
 - [ ] Obtain independent Terra and Luna review, at most two reviewers. Resolve verified findings and record the exact reviewed revision; missing review remains open.
 - [ ] Audit the final diff for unnecessary abstractions, misleading labels, comments/suppressions and unrelated changes.
 

@@ -19,11 +19,11 @@ These files are the authoritative execution checklists. The grouped documents re
 
 | Sprint | Outcome | Status |
 | --- | --- | --- |
-| [27](todo/sprint-27-demucs-runtime.md) | Evaluate and optimize browser Demucs v4 | Planned |
+| [27](todo/sprint-27-demucs-runtime.md) | Evaluate and optimize browser Demucs v4 | Implemented on `codex/sprint-27-demucs`; Demucs replaced SCNet; listening (27-05), physical-device and review gates open; [coverage](docs/sprint-evidence/sprint-27/coverage.md) |
 | [28](todo/sprint-28-stem-selection.md) | Select and export four stems or instrumentals | Planned |
 | [29](todo/sprint-29-waveform-trimming.md) | Add waveform playback and individual-track trimming | Planned |
 
-Sprint 27 may run first for separation speed. Sprint 28 follows 27. Four-stem waveform audition in 29 also requires 28. All three remain planning-only.
+SCNet was removed in Sprint 27: Demucs on WebGPU separated 3.7 to 4 times faster, and one engine keeps one model, license and test surface. Sprint 28 follows 27. Four-stem waveform audition in 29 also requires 28. All three remain planning-only.
 
 [Sprints 27–29](todo/demucs-waveform-sprints.md) add research-backed planning for optimized browser Demucs v4, selectable four-stem/instrumental outputs, and compact waveform playback with individual-track trimming. Waveform handles never edit the batch range.
 

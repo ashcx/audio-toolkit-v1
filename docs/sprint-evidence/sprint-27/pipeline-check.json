@@ -1,0 +1,265 @@
+{
+  "pipelineFloorDb": 120,
+  "optimization": "all",
+  "chrome": "156.0.8078.81",
+  "runs": {
+    "wasm": {
+      "provider": "wasm",
+      "pipeline": "app",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+      "fixtures": {
+        "tiny": {
+          "frames": 4000,
+          "windows": 1,
+          "seconds": 7.248,
+          "vocals": {
+            "outputFrames": [
+              4000,
+              4000
+            ],
+            "finite": true,
+            "maxAbs": 0.5590759962797165,
+            "snrDb": -0.7956389193025065
+          },
+          "accompaniment": {
+            "outputFrames": [
+              4000,
+              4000
+            ],
+            "finite": true,
+            "maxAbs": 1.5839437246322632,
+            "snrDb": 11.060598989028357
+          },
+          "firstWindowFeeds": {
+            "spec_real": {
+              "maxAbs": 9.5367431640625e-7,
+              "snrDb": 144.81604282239314
+            },
+            "spec_imag": {
+              "maxAbs": 9.5367431640625e-7,
+              "snrDb": 145.21282271454712
+            },
+            "audio": {
+              "maxAbs": 2.384185791015625e-7,
+              "snrDb": 145.88942138709072
+            }
+          }
+        },
+        "short": {
+          "frames": 100000,
+          "windows": 1,
+          "seconds": 7.585,
+          "vocals": {
+            "outputFrames": [
+              100000,
+              100000
+            ],
+            "finite": true,
+            "maxAbs": 0.00015371688641607761,
+            "snrDb": 48.750774382818456
+          },
+          "accompaniment": {
+            "outputFrames": [
+              100000,
+              100000
+            ],
+            "finite": true,
+            "maxAbs": 0.000970304012298584,
+            "snrDb": 75.27784545177977
+          },
+          "firstWindowFeeds": {
+            "spec_real": {
+              "maxAbs": 0.0000019073486328125,
+              "snrDb": 144.8513254961554
+            },
+            "spec_imag": {
+              "maxAbs": 0.0000019073486328125,
+              "snrDb": 144.57684531492862
+            },
+            "audio": {
+              "maxAbs": 4.76837158203125e-7,
+              "snrDb": 145.73757600383095
+            }
+          }
+        },
+        "segment": {
+          "frames": 343980,
+          "windows": 2,
+          "seconds": 16.233,
+          "vocals": {
+            "outputFrames": [
+              343980,
+              343980
+            ],
+            "finite": true,
+            "maxAbs": 0.0002559870481491089,
+            "snrDb": 83.76505199344885
+          },
+          "accompaniment": {
+            "outputFrames": [
+              343980,
+              343980
+            ],
+            "finite": true,
+            "maxAbs": 0.00043864548206329346,
+            "snrDb": 72.21570270299934
+          }
+        },
+        "long": {
+          "frames": 1323001,
+          "windows": 6,
+          "seconds": 48.972,
+          "vocals": {
+            "outputFrames": [
+              1323001,
+              1323001
+            ],
+            "finite": true,
+            "maxAbs": 0.0003291219472885132,
+            "snrDb": 81.25804540233254
+          },
+          "accompaniment": {
+            "outputFrames": [
+              1323001,
+              1323001
+            ],
+            "finite": true,
+            "maxAbs": 0.0004272162914276123,
+            "snrDb": 71.92766212306228
+          }
+        }
+      },
+      "done": true,
+      "pageErrors": []
+    },
+    "webgpu": {
+      "provider": "webgpu",
+      "pipeline": "app",
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+      "fixtures": {
+        "tiny": {
+          "frames": 4000,
+          "windows": 1,
+          "seconds": 1.461,
+          "vocals": {
+            "outputFrames": [
+              4000,
+              4000
+            ],
+            "finite": true,
+            "maxAbs": 0.04297758638858795,
+            "snrDb": 21.962407533436288
+          },
+          "accompaniment": {
+            "outputFrames": [
+              4000,
+              4000
+            ],
+            "finite": true,
+            "maxAbs": 0.07319152355194092,
+            "snrDb": 34.13360709286485
+          },
+          "firstWindowFeeds": {
+            "spec_real": {
+              "maxAbs": 9.5367431640625e-7,
+              "snrDb": 144.81604282239314
+            },
+            "spec_imag": {
+              "maxAbs": 9.5367431640625e-7,
+              "snrDb": 145.21282271454712
+            },
+            "audio": {
+              "maxAbs": 2.384185791015625e-7,
+              "snrDb": 145.88942138709072
+            }
+          }
+        },
+        "short": {
+          "frames": 100000,
+          "windows": 1,
+          "seconds": 1.225,
+          "vocals": {
+            "outputFrames": [
+              100000,
+              100000
+            ],
+            "finite": true,
+            "maxAbs": 0.000008507282473146915,
+            "snrDb": 68.3672243258765
+          },
+          "accompaniment": {
+            "outputFrames": [
+              100000,
+              100000
+            ],
+            "finite": true,
+            "maxAbs": 0.000058244913816452026,
+            "snrDb": 88.59263313028086
+          },
+          "firstWindowFeeds": {
+            "spec_real": {
+              "maxAbs": 0.0000019073486328125,
+              "snrDb": 144.8513254961554
+            },
+            "spec_imag": {
+              "maxAbs": 0.0000019073486328125,
+              "snrDb": 144.57684531492862
+            },
+            "audio": {
+              "maxAbs": 4.76837158203125e-7,
+              "snrDb": 145.73757600383095
+            }
+          }
+        },
+        "segment": {
+          "frames": 343980,
+          "windows": 2,
+          "seconds": 2.649,
+          "vocals": {
+            "outputFrames": [
+              343980,
+              343980
+            ],
+            "finite": true,
+            "maxAbs": 0.00006342679262161255,
+            "snrDb": 96.28414521677813
+          },
+          "accompaniment": {
+            "outputFrames": [
+              343980,
+              343980
+            ],
+            "finite": true,
+            "maxAbs": 0.00006693601608276367,
+            "snrDb": 95.47488943569445
+          }
+        },
+        "long": {
+          "frames": 1323001,
+          "windows": 6,
+          "seconds": 8.24,
+          "vocals": {
+            "outputFrames": [
+              1323001,
+              1323001
+            ],
+            "finite": true,
+            "maxAbs": 0.00012587755918502808,
+            "snrDb": 92.11693091592991
+          },
+          "accompaniment": {
+            "outputFrames": [
+              1323001,
+              1323001
+            ],
+            "finite": true,
+            "maxAbs": 0.00009065866470336914,
+            "snrDb": 94.77353941086632
+          }
+        }
+      },
+      "done": true,
+      "pageErrors": []
+    }
+  }
+}
