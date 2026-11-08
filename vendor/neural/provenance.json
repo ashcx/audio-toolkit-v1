@@ -40,10 +40,6 @@
       "sha256": "ca319e9539cd0f1e291cf56074760121eaf39650f5dbf84b6e52c07f4b2944ec"
     },
     {
-      "file": "public/vendor/neural/scnet.int8.onnx",
-      "sha256": "3f049a0e4ce3c08264a6212a50445ba77f02a517cd4c6dc86cbe1ca130176d67"
-    },
-    {
       "file": "public/vendor/neural/ort-wasm-simd-threaded.mjs",
       "sha256": "30ed0b5cd1182ede931fea448afb567d4dc705ec957af09f108a2be5f770dac3"
     },

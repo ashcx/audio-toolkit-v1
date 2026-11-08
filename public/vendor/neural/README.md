@@ -2,7 +2,7 @@
 
 The application bundles pinned neural JavaScript from `vendor/neural/` into lazy worker chunks. This directory serves the unchanged model, ONNX WASM loaders/binaries and notices on the application's own origin. Source revision and exact hashes are in `vendor/neural/provenance.json`; every build checks them. GPU assets are included for capability-driven use, not a claim of verified physical-GPU support.
 
-The upstream record below describes the original AudioTools.dev packaging. Its whole-input worker is adapted to bounded windows here. The served model is13184191 bytes with the3f049 digest below; the separate copied model card also discusses another compact build, whose digest is not used by this application.
+The upstream record below describes the original AudioTools.dev packaging. This application replaces its model with `htdemucs_fp16.onnx` (HTDemucs v4, 85,034,606 bytes, SHA-256 `742a4f8594a48d6306da303b8b2dd8be2b54389b88557db034408b436effd775`, from huggingface.co/Ryan5453/unblend at revision `30b749fd691312b1e4b3f8fe79df0b51cde836cd`). The weights' license is unresolved: the file's metadata says `unlicensed`. It is bundled by the user's decision; see `THIRD_PARTY_LICENSES.md`. The app runs its own bounded Demucs windows and transforms instead of the bundle's whole-input separation.
 
 # Source separation runtime (Vocal Remover)
 
@@ -13,14 +13,12 @@ Used by `/vocal-remover/separate-worker.js`. Everything here runs in the browser
 | `neural.js` + chunks | [`@audio/neural-separate`](https://github.com/audiojs/neural) 0.7.0 and `@audio/neural-runtime` 0.2.0 (with `fourier-transform`, `@audio/resample-sinc`), bundled with esbuild; the `onnxruntime-web` 1.31.1 JS for the wasm and WebGPU backends is in the `ort.*` chunks | MIT (see `NOTICE-neural-separate` and the licence comments at the end of each file) |
 | `ort-wasm-simd-threaded.wasm`, `.mjs` | ONNX Runtime Web, CPU (WebAssembly) backend | MIT |
 | `ort-wasm-simd-threaded.asyncify.wasm`, `.mjs` | ONNX Runtime Web, WebGPU backend | MIT |
-| `scnet.int8.onnx` | SCNet, the separation model (13.2 MB). Weights: `scnet_checkpoint_musdb18.ckpt` from the release v.1.0.6 of [ZFTurbo/Music-Source-Separation-Training](https://github.com/ZFTurbo/Music-Source-Separation-Training) (MIT), trained on MUSDB18-HQ. Built with the package's own `scripts/export-scnet.py --model scnet --verify` (ONNX within 2e-6 of PyTorch) and `scripts/compact.py --model scnet` (int8 weights, the costliest 16 in float16, predicted 40 dB from float32). SHA-256 `3f049a0e4ce3c08264a6212a50445ba77f02a517cd4c6dc86cbe1ca130176d67`, checked by the worker before use | MIT |
+| `htdemucs_fp16.onnx` | HTDemucs v4, the separation model (85 MB), fp16 weights with fp32 compute. SHA-256 checked by the worker before use | Unresolved (metadata says unlicensed) |
 
 `ort.webgl.*` and `roformer-*` are chunks the bundle can import but the Vocal Remover never loads (other backends and models).
 
 The model is served from this site rather than Hugging Face so that it loads where Hugging Face is blocked and no third
-party sees the request. audiojs publishes its own compact build of the same checkpoint (`audiojs/scnet` on Hugging Face,
-12.9 MB) with the same scripts; the bytes differ because the calibration step chose a few different layers to keep in
-float16 on this machine.
+party sees the request.
 
 ## Rebuild
 
