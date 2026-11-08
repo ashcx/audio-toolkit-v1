@@ -1,6 +1,5 @@
 export type GpuSupport = { usable: true } | { usable: false; reason: string };
 
-/** A WebGPU adapter that is real hardware: not missing, not the browser's fallback adapter and not SwiftShader. */
 export async function usableGpu(): Promise<GpuSupport> {
   const gpu = "gpu" in navigator ? navigator.gpu : null;
   if (!gpu || typeof gpu !== "object" || !("requestAdapter" in gpu) || typeof gpu.requestAdapter !== "function") return { usable: false, reason: "This browser does not offer WebGPU." };

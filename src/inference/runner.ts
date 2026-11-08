@@ -3,7 +3,6 @@ import type { InferenceBackend, InferenceInput, InferenceResult } from "./protoc
 
 type Outcome = Extract<InferenceResult, { kind: "done" | "error" }>;
 
-/** One isolation job: one worker and model session kept for every window, WebGPU first and one sticky CPU fallback. */
 export class InferenceRunner {
   private retained: { worker: Worker; backend: InferenceInput["backend"] } | null = null;
   private backend: InferenceInput["backend"] = "auto";
