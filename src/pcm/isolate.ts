@@ -99,7 +99,7 @@ export async function* isolate(source: PcmStream, keep: IsolationMode, context: 
       context.event({ kind: "isolation-progress", completed: ++completed, total });
       return result.stems;
     }, windows);
-    const offset = sources.length * audio.mean;
+    const offset = keep === "music" ? audio.mean : 0;
     const restored = async function* () {
       for await (const block of separated) yield { ...block, planes: block.planes.map(plane => plane.map(value => value * audio.deviation + offset)) };
     };

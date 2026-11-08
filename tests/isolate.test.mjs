@@ -18,11 +18,19 @@ test('both modes reconstruct the reference and retain rate/frame/source-time gri
   const reference=await collect(source(frames,rate,channels));assert.equal(voice.length,frames);assert.equal(music.length,frames);
   if(channels===1){
    const mean=monoMean(reference),edge=rate===44100?0:Math.ceil(rate/1000);let error=0;
-   for(let i=edge;i<frames-edge;i++){error=Math.max(error,Math.abs(voice[i]-(.4*(reference[i]-mean)+mean)),Math.abs(music[i]-(.6*(reference[i]-mean)+3*mean)));}
-   assert(error<(rate===44100?1e-6:2e-4),`${rate} vocals and drums+bass+other are restored with Demucs's per-stem mean ${error}`);
+   for(let i=edge;i<frames-edge;i++){error=Math.max(error,Math.abs(voice[i]-.4*(reference[i]-mean)),Math.abs(music[i]-(.6*(reference[i]-mean)+mean)));}
+   assert(error<(rate===44100?1e-6:2e-4),`${rate} vocals and drums+bass+other are restored with the source's DC carried once, by music ${error}`);
   }
   assert(voiceContext.released&&musicContext.released);assert.equal(voiceContext.stats.isolationPasses,1);assert.equal(voiceContext.stats.isolationLoads,voiceContext.stats.isolationWindows);
  }
+});
+test('voice plus music carries the input DC offset exactly once',async()=>{
+ const frames=44100,dc=.25,input=()=>(async function*(){for(let offset=0;offset<frames;offset+=127){const length=Math.min(127,frames-offset);yield{origin:.625,offset,rate:44100,planes:[Float32Array.from({length},(_,i)=>dc+.1*Math.sin((offset+i)*2*Math.PI*440/44100))]};}})();
+ const voice=await collect(isolate(input(),'voice',context())),music=await collect(isolate(input(),'music',context())),reference=await collect(input());
+ assert(Math.abs(monoMean(voice))<1e-3,'voice carries no DC of its own');
+ assert(Math.abs(monoMean(music)-dc)<1e-3,'music carries the source DC once');
+ let error=0;for(let i=0;i<frames;i++)error=Math.max(error,Math.abs(voice[i]+music[i]-reference[i]));
+ assert(error<1e-5,`voice+music rebuild the input including its DC ${error}`);
 });
 test('final grid correction can drop samples spanning a block boundary',async()=>{
  const samples=await collect(fitIsolationFrames(source(4097,192000),4095,.625,192000));assert.equal(samples.length,4095);
@@ -38,7 +46,7 @@ test('stereo isolation keeps every sample in place across long replay block boun
  function state(){const value=context();value.infer=async planes=>{await new Promise(resolve=>setTimeout(resolve,0));return stems(planes,.01);};return value;}
  const original=await collectStereo(source(frames,44100,2)),voice=await collectStereo(isolate(source(frames,44100,2),'voice',state())),music=await collectStereo(isolate(source(frames,44100,2),'music',state()));
  const mean=monoMean(Array.from(original[0],(value,index)=>(value+original[1][index])/2));
- for(let channel=0;channel<2;channel++)for(let index=0;index<frames;index++){const centered=original[channel][index]-mean;assert(Math.abs(voice[channel][index]-mean-.004*centered)<1e-7,`vocals channel ${channel}, frame ${index}`);assert(Math.abs(music[channel][index]-3*mean-.006*centered)<1e-7,`accompaniment channel ${channel}, frame ${index}`);}
+ for(let channel=0;channel<2;channel++)for(let index=0;index<frames;index++){const centered=original[channel][index]-mean;assert(Math.abs(voice[channel][index]-.004*centered)<1e-7,`vocals channel ${channel}, frame ${index}`);assert(Math.abs(music[channel][index]-mean-.006*centered)<1e-7,`accompaniment channel ${channel}, frame ${index}`);}
 });
 test('silent and single-frame inputs stay finite and report completed work',async()=>{
  for(const frames of [1,441])for(const keep of ['voice','music']){const state=context(),events=[];state.event=event=>events.push(event);const input=(async function*(){yield{origin:.625,offset:0,rate:44100,planes:[new Float32Array(frames)]};})();const output=await collect(isolate(input,keep,state));assert.equal(output.length,frames);assert(output.every(value=>value===0));assert.deepEqual(events.filter(event=>event.kind==='isolation-progress'),[{kind:'isolation-progress',completed:0,total:1},{kind:'isolation-progress',completed:1,total:1}]);assert(state.released);}
