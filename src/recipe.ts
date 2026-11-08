@@ -133,8 +133,7 @@ export const stepSchema = z
     }),
     z.strictObject({ id: stepId, kind: z.literal("resample"), rateHz: rate }),
     z.strictObject({ id: stepId, kind: z.literal("speech"), model: z.enum(["standard", "detailed"]) }),
-    // Not strict: a recipe written with an isolation `engine` choice still parses, and the key is dropped.
-    z.object({
+    z.strictObject({
       id: stepId,
       kind: z.literal("isolation"),
       keep: z.enum(["voice", "music"]),
