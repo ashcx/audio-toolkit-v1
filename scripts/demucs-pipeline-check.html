@@ -34,9 +34,12 @@ try{
   const windows=vocals.windows;calls=0;
   const accompaniment=await run(mix,'music',async window=>cache[calls++]);
   const reference=Object.fromEntries(await Promise.all(DEMUCS_MODEL.sources.map(async source=>[source,await planes(`reference/${name}.${source}.f32`,frames)])));
-  const referenceAccompaniment=[0,1].map(c=>Float32Array.from({length:frames},(_,i)=>reference.drums[c][i]+reference.bass[c][i]+reference.other[c][i]));
+  let mixMean=0;for(let i=0;i<frames;i++)mixMean+=(mix[0][i]+mix[1][i])/2;mixMean/=frames;
+  // The numpy reference adds the mix mean to every stem. The app adds it once, to Keep music only, so expect that.
+  const referenceVocals=reference.vocals.map(plane=>Float32Array.from(plane,value=>value-mixMean));
+  const referenceAccompaniment=[0,1].map(c=>Float32Array.from({length:frames},(_,i)=>reference.drums[c][i]+reference.bass[c][i]+reference.other[c][i]-2*mixMean));
   const record={frames,windows,seconds:Math.round(performance.now()-started)/1000,
-   vocals:{outputFrames:vocals.output.map(plane=>plane.length),finite:vocals.output.every(plane=>plane.every(Number.isFinite)),...compare(reference.vocals,vocals.output)},
+   vocals:{outputFrames:vocals.output.map(plane=>plane.length),finite:vocals.output.every(plane=>plane.every(Number.isFinite)),...compare(referenceVocals,vocals.output)},
    accompaniment:{outputFrames:accompaniment.output.map(plane=>plane.length),finite:accompaniment.output.every(plane=>plane.every(Number.isFinite)),...compare(referenceAccompaniment,accompaniment.output)}};
   if(tensorNames.includes(name)){
    const expected=Object.fromEntries(await Promise.all(['spec_real','spec_imag','audio'].map(async key=>[key,await flat(`tensors/${name}.${key}.f32`)])));
