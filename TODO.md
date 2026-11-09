@@ -1,5 +1,7 @@
 # Audio Toolkit TODO roadmap
 
+> **Sprint evidence removed from the tree.** The per-sprint evidence files that used to live under `docs/sprint-evidence/` are no longer tracked. They are recoverable from git history, for example `git show 918380b:docs/sprint-evidence/sprint-27/coverage.md` or `git ls-tree -r 918380b docs/sprint-evidence`. Plain-text paths and Sprint decisions in these planning documents still describe that history. Scripts that wrote evidence there now default to `.artifacts/evidence/`.
+
 ## Delivered refinement sprints
 
 [The refinement plan](todo/workspace-audio-refinement-sprints.md) authorizes Sprints 21–23. Sprints 24–26 have individual checklist files below. Merged means the PR landed; it does not by itself establish the sprint's listening, device or acceptance gates.
@@ -49,7 +51,7 @@ The user confirmed the public repository `ashcx/audio-toolkit-v1`. Production pa
 | [10](todo/sprint-10-preview-presets.md) | Test one file and reuse the result in the batch | 17 | [PR #11](https://github.com/ashcx/audio-toolkit-v1/pull/11) open; technical checks pass, independent technical review passed in Sprint11; device acceptance open |
 | [11](todo/sprint-11-downloads-limits.md) | Download retained results within measured limits | 18,19 | [PR #12](https://github.com/ashcx/audio-toolkit-v1/pull/12) open; technical checks/review pass; measured workload/device limits recorded |
 | [12](todo/sprint-12-release-readiness.md) | Verify the complete static audio product | 3,4,20,22,25,26,27 | [PR #13](https://github.com/ashcx/audio-toolkit-v1/pull/13) open; technical automation/review pass; physical/listening acceptance open |
-| [13](todo/sprint-13-speech-model-evaluation.md) | Compare speech cleanup models and browser processing paths | Speech cleanup | In progress; [CPU research checkpoint](docs/sprint-evidence/sprint-13/coverage.md), acceptance and dependent progression open |
+| [13](todo/sprint-13-speech-model-evaluation.md) | Compare speech cleanup models and browser processing paths | Speech cleanup | In progress; CPU research checkpoint, acceptance and dependent progression open |
 | [14](todo/sprint-14-speech-cleanup.md) | Add Standard and Detailed voice isolation to ordered recipes | Speech cleanup | [Draft PR16](https://github.com/ashcx/audio-toolkit-v1/pull/16), technical candidate reviewed; release/device/listening acceptance open |
 | [15](todo/sprint-15-speech-acceleration.md) | Assess and deliver proven speech-processing acceleration | Speech cleanup | [Draft PR17](https://github.com/ashcx/audio-toolkit-v1/pull/17), reviewed assessment retains CPU; accelerator/comparison gates unverified |
 | [16](todo/sprint-16-isolation-benchmark.md) | Compare music isolation models and processing paths | 13,19 | [Draft PR18](https://github.com/ashcx/audio-toolkit-v1/pull/18), reproducible Mac baseline reviewed; comparisons/quality gates open |
@@ -74,7 +76,7 @@ Read [orchestration](todo/orchestration-plan.md), [Scrum policy](todo/redesign-s
 
 ## Planning delivery
 
-Planning validation and independent review are in [planning evidence](docs/sprint-evidence/planning/validation.md). The decision trail is [decisions.tsv](docs/sprint-evidence/planning/decisions.tsv). Planning PR: [#1](https://github.com/ashcx/audio-toolkit-v1/pull/1). This PR is separate from all future implementation sprint PRs.
+Planning validation and independent review are in planning evidence. The decision trail is decisions.tsv. Planning PR: [#1](https://github.com/ashcx/audio-toolkit-v1/pull/1). This PR is separate from all future implementation sprint PRs.
 
 ## 2026-10-31 UI redesign
 

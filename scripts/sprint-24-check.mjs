@@ -4,7 +4,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
 
 const appUrl = process.env.APP_URL ?? 'http://127.0.0.1:5181/audio-toolkit-v1/';
-const root = 'docs/sprint-evidence/sprint-24';
+const root = '.artifacts/evidence/sprint-24';
 await mkdir(`${root}/captures`, { recursive: true });
 const browser = await chromium.launch({ channel: 'chrome' });
 const errors = [];

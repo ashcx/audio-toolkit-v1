@@ -47,8 +47,8 @@ Changes to the image compressor, external hub, deployment, or audio-processing s
 
 2026-10-30: Planned at the user's request. No implementation, verification, review, or PR is claimed.
 
-2026-10-30: User explicitly resumed18–20. Main instance implemented/verified sequential parameter, ordering and trim stories.67 normal tests, build/static and migrated driver syntax pass. Actual Chrome output grids/peaks and desktop/mobile input evidence are in [coverage](../docs/sprint-evidence/sprint-19/coverage.md). Independent review found invalid range display, unrelated-pointer cleanup, invalid slider aria text and zero-length handle ranges; parent reproduced and corrected each. Physical touch/screen-reader and full standalone matrix remain open.
+2026-10-30: User explicitly resumed18–20. Main instance implemented/verified sequential parameter, ordering and trim stories.67 normal tests, build/static and migrated driver syntax pass. Actual Chrome output grids/peaks and desktop/mobile input evidence are in coverage. Independent review found invalid range display, unrelated-pointer cleanup, invalid slider aria text and zero-length handle ranges; parent reproduced and corrected each. Physical touch/screen-reader and full standalone matrix remain open.
 
-2026-10-31: Final endpoint correction independently checked by Terra, including sub-ms ranges. [Interrogate](../docs/sprint-evidence/sprint-19/interrogate.md) records both panel rounds, fixes, dropped inherited-user-deletion finding and bounded technical verdict. All code work is sequential; no merge/deploy.
+2026-10-31: Final endpoint correction independently checked by Terra, including sub-ms ranges. Interrogate records both panel rounds, fixes, dropped inherited-user-deletion finding and bounded technical verdict. All code work is sequential; no merge/deploy.
 
 2026-10-31: Draft [PR21](https://github.com/ashcx/audio-toolkit-v1/pull/21) targets main with implementation1647def. No full acceptance/merge/deploy claim. Sprint20 technical work is independently eligible with the recorded gaps.

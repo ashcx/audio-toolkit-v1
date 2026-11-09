@@ -1,5 +1,7 @@
 # Media Toolkit audio planning
 
+> **Sprint evidence removed from the tree.** The per-sprint evidence files that used to live under `docs/sprint-evidence/` are no longer tracked. They are recoverable from git history, for example `git show 918380b:docs/sprint-evidence/sprint-27/coverage.md` or `git ls-tree -r 918380b docs/sprint-evidence`. Plain-text paths and Sprint decisions in these planning documents still describe that history. Scripts that wrote evidence there now default to `.artifacts/evidence/`.
+
 Recorded 2026-10-29. This directory contains historical delivery records and pending sprint plans. Read each file's status; historical planning statements do not describe the current implementation.
 
 - [TODO roadmap](../TODO.md) sequences the sprints.

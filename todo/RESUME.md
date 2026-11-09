@@ -23,7 +23,7 @@ User explicitly requested pause, save and PR because credits ran out. Do not con
 - One independent Terra high reviewer passed the integrated increment. Fresh dispatch hit the runtime thread limit, so the completed non-implementing reviewer was reused under poteto's explicit exception. No multi-model diversity claim.
 - Pages run40889990911 succeeded. Actual live Chromium MP3/AAC/Opus exports downloaded and passed FFprobe inspection. HTTP200 and matching asset index-D8mAmIJf.js. Later closure push changes evidence only.
 - Source and runtime provenance for the AAC fallback is reproducible and hash checked. Final transitive licensing audit remains Sprint12.
-- [Sprint7 coverage](../docs/sprint-evidence/sprint-7/coverage.md), [review](../docs/sprint-evidence/sprint-7/interrogate.md), [live smoke](../docs/sprint-evidence/sprint-7/live-smoke.json) and [decision trail](../docs/sprint-evidence/decisions.tsv) are durable evidence.
+- Sprint7 coverage, review, live smoke and decision trail are durable evidence.
 
 ## First action after resume
 
