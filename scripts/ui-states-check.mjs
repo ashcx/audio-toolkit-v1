@@ -401,6 +401,14 @@ async function runConfig(browser, config) {
     await page.getByText(message).first().waitFor();
     const text = await shoot('failure-mp3-bitrate');
     check(`${config.name}/failure-mp3-bitrate shows the message once`, text.split(message).length - 1 === 1, `${text.split(message).length - 1} times`);
+    await format(page, 'm4a');
+    await addStep(page, 'channels');
+    await page.getByRole('radio', { name: copy.channels.options.mono }).check();
+    await page.getByRole('combobox', { name: copy.export.bitrateLabel, exact: true }).selectOption('256');
+    const aac = copy.errors['aac-bitrate'].message;
+    await page.getByText(aac).first().waitFor();
+    const aacText = await shoot('failure-aac-bitrate');
+    check(`${config.name}/failure-aac-bitrate shows the message once`, aacText.split(aac).length - 1 === 1, `${aacText.split(aac).length - 1} times`);
   }, { expectsConsoleErrors: true });
 
   await scenario('failures-model-blocked', async ({ page, shoot, blocked }) => {
