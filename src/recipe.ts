@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { copy } from "./copy.ts";
 import type { AudioMetadata, FileEntry, FileId } from "./media";
 
 const sourceSeconds = z
@@ -212,24 +213,8 @@ export type StepKind = StepDraft["kind"];
 export type TrimRangeDraft = z.input<typeof trimRangeSchema>;
 export type ExportDraft = z.input<typeof exportSchema>;
 export type ExportFormat = ExportDraft["format"];
-export const STEP_NAMES = {
-  trim: "Trim all",
-  gain: "Gain",
-  normalize: "Normalize",
-  compress: "Reduce loud/quiet differences",
-  channels: "Channels",
-  resample: "Sample rate",
-  isolation: "Voice / music",
-  speech: "Voice isolation",
-} satisfies Record<StepKind, string>;
-export const FORMAT_NAMES = {
-  mp3: "MP3",
-  m4a: "M4A · AAC",
-  wav: "WAV",
-  flac: "FLAC",
-  opus: "OGG · Opus",
-  original: "Direct stream copy",
-} satisfies Record<ExportFormat, string>;
+export const STEP_NAMES: Readonly<Record<StepKind, string>> = copy.steps.names;
+export const FORMAT_NAMES: Readonly<Record<ExportFormat, string>> = copy.export.formats;
 export function isStepKind(value: string): value is StepKind {
   return Object.hasOwn(STEP_NAMES, value);
 }

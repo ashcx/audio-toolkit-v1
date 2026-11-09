@@ -625,7 +625,6 @@ export function ExportEditor({value,onChange,disabled,children}: {
   const format = value.export.format;
   const modes = encodingModesFor(format);
   const mode = "mode" in value.export ? value.export.mode ?? defaultEncodingMode(format) : defaultEncodingMode(format);
-  const modeDescription = modes.find(option => option.value === mode)?.description;
   const bitrates =
     format === "mp3"
       ? [128, 192, 256, 320]
@@ -694,7 +693,6 @@ export function ExportEditor({value,onChange,disabled,children}: {
         </div>
       </fieldset>
       {format === "original" && <p class="panel-description">Preserves the encoded audio without re-encoding. Effects and accurate trims need an encoded format.</p>}
-      {modeDescription && format !== "original" && <p class="panel-description">{modeDescription}</p>}
       {children}
     </section>
   );

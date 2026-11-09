@@ -72,7 +72,7 @@ test('the loudness rail is monotonic, preserves every 0.5 LUFS step and exposes 
  const values=LOUDNESS_MARKS.map(mark=>mark.value);
  for(const value of [-23,-16,-14,-9.5,-8])assert(values.includes(value),`missing mark ${value}`);
  assert.deepEqual(LOUDNESS_MARKS.filter(mark=>mark.kind==='delivery').map(mark=>mark.value),[-23]);
- assert.equal(LOUDNESS_MARKS.find(mark=>mark.value===-16).label,'Podcast reference');
+ assert.equal(LOUDNESS_MARKS.find(mark=>mark.value===-16).label,'Podcast');
 });
 test('the loudness rail magnetises near a mark without trapping the pointer',()=>{
  const fourteen=positionForLufs(-14);

@@ -1,3 +1,4 @@
+import { copy } from "./copy.ts";
 export const LOUDNESS_MIN = -30;
 export const LOUDNESS_MAX = -8;
 export const LOUDNESS_STEP = 0.5;
@@ -7,11 +8,11 @@ export type LoudnessMark = Readonly<{
   kind: "delivery" | "playback" | "limit";
 }>;
 export const LOUDNESS_MARKS: readonly LoudnessMark[] = [
-  { value: -23, label: "EBU R 128 delivery", kind: "delivery" },
-  { value: -16, label: "Podcast reference", kind: "playback" },
-  { value: -14, label: "Streaming playback", kind: "playback" },
-  { value: -9.5, label: "Loud playback", kind: "playback" },
-  { value: -8, label: "Tool maximum", kind: "limit" },
+  { value: -23, label: copy.normalize.marks["-23"], kind: "delivery" },
+  { value: -16, label: copy.normalize.marks["-16"], kind: "playback" },
+  { value: -14, label: copy.normalize.marks["-14"], kind: "playback" },
+  { value: -9.5, label: copy.normalize.marks["-9.5"], kind: "playback" },
+  { value: -8, label: copy.normalize.marks["-8"], kind: "limit" },
 ];
 // The rail is deliberately denser around normal speech levels. These anchors
 // keep every 0.5 LUFS value reachable while giving the useful range more travel.

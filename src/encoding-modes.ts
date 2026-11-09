@@ -1,10 +1,10 @@
+import { copy } from "./copy.ts";
 import type { ExportFormat } from "./recipe.ts";
 
 export type EncodingMode = "cbr" | "vbr";
 export type EncodingModeOption = Readonly<{
   value: EncodingMode;
   label: string;
-  description: string;
 }>;
 
 // This table is the authority for visible modes. A shared library type does not
@@ -16,27 +16,23 @@ export const ENCODING_MODES = {
   mp3: [
     {
       value: "cbr",
-      label: "Constant bitrate (CBR)",
-      description: "Constant bitrate. This LAME path has no verified variable mode.",
+      label: copy.export.modes.cbr,
     },
   ],
   m4a: [
     {
       value: "vbr",
-      label: "Variable bitrate (VBR)",
-      description: "Variable bitrate. The AAC encoder adapts the bitrate to the content; the bitrate is a target, not a fixed size.",
+      label: copy.export.modes.vbr,
     },
   ],
   opus: [
     {
       value: "cbr",
-      label: "Constant bitrate (CBR)",
-      description: "Constant bitrate. Every packet uses the selected bitrate.",
+      label: copy.export.modes.cbr,
     },
     {
       value: "vbr",
-      label: "Variable bitrate (VBR)",
-      description: "Variable bitrate. Packet sizes vary; the bitrate is a target, not a fixed file size.",
+      label: copy.export.modes.vbr,
     },
   ],
 } as const satisfies Record<ExportFormat, readonly EncodingModeOption[]>;

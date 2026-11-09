@@ -19,11 +19,11 @@ test('Preview is shown only for a non-empty recipe without a current export',()=
  assert.equal(showsPreview(true,false),true);
  assert.equal(showsPreview(true,true),false);
 });
-test('export status reports processing and done as completed over total',()=>{
+test('export status names the running file out of the total and is silent otherwise',()=>{
  assert.equal(exportStatus([]),'');
- assert.equal(exportStatus([{state:{kind:'done'}}]),'1/1 done');
- assert.equal(exportStatus([{state:{kind:'running'}},{state:{kind:'waiting'}}]),'2/2 processing');
- assert.equal(exportStatus([{state:{kind:'done'}},{state:{kind:'running'}}]),'1/2 processing · 1/2 done');
- assert.equal(exportStatus([{state:{kind:'done'}},{state:{kind:'failed'}}]),'1/2 done · 1/2 failed');
- assert.equal(exportStatus([{state:{kind:'cancelled'}}]),'1/1 cancelled');
+ assert.equal(exportStatus([{state:{kind:'done'}}]),'');
+ assert.equal(exportStatus([{state:{kind:'running'}},{state:{kind:'waiting'}}]),'Exporting 1 of 2');
+ assert.equal(exportStatus([{state:{kind:'done'}},{state:{kind:'running'}}]),'Exporting 2 of 2');
+ assert.equal(exportStatus([{state:{kind:'done'}},{state:{kind:'failed'}}]),'');
+ assert.equal(exportStatus([{state:{kind:'cancelled'}},{state:{kind:'cancelling'}}]),'Exporting 2 of 2');
 });

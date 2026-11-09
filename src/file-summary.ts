@@ -1,4 +1,5 @@
 import type { BatchJob } from "./batch.ts";
+import { copy } from "./copy.ts";
 import { formatDuration, formatTime } from "./format.ts";
 import type { FileEntry } from "./media.ts";
 import type { EffectiveRecipe } from "./recipe.ts";
@@ -25,25 +26,18 @@ export function showsPreview(hasSteps: boolean, hasCurrentExport: boolean): bool
   return hasSteps && !hasCurrentExport;
 }
 
+/** Progress for a running export. Nothing once work has finished. */
 export function exportStatus(jobs: readonly Pick<BatchJob, "state">[]): string {
-  const total = jobs.length;
-  if (!total) return "";
-  let done = 0, active = 0, failed = 0, cancelled = 0, waiting = 0;
+  let finished = 0, running = 0;
   for (const job of jobs) {
     switch (job.state.kind) {
-      case "done": done++; break;
-      case "waiting": waiting++; break;
+      case "done":
+      case "failed":
+      case "cancelled": finished++; break;
+      case "waiting":
       case "running":
-      case "cancelling": active++; break;
-      case "failed": failed++; break;
-      case "cancelled": cancelled++; break;
+      case "cancelling": running++; break;
     }
   }
-  const parts: string[] = [];
-  const processing = active + waiting;
-  if (processing) parts.push(`${processing}/${total} processing`);
-  if (done) parts.push(`${done}/${total} done`);
-  if (failed) parts.push(`${failed}/${total} failed`);
-  if (cancelled) parts.push(`${cancelled}/${total} cancelled`);
-  return parts.join(" · ");
+  return running ? copy.export.exporting(Math.min(jobs.length, finished + 1), jobs.length) : "";
 }
