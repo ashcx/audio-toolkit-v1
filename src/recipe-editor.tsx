@@ -68,9 +68,10 @@ function DbControl({ label, value, min, max, unit = copy.units.db, errorId, warn
   onChange: (value: number) => void;
 }) {
   const sliderValue = Number.isFinite(value) ? Math.round(Math.max(min, Math.min(max, value)) * 10) / 10 : min;
+  const id = useId();
   return <div class="db-control">
-    <div class="parameter-heading"><span>{label}</span><output>{Number.isFinite(value) ? copy.number(value) : copy.unset} <small>{unit}</small></output></div>
-    <input type="range" min={min} max={max} step="0.1" aria-invalid={!!errorId} aria-describedby={errorId}
+    <div class="parameter-heading"><label for={id}>{label}</label><output>{Number.isFinite(value) ? copy.number(value) : copy.unset} <small>{unit}</small></output></div>
+    <input id={id} type="range" min={min} max={max} step="0.1" aria-invalid={!!errorId} aria-describedby={errorId}
       aria-label={copy.slider(label)} aria-valuetext={`${sliderValue} ${unit}`} value={sliderValue}
       onInput={event => onChange(event.currentTarget.valueAsNumber)} />
     <div class="parameter-scale"><span>{copy.number(min)} {unit}</span><span>{copy.number(max)} {unit}</span></div>
@@ -85,11 +86,22 @@ function Choices<T extends string>({ label, value, options, onChange }: {
     <label><input type="radio" name={name} value={option.value} checked={value === option.value}
       onChange={() => onChange(option.value)} />{option.label}</label>)}</fieldset>;
 }
+function CompressorAmount({ amount, onChange }: { amount: number; onChange: (amount: number) => void }) {
+  const id = useId();
+  return <div class="compressor-control">
+    <div class="parameter-heading"><label for={id}>{copy.compressor.amount}</label><output>{amount} <small>{copy.units.percent}</small></output></div>
+    <input id={id} type="range" min="0" max="100" step="1" value={amount}
+      aria-label={copy.compressor.amountLabel} aria-valuetext={`${amount}${copy.units.percent}`}
+      onInput={event => onChange(event.currentTarget.valueAsNumber)} />
+    <div class="parameter-scale"><span>{copy.compressor.gentle}</span><span>{copy.compressor.strong}</span></div>
+  </div>;
+}
 function LoudnessRail({ value, errorId, onChange }: {
   value: number; errorId?: string; onChange: (value: number) => void;
 }) {
   const rail = useRef<HTMLDivElement>(null);
   const marksId = useId();
+  const headingId = useId();
   const current = Number.isFinite(value)
     ? Math.max(LOUDNESS_MIN, Math.min(LOUDNESS_MAX, value))
     : -14;
@@ -100,13 +112,13 @@ function LoudnessRail({ value, errorId, onChange }: {
     return lufsFromPosition((clientX - box.left) / box.width);
   };
   return <div class="loudness-control">
-    <div class="parameter-heading"><span>{copy.normalize.loudnessTarget}</span><output>{copy.number(current)} <small>{copy.units.lufs}</small></output></div>
+    <div class="parameter-heading"><span id={headingId}>{copy.normalize.loudnessTarget}</span><output>{copy.number(current)} <small>{copy.units.lufs}</small></output></div>
     <div
       ref={rail}
       class="lufs-rail"
       role="slider"
       tabIndex={0}
-      aria-label={copy.normalize.loudnessTarget}
+      aria-labelledby={headingId}
       aria-orientation="horizontal"
       aria-valuemin={LOUDNESS_MIN}
       aria-valuemax={LOUDNESS_MAX}
@@ -231,13 +243,7 @@ function StepFields({
     }
     case "compress":
       return <>
-        <div class="compressor-control">
-          <div class="parameter-heading"><span>{copy.compressor.amount}</span><output>{step.amount} <small>{copy.units.percent}</small></output></div>
-          <input type="range" min="0" max="100" step="1" value={step.amount}
-            aria-label={copy.compressor.amountLabel} aria-valuetext={`${step.amount}${copy.units.percent}`}
-            onInput={event => onChange({ ...step, amount: event.currentTarget.valueAsNumber })} />
-          <div class="parameter-scale"><span>{copy.compressor.gentle}</span><span>{copy.compressor.strong}</span></div>
-        </div>
+        <CompressorAmount amount={step.amount} onChange={amount => onChange({ ...step, amount })} />
         <label class="field">
           {copy.compressor.preset}
           <select value={step.preset} onChange={event => {

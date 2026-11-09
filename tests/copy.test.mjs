@@ -152,3 +152,13 @@ test('the shared scanner flags every banned term and accepts the phrases the dec
     'The model download was damaged. Try again.', 'Try a normal window.', 'Couldn\'t free some storage.'])
     assert.deepEqual(bannedIn(good), [], good);
 });
+
+test('controls that name a step start with their visible label and stay distinct', () => {
+  const prefix = copy.trim.prefix;
+  const names = [copy.trim.startField(prefix), copy.trim.endField(prefix), copy.trim.startHandle(prefix), copy.trim.endHandle(prefix)];
+  assert.equal(new Set(names).size, 4);
+  assert(names[0].startsWith(copy.trim.start) && names[2].startsWith(copy.trim.start));
+  assert(names[1].startsWith(copy.trim.end) && names[3].startsWith(copy.trim.end));
+  assert.equal(copy.compressor.amountLabel, 'Amount, Compressor');
+  assert(copy.compressor.amountLabel.startsWith(copy.compressor.amount));
+});

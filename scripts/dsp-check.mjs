@@ -68,7 +68,7 @@ for(const [engine, browserType] of engines().filter(([name]) => selected.has(nam
     });
     async function setup(file, steps) {
       await page.goto(appUrl);
-      await page.getByLabel('Choose audio or video files').setInputFiles(file);
+      await page.locator('input[type=file]').setInputFiles(file);
       await page.locator('[data-inspection=ready]').waitFor();
       await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('wav');
       for(const [kind,value] of steps) {
@@ -78,8 +78,8 @@ for(const [engine, browserType] of engines().filter(([name]) => selected.has(nam
         if(kind==='channels')await page.getByRole('radio',{name:value==='mono'?'Mono':value==='stereo'?'Stereo':'Unchanged',exact:true}).check();
         if(kind==='resample')await page.getByRole('combobox',{name:'Sample rate',exact:true}).selectOption(String(value));
         if(kind==='trim') {
-          await page.getByLabel('Trim all start (time)').fill(String(value[0]));
-          await page.getByLabel('Trim all end (time)').fill(String(value[1]));
+          await page.getByLabel(copy.trim.startField(copy.trim.prefix),{exact:true}).fill(String(value[0]));
+          await page.getByLabel(copy.trim.endField(copy.trim.prefix),{exact:true}).fill(String(value[1]));
         }
       }
     }

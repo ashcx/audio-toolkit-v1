@@ -221,7 +221,6 @@ function App() {
                 type="file"
                 multiple
                 accept="audio/*,video/*,.mkv,.flac,.opus,.ogg,.m4a,.aac"
-                aria-label={copy.files.pickerLabel}
                 onChange={(event) => {
                   add(Array.from(event.currentTarget.files ?? []));
                   event.currentTarget.value = "";

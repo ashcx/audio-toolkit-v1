@@ -15,23 +15,23 @@ for(const [name,type] of engines()){
  try{
   const page=await browser.newPage({viewport:{width:1440,height:1100}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(appUrl);
-  await page.getByLabel('Choose audio or video files').setInputFiles(['one.wav','two.wav'].map(file=>({name:file,mimeType:'audio/wav',buffer:payload})));
+  await page.locator('input[type=file]').setInputFiles(['one.wav','two.wav'].map(file=>({name:file,mimeType:'audio/wav',buffer:payload})));
   await page.waitForFunction(()=>document.querySelectorAll('[data-inspection=ready]').length===2);
   const one=page.locator('.file-list li').filter({has:page.getByRole('button',{name:'Remove one.wav',exact:true})});
   const two=page.locator('.file-list li').filter({has:page.getByRole('button',{name:'Remove two.wav',exact:true})});
   await page.getByLabel('Add step',{exact:true}).selectOption('trim');
-  await page.getByLabel('Trim all start (time)').fill('0.25');await page.getByLabel('Trim all end (time)').fill('1.5');
+  await page.getByLabel(copy.trim.startField(copy.trim.prefix),{exact:true}).fill('0.25');await page.getByLabel(copy.trim.endField(copy.trim.prefix),{exact:true}).fill('1.5');
   assert.match(await one.innerText(),/00:0\d · 00:00 to 00:0\d/);
   assert.match(await two.innerText(),/00:0\d · 00:00 to 00:0\d/);
   assert.equal(await page.getByText(/Custom/).count(),0);
-  await page.getByLabel('Trim all end (time)').fill('10');
+  await page.getByLabel(copy.trim.endField(copy.trim.prefix),{exact:true}).fill('10');
   await page.waitForFunction(()=>[...document.querySelectorAll('.file-list li')].every(entry=>entry.textContent.includes('00:00 to 00:02')));
   // Clearing the end lets resolveTrim clamp per file, so a start past a 2 s file fails there.
-  await page.getByLabel('Trim all end (time)').fill('');
-  await page.getByLabel('Trim all start (time)').fill('3');
+  await page.getByLabel(copy.trim.endField(copy.trim.prefix),{exact:true}).fill('');
+  await page.getByLabel(copy.trim.startField(copy.trim.prefix),{exact:true}).fill('3');
   await one.getByText(copy.errors['trim-past-end'].message,{exact:true}).waitFor();
   await two.getByText(copy.errors['trim-past-end'].message,{exact:true}).waitFor();
-  await page.getByLabel('Trim all start (time)').fill('0.25');await page.getByLabel('Trim all end (time)').fill('1.5');
+  await page.getByLabel(copy.trim.startField(copy.trim.prefix),{exact:true}).fill('0.25');await page.getByLabel(copy.trim.endField(copy.trim.prefix),{exact:true}).fill('1.5');
   await page.getByLabel('Add step',{exact:true}).selectOption('gain');
   await setSlider(page,'Gain (dB) slider',-6);
   await page.getByLabel('Add step',{exact:true}).selectOption('normalize');
@@ -49,9 +49,9 @@ for(const [name,type] of engines()){
   const bitrate=page.getByLabel('Bitrate (kbps)');
   if(await bitrate.count())await bitrate.selectOption('96');
   await page.locator('[data-step-kind=trim] .step-toggle').click();
-  await page.getByLabel('Trim all end (time)').fill('0');
+  await page.getByLabel(copy.trim.endField(copy.trim.prefix),{exact:true}).fill('0');
   await page.getByRole('alert').filter({hasText:copy.errors['trim-order'].message}).waitFor();
-  await page.getByLabel('Trim all end (time)').fill('1.5');
+  await page.getByLabel(copy.trim.endField(copy.trim.prefix),{exact:true}).fill('1.5');
   await page.screenshot({path:`${root}/captures/${name}-desktop.png`,fullPage:true,animations:'disabled'});
   await page.setViewportSize({width:390,height:844});await setAppearance(page,'dark');await page.waitForFunction(()=>document.documentElement.dataset.theme==='dark');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.screenshot({path:`${root}/captures/${name}-mobile-dark.png`,fullPage:true,animations:'disabled'});

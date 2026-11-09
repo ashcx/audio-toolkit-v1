@@ -51,7 +51,7 @@ const axeResults = [];
 const NAME = 'tone.wav';
 const fixture = name => `${FIXTURES}/${name}`;
 
-const picker = page => page.getByLabel('Choose audio or video files');
+const picker = page => page.locator('input[type=file]');
 const addStep = (page, kind) => page.getByLabel('Add step', { exact: true }).selectOption(kind);
 const format = (page, value) => page.getByRole('combobox', { name: 'Format', exact: true }).selectOption(value);
 const exportButton = page => page.getByRole('button', { name: 'Export', exact: true });
@@ -86,6 +86,64 @@ const shownTimes = (page, message) => page.evaluate(needle => {
   return text.split(needle).length - 1;
 }, message);
 
+/**
+ * WCAG 2.5.3 Label in Name. Every visible control that has visible label text must have an accessible name
+ * that begins with that text, so that someone who says "Start" or reads "Amount" reaches the same control.
+ * Names come from Chrome's accessibility tree. A control whose label is its own text (a button) or an
+ * associated label element is compared. A control with no visible label of its own has nothing to match.
+ */
+async function labelInNameMismatches(page) {
+  const probes = await page.evaluate(() => {
+    const SKIP = 'select, input, textarea, output, audio, progress, [aria-hidden="true"], .sr-only';
+    const visibleText = root => {
+      const hidden = node => {
+        for (let element = node.parentElement; element && element !== root; element = element.parentElement) if (element.matches(SKIP)) return true;
+        return !node.parentElement.checkVisibility();
+      };
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+        acceptNode: node => hidden(node) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
+      });
+      let text = '';
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) text += ` ${node.textContent}`;
+      return text.replace(/\s+/g, ' ').trim();
+    };
+    const found = [];
+    const controls = document.querySelectorAll('button, summary, a[href], input:not([type=hidden]), select, textarea, [role=slider], [role=button]');
+    for (const element of controls) {
+      if (!element.checkVisibility() || element.closest('[aria-hidden="true"], .sr-only')) continue;
+      if (element.hasAttribute('aria-labelledby')) continue;
+      const isField = ['INPUT', 'SELECT', 'TEXTAREA'].includes(element.tagName) && !['button', 'submit', 'reset'].includes(element.type);
+      const visible = isField
+        ? [...(element.labels ?? [])].map(visibleText).join(' ').trim()
+        : visibleText(element);
+      if (!/[\p{L}\p{N}]/u.test(visible)) continue;
+      const index = found.length;
+      element.setAttribute('data-label-probe', String(index));
+      found.push({ index, visible, description: `${element.tagName.toLowerCase()}${element.type ? `[${element.type}]` : ''}` });
+    }
+    return found;
+  });
+  if (!probes.length) return { count: 0, mismatches: [] };
+  const session = await page.context().newCDPSession(page);
+  await session.send('Accessibility.enable');
+  const mismatches = [];
+  try {
+    const { root } = await session.send('DOM.getDocument', { depth: 0 });
+    for (const probe of probes) {
+      const { nodeId } = await session.send('DOM.querySelector', { nodeId: root.nodeId, selector: `[data-label-probe="${probe.index}"]` });
+      const { nodes } = await session.send('Accessibility.getPartialAXTree', { nodeId, fetchRelatives: false });
+      if (!nodes[0] || nodes[0].ignored) continue;
+      const name = String(nodes[0]?.name?.value ?? '');
+      const normal = value => value.toLowerCase().replace(/\s+/g, ' ').trim();
+      if (!normal(name).startsWith(normal(probe.visible))) mismatches.push(`${probe.description} "${name}" does not begin with "${probe.visible}"`);
+    }
+  } finally {
+    await session.detach().catch(() => {});
+    await page.evaluate(() => document.querySelectorAll('[data-label-probe]').forEach(element => element.removeAttribute('data-label-probe')));
+  }
+  return { count: probes.length, mismatches };
+}
+
 /** Settles the static-text scan, layout checks, screenshot and axe run for one state. */
 async function capture(page, config, scenario, state, { shot = true } = {}) {
   const label = `${config.name}/${state}`;
@@ -101,6 +159,8 @@ async function capture(page, config, scenario, state, { shot = true } = {}) {
     .filter(([, size]) => size < 12)
     .map(([element, size]) => `${element.tagName.toLowerCase()} ${size}px ${element.textContent.trim().slice(0, 24)}`));
   check(`type ${label} shows no readable text under 12px`, small.length === 0, small.slice(0, 4).join(', '));
+  const labels = await labelInNameMismatches(page);
+  check(`labels ${label} start every accessible name with the visible label (${labels.count} controls)`, labels.mismatches.length === 0, labels.mismatches.slice(0, 4).join('; '));
   if (shot) await page.screenshot({ path: `${OUT}/${config.name}/${state}.png`, fullPage: true, animations: 'disabled' }).catch(() => {});
   if (axeAvailable) await runAxe(page, config, label);
   return text;
@@ -390,8 +450,8 @@ async function runConfig(browser, config) {
   await scenario('failures-trim', async ({ page, shoot }) => {
     await load(page, fixture('tone.wav'));
     await addStep(page, 'trim');
-    const start = page.getByLabel(copy.trim.startField(copy.trim.prefix));
-    const end = page.getByLabel(copy.trim.endField(copy.trim.prefix));
+    const start = page.getByLabel(copy.trim.startField(copy.trim.prefix), { exact: true });
+    const end = page.getByLabel(copy.trim.endField(copy.trim.prefix), { exact: true });
     await start.fill('00:01.5');
     await end.fill('00:01');
     await page.getByText(copy.errors['trim-order'].message).first().waitFor();

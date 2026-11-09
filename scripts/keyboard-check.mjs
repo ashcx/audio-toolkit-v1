@@ -256,7 +256,7 @@ async function cancelWalk() {
   const { page, context } = await newPage();
   try {
     await page.route('**/htdemucs_fp16.onnx', async route => { await sleep(4000); await route.continue().catch(() => {}); });
-    await page.getByLabel('Choose audio or video files').setInputFiles(fixture('tone.wav'));
+    await page.locator('input[type=file]').setInputFiles(fixture('tone.wav'));
     await page.locator('[data-inspection=ready]').waitFor();
     await page.getByRole('combobox', { name: 'Format', exact: true }).selectOption('wav');
     await page.getByLabel('Add step', { exact: true }).focus();
@@ -281,7 +281,7 @@ async function announcements() {
   const { page, context } = await newPage();
   try {
     note('live regions are listed after an export of 3 files, with what each one said');
-    await page.getByLabel('Choose audio or video files').setInputFiles([long, long, long].map((path, index) => ({ name: `clip-${index + 1}.wav`, mimeType: 'audio/wav', buffer: readFileSync(path) })));
+    await page.locator('input[type=file]').setInputFiles([long, long, long].map((path, index) => ({ name: `clip-${index + 1}.wav`, mimeType: 'audio/wav', buffer: readFileSync(path) })));
     await page.waitForFunction(() => document.querySelectorAll('li[data-inspection=ready]').length === 3);
     await page.getByRole('combobox', { name: 'Format', exact: true }).selectOption('wav');
     await page.getByLabel('Add step', { exact: true }).selectOption('isolation');

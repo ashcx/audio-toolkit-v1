@@ -46,7 +46,7 @@ try{
   const source=`${outputs}/source-${rate}.wav`;
   await writeFile(source,wav(rate));
   await page.goto(appUrl);
-  await page.getByLabel('Choose audio or video files').setInputFiles(source);
+  await page.locator('input[type=file]').setInputFiles(source);
   await page.locator('[data-inspection=ready]').waitFor();
   await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('opus');
   assert(await page.getByRole('button',{name:'Export',exact:true}).isEnabled(),`${rate} Hz can be exported without a sample rate step`);

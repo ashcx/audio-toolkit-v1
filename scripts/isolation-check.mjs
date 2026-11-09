@@ -52,7 +52,7 @@ async function open(args){
 }
 async function setup(page,input,keep){
  await page.goto(app);
- await page.getByLabel('Choose audio or video files').setInputFiles(input);await page.locator('[data-inspection=ready]').waitFor();
+ await page.locator('input[type=file]').setInputFiles(input);await page.locator('[data-inspection=ready]').waitFor();
  await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('wav');
  await page.getByLabel('Add step',{exact:true}).selectOption('isolation');
  await page.getByRole('combobox',{name:'Keep',exact:true}).selectOption(keep);

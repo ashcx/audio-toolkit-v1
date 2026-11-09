@@ -44,7 +44,7 @@ for(const [engine,type]of engines()){
    if(original)prototype.createWritable=async function(...args){const writer=await original.apply(this,args),write=writer.write.bind(writer),truncate=writer.truncate.bind(writer);writer.write=async data=>{window.__maxWrite=Math.max(window.__maxWrite,data?.data?.byteLength??data?.byteLength??0);return write(data);};writer.truncate=async length=>{if(window.__failTruncate){window.__failTruncate=false;throw new DOMException('Full','QuotaExceededError');}return truncate(length);};return writer;};
   });
   async function setup({format,bitrate=128,rate=48000,channels=2,path=shortPath,mode='cbr'}){
-   await page.goto(appUrl);await page.getByLabel('Choose audio or video files').setInputFiles(path);await page.locator('[data-inspection=ready]').waitFor();
+   await page.goto(appUrl);await page.locator('input[type=file]').setInputFiles(path);await page.locator('[data-inspection=ready]').waitFor();
    await page.getByRole('combobox',{name:'Format',exact:true}).selectOption(format);
    if(format==='opus'){
     if(mode==='vbr'){

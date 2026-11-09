@@ -36,7 +36,7 @@ for(const [name,type] of engines()){
   await page.waitForFunction(()=>document.documentElement.dataset.theme==='dark');
   await page.reload();
   await page.waitForFunction(()=>document.documentElement.dataset.theme==='dark');
-  await page.getByLabel('Choose audio or video files').setInputFiles([{name:'very-long-recording-name-'.repeat(8)+'.wav',mimeType:'audio/wav',buffer:Buffer.alloc(128)},{name:'duplicate.wav',mimeType:'audio/wav',buffer:Buffer.alloc(64)}]);
+  await page.locator('input[type=file]').setInputFiles([{name:'very-long-recording-name-'.repeat(8)+'.wav',mimeType:'audio/wav',buffer:Buffer.alloc(128)},{name:'duplicate.wav',mimeType:'audio/wav',buffer:Buffer.alloc(64)}]);
   assert.equal(await page.getByRole('list',{name:'Selected files'}).locator('li').count(),2);
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Long names do not overflow');
   await page.getByRole('button',{name:'Remove duplicate.wav'}).focus();
@@ -44,7 +44,7 @@ for(const [name,type] of engines()){
   assert.equal(await page.getByRole('list',{name:'Selected files'}).locator('li').count(),1);
   await page.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')?.startsWith('Remove very-long-recording'));
   await page.keyboard.press('Enter');
-  await page.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='Choose audio or video files');
+  await page.waitForFunction(()=>document.activeElement?.matches('input[type=file]'));
   await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('flac');
   assert.equal(await page.getByRole('combobox',{name:'Format',exact:true}).inputValue(),'flac');
   assert.deepEqual(errors,[]);

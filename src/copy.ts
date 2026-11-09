@@ -143,10 +143,11 @@ export const copy = {
     to: "to",
     unknownDuration: "Duration unknown",
     setRange: "Set range",
-    startField: (prefix: string) => `${prefix} start (time)`,
-    endField: (prefix: string) => `${prefix} end (time)`,
-    startHandle: (prefix: string) => `${prefix} start handle`,
-    endHandle: (prefix: string) => `${prefix} end handle`,
+    /** Spoken names begin with the visible label, then say which step the control belongs to. */
+    startField: (prefix: string) => `${copy.trim.start}, ${prefix}`,
+    endField: (prefix: string) => `${copy.trim.end}, ${prefix}`,
+    startHandle: (prefix: string) => `${copy.trim.start} handle, ${prefix}`,
+    endHandle: (prefix: string) => `${copy.trim.end} handle, ${prefix}`,
     summary(range: Readonly<{ start: number | null; end: number | null }>) {
       const { start, end } = range;
       if ((start !== null && !Number.isFinite(start)) || (end !== null && !Number.isFinite(end))) return copy.trim.setRange;
@@ -215,7 +216,7 @@ export const copy = {
     amount: "Amount",
     gentle: "Gentle",
     strong: "Strong",
-    amountLabel: "Compression amount",
+    amountLabel: `Amount, ${STEP_NAMES.compress}`,
     preset: "Preset",
     presets: { speech: "Speech", music: "Music" },
     hint: "Turns loud parts down so quiet and loud parts sound more even.",
@@ -289,7 +290,6 @@ export const copy = {
     choose: "Choose files",
     add: "Add files",
     drop: "or drop audio or video",
-    pickerLabel: "Choose audio or video files",
     listLabel: "Selected files",
     inspecting: "Inspecting files.",
     inspected: "File inspection complete.",

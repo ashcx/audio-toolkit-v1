@@ -188,3 +188,17 @@ Was: "This bitrate is too high for this audio. Lower the bitrate."
 Now: "M4A can't be made from this audio at this bitrate. Choose another format."
 
 Why. The M4A bitrate menu offers 128, 192 and 256 kbps, and the export check rejects a bitrate above 6 times the sample rate times the channel count. For a 16 kHz mono file the limit is 96 kbps, so every choice fails and "Lower the bitrate" had nothing the person could do. For a mid-rate file such as 22.05 kHz mono the limit is 132 kbps and 128 works. The new sentence is true in both cases and points to the one step that always works, choosing another format. No new option was added.
+
+### 2026-11-09. Accessible names begin with the visible label
+
+WCAG 2.5.3 (Label in Name) says the spoken name of a control must start with the words a person sees on it, so voice control and screen readers agree. Four spoken names did not. The visible wording is unchanged.
+
+| Control | Was | Now |
+| --- | --- | --- |
+| Compressor slider (visible "Amount") | Compression amount | Amount, Compressor |
+| Trim start field (visible "Start") | Trim all start (time) | Start, Trim all |
+| Trim end field (visible "End") | Trim all end (time) | End, Trim all |
+| Trim start and end handles | Trim all start handle, Trim all end handle | Start handle, Trim all and End handle, Trim all |
+| File picker (visible "Add files or drop audio or video", or "Choose files or drop ..." when empty) | Choose audio or video files | No separate name. The visible text names it. |
+
+`scripts/ui-states-check.mjs` now checks every visible control in every state, so a new mismatch fails the run.

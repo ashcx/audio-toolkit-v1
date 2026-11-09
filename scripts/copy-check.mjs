@@ -77,7 +77,7 @@ for(const [name,type] of engines()){
    };
   });
   await page.goto(appUrl);
-  await page.getByLabel('Choose audio or video files').setInputFiles(files.map(file=>`tests/fixtures/${file}`));
+  await page.locator('input[type=file]').setInputFiles(files.map(file=>`tests/fixtures/${file}`));
   await page.waitForFunction(count=>document.querySelectorAll('li[data-inspection=ready]').length===count,files.length);
   await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('original');
   assert.equal(await page.locator('[data-inspection=ready]').count(),files.length);
@@ -119,7 +119,7 @@ for(const [name,type] of engines()){
   const touchDownload=page.waitForEvent('download');await page.locator('li[data-job-state=done] a[download]').first().tap();await touchDownload;
   for(const input of files)await page.getByRole('button',{name:`Remove ${input}`,exact:true}).click();
   await (await recipeAction(page,'Remove Gain')).click();
-  await page.getByLabel('Choose audio or video files').setInputFiles(['tests/fixtures/tone.wav','tests/fixtures/tone.wav']);
+  await page.locator('input[type=file]').setInputFiles(['tests/fixtures/tone.wav','tests/fixtures/tone.wav']);
   await page.waitForFunction(()=>document.querySelectorAll('li[data-inspection=ready]').length===2);
   await page.evaluate(()=>{window.__storageFails=true;});
   await page.getByRole('button',{name:'Export',exact:true}).tap();

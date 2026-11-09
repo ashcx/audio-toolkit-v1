@@ -46,7 +46,7 @@ async function exportOne({ format, bitrate, mode, fixture = fixtures.tone, captu
   await page.goto(appUrl);
   await page.waitForTimeout(400);
   const sourceName = fixture === 'tests/fixtures/video.mkv' ? 'video.mkv' : fixture.split('/').at(-1);
-  await page.getByLabel('Choose audio or video files').setInputFiles(fixture);
+  await page.locator('input[type=file]').setInputFiles(fixture);
   await page.waitForFunction(() => document.querySelector('[data-inspection=ready]'), null, { timeout: 30000 });
   await page.getByRole('combobox', { name: 'Format', exact: true }).selectOption(format);
   if (await page.getByRole('button', { name: /^Preview / }).count()) throw new Error(`${format}: Preview visible with an empty recipe`);

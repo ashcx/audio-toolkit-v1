@@ -57,7 +57,7 @@ for(const [engine,type] of engines()){
   });
   const page=await context.newPage(),errors=[];page.setDefaultTimeout(15000);page.setDefaultNavigationTimeout(15000);page.on('pageerror',error=>errors.push(error.message));
   async function setup(count=3,copy=false){
-   await page.goto(url);await page.getByLabel('Choose audio or video files').setInputFiles(Array.from({length:count},(_,i)=>({name:`clip-${i}.wav`,mimeType:'audio/wav',buffer:fixture})));
+   await page.goto(url);await page.locator('input[type=file]').setInputFiles(Array.from({length:count},(_,i)=>({name:`clip-${i}.wav`,mimeType:'audio/wav',buffer:fixture})));
    await page.waitForFunction(n=>document.querySelectorAll('[data-inspection=ready]').length===n,count);
    await page.getByRole('combobox',{name:'Format',exact:true}).selectOption(copy?'original':'wav');
    if(!copy){await page.getByLabel('Add step',{exact:true}).selectOption('gain');await setSlider(page,'Gain (dB) slider',-6);}
@@ -68,7 +68,7 @@ for(const [engine,type] of engines()){
   async function idle(){await page.getByRole('button',{name:'Export',exact:true}).waitFor();await page.waitForFunction(()=>!document.querySelector('.run-actions .primary').disabled);assert.equal(await page.evaluate(()=>window.__live),0);}
   async function clearAll(){while(await page.locator('[data-remove-file]').count())await page.locator('[data-remove-file]').first().click();await page.waitForFunction(async()=>{const d=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1',{create:true});for await(const f of d.values())return false;return true;});}
   async function download(i,label){const pending=page.waitForEvent('download');await row(i).locator('a[download]').click();const result=await pending;const path=`.artifacts/batch-inputs/${engine}-${label}.wav`;await result.saveAs(path);const probe=JSON.parse(execFileSync('ffprobe',['-v','error','-show_entries','stream=codec_name,duration','-of','json',path]));assert.equal(probe.streams[0].codec_name,'pcm_s16le');assert.equal(Number(probe.streams[0].duration),20);return path;}
-  await page.goto(url);await page.getByLabel('Choose audio or video files').setInputFiles(['tests/fixtures/tone.wav','tests/fixtures/tone.flac','tests/fixtures/video.mp4']);await page.waitForFunction(()=>document.querySelectorAll('[data-inspection=ready]').length===3);await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('mp3');await page.getByRole('button',{name:'Export',exact:true}).click();await page.waitForFunction(()=>document.querySelectorAll('[data-job-state=done]').length===3);await idle();const mixed=[];
+  await page.goto(url);await page.locator('input[type=file]').setInputFiles(['tests/fixtures/tone.wav','tests/fixtures/tone.flac','tests/fixtures/video.mp4']);await page.waitForFunction(()=>document.querySelectorAll('[data-inspection=ready]').length===3);await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('mp3');await page.getByRole('button',{name:'Export',exact:true}).click();await page.waitForFunction(()=>document.querySelectorAll('[data-job-state=done]').length===3);await idle();const mixed=[];
   for(let i=0;i<3;i++){
    const pending=page.waitForEvent('download');await row(i).locator('a[download]').click();const downloaded=await pending;const path=`.artifacts/batch-inputs/${engine}-mixed-${i}.mp3`;await downloaded.saveAs(path);const pcm=execFileSync('ffmpeg',['-v','error','-i',path,'-f','f32le','-'],{maxBuffer:8*1024*1024});assert.equal(pcm.byteLength,96000*2*4);mixed.push(downloaded.suggestedFilename());
   }

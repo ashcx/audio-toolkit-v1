@@ -22,7 +22,7 @@ for(const [name,type] of engines()){
   });
   await page.goto(appUrl);
   const names=[...manifest.fixtures.map(x=>x.name),'corrupt.wav'];
-  await page.getByLabel('Choose audio or video files').setInputFiles(names.map(file=>`tests/fixtures/${file}`));
+  await page.locator('input[type=file]').setInputFiles(names.map(file=>`tests/fixtures/${file}`));
   await page.waitForFunction(count=>document.querySelectorAll('.file-list li').length===count&&[...document.querySelectorAll('.file-list li')].every(row=>['ready','failed'].includes(row.dataset.inspection)),names.length);
   const rows=await page.locator('.file-list li').evaluateAll(elements=>elements.map(row=>({id:row.dataset.fileId,status:row.dataset.inspection,name:row.querySelector('.file-name').firstChild.textContent.trim(),text:row.textContent})));
   assert.equal(new Set(rows.map(row=>row.id)).size,names.length,'Each entry has stable unique identity');
@@ -62,7 +62,7 @@ for(const [name,type] of engines()){
     window.__readingObserver.observe(document.querySelector('.file-list'),{subtree:true,attributes:true,childList:true});
   });
   const payload=await readFile('tests/fixtures/tone.wav');
-  await page.getByLabel('Choose audio or video files').setInputFiles(Array.from({length:40},(_,i)=>({name:`stress-${i}.wav`,mimeType:'audio/wav',buffer:payload})));
+  await page.locator('input[type=file]').setInputFiles(Array.from({length:40},(_,i)=>({name:`stress-${i}.wav`,mimeType:'audio/wav',buffer:payload})));
   await setAppearance(page,'light');
   for(let i=0;i<5;i++)await page.getByRole('button',{name:`Remove stress-${i}.wav`,exact:true}).click();
   await page.waitForFunction(count=>document.querySelectorAll('.file-list li').length===count&&[...document.querySelectorAll('.file-list li')].every(row=>['ready','failed'].includes(row.dataset.inspection)),names.length+36);
