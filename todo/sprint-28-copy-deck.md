@@ -136,7 +136,7 @@ Each error shows once, where the user can act, and never shows raw browser or en
 | Loudness/peak mode contradictions, Each step needs a unique identity., File inspection is not complete. | Never shown (Export stays disabled until inspection finishes) | |
 | Opus needs 16, 24 or 48 kHz. Add a sample rate step. | Silent: the audio is resampled to a supported rate | |
 | At this sample rate, choose MP3 at 128 kbps or increase the sample rate. | MP3 at this sample rate supports up to 160 kbps. Lower the bitrate. | |
-| AAC bitrate is too high for this rate and channel count… | This bitrate is too high for this audio. Lower the bitrate. | |
+| AAC bitrate is too high for this rate and channel count… | M4A can't be made from this audio at this bitrate. Choose another format. | Changed 2026-11-09, see "Changes after approval". |
 | Processed WAV output must be smaller than 4 GB. | WAV files can't be larger than 4 GB. Choose another format or trim the audio. | |
 | Gain requires re-encoding. Choose another format. (and each other step) | Gain needs a format other than Keep original. Choose another format. | |
 | This codec has no supported stream-copy container… | This file can't be kept as it is. Choose another format. | |
@@ -180,3 +180,11 @@ GPU, CPU, model (except "the voice/music model" in the download and its error), 
 1. **Slow-path estimate.** Sprint 27 measured Demucs on WASM at about 81 s per 60 s of audio on one Apple M5 (`todo/HANDOFF-sprints-27-29.md`, PR 36). That is about 1.35 minutes per minute on a fast machine, so the shipped line says roughly 1½ minutes or more per minute of audio. Slower devices will take longer. Only that one device was timed.
 2. **Standard versus Detailed.** The Sprint 13 YouTube evaluation (commit 6d64371, `docs/sprint-evidence/sprint-13/chrome-youtube.json`, since removed from the tree) timed both models over 20 runs each on 20 s excerpts in Chrome. GTCRN averaged about 1.9 s and DeepFilterNet3 about 3.2 s, so "Detailed is slower" has a recorded basis. The timings are diagnostic and include decoding and start-up. No listening session or noise measurement backs "removes more noise" (the Sprint 14 gate for quality labels is still unchecked), so the shipped hint says Detailed is "more thorough on noisy recordings" and keeps the speed claim.
 
+## Changes after approval
+
+### 2026-11-09. M4A bitrate message
+
+Was: "This bitrate is too high for this audio. Lower the bitrate."
+Now: "M4A can't be made from this audio at this bitrate. Choose another format."
+
+Why. The M4A bitrate menu offers 128, 192 and 256 kbps, and the export check rejects a bitrate above 6 times the sample rate times the channel count. For a 16 kHz mono file the limit is 96 kbps, so every choice fails and "Lower the bitrate" had nothing the person could do. For a mid-rate file such as 22.05 kHz mono the limit is 132 kbps and 128 works. The new sentence is true in both cases and points to the one step that always works, choosing another format. No new option was added.

@@ -56,7 +56,7 @@ const ERRORS = {
   "compression-range": { message: "Compression amount must be between 0 and 100." },
   "number-invalid": { message: "Enter a number." },
   "mp3-bitrate": { message: "MP3 at this sample rate supports up to 160 kbps. Lower the bitrate." },
-  "aac-bitrate": { message: "This bitrate is too high for this audio. Lower the bitrate." },
+  "aac-bitrate": { message: "M4A can't be made from this audio at this bitrate. Choose another format." },
   "wav-too-large": { message: "WAV files can't be larger than 4 GB. Choose another format or trim the audio." },
   "copy-unsupported": { message: "This file can't be kept as it is. Choose another format." },
   "model-download-failed": {

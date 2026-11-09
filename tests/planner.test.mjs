@@ -73,8 +73,8 @@ test('MP3 and AAC keep their bitrate limits as plain messages',()=>{
  assert.equal(mp3.message,'MP3 at this sample rate supports up to 160 kbps. Lower the bitrate.');
  assert.equal(run(22050,2,'mp3',128).kind,'pcm');
  const aac=run(16000,1,'m4a',192);assert.equal(aac.kind,'failed');assert.equal(aac.code,'aac-bitrate');
- assert.equal(aac.message,'This bitrate is too high for this audio. Lower the bitrate.');
- assert.equal(run(16000,1,'m4a',128).kind,'failed');assert.equal(run(48000,2,'m4a',256).kind,'pcm');
+ assert.equal(aac.message,"M4A can't be made from this audio at this bitrate. Choose another format.");
+ const lowest=run(16000,1,'m4a',128);assert.equal(lowest.kind,'failed');assert.doesNotMatch(lowest.message,/lower/i);assert.equal(run(48000,2,'m4a',256).kind,'pcm');
 });
 test('a plan that cannot be exported says so in the catalogue wording',()=>{
  const wav=plan('pcm-s16',[],'wav',30000);assert.equal(wav.code,'wav-too-large');assert.equal(wav.message,"WAV files can't be larger than 4 GB. Choose another format or trim the audio.");
