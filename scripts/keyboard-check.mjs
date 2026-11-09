@@ -119,14 +119,13 @@ async function walk() {
   const { page, context } = await newPage();
   const everyStop = [];
   try {
-    // Reach and add a file with Space on the picker.
     const first = await tabTo(page, () => true, { max: 1, stops: everyStop });
     check('first Tab lands on the page title link', first?.tag === 'a', JSON.stringify(first));
     await tabTo(page, stop => stop.name === copy.settings.open, { stops: everyStop });
     await addFilesByKeyboard(page, [fixture('tone.wav'), fixture('tone.mp3')]);
     check('a file added from the keyboard is listed', await rows(page).count() === 2);
 
-    // Add a step by typing its first letter on the closed list. One letter adds one step, because the list adds on change.
+    // One letter adds one step, because the Add step list adds on change.
     const addStop = await tabTo(page, stop => stop.name === copy.steps.addStep && stop.tag === 'select', { back: false, stops: everyStop })
       ?? await tabTo(page, stop => stop.name === copy.steps.addStep && stop.tag === 'select', { back: true, stops: everyStop });
     check('keyboard reaches the Add step list', addStop !== null);
@@ -138,7 +137,6 @@ async function walk() {
     await page.keyboard.press('N');
     await page.waitForSelector('[data-step-kind=normalize]');
 
-    // Open and close a step with Enter. A new step opens itself, so close it first.
     const toggle = await tabTo(page, stop => stop.expanded !== null && stop.tag === 'button' && /Gain/.test(stop.name), { back: true, stops: everyStop })
       ?? await tabTo(page, stop => stop.expanded !== null && /Gain/.test(stop.name), { stops: everyStop });
     check('keyboard reaches a step button', toggle !== null, JSON.stringify(toggle));
@@ -151,7 +149,6 @@ async function walk() {
     if (after === 'false') await page.keyboard.press('Enter');
     check('the step is open for editing', await gainToggle.getAttribute('aria-expanded') === 'true');
 
-    // Change the slider with arrow keys.
     const slider = await tabTo(page, stop => stop.type === 'range', { stops: everyStop });
     check('keyboard reaches the Gain slider', slider !== null);
     const valueBefore = await page.locator('[data-step-kind=gain] input[type=range]').inputValue();
@@ -160,7 +157,6 @@ async function walk() {
     const valueAfter = await page.locator('[data-step-kind=gain] input[type=range]').inputValue();
     check('arrow keys change the slider and its summary', Number(valueAfter) > Number(valueBefore) && /\+0\.2 dB|\+0\.2/.test(await page.locator('[data-step-kind=gain] .step-toggle small').innerText()), `${valueBefore} -> ${valueAfter}`);
 
-    // Reorder with the grip.
     const orderOf = () => page.locator('[data-step-kind]').evaluateAll(nodes => nodes.map(node => node.dataset.stepKind));
     check('steps start in the order they were added', JSON.stringify(await orderOf()) === JSON.stringify(['gain', 'normalize']), JSON.stringify(await orderOf()));
     const grip = await tabTo(page, stop => stop.name === copy.steps.drag(copy.steps.names.normalize), { stops: everyStop })
@@ -172,7 +168,6 @@ async function walk() {
     const moved = await page.locator('.recipe-panel span[role=status]').innerText();
     check('a reorder is announced once in plain words', moved === copy.steps.moved(copy.steps.names.normalize, 1, 2), moved);
 
-    // Export from the keyboard.
     await page.getByRole('combobox', { name: 'Format', exact: true }).selectOption('wav');
     const exportStop = await tabTo(page, stop => stop.name === copy.export.exportButton && stop.tag === 'button', { stops: everyStop });
     check('keyboard reaches Export', exportStop !== null);
@@ -180,7 +175,6 @@ async function walk() {
     await page.waitForFunction(() => document.querySelectorAll('[data-job-state=done]').length === 2);
     check('Enter on Export finishes both files', true);
 
-    // Save menu opens with Enter and Escape returns focus to it.
     const menu = await tabTo(page, stop => stop.name === copy.delivery.saveToDevice, { back: true, stops: everyStop })
       ?? await tabTo(page, stop => stop.name === copy.delivery.saveToDevice, { stops: everyStop });
     check('keyboard reaches Save to device', menu !== null);
@@ -189,7 +183,6 @@ async function walk() {
     await page.keyboard.press('Escape');
     check('Escape closes the Save menu and keeps focus on its button', await page.evaluate(() => !document.querySelector('.delivery-menu').open && document.activeElement.tagName === 'SUMMARY'));
 
-    // Every control the page offers can be reached by Tab, and each shows a focus indicator.
     await page.evaluate(() => document.activeElement.blur());
     await page.evaluate(() => window.scrollTo(0, 0));
     const wanted = await page.evaluate(selector => [...document.querySelectorAll(selector)]
@@ -210,12 +203,10 @@ async function walk() {
     check(`every one of the ${visited.length} focus stops shows a visible focus indicator`, unmarked.length === 0, JSON.stringify(unmarked));
     const outside = visited.filter(stop => stop.inDialog);
     check('no focus stop is trapped in a closed dialog', outside.length === 0);
-    // Shift+Tab goes back through the same controls without a trap.
     const reversed = [];
     for (let step = 0; step < visited.length + 5; step++) { await page.keyboard.press('Shift+Tab'); const stop = await focused(page); if (stop) reversed.push(`${stop.tag} ${stop.name}`); }
     check('Shift+Tab walks back through the page without getting stuck', new Set(reversed).size >= Math.min(names.size, 10) - 2, `${new Set(reversed).size} distinct`);
 
-    // Settings opens, holds focus, and gives it back.
     const settings = await tabTo(page, stop => stop.name === copy.settings.open, { stops: everyStop })
       ?? await tabTo(page, stop => stop.name === copy.settings.open, { back: true, stops: everyStop });
     check('keyboard reaches Settings', settings !== null);
@@ -236,7 +227,6 @@ async function walk() {
     await page.keyboard.press('Enter');
     check('the Close button also returns focus to the Settings button', (await focused(page))?.name === copy.settings.open);
 
-    // Discard exports returns focus somewhere useful.
     await tabTo(page, stop => stop.name === copy.delivery.saveToDevice, { stops: everyStop });
     await page.keyboard.press('Enter');
     await tabTo(page, stop => stop.name === copy.delivery.discard);
@@ -246,7 +236,6 @@ async function walk() {
     const afterDiscard = await focused(page);
     check('after Discard exports focus lands on Export', afterDiscard?.name === copy.export.exportButton, JSON.stringify(afterDiscard));
 
-    // Remove a file with Enter.
     const remove = await tabTo(page, stop => stop.fileRemove !== null, { back: true, stops: everyStop })
       ?? await tabTo(page, stop => stop.fileRemove !== null, { stops: everyStop });
     check('keyboard reaches a file Remove button', remove !== null);

@@ -1,4 +1,6 @@
 import {chromium} from 'playwright';
+import {loadCopy} from './lib/harness.mjs';
+const copy=await loadCopy();
 import {createServer} from 'vite';
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
@@ -31,7 +33,7 @@ async function open(args){
  const browser=await chromium.launch({channel:'chrome',headless:true,args});record.chrome??=browser.version();
  const context=await browser.newContext({acceptDownloads:true,viewport:{width:1440,height:1000}});
  await context.addInitScript(()=>{
-  window.__stats=[];window.__downloads=[];window.__done=[];window.__devices=[];window.__activeModels=0;window.__maxModels=0;const Original=Worker;
+  window.__stats=[];window.__downloads=[];window.__done=[];window.__labels=new Set();window.__activeModels=0;window.__maxModels=0;const Original=Worker;
   window.Worker=new Proxy(Original,{construct(target,args){
    const worker=Reflect.construct(target,args),model=args[1]?.name==='audio-isolation';let stopped=false;
    if(model){window.__activeModels++;window.__maxModels=Math.max(window.__maxModels,window.__activeModels);const terminate=worker.terminate.bind(worker);worker.terminate=()=>{if(!stopped){stopped=true;window.__activeModels--;}return terminate();};}
@@ -41,7 +43,7 @@ async function open(args){
     if(model&&data.kind==='done')window.__done.push({backend:data.backend,gpuDispatches:data.gpuDispatches,stems:data.stems.length,channels:data.stems[0].length});
    });
    return worker;}});
-  setInterval(()=>{const label=document.querySelector('.device-badge')?.textContent;if(label&&window.__devices.at(-1)!==label)window.__devices.push(label);},20);
+  setInterval(()=>{for(const element of document.querySelectorAll('.file-result')){const text=element.innerText.replace(/\s+/g,' ').trim();if(text)window.__labels.add(text);}},20);
  });
  const page=await context.newPage(),errors=[],requests=[];page.setDefaultTimeout(600000);
  page.on('pageerror',error=>errors.push(error.message));page.on('request',request=>requests.push(request.url()));
@@ -59,8 +61,8 @@ async function setup(page,input,keep){
 async function stores(page){return page.evaluate(async()=>{const directory=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1',{create:true});let count=0;for await(const entry of directory.values())count++;return count;});}
 async function exportAndDownload(page,name,label,capture){
  await page.getByRole('button',{name:'Export',exact:true}).click();
- if(capture){await page.getByText(/Separating \d+ \/ \d+/).first().waitFor();await page.screenshot({path:`${evidence}/${capture}-running.png`,fullPage:true});}
- const link=page.getByRole('link',{name:/Download exported audio/});await link.waitFor();
+ if(capture){await page.getByText(/Separating voice and music, \d+%/).first().waitFor();await page.screenshot({path:`${evidence}/${capture}-running.png`,fullPage:true});}
+ const link=page.locator('li[data-job-state=done] a[download]');await link.waitFor();
  const pending=page.waitForEvent('download');await link.click();const download=await pending;const path=`${outputs}/${label}.wav`;await download.saveAs(path);
  if(capture)await page.screenshot({path:`${evidence}/${capture}-done.png`,fullPage:true});
  return path;
@@ -83,19 +85,21 @@ try{
    for(const keep of ['music','voice']){
     await setup(page,live,keep);
     if(keep==='music'){
-     await page.getByRole('button',{name:'Preview live.ogg',exact:true}).click();await page.getByRole('button',{name:'Close preview',exact:true}).waitFor();
+     await page.getByRole('button',{name:/^Preview .*live\.ogg$/}).click();await page.getByRole('button',{name:'Close preview',exact:true}).waitFor();
      assert.equal(await page.evaluate(()=>window.__stats.at(-1).isolationBackends.join()),'webgpu+wasm');assert.equal(await page.evaluate(()=>window.__stats.at(-1).isolationPasses),1);
      await page.screenshot({path:`${evidence}/app-gpu-preview.png`,fullPage:true});await page.getByRole('button',{name:'Close preview',exact:true}).click();
      pass('preview isolates the excerpt with Demucs on the GPU');await page.evaluate(()=>{window.__done.length=0;window.__downloads.length=0;});
-     const note=await page.locator('[data-isolation-device]').innerText();assert.match(note,/85 MB/);assert.doesNotMatch(note,/on the CPU/);pass('editor names the 85 MB first-use download and no CPU warning with a GPU',{note});}
+     const note=await page.locator('[data-isolation-device]').innerText();assert.equal(await page.locator('[data-isolation-device]').getAttribute('data-isolation-device'),'gpu');assert(!note.includes(copy.splitter.slowDevice),'no slow-device warning with a GPU');assert.equal(await page.locator('.device-badge').count(),0,'no device badge');pass('editor shows no slow-device warning and no badge with a GPU',{note});}
     const started=Date.now(),path=await exportAndDownload(page,'live.ogg',`gpu-${keep}`,keep==='music'?'app-gpu':null),elapsedMs=Date.now()-started;
     const output=verifyOutput(path,live,keep),stats=await page.evaluate(()=>window.__stats.at(-1)),done=await page.evaluate(()=>window.__done),downloads=await page.evaluate(()=>window.__downloads);
     const windows=Math.ceil(Math.round(output.inputSeconds*44100)/STRIDE);
     assert.equal(stats.isolationPasses,1);assert.equal(stats.isolationWindows,windows);assert.equal(stats.isolationLoads,1,'one model session per job');assert.equal(stats.maxIsolationFrames,SEGMENT);assert.deepEqual(stats.isolationBackends,['webgpu+wasm']);
     assert(done.length>=windows&&done.every(value=>value.stems===4&&value.gpuDispatches>0),'every window returns four stems and issued GPU work');
     assert(downloads.length>0&&downloads.at(-1).loaded===MODEL_BYTES&&downloads.every(event=>event.total===MODEL_BYTES),'model download progress reaches the verified size');
-    await page.getByText('Separated with Demucs on the GPU.',{exact:true}).waitFor();
-    assert.equal(await page.evaluate(()=>window.__devices.at(-1)),'GPU + CPU','badge shows GPU only after GPU work was observed');
+    assert.equal((await page.locator('.file-result').innerText()).trim(),copy.result.label,'a finished split says nothing more than its label');
+    const shown=await page.evaluate(()=>[...window.__labels]);assert(!shown.some(text=>/GPU|CPU|\d+\s*\/\s*\d+/.test(text)),`no device word or window counter, saw ${JSON.stringify(shown.filter(text=>/GPU|CPU|\d+\s*\/\s*\d+/.test(text)))}`);
+    assert.equal(await page.locator('.device-badge').count(),0,'no device badge');
+    await page.evaluate(()=>window.__labels.clear());
     assert.equal(await page.evaluate(()=>window.__activeModels),0,'model worker released after export');assert.equal(await page.evaluate(()=>window.__maxModels),1);
     record.runs.push({device:'gpu',keep,input:'live.ogg',elapsedMs,windows,output,stats,gpuDispatchesPerWindow:done.slice(-windows).map(value=>value.gpuDispatches)});
     pass(`GPU ${keep} export`,{elapsedMs,windows,seconds:output.seconds,rms:output.rms});
@@ -104,16 +108,16 @@ try{
    const truncated=Buffer.from((await readFile('public/vendor/neural/htdemucs_fp16.onnx')).subarray(0,1<<20));let served=false;
    await page.route('**/htdemucs_fp16.onnx',route=>{if(served)return route.continue();served=true;return route.fulfill({status:200,body:truncated});});
    await setup(page,tone,'voice');let kept=await stores(page);await page.getByRole('button',{name:'Export',exact:true}).click();
-   await page.getByText('The isolation model download is incomplete. Retry.',{exact:true}).waitFor();assert.equal(await stores(page),kept,'a failed export leaves no temporary files');
-   await page.getByRole('button',{name:'Retry tone.wav',exact:true}).click();await page.getByRole('link',{name:/Download exported audio/}).waitFor();await page.unroute('**/htdemucs_fp16.onnx');
+   await page.getByText(copy.errors['model-damaged'].message,{exact:true}).waitFor();assert.equal(await stores(page),kept,'a failed export leaves no temporary files');
+   await page.getByRole('button',{name:'Retry tone.wav',exact:true}).click();await page.locator('li[data-job-state=done] a[download]').waitFor();await page.unroute('**/htdemucs_fp16.onnx');
    pass('a short model download is refused before use and retry recovers');
    await setup(page,instrumental,'voice');kept=await stores(page);await page.getByRole('button',{name:'Export',exact:true}).click();
-   await page.getByText(/Separating 2 \/ \d+/).first().waitFor();await page.screenshot({path:`${evidence}/app-cancel-before.png`,fullPage:true});
+   await page.getByText(/Separating voice and music, ([2-9]\d|1\d\d)%/).first().waitFor();await page.screenshot({path:`${evidence}/app-cancel-before.png`,fullPage:true});
    const cancelAt=Date.now();await page.getByRole('button',{name:'Cancel instrumental.ogg',exact:true}).click();
    await page.getByText('Cancelled',{exact:true}).waitFor();const cancelMs=Date.now()-cancelAt;
    assert.equal(await page.evaluate(()=>window.__activeModels),0,'cancel terminates the model worker');
    await page.waitForFunction(async kept=>{const directory=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1',{create:true});let count=0;for await(const entry of directory.values())count++;return count===kept;},kept);
-   assert.equal(await page.getByRole('link',{name:/Download exported audio/}).count(),0);
+   assert.equal(await page.locator('li[data-job-state=done] a[download]').count(),0);
    await page.screenshot({path:`${evidence}/app-cancel-after.png`,fullPage:true});
    pass('cancel mid-separation stops the model worker and leaves no temporary files',{cancelMs});
    const longSeconds=Number(process.env.ISOLATION_LONG_SECONDS??0);
@@ -135,12 +139,13 @@ try{
   try{
    assert.equal(await page.evaluate(async()=>!!(await navigator.gpu?.requestAdapter().catch(()=>null))),false,'this launch has no WebGPU adapter');
    await setup(page,tone,'music');
-   const note=await page.locator('[data-isolation-device]').innerText();assert.match(note,/on the CPU, slower than real time/);assert.match(note,/85 MB/);
+   const note=await page.locator('[data-isolation-device]').innerText();assert.equal(await page.locator('[data-isolation-device]').getAttribute('data-isolation-device'),'cpu');assert(note.includes(copy.splitter.slowDevice),'the slow-device warning appears without a GPU');
    await page.screenshot({path:`${evidence}/app-cpu-editor.png`,fullPage:true});
    const started=Date.now(),path=await exportAndDownload(page,'tone.wav','cpu-music',null),elapsedMs=Date.now()-started,output=verifyOutput(path,tone,'cpu music');
    const stats=await page.evaluate(()=>window.__stats.at(-1));assert.deepEqual(stats.isolationBackends,['wasm']);
-   assert.deepEqual(await page.evaluate(()=>window.__devices),['CPU'],'device label is CPU throughout');
-   await page.getByText('Separated with Demucs on the CPU.',{exact:true}).waitFor();await page.screenshot({path:`${evidence}/app-cpu-done.png`,fullPage:true});
+   assert.equal(await page.locator('.device-badge').count(),0,'no device badge');
+   assert(!(await page.evaluate(()=>[...window.__labels])).some(text=>/GPU|CPU/.test(text)),'no device word while the split runs on the CPU');
+   assert.equal((await page.locator('.file-result').innerText()).trim(),copy.result.label);await page.screenshot({path:`${evidence}/app-cpu-done.png`,fullPage:true});
    assert.deepEqual(errors,[]);record.runs.push({device:'cpu',keep:'music',input:'tone.wav',elapsedMs,output,stats});
    pass('without WebGPU the editor warns, isolation runs on CPU and is labelled CPU',{elapsedMs,note});
   }finally{await browser.close();}

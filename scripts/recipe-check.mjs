@@ -1,12 +1,15 @@
 import {setAppearance,setSlider,recipeAction} from './browser-controls.mjs';
+import {engines,launchOptions} from './lib/engines.mjs';
+import {loadCopy} from './lib/harness.mjs';
 import assert from 'node:assert/strict';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {chromium,webkit} from 'playwright';
+const copy=await loadCopy();
 const appUrl=process.env.APP_URL??'http://127.0.0.1:4173/audio-toolkit-v1/';
 const root=process.env.RECIPE_EVIDENCE_DIR??'.artifacts/recipe-check';await mkdir(`${root}/captures`,{recursive:true});
 const payload=await readFile('tests/fixtures/tone.wav');
 const records=[];
-for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
+for(const [name,type] of engines()){
  if(process.env.RECIPE_CHECK_ENGINE&&process.env.RECIPE_CHECK_ENGINE!==name)continue;
  const browser=await type.launch(name==='chromium'?{channel:'chrome'}:{});
  try{
@@ -26,8 +29,8 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   // Clearing the end lets resolveTrim clamp per file, so a start past a 2 s file fails there.
   await page.getByLabel('Trim all end (time)').fill('');
   await page.getByLabel('Trim all start (time)').fill('3');
-  await one.getByText('Trim all starts at or after the file end.',{exact:true}).waitFor();
-  await two.getByText('Trim all starts at or after the file end.',{exact:true}).waitFor();
+  await one.getByText(copy.errors['trim-past-end'].message,{exact:true}).waitFor();
+  await two.getByText(copy.errors['trim-past-end'].message,{exact:true}).waitFor();
   await page.getByLabel('Trim all start (time)').fill('0.25');await page.getByLabel('Trim all end (time)').fill('1.5');
   await page.getByLabel('Add step',{exact:true}).selectOption('gain');
   await setSlider(page,'Gain (dB) slider',-6);
@@ -37,7 +40,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   await (await recipeAction(page,'Move Gain up')).focus();await page.keyboard.press('Enter');
   const order=async()=> (await page.locator('.recipe-step .step-title').allTextContents()).map(text=>text.replace(/[⌄⌃]/g,'').replace('Normalize peaks','Normalize'));
   assert.deepEqual(await order(),['Gain','Trim all','Normalize']);
-  await page.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='Gain settings');
+  await page.waitForFunction(()=>{const e=document.activeElement;return e?.classList.contains('step-toggle')&&e.closest('[data-step-kind]')?.dataset.stepKind==='gain';});
   const grip=await page.getByRole('button',{name:'Drag Gain',exact:true}).boundingBox();const target=await page.getByRole('article',{name:/^Normalize/}).boundingBox();assert(grip&&target);
   await page.mouse.move(grip.x+grip.width/2,grip.y+grip.height/2);await page.mouse.down();await page.mouse.move(target.x+target.width/2,target.y+target.height-2,{steps:8});await page.mouse.up();
   await page.waitForFunction(()=>document.querySelectorAll('.step-toggle>span')[2]?.textContent?.includes('Gain'));assert.deepEqual(await order(),['Trim all','Normalize','Gain']);
@@ -45,9 +48,9 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('opus');
   const bitrate=page.getByLabel('Bitrate (kbps)');
   if(await bitrate.count())await bitrate.selectOption('96');
-  await page.getByRole('button',{name:'Trim all settings',exact:true}).click();
+  await page.locator('[data-step-kind=trim] .step-toggle').click();
   await page.getByLabel('Trim all end (time)').fill('0');
-  await page.getByRole('alert').filter({hasText:'Trim all start must be before end.'}).waitFor();
+  await page.getByRole('alert').filter({hasText:copy.errors['trim-order'].message}).waitFor();
   await page.getByLabel('Trim all end (time)').fill('1.5');
   await page.screenshot({path:`${root}/captures/${name}-desktop.png`,fullPage:true,animations:'disabled'});
   await page.setViewportSize({width:390,height:844});await setAppearance(page,'dark');await page.waitForFunction(()=>document.documentElement.dataset.theme==='dark');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));

@@ -1,4 +1,6 @@
 import { recipeAction } from './browser-controls.mjs';
+import { loadCopy } from './lib/harness.mjs';
+const copy = await loadCopy();
 import assert from 'node:assert/strict';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
@@ -21,12 +23,23 @@ const capture = async (page, name, fullPage = false) => {
   await page.screenshot({ path, fullPage, animations: 'disabled', timeout: 60000 });
   observations.captures.push(path);
 };
+const watchStats = page => page.addInitScript(() => {
+  window.__stats = [];
+  const Original = window.Worker;
+  window.Worker = new Proxy(Original, { construct(target, args) {
+    const worker = Reflect.construct(target, args);
+    worker.addEventListener('message', event => { if (event.data?.kind === 'done' && event.data.stats) window.__stats.push(event.data.stats); });
+    return worker;
+  } });
+});
+const lastStats = page => page.evaluate(() => window.__stats.at(-1));
 const addStep = async (page, kind) => {
   await page.getByLabel('Add step', { exact: true }).selectOption(kind);
 };
 
 const page = await browser.newPage({ viewport: { width: 1440, height: 1100 } });
 page.on('pageerror', error => errors.push(error.message));
+await watchStats(page);
 await page.goto(appUrl);
 await page.getByRole('heading', { name: 'Audio Toolkit' }).waitFor();
 await page.getByLabel('Choose audio or video files').setInputFiles('tests/fixtures/tone.wav');
@@ -39,10 +52,11 @@ await rail.waitFor();
 assert.equal(await rail.getAttribute('aria-valuenow'), '-14');
 assert.equal(await page.getByRole('slider', { name: 'True-peak ceiling (dBTP) slider', exact: true }).inputValue(), '-0.3');
 const markText = await page.locator('.lufs-marks').innerText();
-for (const text of ['-23 LUFS', 'EBU R 128 delivery', '-16 LUFS', 'Podcast reference', '-14 LUFS', 'Streaming playback', '-9.5 LUFS', 'Loud playback', '-8 LUFS', 'Tool maximum'])
-  assert(markText.includes(text), `missing mark text ${text}`);
+for (const [value, label] of Object.entries(copy.normalize.marks))
+  assert(markText.includes(`${copy.normalize.markValue(Number(value))} ${label}`), `missing mark ${value} ${label}`);
+assert.equal(await page.locator('.lufs-mark-label').count(), Object.keys(copy.normalize.marks).length, 'only the short reference marks');
 assert((await page.locator('.lufs-mark-label.delivery').count()) === 1);
-await page.getByText('Only -23 LUFS is a formal delivery target here. Other marks are references, not platform guarantees.', { exact: true }).waitFor();
+await page.getByText(copy.normalize.loudnessExplainer, { exact: true }).waitFor();
 
 await rail.focus();
 await page.keyboard.press('ArrowRight');
@@ -60,7 +74,7 @@ await capture(page, '01-loudness-rail');
 await page.getByRole('radio', { name: 'Peak', exact: true }).check();
 assert.equal(await page.getByRole('slider', { name: 'Loudness target', exact: true }).count(), 0);
 await page.getByRole('slider', { name: 'Peak target (dBTP) slider', exact: true }).waitFor();
-await page.getByText('Peak mode aims at the requested true peak. The reported peak is this app\'s estimate, so another meter can read a little differently. The loudness target is not used.', { exact: true }).waitFor();
+await page.getByText(copy.normalize.peakExplainer, { exact: true }).waitFor();
 await capture(page, '02-peak-mode');
 
 await page.getByRole('radio', { name: 'Loudness', exact: true }).check();
@@ -72,35 +86,35 @@ for (let index = 0; index < 32; index++) await page.keyboard.press('ArrowRight')
 assert.equal(await rail.getAttribute('aria-valuenow'), '-14');
 
 await addStep(page, 'compress');
-assert.equal(await page.getByRole('article', { name: 'Reduce loud/quiet differences', exact: true }).count(), 1);
-assert.equal(await page.getByRole('checkbox', { name: 'Enable compressor', exact: true }).isChecked(), false);
+assert.equal(await page.getByRole('article', { name: copy.steps.names.compress, exact: true }).count(), 1);
+assert.equal(await page.getByRole('checkbox', { name: /Enable compressor/ }).count(), 0, 'a new Compressor is already on, with no enable switch');
 const amount = page.getByRole('slider', { name: 'Compression amount', exact: true });
 assert.equal(await amount.inputValue(), '50');
-await page.getByRole('checkbox', { name: 'Enable compressor', exact: true }).check();
 await setRange(page, 'Compression amount', 100);
 assert.equal(await amount.inputValue(), '100');
 await page.getByRole('combobox', { name: 'Preset', exact: true }).selectOption('speech');
-assert.equal(await page.getByText('Compressor before loudness normalization avoids downstream gain changes. Explicit step order is respected.', { exact: true }).count(), 1);
+await page.getByText(copy.compressor.hint, { exact: true }).waitFor();
 for (const name of ['Threshold', 'Ratio', 'Attack', 'Release', 'Makeup gain'])
   assert.equal(await page.getByRole('slider', { name: new RegExp(name, 'i') }).count(), 0, `unexpected ${name} control`);
 await capture(page, '03-compressor-controls');
 
-await (await recipeAction(page, 'Move Reduce loud/quiet differences up')).click();
-await page.waitForFunction(() => [...document.querySelectorAll('.recipe-step')].map(element => element.getAttribute('aria-label')).join('|') === 'Reduce loud/quiet differences|Normalize');
+await (await recipeAction(page, copy.steps.moveStepUp(copy.steps.names.compress))).click();
+await page.waitForFunction(() => [...document.querySelectorAll('.recipe-step')].map(element => element.getAttribute('aria-label')).join('|') === 'Compressor|Normalize');
 observations.order = await page.locator('.recipe-step').evaluateAll(elements => elements.map(element => element.getAttribute('aria-label')));
 
 await page.getByRole('button', { name: 'Preview tone.wav', exact: true }).click();
-const previewMessage = page.getByText(/Compressor reduced peaks by up to \d+\.\d dB in this excerpt\./);
-await previewMessage.waitFor({ timeout: 60000 });
-observations.preview = await previewMessage.innerText();
+await page.locator('[data-preview-state=ready]').waitFor({ timeout: 60000 });
+observations.preview = (await page.locator('.file-preview').innerText()).replace(/\s+/g, ' ');
 await capture(page, '04-preview-compressor');
 await page.getByRole('button', { name: 'Close preview', exact: true }).click();
 
 await page.getByRole('button', { name: 'Export', exact: true }).click();
-const downloadLink = page.getByRole('link', { name: /Download exported audio/ });
+const downloadLink = page.locator('li[data-job-state=done] a[download]');
 await downloadLink.waitFor({ timeout: 60000 });
-await page.getByText(/Loudness target reached\. Achieved -14\.\d LUFS\./).waitFor();
-await page.getByText(/Compressor max gain reduction \d+\.\d dB\./).waitFor();
+assert.equal((await page.locator('.file-result').innerText()).trim(), copy.result.label, 'a reached target says nothing');
+const reached = await lastStats(page);
+assert(Math.abs(reached.loudnessAchievedLufs - -14) < 0.2, `loudness target reached ${reached.loudnessAchievedLufs}`);
+assert(reached.compressorMaxGainReductionDb > 0, 'a Compressor added once changes the audio without a second click');
 const pendingDownload = page.waitForEvent('download');
 await downloadLink.click();
 const download = await pendingDownload;
@@ -125,6 +139,7 @@ const crest = (() => {
 
 const limited = await browser.newPage({ viewport: { width: 1440, height: 1100 } });
 limited.on('pageerror', error => errors.push(error.message));
+await watchStats(limited);
 await limited.goto(appUrl);
 await limited.getByRole('heading', { name: 'Audio Toolkit' }).waitFor();
 await limited.getByLabel('Choose audio or video files').setInputFiles({ name: 'crest.wav', mimeType: 'audio/wav', buffer: crest });
@@ -133,14 +148,15 @@ await addStep(limited, 'normalize');
 await setRange(limited, 'True-peak ceiling (dBTP) slider', -1);
 await limited.getByRole('combobox', { name: 'Format', exact: true }).selectOption('wav');
 await limited.getByRole('button', { name: 'Export', exact: true }).click();
-await limited.getByRole('link', { name: /Download exported audio/ }).waitFor({ timeout: 60000 });
-const limitedMessage = limited.getByText(/Peak ceiling limited loudness\. Achieved -?\d+\.\d LUFS at an estimated -?\d+\.\d dBTP\./);
+await limited.locator('li[data-job-state=done] a[download]').waitFor({ timeout: 60000 });
+const limitedMessage = limited.getByText(/^The peak ceiling kept this quieter than the target/);
 await limitedMessage.waitFor();
 observations.limited = await limitedMessage.innerText();
 await capture(limited, '06-ceiling-limited');
 
 const peak = await browser.newPage({ viewport: { width: 1440, height: 1100 } });
 peak.on('pageerror', error => errors.push(error.message));
+await watchStats(peak);
 await peak.goto(appUrl);
 await peak.getByRole('heading', { name: 'Audio Toolkit' }).waitFor();
 await peak.getByLabel('Choose audio or video files').setInputFiles('tests/fixtures/tone.wav');
@@ -150,16 +166,16 @@ await peak.getByRole('radio', { name: 'Peak', exact: true }).check();
 await setRange(peak, 'Peak target (dBTP) slider', 0);
 await peak.getByRole('combobox', { name: 'Format', exact: true }).selectOption('wav');
 await peak.getByRole('button', { name: 'Export', exact: true }).click();
-const peakLink = peak.getByRole('link', { name: /Download exported audio/ });
+const peakLink = peak.locator('li[data-job-state=done] a[download]');
 await peakLink.waitFor({ timeout: 60000 });
 await mkdir('.artifacts', { recursive: true });
 const [peakDownload] = await Promise.all([peak.waitForEvent('download'), peakLink.click()]);
 await peakDownload.saveAs('.artifacts/peak-0-target.wav');
 observations.exports.push('.artifacts/peak-0-target.wav');
-const peakMessage = peak.getByText(/Peak target applied at the Peak step\. Estimated true peak -?\d+\.\d dBTP against a 0\.0 dBTP target\./);
-await peakMessage.waitFor();
-observations.peakResult = await peakMessage.innerText();
-assert(observations.peakResult.includes('Estimated true peak 0.0 dBTP against a 0.0 dBTP target.'), `peak target must be reached exactly at its own meter: ${observations.peakResult}`);
+assert.equal((await peak.locator('.file-result').innerText()).trim(), copy.result.label, 'a reached peak target says nothing');
+const peakStats = await lastStats(peak);
+observations.peakResult = peakStats;
+assert(peakStats.peakTargetDbtp === 0 && Math.abs(peakStats.truePeakDbtp) < 0.05, `peak target must be reached exactly at its own meter: ${peakStats.truePeakDbtp}`);
 await capture(peak, '08-peak-result');
 
 const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
