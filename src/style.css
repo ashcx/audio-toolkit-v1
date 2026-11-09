@@ -225,7 +225,8 @@ input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border: 3px s
   .run-status { flex: 0 1 auto; }
   .run-actions-group { justify-content: flex-start; align-items: flex-start; margin-left: 0; }
   .delivery-options { position: static; margin-top: 6px; box-shadow: none; }
-  .workspace:has(.file-list) { padding-bottom: 56px; }
+  html:has(.file-list) { scroll-padding-bottom: 72px; }
+  .workspace:has(.file-list) { padding-bottom: 72px; }
   .workspace:has(.file-list) .run-actions-group .primary { position: fixed; z-index: 8; right: 12px; bottom: 12px; box-shadow: 0 6px 20px rgb(0 0 0 / .22); }
 }
 @media (max-width: 360px) {
