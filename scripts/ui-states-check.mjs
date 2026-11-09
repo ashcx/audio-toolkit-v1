@@ -77,6 +77,15 @@ const readText = () => {
   return parts.join('\n');
 };
 
+/** Counts how often a sighted person sees a message. The spoken-only live regions are left out on purpose. */
+const shownTimes = (page, message) => page.evaluate(needle => {
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let text = '';
+  for (let node = walker.nextNode(); node; node = walker.nextNode())
+    if (!node.parentElement.closest('.sr-only') && node.parentElement.checkVisibility()) text += `${node.textContent}\n`;
+  return text.split(needle).length - 1;
+}, message);
+
 /** Settles the static-text scan, layout checks, screenshot and axe run for one state. */
 async function capture(page, config, scenario, state, { shot = true } = {}) {
   const label = `${config.name}/${state}`;
@@ -319,7 +328,7 @@ async function runConfig(browser, config) {
     await exportButton(page).click();
     await waitDone(page, 1);
     const text = await shoot('success-with-note');
-    check(`${config.name}/success-with-note shows exactly one clipping note`, text.split(copy.result.clipped).length - 1 === 1);
+    check(`${config.name}/success-with-note shows exactly one clipping note`, await shownTimes(page, copy.result.clipped) === 1);
   });
 
   await scenario('delivery', async ({ page, shoot, floating }) => {
@@ -372,7 +381,7 @@ async function runConfig(browser, config) {
       await page.locator('li[data-inspection=failed]').waitFor();
       const text = await shoot(`failure-${code}`);
       const message = copy.errors[code].message;
-      check(`${config.name}/failure-${code} shows its catalogue message once`, text.split(message).length - 1 === 1, `${text.split(message).length - 1} times`);
+      check(`${config.name}/failure-${code} shows its catalogue message once`, await shownTimes(page, message) === 1, `${await shownTimes(page, message)} times`);
       check(`${config.name}/failure-${code} offers Remove`, await page.getByRole('button', { name: copy.files.removeLabel(file), exact: true }).count() === 1);
       await page.getByRole('button', { name: copy.files.removeLabel(file), exact: true }).click();
     }
@@ -409,7 +418,7 @@ async function runConfig(browser, config) {
     const message = copy.errors['mp3-bitrate'].message;
     await page.getByText(message).first().waitFor();
     const text = await shoot('failure-mp3-bitrate');
-    check(`${config.name}/failure-mp3-bitrate shows the message once`, text.split(message).length - 1 === 1, `${text.split(message).length - 1} times`);
+    check(`${config.name}/failure-mp3-bitrate shows the message once`, await shownTimes(page, message) === 1, `${await shownTimes(page, message)} times`);
     await format(page, 'm4a');
     await addStep(page, 'channels');
     await page.getByRole('radio', { name: copy.channels.options.mono }).check();
@@ -430,7 +439,7 @@ async function runConfig(browser, config) {
     await page.locator('[data-job-state=failed]').waitFor();
     const message = copy.errors['model-download-failed'].message;
     const text = await shoot('failure-model-blocked');
-    check(`${config.name}/failure-model-blocked shows the catalogue message once`, text.split(message).length - 1 === 1, `${text.split(message).length - 1} times`);
+    check(`${config.name}/failure-model-blocked shows the catalogue message once`, await shownTimes(page, message) === 1, `${await shownTimes(page, message)} times`);
     check(`${config.name}/failure-model-blocked offers Retry`, await page.locator('.file-result').getByRole('button', { name: copy.files.retryLabel(NAME), exact: true }).count() === 1);
     await page.unroute('**/htdemucs_fp16.onnx');
     blocked.value = false;
@@ -449,7 +458,7 @@ async function runConfig(browser, config) {
     await page.locator('[data-job-state=failed]').waitFor();
     const message = copy.errors['model-damaged'].message;
     const text = await shoot('failure-model-damaged');
-    check(`${config.name}/failure-model-damaged shows the catalogue message once`, text.split(message).length - 1 === 1, `${text.split(message).length - 1} times`);
+    check(`${config.name}/failure-model-damaged shows the catalogue message once`, await shownTimes(page, message) === 1, `${await shownTimes(page, message)} times`);
     check(`${config.name}/failure-model-damaged offers Retry`, await page.getByRole('button', { name: copy.files.retryLabel(NAME), exact: true }).count() === 1);
   }, { expectsConsoleErrors: true });
 
@@ -488,7 +497,7 @@ async function runConfig(browser, config) {
       await page.locator('[data-job-state=failed]').waitFor();
       const message = copy.errors[code].message;
       const text = await shoot(`failure-${code}`);
-      check(`${config.name}/failure-${code} shows the catalogue message once`, text.split(message).length - 1 === 1, JSON.stringify(await page.locator('[data-job-state=failed]').innerText()));
+      check(`${config.name}/failure-${code} shows the catalogue message once`, await shownTimes(page, message) === 1, JSON.stringify(await page.locator('[data-job-state=failed]').innerText()));
       const button = action === 'remove' ? copy.files.removeLabel(NAME) : copy.files.retryLabel(NAME);
       check(`${config.name}/failure-${code} offers ${copy.actions[action]}`, await page.locator('.file-result').getByRole('button', { name: button, exact: true }).count() === 1);
       if (action === 'retry') {
@@ -517,7 +526,7 @@ async function runConfig(browser, config) {
     await page.locator('[data-job-state=failed]').waitFor();
     const message = copy.errors['storage-full'].message;
     const text = await shoot('failure-storage-full');
-    check(`${config.name}/failure-storage-full shows the catalogue message once`, text.split(message).length - 1 === 1, JSON.stringify(await page.locator('[data-job-state=failed]').innerText()));
+    check(`${config.name}/failure-storage-full shows the catalogue message once`, await shownTimes(page, message) === 1, JSON.stringify(await page.locator('[data-job-state=failed]').innerText()));
     await page.getByRole('button', { name: copy.files.retryLabel(NAME), exact: true }).click();
     await waitDone(page, 1);
     check(`${config.name}/failure-storage-full recovers after Retry`, true);
