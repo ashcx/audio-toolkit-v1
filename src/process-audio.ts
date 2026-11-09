@@ -82,7 +82,10 @@ export function processAudio(
     };
     worker.onmessage = ({ data }: MessageEvent<WorkerResult>) => {
       if (settled) return;
-      if (data.kind === "isolation-progress") { isolating = data.completed < data.total;phase(data); }
+      if (data.kind === "isolation-progress") {
+        if (data.completed === 0) return;
+        isolating = data.completed < data.total;phase(data);
+      }
       else if (data.kind === "phase" || data.kind === "model-download") {
         if (isolating && data.kind === "phase" && (data.phase === "Processing" || data.phase === "Processing / encoding")) return;
         isolating = false;phase(data);
