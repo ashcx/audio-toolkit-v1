@@ -127,7 +127,7 @@ export function FileRow({
       <div class="file-actions">
         {previewVisible && entry.inspection.kind === "ready" &&
           <button type="button" disabled={previewDisabled || trimFailed !== null}
-            aria-label={copy.preview.buttonLabel(entry.file.name)} aria-describedby={errorId} onClick={onPreview}>{copy.preview.button(cutSeconds)}</button>}
+            aria-label={copy.preview.buttonLabel(entry.file.name, cutSeconds)} aria-describedby={errorId} onClick={onPreview}>{copy.preview.button(cutSeconds)}</button>}
         {exported?.kind === "done" &&
           <a class="icon-button download-button" href={exported.url} download={exported.output.name}
             aria-label={downloadLabel} title={`${downloadLabel} (${exported.output.name})`}>

@@ -4,6 +4,7 @@ import { stepSummary } from '../src/step-summary.ts';
 import { newStep, resolveTrim } from '../src/recipe.ts';
 import { fileMetadata, trimErrorOwner } from '../src/file-summary.ts';
 import { createFileId } from '../src/media.ts';
+import { copy } from '../src/copy.ts';
 
 const MINUS = '−';
 const step = (kind, changes = {}) => ({ ...newStep(kind), ...changes });
@@ -61,4 +62,12 @@ test('a bad trim range is owned by the step, except one that only fails against 
 test('file metadata names the kept range from a trim that has no end', () => {
   const entry = { id: createFileId(), file: new File(['x'], 'a.wav'), inspection: { kind: 'ready', metadata: { duration: null, startTime: 0 } } };
   assert.deepEqual(fileMetadata(entry, { start: 10, end: null, duration: null }), { primary: 'Duration unknown', secondary: '00:10 to End' });
+});
+
+test('the spoken name of a step button contains the title and summary a person sees', () => {
+  for (const kind of Object.keys(copy.steps.names)) {
+    const visible = `${copy.steps.names[kind]} ${stepSummary(step(kind))}`;
+    assert(copy.steps.settings(copy.steps.names[kind], stepSummary(step(kind)), null).startsWith(visible), kind);
+    assert(copy.steps.settings(copy.steps.names[kind], stepSummary(step(kind)), 2).includes(visible), `${kind} repeated`);
+  }
 });

@@ -5,18 +5,13 @@ import { STEP_NAMES, FORMAT_NAMES, isStepKind, isExportFormat } from '../src/rec
 import { ENCODING_MODES } from '../src/encoding-modes.ts';
 import { LOUDNESS_MARKS } from '../src/loudness-rail.ts';
 import { ERROR_CODES } from '../src/errors.ts';
+import { BANNED, bannedIn, visible } from './support/banned-terms.mjs';
 
-const BANNED = [/\bGPU\b/i, /\bCPU\b/i, /\bcodecs?\b/i, /\bstream\b/i, /\bcleanup\b/i, /\btemporary\b/i, /\bidentity\b/i,
-  /\bbackpressure\b/i, /\bisolation\b/i, /re-encoding/i, /Failed to fetch/i, /Error:/, /\bmodel\b/i, /\bwindow\b/i];
-// The deck allows these exact phrases: the download label and its errors name "the voice/music model",
-// "Keep original (no re-encoding)" is the decided export name, and "a normal window" is a browser window.
-const ALLOWED = [/voice\/music model/g, /Downloading model/g, /The model download was damaged/g, /no re-encoding/g, /a normal window/g];
 function strings(value, out = []) {
   if (typeof value === 'string') out.push(value);
   else if (value && typeof value === 'object') for (const entry of Object.values(value)) strings(entry, out);
   return out;
 }
-function visible(text) { return ALLOWED.reduce((rest, pattern) => rest.replace(pattern, ''), text); }
 
 test('step and format names match the approved deck and drive the recipe tables', () => {
   assert.deepEqual({ ...STEP_NAMES }, {
@@ -47,7 +42,7 @@ test('loudness marks use the short deck labels', () => {
 test('no copy string or formatter output contains a banned term', () => {
   const samples = [
     ...strings(copy),
-    copy.steps.moved('Gain', 2, 3), copy.steps.settings('Gain'), copy.trim.summary({ start: 10, end: 90 }), copy.trim.summary({ start: null, end: null }),
+    copy.steps.moved('Gain', 2, 3), copy.steps.settings('Gain', '+3 dB', null), copy.steps.settings('Gain', '+3 dB', 2), copy.trim.summary({ start: 10, end: 90 }), copy.trim.summary({ start: null, end: null }),
     copy.gain.summary(3), copy.gain.summary(-3), copy.normalize.summary({ mode: 'loudness', targetLufs: -14, ceilingDbtp: -0.3 }),
     copy.normalize.summary({ mode: 'peak', targetDbtp: -1 }), copy.compressor.summary({ preset: 'speech', amount: 50 }),
     copy.delivery.folderResult({ saved: 3, failed: 1, folder: 'Music/Out', cancelled: false }),
@@ -116,6 +111,9 @@ test('the preview names its length only when it is shorter than the selection', 
   assert.equal(copy.preview.button(null), 'Preview');
   assert.equal(copy.preview.heading(15), 'First 15 seconds, before and after');
   assert.equal(copy.preview.heading(null), 'Before and after');
+  assert.equal(copy.preview.buttonLabel('a.wav', 15), 'Preview 15 s of a.wav');
+  assert.equal(copy.preview.buttonLabel('a.wav', null), 'Preview a.wav');
+  for (const seconds of [15, null]) assert(copy.preview.buttonLabel('a.wav', seconds).includes(copy.preview.button(seconds)), 'the spoken name contains the visible text');
 });
 
 test('export status, folder results and Keep original notes match the deck', () => {
@@ -129,4 +127,13 @@ test('export status, folder results and Keep original notes match the deck', () 
 
 test('every error code appears in the catalogue and the catalogue has no extra codes', () => {
   assert.deepEqual(Object.keys(copy.errors).sort(), [...ERROR_CODES].sort());
+});
+
+test('the shared scanner flags every banned term and accepts the phrases the deck allows', () => {
+  for (const bad of ['Trying GPU', 'on the CPU', 'Unsupported audio codec', 'Failed to fetch', 'Error: boom', 'Separated with Demucs',
+    'GTCRN', 'DeepFilterNet3', 'LAME path', 'AAC encoder', 'Temporary output', 'Cleanup failed', 'Keep going without re-encoding'])
+    assert.notDeepEqual(bannedIn(bad), [], bad);
+  for (const good of ['Keep original (no re-encoding)', 'Downloading model, 12 of 85 MB', 'Couldn\'t download the voice/music model. Check your connection and try again.',
+    'The model download was damaged. Try again.', 'Try a normal window.', 'Couldn\'t free some storage.'])
+    assert.deepEqual(bannedIn(good), [], good);
 });

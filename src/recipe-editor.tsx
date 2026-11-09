@@ -425,6 +425,7 @@ export function RecipeEditor({
               aria-label={copy.steps.names[step.kind]}
               key={step.id}
               data-step-id={step.id}
+              data-step-kind={step.kind}
               data-insertion={slot === index ? "before" : slot === value.steps.length && index === value.steps.length - 1 ? "after" : undefined}
             >
               <div class="step-heading">
@@ -468,8 +469,8 @@ export function RecipeEditor({
                   <button
                     class="step-toggle"
                     type="button"
-                    aria-label={copy.steps.settings(label)}
-                    aria-describedby={`summary-${step.id}${errorId ? ` ${errorId}` : ""}`}
+                    aria-label={copy.steps.settings(copy.steps.names[step.kind], stepSummary(step), repeated ? ordinal : null)}
+                    aria-describedby={errorId}
                     aria-expanded={expanded === step.id}
                     aria-controls={`settings-${step.id}`}
                     onClick={() =>
@@ -477,7 +478,7 @@ export function RecipeEditor({
                     }
                   >
                     <span class="step-title">{copy.steps.names[step.kind]}<span class="expansion-indicator" aria-hidden="true">{expanded === step.id ? "⌃" : "⌄"}</span></span>
-                    <small id={`summary-${step.id}`}>{stepSummary(step)}</small>
+                    <small>{stepSummary(step)}</small>
                   </button>
                 </h3>
                 <details class="step-menu" onKeyDown={event=>{
