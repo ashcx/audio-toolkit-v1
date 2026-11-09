@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {newRecipe,newExport,newStep,recipeSchema,snapshotForFile} from '../src/recipe.ts';
 import {createFileId} from '../src/media.ts';
 import {compilePlan} from '../src/planner.ts';
-function plan(codec='aac',steps=[],format='original',duration=2){
- const metadata={container:'test',codec,duration,startTime:0,sampleRate:48000,channels:2,hasVideo:true};
+function plan(codec='aac',steps=[],format='original',duration=2,sampleRate=48000){
+ const metadata={container:'test',codec,duration,startTime:0,sampleRate,channels:2,hasVideo:true};
  const entry={id:createFileId(),file:new File(['data'],'source.mp4'),inspection:{kind:'ready',metadata}};
  const recipe=recipeSchema.parse({...newRecipe(),steps,export:newExport(format)});
  const effective=snapshotForFile(recipe,entry);assert.equal(effective.kind,'ready');return compilePlan(effective.snapshot,metadata);
@@ -50,4 +50,13 @@ test('download names are safe, Unicode bounded and unique against mixed-case ret
  assert.equal(outputName('TONE.wav','wav',used),'TONE.audio (2).wav');
  for(const source of ['../a\\b?.wav','CON.wav','...','😀'.repeat(200)+'.wav','e\u0301.wav','é.wav']){const name=outputName(source,'wav',used);assert(!/[<>:"/\\|?*\x00-\x1f]/.test(name));assert(!/^\./.test(name));assert(new TextEncoder().encode(name).length<255);assert(!/^CON\./i.test(name));}
  assert.equal(used.size,8);
+});
+
+test('Opus export plans for every source rate without asking for a sample rate step',()=>{
+ for(const rate of [8000,11025,16000,22050,32000,44100,48000,88200,96000]){
+  const p=plan('pcm-s16',[],'opus',2,rate);assert.equal(p.kind,'pcm',`${rate} Hz`);assert.deepEqual(p.steps,[]);
+ }
+ const unknown=plan('pcm-s16',[],'opus',2,null);assert.equal(unknown.kind,'pcm');
+ const own=[{...newStep('resample'),rateHz:44100}];
+ const withStep=plan('pcm-s16',own,'opus',2,48000);assert.equal(withStep.kind,'pcm');assert.deepEqual(withStep.steps.map(s=>s.id),own.map(s=>s.id));
 });

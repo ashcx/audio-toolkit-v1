@@ -15,16 +15,19 @@ export function exportDescriptor(settings: Recipe["export"]) {
   return DESCRIPTORS[settings.format];
 }
 
+/** Sample rates the Opus encoder accepts. Any other rate is converted to the fallback before encoding. */
+export const OPUS_RATES: readonly number[] = [8000, 12000, 16000, 24000, 48000];
+export const OPUS_FALLBACK_RATE = 48000;
+
+/** The rate the encoder receives for audio that arrives at `rate`. Equal to `rate` unless the format cannot take it. */
+export function encoderRate(settings: Recipe["export"], rate: number): number {
+  return settings.format === "opus" && !OPUS_RATES.includes(rate) ? OPUS_FALLBACK_RATE : rate;
+}
+
 export function exportShapeError(
   settings: Recipe["export"],
   { rate, channels }: { rate: number | null; channels: number | null },
 ) {
-  if (
-    settings.format === "opus" &&
-    rate !== null &&
-    ![8000, 12000, 16000, 24000, 48000].includes(rate)
-  )
-    return "Opus needs 16, 24 or 48 kHz. Add a sample rate step.";
   if (settings.format === "mp3" && rate !== null && rate < 32000 && settings.bitrateKbps > 160)
     return "At this sample rate, choose MP3 at 128 kbps or increase the sample rate.";
   if (settings.format === "m4a" && rate !== null && channels !== null && settings.bitrateKbps * 1000 > 6 * rate * channels)

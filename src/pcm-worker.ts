@@ -13,10 +13,11 @@ import { decodePcm } from "./pcm/decode";
 import { gain, trim, channels, normalize, type NormalizationReport, type PcmStream } from "./pcm/blocks";
 import { compress } from "./pcm/compressor";
 import { resample } from "./pcm/resample";
+import { conformRate } from "./pcm/conform";
 import { checkpoint } from "./pcm/checkpoint";
 import { StorageClient } from "./pcm/storage-client";
 import type { DspStats, WorkerInput, WorkerResult } from "./pcm/protocol";
-import { exportDescriptor, wavSizeError } from "./export-format";
+import { encoderRate, exportDescriptor, wavSizeError } from "./export-format";
 import { encoderSettings, prepareEncoder } from "./pcm/encode";
 import { mp3GaplessHeader } from "./pcm/mp3-gapless";
 import { opusTail } from "./pcm/opus-tail";
@@ -124,6 +125,7 @@ async function execute({
     }
   }
   const settings = plan.snapshot.recipe.export;
+  stream = conformRate(stream, rate => encoderRate(settings, rate));
   const headers: { data: Uint8Array; position: number }[] = [];
   const opus = opusTail();
   const encoding = encoderSettings(settings, {
