@@ -6,17 +6,17 @@ Process audio and video soundtracks entirely in your browser. Nothing is uploade
 
 ## What it does
 
-Load a batch of audio or video files and run them through one shared recipe:
+Load a batch of audio or video files and run them through one shared list of steps:
 
-- **Extract** audio from a video, or keep the compressed stream untouched
+- **Extract** audio from a video, or keep the original audio untouched
 - **Trim** with a single two-handle rail and clock-formatted start and end fields
 - **Gain** and **normalize** with sliders, including loudness and true-peak targets
-- **Reduce loud/quiet differences** with compression
+- **Compressor** to even out loud and quiet parts
 - **Change** channel layout or sample rate
-- **Isolate** voice from music into two stems
-- **Clean up** speech with a local voice-isolation model
+- **Voice / music splitter** keeps only the voice or only the music
+- **Remove background noise** from speech
 - **Preview** the real processed output before exporting
-- **Export** to MP3, M4A (AAC), WAV, FLAC, OGG (Opus), or a direct stream copy
+- **Export** to MP3, M4A, WAV, FLAC, Opus (.ogg), or Keep original (no re-encoding)
 - **Save** results one by one, as a ZIP, or into a folder you pick
 
 Steps run in the order you place them. Each file keeps its own trim override, playback and download.
@@ -25,10 +25,10 @@ Steps run in the order you place them. Each file keeps its own trim override, pl
 
 1. Open **[the live app](https://ashcx.github.io/audio-toolkit-v1/)**.
 2. Choose or drop your audio and video files.
-3. Add recipe steps in the order you want them to run. Drag to reorder.
+3. Add steps in the order you want them to run. Drag to reorder.
 4. Pick an output format.
 5. Press **Export**. One export processes the current batch.
-6. Download files individually, or open **Save results** for a ZIP or a chosen folder.
+6. Download files individually, or open **Save to device** for a ZIP or a chosen folder.
 
 Save your downloads before closing the tab. There is no session restore and no background processing.
 
@@ -37,7 +37,7 @@ Save your downloads before closing the tab. There is no session restore and no b
 | | |
 | --- | --- |
 | **Input** | MP3, AAC/M4A, WAV, FLAC, Ogg Vorbis/Opus, MP4, MOV, WebM, Matroska |
-| **Output** | MP3, M4A (AAC), WAV, FLAC, OGG (Opus), direct stream copy |
+| **Output** | MP3, M4A, WAV, FLAC, Opus (.ogg), Keep original (no re-encoding) |
 
 Input support still depends on what your browser can decode. A codec may export correctly while refusing to play back natively.
 
@@ -45,14 +45,14 @@ Input support still depends on what your browser can decode. A codec may export 
 
 Sprints 1–26 are merged, and the app runs live at the link above.
 
-- File intake, workspace, ordered recipes and per-file trim
+- File intake, workspace, ordered steps and per-file trim
 - Trim, gain, normalization with loudness and true peak, and compression
 - Channel and sample-rate conversion
-- All five export formats plus direct stream copy
+- All five export formats plus Keep original
 - Batch processing with cancellation, retry and per-file fault isolation
 - Preview of the actual processed output
 - Individual downloads, stored ZIP and folder saving
-- Voice/music isolation (two stems, HTDemucs v4 on WebGPU, slower CPU fallback) and speech cleanup
+- Voice / music splitter (HTDemucs v4 on WebGPU, slower on the CPU when there is no GPU) and Remove background noise
 
 ## What is not done yet
 
@@ -60,7 +60,8 @@ Sprints 1–26 are merged, and the app runs live at the link above.
 - **Listening acceptance.** Isolation and loudness quality has not been signed off by ear.
 - **Firefox is unsupported.**
 - **Sprint 27 is implemented on its branch, not merged.** Demucs replaced SCNet. Its separation quality has not been judged by ear, and the model weights' license is unresolved.
-- **Sprints 28–29 are planned, not built:** four-stem export and waveform playback with per-track trimming.
+- **Sprint 28 is implemented on its branch, not merged.** Plain wording, quiet success and short errors. Physical-device, screen-reader and listening checks are still open.
+- **Sprint 29 is planned, not built:** waveform playback with per-track trimming.
 - **Long files and huge batches** are measured only for specific synthetic workloads, not proven in general.
 
 [TODO.md](TODO.md) tracks sprint-by-sprint status and every open gate.
@@ -100,7 +101,16 @@ npx playwright install chromium webkit
 APP_URL=http://127.0.0.1:4184/audio-toolkit-v1/ npm run verify:browser
 ```
 
-The browser command runs the workspace, intake, recipe, copy, DSP, format, batch, cleanup, download and privacy suites in order. It stops on the first failure and writes `.artifacts/release-check/results.json`. Rebuilds need a fresh full run.
+The browser command runs the workspace, intake, recipe, copy, DSP, format, batch, cleanup, download, privacy, ui-states and keyboard suites in order. It stops on the first failure and writes `.artifacts/release-check/results.json`. Rebuilds need a fresh full run. Set `ENGINES=chromium` on a machine without WebKit installed. Chromium runs as the installed Chrome.
+
+`scripts/ui-states-check.mjs` drives every interface state in Chrome (empty, files, each step, each format, Settings, success, cancel, each failure it can trigger, preview, Save menu, phone widths and dark mode) and fails if any state shows a banned term (`tests/support/banned-terms.mjs`), overflows, or hides content under the floating Export button. It also runs axe-core when it can find it. axe is not a dependency. Install it anywhere and point `AXE_PATH` at its `axe.min.js`:
+
+```sh
+npm install --prefix "$TMPDIR/audio-toolkit-axe" axe-core
+AXE_PATH="$TMPDIR/audio-toolkit-axe/node_modules/axe-core/axe.min.js" node scripts/ui-states-check.mjs
+```
+
+`scripts/keyboard-check.mjs` walks the interface with the keyboard only and counts what the live regions would announce during an export of three files. Screenshots from these runs go under `.artifacts/` and are never committed.
 
 ## Privacy
 
