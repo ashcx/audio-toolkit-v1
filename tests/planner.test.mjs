@@ -15,7 +15,7 @@ test('original audio resolves valid audio-only containers per codec; unsupported
 });
 test('only real no-ops disappear and original audio rejects every signal change',()=>{
  const trim={...newStep('trim'),range:{start:0,end:99}};
- const noop=[trim,newStep('gain'),newStep('compress'),{...newStep('channels'),channels:'stereo'},{...newStep('resample'),rateHz:48000}];
+ const noop=[trim,newStep('gain'),{...newStep('compress'),enabled:false},{...newStep('compress'),amount:0},{...newStep('channels'),channels:'stereo'},{...newStep('resample'),rateHz:48000}];
  assert.equal(plan('aac',noop).kind,'copy');
  assert.equal(plan('aac',[{...trim,range:{start:0,end:null}}],'original',null).kind,'copy');
  for(const step of [{...newStep('trim'),range:{start:0.00001,end:null}},{...newStep('gain'),db:0.001},newStep('normalize'),{...newStep('compress'),enabled:true},{...newStep('channels'),channels:'mono'},{...newStep('resample'),rateHz:44100},newStep('isolation')]){const p=plan('aac',[step]);assert.equal(p.kind,'failed');assert.equal(p.code,'copy-unsupported');assert.match(p.message,/needs a format other than Keep original\. Choose another format\.$/);}
@@ -79,4 +79,8 @@ test('MP3 and AAC keep their bitrate limits as plain messages',()=>{
 test('a plan that cannot be exported says so in the catalogue wording',()=>{
  const wav=plan('pcm-s16',[],'wav',30000);assert.equal(wav.code,'wav-too-large');assert.equal(wav.message,"WAV files can't be larger than 4 GB. Choose another format or trim the audio.");
  const unknown=plan('ac3');assert.equal(unknown.code,'copy-unsupported');assert.equal(unknown.message,"This file can't be kept as it is. Choose another format.");
+});
+test('adding a compressor changes the audio without a second click',()=>{
+ const p=plan('pcm-s16',[newStep('compress')],'mp3');assert.equal(p.kind,'pcm');assert.deepEqual(p.steps.map(s=>s.kind),['compress']);
+ assert.equal(plan('aac',[newStep('compress')]).kind,'failed','Keep original now needs another format once a compressor is added');
 });

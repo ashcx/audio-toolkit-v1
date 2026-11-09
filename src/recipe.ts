@@ -259,7 +259,7 @@ export function newStep(kind: StepKind): StepDraft {
         ceilingDbtp: -0.3,
       };
     case "compress":
-      return { id, kind, enabled: false, amount: 50, preset: "speech" };
+      return { id, kind, enabled: true, amount: 50, preset: "speech" };
     case "channels":
       return { id, kind, channels: "original" };
     case "resample":
