@@ -86,6 +86,12 @@ async function capture(page, config, scenario, state, { shot = true } = {}) {
   check(`text ${label} shows no placeholder values`, !/\bundefined\b|\bNaN\b|\[object /.test(text));
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
   check(`layout ${label} has no horizontal overflow`, overflow <= 0, `${overflow}px wider than the screen`);
+  const small = await page.evaluate(() => [...document.querySelectorAll('body *')]
+    .filter(element => element.checkVisibility() && !element.closest('.sr-only') && [...element.childNodes].some(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim()))
+    .map(element => [element, parseFloat(getComputedStyle(element).fontSize)])
+    .filter(([, size]) => size < 12)
+    .map(([element, size]) => `${element.tagName.toLowerCase()} ${size}px ${element.textContent.trim().slice(0, 24)}`));
+  check(`type ${label} shows no readable text under 12px`, small.length === 0, small.slice(0, 4).join(', '));
   if (shot) await page.screenshot({ path: `${OUT}/${config.name}/${state}.png`, fullPage: true, animations: 'disabled' }).catch(() => {});
   if (axeAvailable) await runAxe(page, config, label);
   return text;
@@ -208,7 +214,10 @@ async function runConfig(browser, config) {
 
   await scenario('empty', async ({ page, shoot }) => {
     await page.getByRole('heading', { name: copy.steps.heading }).waitFor();
-    await shoot('empty');
+    const text = await shoot('empty');
+    check(`${config.name}/empty explains that steps run top to bottom`, text.includes(copy.steps.empty));
+    await addStep(page, 'gain');
+    check(`${config.name}/empty gives way to a one-line hint once a step exists`, (await page.locator('.recipe-panel').innerText()).includes(copy.steps.hint) && !(await page.locator('.recipe-panel').innerText()).includes(copy.steps.empty));
   });
 
   await scenario('files', async ({ page, shoot, floating }) => {
