@@ -53,6 +53,7 @@ test('no copy string or formatter output contains a banned term', () => {
     copy.delivery.folderResult({ saved: 3, failed: 1, folder: 'Music/Out', cancelled: false }),
     copy.delivery.folderSkipped('a.mp3'), copy.delivery.folderUnfinished('a.mp3'), copy.copyNeedsEncoding(STEP_NAMES.isolation),
     copy.result.peakLimited({ achievedLufs: -15.1 }), copy.result.peakLimited({ achievedLufs: null }),
+    copy.preview.button(15), copy.preview.button(null), copy.preview.heading(15), copy.preview.heading(null),
     ...['Preparing', 'Reading', 'Extracting', 'Decoding', 'Processing', 'Normalizing', 'Separating', 'Processing / encoding', 'Encoding', 'Saving', 'Analyzing for isolation', 'Loading isolation tools', 'Loading model']
       .map(phase => copy.progress.phase(phase)),
     copy.progress.label({ kind: 'model-download', loaded: 12_582_912, total: 85_034_606 }),
@@ -108,6 +109,13 @@ test('summaries use plain wording and true minus signs', () => {
   assert.equal(copy.levels.value(-0.04), '0.0');
   assert.equal(copy.levels.value(null), '\u2212\u221e');
   assert.equal(minus(-9.5), '\u22129.5');
+});
+
+test('the preview names its length only when it is shorter than the selection', () => {
+  assert.equal(copy.preview.button(15), 'Preview 15 s');
+  assert.equal(copy.preview.button(null), 'Preview');
+  assert.equal(copy.preview.heading(15), 'First 15 seconds, before and after');
+  assert.equal(copy.preview.heading(null), 'Before and after');
 });
 
 test('export status, folder results and Keep original notes match the deck', () => {

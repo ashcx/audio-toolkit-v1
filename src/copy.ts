@@ -324,8 +324,9 @@ export const copy = {
     clipped: "Some peaks are clipped. Lower the gain or the peak target.",
   },
   preview: {
-    button: "Preview 15 s",
-    heading: "First 15 seconds, before and after",
+    /** Names the excerpt length only when the preview is shorter than the selection. */
+    button: (seconds: number | null) => (seconds === null ? "Preview" : `Preview ${seconds} s`),
+    heading: (seconds: number | null) => (seconds === null ? "Before and after" : `First ${seconds} seconds, before and after`),
     estimate: "Loudness and splitting may sound slightly different on the full file.",
     before: "Before",
     after: "After",

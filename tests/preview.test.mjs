@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {previewPlans,previewExcerpt} from '../src/preview-plan.ts';
+import {previewPlans,previewExcerpt,previewCutSeconds,PREVIEW_SECONDS} from '../src/preview-plan.ts';
 import {Preview,previewBusy} from '../src/preview.ts';
 import {newRecipe,newStep,recipeSchema,snapshotForFile} from '../src/recipe.ts';
 import {createFileId} from '../src/media.ts';
@@ -17,6 +17,18 @@ test('preview resolves per-file trim without reordering the recipe or changing i
  assert.equal(plans.processed.steps[1].range.start,2);assert.equal(plans.processed.snapshot.source.startTime,2);
  assert.deepEqual(plans.original.steps,[]);assert.equal(plans.processed.snapshot.recipe.export.format,'wav');assert.equal(snap.recipe.export.format,'mp3');
  assert.deepEqual(previewPlans(snapshot()).range,{start:0,end:15});
+});
+test('the excerpt length is named only when the selection is longer than the excerpt',()=>{
+ assert.equal(PREVIEW_SECONDS,15);
+ assert.equal(previewCutSeconds(null,50),15);
+ assert.equal(previewCutSeconds(null,2),null);
+ assert.equal(previewCutSeconds(null,15),null);
+ assert.equal(previewCutSeconds(null,null),null);
+ assert.equal(previewCutSeconds({start:2,end:40},50),15);
+ assert.equal(previewCutSeconds({start:2,end:12},50),null);
+ assert.equal(previewCutSeconds({start:10,end:null},20),null);
+ assert.equal(previewCutSeconds({start:0,end:null},20),15);
+ assert.deepEqual(previewPlans(snapshot([{...newStep('trim'),range:{start:2,end:12}}])).range,{start:2,end:12});
 });
 test('both excerpts retain the same source clock and stop decoding at the preview end',async()=>{
  let read=0,closed=false;

@@ -8,6 +8,7 @@ import type { PreviewState } from "./preview";
 import { copy } from "./copy";
 import { actionFor } from "./errors";
 import { resultNote } from "./result-note";
+import { previewCutSeconds } from "./preview-plan";
 const pauseOthers = (event: Event) => {
   const current = event.currentTarget;
   for (const audio of document.querySelectorAll("audio"))
@@ -87,6 +88,7 @@ export function FileRow({
   const metadata = entry.inspection.kind === "ready" ? fileMetadata(entry, effective) : null;
   const currentExport = exported?.kind === "done" && !previousSettings;
   const previewVisible = showsPreview(hasRecipeSteps, currentExport);
+  const cutSeconds = previewCutSeconds(effective, entry.inspection.kind === "ready" ? entry.inspection.metadata.duration : null);
   const exportedPlayable = exported?.kind === "done" &&
     document.createElement("audio").canPlayType(exported.output.mime) !== "";
   const downloadLabel = previousSettings
@@ -125,7 +127,7 @@ export function FileRow({
       <div class="file-actions">
         {previewVisible && entry.inspection.kind === "ready" &&
           <button type="button" disabled={previewDisabled || trimFailed !== null}
-            aria-label={copy.preview.buttonLabel(entry.file.name)} aria-describedby={errorId} onClick={onPreview}>{copy.preview.button}</button>}
+            aria-label={copy.preview.buttonLabel(entry.file.name)} aria-describedby={errorId} onClick={onPreview}>{copy.preview.button(cutSeconds)}</button>}
         {exported?.kind === "done" &&
           <a class="icon-button download-button" href={exported.url} download={exported.output.name}
             aria-label={downloadLabel} title={`${downloadLabel} (${exported.output.name})`}>
@@ -147,7 +149,7 @@ export function FileRow({
       {entry.inspection.kind === "ready" && !preview && <SourcePlayer entry={entry} collapsed={exported?.kind === "done"} />}
       {preview && <div class="file-preview" data-preview-state={preview.kind}>
         {preview.kind === "ready" ? <>
-          <small>{copy.preview.heading}</small>
+          <small>{copy.preview.heading(cutSeconds)}</small>
           {preview.estimate && <small>{copy.preview.estimate}</small>}
           <label>{copy.preview.before}<audio controls preload="none" src={preview.original} aria-label={copy.preview.beforeLabel(entry.file.name)} onPlay={pauseOthers} /></label>
           <label>{copy.preview.after}<audio controls preload="none" src={preview.processed} aria-label={copy.preview.afterLabel(entry.file.name)} onPlay={pauseOthers} /></label>
