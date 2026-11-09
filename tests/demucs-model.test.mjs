@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 import {fetchModelBytes} from '../src/inference/demucs-model.ts';
-import {userMessage} from '../src/errors.ts';
+import {errorCode,messageFor} from '../src/errors.ts';
 
 const MiB=1024*1024,model=Uint8Array.from({length:2.5*MiB},(_,index)=>(index*31+7)&255);
 const pin={bytes:model.length,sha256:createHash('sha256').update(model).digest('hex')};
@@ -46,8 +46,8 @@ test('a network failure before or during the download reads as a failed download
  t.mock.method(globalThis,'fetch',async()=>{throw new TypeError('Failed to fetch');});
  const offline=await load().catch(error=>error);
  assert.equal(offline.code,'model-download-failed');
- assert.equal(userMessage(offline),"Couldn't download the voice/music model. Check your connection and try again.");
- assert.doesNotMatch(userMessage(offline),/fetch/i);
+ assert.equal(messageFor(errorCode(offline)),"Couldn't download the voice/music model. Check your connection and try again.");
+ assert.doesNotMatch(messageFor(errorCode(offline)),/fetch/i);
  let reads=0;
  t.mock.method(globalThis,'fetch',async()=>new Response(new ReadableStream({pull(controller){if(reads++===0)controller.enqueue(model.subarray(0,1000));else controller.error(new TypeError('network error'));}}),{status:200}));
  const dropped=await load().catch(error=>error);

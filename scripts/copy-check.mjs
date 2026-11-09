@@ -132,7 +132,7 @@ for(const [name,type] of engines()){
   const retryEntries=await page.evaluate(async()=>{const root=await navigator.storage.getDirectory();const dir=await root.getDirectoryHandle('audio-toolkit-v1');const entries=[];for await(const name of dir.keys())entries.push(name);return entries.length;});assert.equal(retryEntries,2,'Retries replace retained output and discard failed partials');
   await page.evaluate(()=>{window.__pauseWrites=true;});
   await page.getByRole('button',{name:'Export',exact:true}).tap();
-  await page.waitForFunction(msg=>[...document.querySelectorAll('.file-result')].some(e=>e.textContent.includes(msg)),copy.progress.phase('Extracting'));
+  await page.waitForFunction(msg=>[...document.querySelectorAll('.file-result')].some(e=>e.textContent.includes(msg)),copy.progress.label({kind:'phase',phase:'Extracting'}));
   assert.equal(await page.getByLabel('Add step',{exact:true}).isDisabled(),true,'Recipe edits are locked during the run');
   await page.evaluate(()=>{window.__pauseWrites=false;});
   await page.waitForFunction(()=>document.querySelectorAll('li[data-job-state=done] a[download]').length===2);

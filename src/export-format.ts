@@ -18,7 +18,7 @@ export function exportDescriptor(settings: Recipe["export"]) {
 
 /** Sample rates the Opus encoder accepts. Any other rate is converted to the fallback before encoding. */
 export const OPUS_RATES: readonly number[] = [8000, 12000, 16000, 24000, 48000];
-export const OPUS_FALLBACK_RATE = 48000;
+const OPUS_FALLBACK_RATE = 48000;
 
 /** The rate the encoder receives for audio that arrives at `rate`. Equal to `rate` unless the format cannot take it. */
 export function encoderRate(settings: Recipe["export"], rate: number): number {

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readdir, readFile } from 'node:fs/promises';
 import { copy } from '../src/copy.ts';
 import {
-  ERROR_CODES, UserFacingError, errorCode, userMessage, failureOf, failure, messageFor, actionFor, validationMessage, isErrorCode,
+  ERROR_CODES, UserFacingError, errorCode, failureOf, failure, messageFor, actionFor, validationMessage, isErrorCode,
 } from '../src/errors.ts';
 import { newRecipe, newStep, recipeSchema, resolveTrim, trimRangeSchema, stepSchema } from '../src/recipe.ts';
 import { resultNote } from '../src/result-note.ts';
@@ -14,6 +14,7 @@ const BANNED = [/\bGPU\b/i, /\bCPU\b/i, /\bcodecs?\b/i, /\bstream\b/i, /\bcleanu
 const ALLOWED = [/voice\/music model/g, /The model download was damaged/g, /a normal window/g];
 const LEVEL_TERMS = /\b(dB|dBFS|dBTP|LUFS|RMS)\b/;
 const LEVEL_CODES = new Set(['gain-range', 'loudness-range', 'loudness-step', 'peak-range', 'true-peak-range', 'true-peak-step', 'ceiling-range', 'ceiling-step', 'compression-range']);
+const shown = (error, fallback) => messageFor(errorCode(error, fallback));
 const quiet = async work => {
   const logged = [];
   const original = console.error;
@@ -64,27 +65,29 @@ test('raw errors map to the generic message and never echo their text', async ()
   const raw = [new Error('Failed to fetch'), new TypeError('NetworkError when attempting to fetch resource.'),
     new Error('Each step needs a unique identity.'), new DOMException('denied', 'NotAllowedError'), 'a string', null, undefined, { message: 'Error: boom' }];
   for (const error of raw) {
-    assert.equal(userMessage(error), GENERIC);
+    assert.equal(shown(error), GENERIC);
     assert.equal(errorCode(error), 'processing-failed');
     const { value, logged } = await quiet(() => failureOf(error));
     assert.deepEqual(value, { code: 'processing-failed', message: GENERIC });
     assert.equal(logged.length, 1, 'technical detail goes to the console');
     assert.equal(logged[0][0], error);
   }
-  assert.equal(userMessage(new Error('Failed to fetch'), 'preview-failed'), "Couldn't make a preview. Try again.");
+  assert.equal(shown(new Error('Failed to fetch'), 'preview-failed'), "Couldn't make a preview. Try again.");
 });
 
 test('a storage quota error reads as running out of space', () => {
   assert.equal(errorCode(new DOMException('full', 'QuotaExceededError')), 'storage-full');
-  assert.equal(userMessage(new DOMException('full', 'QuotaExceededError')), 'Not enough space to finish. Free some space and try again.');
+  assert.equal(shown(new DOMException('full', 'QuotaExceededError')), 'Not enough space to finish. Free some space and try again.');
 });
 
 test('a user-facing error keeps its code, shows only catalogue text and keeps developer detail out of the message', async () => {
   const bare = new UserFacingError('file-no-audio');
   const detailed = new UserFacingError('model-download-failed', 'The model request failed. TypeError: Failed to fetch');
   assert.equal(errorCode(bare), 'file-no-audio');
-  assert.equal(userMessage(detailed), "Couldn't download the voice/music model. Check your connection and try again.");
-  assert.doesNotMatch(userMessage(detailed), /fetch|TypeError/);
+  assert.equal(bare.detail, undefined);
+  assert.equal(detailed.detail, 'The model request failed. TypeError: Failed to fetch');
+  assert.equal(shown(detailed), "Couldn't download the voice/music model. Check your connection and try again.");
+  assert.doesNotMatch(shown(detailed), /fetch|TypeError/);
   const quietBare = await quiet(() => failureOf(bare));
   assert.deepEqual(quietBare.value, failure('file-no-audio'));
   assert.equal(quietBare.logged.length, 0, 'an expected condition is not an error report');

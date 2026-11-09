@@ -50,7 +50,7 @@ test('no copy string or formatter output contains a banned term', () => {
     copy.result.peakLimited({ achievedLufs: -15.1 }), copy.result.peakLimited({ achievedLufs: null }),
     copy.preview.button(15), copy.preview.button(null), copy.preview.heading(15), copy.preview.heading(null),
     ...['Preparing', 'Reading', 'Extracting', 'Decoding', 'Processing', 'Normalizing', 'Separating', 'Processing / encoding', 'Encoding', 'Saving', 'Analyzing for isolation', 'Loading isolation tools', 'Loading model']
-      .map(phase => copy.progress.phase(phase)),
+      .map(phase => copy.progress.label({ kind: 'phase', phase })),
     copy.progress.label({ kind: 'model-download', loaded: 12_582_912, total: 85_034_606 }),
     copy.progress.label({ kind: 'isolation-progress', completed: 2, total: 5 }),
     copy.progress.preview({ kind: 'isolation-progress', completed: 2, total: 5 }),

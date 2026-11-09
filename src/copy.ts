@@ -361,7 +361,6 @@ export const copy = {
   actions: { retry: "Retry", "try-again": "Try again", remove: "Remove", download: "Download" } as const satisfies Record<ErrorAction, string>,
   errors: ERRORS,
   progress: {
-    phase: (phase: JobPhase) => STAGE_BY_PHASE[phase],
     /** The stage alone, with no percent or MB, for the one line a screen reader speaks per stage change. */
     stage(operation: JobOperation): string {
       switch (operation.kind) {
@@ -394,6 +393,3 @@ export const copy = {
     },
   },
 } as const;
-
-export type StepNames = typeof STEP_NAMES;
-export type FormatNames = typeof FORMAT_NAMES;

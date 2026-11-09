@@ -55,10 +55,12 @@ export const GENERIC_ERROR: ErrorCode = "processing-failed";
 /** A failure with a catalogue entry. `detail` is for developers and goes to the console, never to the screen. */
 export class UserFacingError extends Error {
   readonly code: ErrorCode;
+  readonly detail: string | undefined;
   constructor(code: ErrorCode, detail?: string) {
     super(detail ?? code);
     this.name = "UserFacingError";
     this.code = code;
+    this.detail = detail;
   }
 }
 
@@ -81,11 +83,6 @@ export function actionFor(code: ErrorCode): ErrorAction | null {
   return entry.action ?? null;
 }
 
-/** The only text that may reach the screen for a thrown value. */
-export function userMessage(error: unknown, fallback: ErrorCode = GENERIC_ERROR): string {
-  return messageFor(errorCode(error, fallback));
-}
-
 export type Failure = Readonly<{ code: ErrorCode; message: string }>;
 
 /** Visible state for a condition that is already known, with no thrown value to inspect. */
@@ -99,7 +96,7 @@ export function failure(code: ErrorCode): Failure {
  */
 export function failureOf(error: unknown, fallback: ErrorCode = GENERIC_ERROR): Failure {
   const code = errorCode(error, fallback);
-  if (!(error instanceof UserFacingError) || error.message !== error.code) console.error(error);
+  if (!(error instanceof UserFacingError) || error.detail !== undefined) console.error(error);
   return { code, message: messageFor(code) };
 }
 
