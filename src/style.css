@@ -197,12 +197,12 @@ input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border: 3px s
 .run-status .folder-report { flex-basis: 100%; margin: 0; }
 .folder-report { flex-basis: 100%; overflow-wrap: anywhere; font: var(--type-status); }
 .folder-report p { margin: 6px 0; }
-.delivery-menu { position: relative; }
+.delivery-menu { position: relative; scroll-margin-bottom: 72px; }
 .delivery-menu > summary { list-style: none; cursor: pointer; }
 .delivery-menu > summary::-webkit-details-marker { display: none; }
 .delivery-options { position: absolute; z-index: 7; right: 0; bottom: calc(100% + 8px); display: grid; min-width: 180px; padding: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 8px 24px rgb(0 0 0 / .12); }
 .delivery-options button, .delivery-options a { background: transparent; border: 0; justify-content: flex-start; text-align: left; }
-.delivery-options button:last-child { color: var(--bad); }
+.delivery-options button:last-child { color: var(--bad); margin-top: 6px; border-top: 1px solid var(--border); border-radius: 0 0 8px 8px; }
 .settings-dialog { color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; width: min(380px, calc(100% - 32px)); }
 .settings-dialog::backdrop { background: rgb(0 0 0 / .45); }
 .settings-dialog fieldset { padding: 0; border: 0; margin: 24px 0; }
@@ -222,7 +222,10 @@ input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border: 3px s
   .dropzone.has-files { min-height: 64px; }
   .run-actions { flex-direction: column; align-items: stretch; }
   .run-status { flex: 0 1 auto; }
-  .run-actions-group { justify-content: flex-start; margin-left: 0; }
+  .run-actions-group { justify-content: flex-start; align-items: flex-start; margin-left: 0; }
+  .delivery-options { position: static; margin-top: 6px; box-shadow: none; }
+  .workspace:has(.file-list) { padding-bottom: 56px; }
+  .workspace:has(.file-list) .run-actions-group .primary { position: fixed; z-index: 8; right: 12px; bottom: 12px; box-shadow: 0 6px 20px rgb(0 0 0 / .22); }
 }
 @media (max-width: 360px) {
   .panel { padding: 16px; }

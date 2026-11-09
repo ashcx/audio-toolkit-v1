@@ -336,7 +336,7 @@ function App() {
               title={copy.export.clearAllTooltip}
               onClick={clearAll}
             >{copy.export.clearAll}</button>}
-            {completed.length > 0 && <details class="delivery-menu" onKeyDown={event=>{
+            {completed.length > 0 && <details class="delivery-menu" onToggle={event => { if (event.currentTarget.open) event.currentTarget.scrollIntoView({ block: "nearest" }); }} onKeyDown={event=>{
               if(event.key === "Escape") {event.currentTarget.open=false;event.currentTarget.querySelector<HTMLElement>("summary")?.focus();}
             }}>
               <summary role="button" class="button">{copy.delivery.saveToDevice}</summary>
