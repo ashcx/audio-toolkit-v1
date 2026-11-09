@@ -113,7 +113,7 @@ for(const [name,type] of engines()){
   await page.setViewportSize({width:390,height:844});await setAppearance(page,'dark');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.screenshot({path:`${root}/captures/${name}-mobile-dark.png`,fullPage:true,animations:'disabled'});
   await page.getByLabel('Add step',{exact:true}).selectOption('gain');await setSlider(page,'Gain (dB) slider',1);
-  assert.equal(await page.locator('.file-name').getByText(copy.copyNeedsEncoding(copy.steps.names.gain),{exact:true}).count(),files.length);
+  assert.equal(await page.locator('.file-name').getByText(copy.errors['copy-needs-encoding'].message,{exact:true}).count(),files.length);
   assert.equal(await page.getByText(copy.result.olderLabel,{exact:true}).count(),files.length,'Old outputs must be explicitly identified after edits');assert(await page.getByRole('button',{name:'Export',exact:true}).isDisabled());
   await setSlider(page,'Gain (dB) slider',0);assert(await page.getByRole('button',{name:'Export',exact:true}).isEnabled());
   const touchDownload=page.waitForEvent('download');await page.locator('li[data-job-state=done] a[download]').first().tap();await touchDownload;

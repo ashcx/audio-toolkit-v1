@@ -26,6 +26,7 @@ export const ERROR_CODES = [
   "aac-bitrate",
   "wav-too-large",
   "copy-unsupported",
+  "copy-needs-encoding",
   "model-download-failed",
   "model-damaged",
   "split-stalled",

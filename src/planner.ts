@@ -1,7 +1,6 @@
 import type { AudioCodec } from "mediabunny";
 import type { AudioMetadata } from "./media";
 import type { EffectiveRecipe, Recipe } from "./recipe";
-import { copy } from "./copy.ts";
 import { failure, type Failure } from "./errors.ts";
 import { exportShapeError, wavSizeError } from "./export-format.ts";
 
@@ -83,7 +82,7 @@ export function compilePlan(
   });
   if (snapshot.recipe.export.format === "original") {
     if (steps.length)
-      return { kind: "failed", code: "copy-unsupported", message: copy.copyNeedsEncoding(copy.steps.names[steps[0].kind]) };
+      return { kind: "failed", ...failure("copy-needs-encoding") };
     const target = COPY_TARGETS[source.codec];
     if (!target) return { kind: "failed", ...failure("copy-unsupported") };
     return Object.freeze({

@@ -342,9 +342,9 @@ async function runConfig(browser, config) {
     await addStep(page, 'gain');
     await page.getByRole('slider', { name: copy.slider(copy.gain.label) }).press('ArrowRight');
     await format(page, 'original');
-    await page.getByText(copy.copyNeedsEncoding(copy.steps.names.gain)).first().waitFor();
+    await page.getByText(copy.errors['copy-needs-encoding'].message).first().waitFor();
     const text = await shoot('format-original-with-step');
-    const count = text.split(copy.copyNeedsEncoding(copy.steps.names.gain)).length - 1;
+    const count = text.split(copy.errors['copy-needs-encoding'].message).length - 1;
     check(`${config.name}/format-original-with-step shows its message once per file`, count === 2, `${count} times`);
   });
 

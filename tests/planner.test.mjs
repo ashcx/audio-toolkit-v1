@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {newRecipe,newExport,newStep,recipeSchema,snapshotForFile} from '../src/recipe.ts';
 import {createFileId} from '../src/media.ts';
 import {compilePlan} from '../src/planner.ts';
+import {messageFor} from '../src/errors.ts';
 function plan(codec='aac',steps=[],format='original',duration=2,sampleRate=48000){
  const metadata={container:'test',codec,duration,startTime:0,sampleRate,channels:2,hasVideo:true};
  const entry={id:createFileId(),file:new File(['data'],'source.mp4'),inspection:{kind:'ready',metadata}};
@@ -18,8 +19,8 @@ test('only real no-ops disappear and original audio rejects every signal change'
  const noop=[trim,newStep('gain'),{...newStep('compress'),enabled:false},{...newStep('compress'),amount:0},{...newStep('channels'),channels:'stereo'},{...newStep('resample'),rateHz:48000}];
  assert.equal(plan('aac',noop).kind,'copy');
  assert.equal(plan('aac',[{...trim,range:{start:0,end:null}}],'original',null).kind,'copy');
- for(const step of [{...newStep('trim'),range:{start:0.00001,end:null}},{...newStep('gain'),db:0.001},newStep('normalize'),{...newStep('compress'),enabled:true},{...newStep('channels'),channels:'mono'},{...newStep('resample'),rateHz:44100},newStep('isolation')]){const p=plan('aac',[step]);assert.equal(p.kind,'failed');assert.equal(p.code,'copy-unsupported');assert.match(p.message,/needs a format other than Keep original\. Choose another format\.$/);}
- assert.equal(plan('aac',[{...newStep('gain'),db:3}]).message,'Gain needs a format other than Keep original. Choose another format.');
+ for(const step of [{...newStep('trim'),range:{start:0.00001,end:null}},{...newStep('gain'),db:0.001},newStep('normalize'),{...newStep('compress'),enabled:true},{...newStep('channels'),channels:'mono'},{...newStep('resample'),rateHz:44100},newStep('isolation')]){const p=plan('aac',[step]);assert.equal(p.kind,'failed');assert.equal(p.code,'copy-needs-encoding');assert.equal(p.message,messageFor('copy-needs-encoding'));}
+ const needs=plan('aac',[{...newStep('gain'),db:3}]);assert.equal(needs.code,'copy-needs-encoding');assert.equal(needs.message,messageFor('copy-needs-encoding'));assert.equal(needs.message,"Steps that change the sound need a format other than Keep original. Choose another format.");
 });
 test('PCM plan preserves processor order and export intent without freezing mutable drafts',()=>{
  const steps=[newStep('normalize'),{...newStep('trim'),range:{start:.25,end:1}},newStep('normalize'),newStep('gain')];

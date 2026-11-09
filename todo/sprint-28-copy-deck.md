@@ -138,7 +138,7 @@ Each error shows once, where the user can act, and never shows raw browser or en
 | At this sample rate, choose MP3 at 128 kbps or increase the sample rate. | MP3 at this sample rate supports up to 160 kbps. Lower the bitrate. | |
 | AAC bitrate is too high for this rate and channel count… | M4A can't be made from this audio at this bitrate. Choose another format. | Changed 2026-11-09, see "Changes after approval". |
 | Processed WAV output must be smaller than 4 GB. | WAV files can't be larger than 4 GB. Choose another format or trim the audio. | |
-| Gain requires re-encoding. Choose another format. (and each other step) | Gain needs a format other than Keep original. Choose another format. | |
+| Gain requires re-encoding. Choose another format. (and each other step) | Steps that change the sound need a format other than Keep original. Choose another format. | Changed 2026-11-09, see "Changes after approval". |
 | This codec has no supported stream-copy container… | This file can't be kept as it is. Choose another format. | |
 | Failed to fetch / Could not load the isolation model… / Could not load isolation tools… | Couldn't download the voice/music model. Check your connection and try again. | Retry |
 | The isolation model could not be verified. / download is incomplete. | The model download was damaged. Try again. | Retry |
@@ -202,3 +202,10 @@ WCAG 2.5.3 (Label in Name) says the spoken name of a control must start with the
 | File picker (visible "Add files or drop audio or video", or "Choose files or drop ..." when empty) | Choose audio or video files | No separate name. The visible text names it. |
 
 `scripts/ui-states-check.mjs` now checks every visible control in every state, so a new mismatch fails the run.
+
+### 2026-11-09. Keep original with steps that change the sound
+
+Was: "Gain needs a format other than Keep original. Choose another format." (the step name changed per step)
+Now: "Steps that change the sound need a format other than Keep original. Choose another format."
+
+Why. The old sentence was built in the planner from the first changing step, so it was not in the message catalogue, the catalogue test could not scan it, and it named only one step when several needed encoding. It is now the catalogue entry `copy-needs-encoding`. The new sentence is the Keep original hint from section 2 turned into an instruction.

@@ -46,7 +46,7 @@ test('no copy string or formatter output contains a banned term', () => {
     copy.gain.summary(3), copy.gain.summary(-3), copy.normalize.summary({ mode: 'loudness', targetLufs: -14, ceilingDbtp: -0.3 }),
     copy.normalize.summary({ mode: 'peak', targetDbtp: -1 }), copy.compressor.summary({ preset: 'speech', amount: 50 }),
     copy.delivery.folderResult({ saved: 3, failed: 1, folder: 'Music/Out', cancelled: false }),
-    copy.delivery.folderSkipped('a.mp3'), copy.delivery.folderUnfinished('a.mp3'), copy.copyNeedsEncoding(STEP_NAMES.isolation),
+    copy.delivery.folderSkipped('a.mp3'), copy.delivery.folderUnfinished('a.mp3'),
     copy.result.peakLimited({ achievedLufs: -15.1 }), copy.result.peakLimited({ achievedLufs: null }),
     copy.preview.button(15), copy.preview.button(null), copy.preview.heading(15), copy.preview.heading(null),
     ...['Preparing', 'Reading', 'Extracting', 'Decoding', 'Processing', 'Normalizing', 'Separating', 'Processing / encoding', 'Encoding', 'Saving', 'Analyzing for isolation', 'Loading isolation tools', 'Loading model']
@@ -137,7 +137,6 @@ test('export status, folder results and Keep original notes match the deck', () 
   assert.equal(copy.delivery.folderResult({ saved: 3, failed: 0, folder: 'A/B', cancelled: false }), 'Saved 3 files to A/B.');
   assert.equal(copy.delivery.folderResult({ saved: 1, failed: 1, folder: 'A/B', cancelled: false }), "Saved 1 file to A/B. 1 couldn't be saved.");
   assert.equal(copy.delivery.folderResult({ saved: 0, failed: 0, folder: 'A/B', cancelled: true }), 'Cancelled.');
-  assert.equal(copy.copyNeedsEncoding(STEP_NAMES.gain), 'Gain needs a format other than Keep original. Choose another format.');
 });
 
 test('every error code appears in the catalogue and the catalogue has no extra codes', () => {

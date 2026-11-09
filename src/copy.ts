@@ -59,6 +59,7 @@ const ERRORS = {
   "aac-bitrate": { message: "M4A can't be made from this audio at this bitrate. Choose another format." },
   "wav-too-large": { message: "WAV files can't be larger than 4 GB. Choose another format or trim the audio." },
   "copy-unsupported": { message: "This file can't be kept as it is. Choose another format." },
+  "copy-needs-encoding": { message: "Steps that change the sound need a format other than Keep original. Choose another format." },
   "model-download-failed": {
     message: "Couldn't download the voice/music model. Check your connection and try again.",
     action: "retry",
@@ -359,7 +360,6 @@ export const copy = {
   app: { title: "Audio Toolkit", backToTools: "Audio Toolkit, back to Tools" },
   actions: { retry: "Retry", "try-again": "Try again", remove: "Remove", download: "Download" } as const satisfies Record<ErrorAction, string>,
   errors: ERRORS,
-  copyNeedsEncoding: (step: string) => `${step} needs a format other than Keep original. Choose another format.`,
   progress: {
     phase: (phase: JobPhase) => STAGE_BY_PHASE[phase],
     /** The stage alone, with no percent or MB, for the one line a screen reader speaks per stage change. */
