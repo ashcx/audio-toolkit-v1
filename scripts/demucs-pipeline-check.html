@@ -1,0 +1,53 @@
+<!doctype html><meta charset="utf-8"><title>Demucs app pipeline check</title>
+<h1>Demucs app pipeline check</h1><p>Runs the app's isolate() with its streaming Demucs windows and segment transforms on ORT-Web, and compares vocals and drums + bass + other with the numpy reference stems.</p>
+<p id="status">Ready</p><pre id="result">{}</pre>
+<script type="module">
+import {load} from '../vendor/neural/neural.js';
+import {DEMUCS_MODEL} from '../src/inference/demucs-model.ts';
+import {separateSegment} from '../src/inference/demucs-segment.ts';
+import {isolate} from '../src/pcm/isolate.ts';
+const params=new URLSearchParams(location.search),provider=params.get('provider')??'wasm',names=(params.get('fixtures')??'tiny,short,segment,long').split(','),tensorNames=(params.get('tensors')??'').split(',').filter(Boolean);
+const root=new URL('../.artifacts/sprint-27/',location.href),vendor=new URL('../vendor/neural/',location.href);
+const result={provider,pipeline:'app',userAgent:navigator.userAgent,fixtures:{}};
+const show=status=>{document.querySelector('#status').textContent=status;document.querySelector('#result').textContent=JSON.stringify(result,null,2);};
+const flat=async path=>{const response=await fetch(new URL(path,root));if(!response.ok)throw Error(`${path} HTTP ${response.status}`);return new Float32Array(await response.arrayBuffer());};
+const planes=async(path,frames)=>{const data=await flat(path);if(data.length!==2*frames)throw Error(`${path} has ${data.length} samples`);return [data.slice(0,frames),data.slice(frames)];};
+function compare(reference,actual){let maxAbs=0,signal=0,noise=0;for(let c=0;c<reference.length;c++)for(let i=0;i<reference[c].length;i++){const d=actual[c][i]-reference[c][i];maxAbs=Math.max(maxAbs,Math.abs(d));signal+=reference[c][i]**2;noise+=d*d;}return {maxAbs,snrDb:noise?10*Math.log10(signal/noise):Infinity};}
+function memoryCheckpoint(){const records=[];return {append:async block=>{records.push({...block,planes:block.planes.map(plane=>new Float32Array(plane))});},seal:async()=>({read:()=>(async function*(){yield* records;})()}),discard:async()=>{records.length=0;}};}
+async function* blocks(mix){for(let offset=0;offset<mix[0].length;offset+=4096)yield {origin:0,offset,rate:44100,planes:mix.map(plane=>plane.slice(offset,offset+4096))};}
+async function run(mix,keep,infer){
+ const output=mix.map(()=>new Float32Array(mix[0].length)),stats={isolationPasses:0,isolationWindows:0,maxIsolationFrames:0,isolationLoads:0,isolationBackends:[]};
+ for await(const block of isolate(blocks(mix),keep,{signal:new AbortController().signal,checkpoint:async()=>memoryCheckpoint(),event:()=>{},infer,stats}))block.planes.forEach((plane,c)=>output[c].set(plane,block.offset));
+ return {output,windows:stats.isolationWindows};
+}
+try{
+ const manifest=await (await fetch(new URL('fixtures/fixtures.json',root))).json();
+ const response=await fetch(new URL('../public/vendor/neural/htdemucs_fp16.onnx',location.href));if(!response.ok)throw Error('Model HTTP '+response.status);
+ const bytes=new Uint8Array(await response.arrayBuffer());
+ if(bytes.length!==DEMUCS_MODEL.bytes)throw Error('Model bytes mismatch');
+ const session=await load(bytes,{backend:provider,executionProviders:provider==='wasm'?['wasm']:['webgpu','wasm'],wasmPaths:vendor.href,threads:1,sessionOptions:{enableCpuMemArena:false,enableMemPattern:false}});
+ for(const name of names){
+  show('Separating '+name);
+  const frames=manifest[name].frames,mix=await planes(`fixtures/${name}.mix.f32`,frames),cache=[];let firstFeeds=null,calls=0;
+  const infer=async window=>{const stems=await separateSegment([window[0],window[1]],async feeds=>{firstFeeds??=feeds;return session.run(feeds);});const reply={kind:'done',stems,backend:provider,loads:0};cache.push(reply);return reply;};
+  const started=performance.now(),vocals=await run(mix,'voice',infer);
+  const windows=vocals.windows;calls=0;
+  const accompaniment=await run(mix,'music',async window=>cache[calls++]);
+  const reference=Object.fromEntries(await Promise.all(DEMUCS_MODEL.sources.map(async source=>[source,await planes(`reference/${name}.${source}.f32`,frames)])));
+  let mixMean=0;for(let i=0;i<frames;i++)mixMean+=(mix[0][i]+mix[1][i])/2;mixMean/=frames;
+  // The numpy reference adds the mix mean to every stem. The app adds it once, to Keep music only, so expect that.
+  const referenceVocals=reference.vocals.map(plane=>Float32Array.from(plane,value=>value-mixMean));
+  const referenceAccompaniment=[0,1].map(c=>Float32Array.from({length:frames},(_,i)=>reference.drums[c][i]+reference.bass[c][i]+reference.other[c][i]-2*mixMean));
+  const record={frames,windows,seconds:Math.round(performance.now()-started)/1000,
+   vocals:{outputFrames:vocals.output.map(plane=>plane.length),finite:vocals.output.every(plane=>plane.every(Number.isFinite)),...compare(referenceVocals,vocals.output)},
+   accompaniment:{outputFrames:accompaniment.output.map(plane=>plane.length),finite:accompaniment.output.every(plane=>plane.every(Number.isFinite)),...compare(referenceAccompaniment,accompaniment.output)}};
+  if(tensorNames.includes(name)){
+   const expected=Object.fromEntries(await Promise.all(['spec_real','spec_imag','audio'].map(async key=>[key,await flat(`tensors/${name}.${key}.f32`)])));
+   record.firstWindowFeeds=Object.fromEntries(Object.entries(expected).map(([key,value])=>[key,compare([value],[firstFeeds[key].data])]));
+  }
+  result.fixtures[name]=record;show('Separated '+name);
+ }
+ session.free();result.done=true;show('Done');
+}catch(error){result.error=String(error?.stack??error);show('Failed');}
+window.__demucs=result;
+</script>

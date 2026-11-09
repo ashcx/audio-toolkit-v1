@@ -14,9 +14,9 @@ AudioTools.dev was cloned read-only into ignored `.upstream/audiotools.dev` at r
 | FLAC extension | @mediabunny/flac-encoder 1.63.0 | MPL-2.0 wrapper, libFLAC BSD; binary revision and matching retained notice recorded below |
 | Neural separation bundle | Upstream vendor at inspected revision, @audio/neural-separate 0.7.0 and @audio/neural-runtime 0.2.0 | MIT; bundled license comments and `licenses/neural-NOTICE.txt` retained |
 | ONNX Runtime Web | upstream vendored 1.31.1 | MIT; `licenses/ONNXRuntime-MIT.txt` retained; single-thread WASM path runs without cross-origin isolation; optional WebGPU/WASM provider path retains separate verification |
-| SCNet model | upstream vendor scnet.int8.onnx | Upstream identifies v1.0.6 ZFTurbo checkpoint; MIT repository license retained at `licenses/SCNet-MIT.txt`. Exact checkpoint-to-compact-model build provenance is upstream's assertion, not independently regenerated here. |
+| HTDemucs v4 model | `public/vendor/neural/htdemucs_fp16.onnx` from https://huggingface.co/Ryan5453/unblend at revision `30b749fd691312b1e4b3f8fe79df0b51cde836cd` | **Unresolved.** The file's own metadata says `license = unlicensed` and the model card grants nothing for the weights. Upstream Demucs code is MIT (Meta Platforms), which covers code, not these exported weights. Bundled by the user's decision in Sprint 27, recorded as theirs in `docs/sprint-evidence/sprint-27/provenance.md`; no legal assessment was made. |
 
-The model's SHA-256 is `3f049a0e4ce3c08264a6212a50445ba77f02a517cd4c6dc86cbe1ca130176d67`, verified locally. Original bundle license comments and notices remain intact. Modified integration code is separate from vendored code.
+The model is 85,034,606 bytes with SHA-256 `742a4f8594a48d6306da303b8b2dd8be2b54389b88557db034408b436effd775`, checked by every build and by the worker before use. Original bundle license comments and notices remain intact. Modified integration code is separate from vendored code. The STFT, iSTFT and window overlap in `src/inference/demucs-segment.ts` and `src/pcm/demucs-window.ts` follow upstream Demucs (MIT, Copyright (c) Meta Platforms, Inc. and affiliates), whose notice is retained in `licenses/neural-NOTICE.txt`.
 
 ## Release gate
 
@@ -30,7 +30,7 @@ Codec-parser 2.5.0 is LGPL-3.0-or-later, not MIT. Its exact installed package in
 
 Sprint 6 integrates bounded FLAC decoding through @audio/decode-flac 2.0.0 (MIT), wrapping @wasm-audio-decoders/flac 0.2.11 (MIT wrapper with libFLAC BSD). Its license and libFLAC notice are retained. Vorbis decoding uses @audio/decode-vorbis 1.3.4 (MIT), wrapping @wasm-audio-decoders/ogg-vorbis 0.1.20. The latter declares original source MIT and preserves Copyright 2021–2025 Ethan Halsall in its bundle. Upstream licensing declaration is https://github.com/eshaz/wasm-audio-decoders#licensing. Audiojs's complete license is retained as `licenses/audio-decode-vorbis-MIT.txt`; Xiph Vorbis and Ogg BSD notices are retained as `licenses/Vorbis-BSD.txt` and `licenses/Ogg-BSD.txt`. The npm lockfile pins the resolved dependency tree. Library license comments remain intact.
 
-The original SCNet owner explicitly confirmed MIT licensing of pretrained weights and ONNX redistribution on 2026-07-17. Primary author evidence was fetched from GitHub API into `docs/sprint-evidence/sprint-1/scnet-author-grant.json`. The checkpoint asset exists in the named upstream release. Audiojs model-card source revisions and checkpoint digest are retained in `scnet-model-card.md`; its compact asset has a different digest and is not substituted for the tested AudioTools.dev compact build. Original-author MIT notice is retained in `licenses/SCNet-author-MIT.txt`. This establishes published author permission; retraining or independently regenerating the compact export is outside this audit.
+Sprint 27 removed the isolation model used in Sprints 1 to 26 and its license files. Its license evidence stays in `docs/sprint-evidence/sprint-1/` as a historical record.
 
 ## Local Mediabunny padding fix
 

@@ -1,91 +1,95 @@
 import type { JobEvent, IsolationDevice } from "../job-events";
-import type { InferenceInput, InferenceResult } from "./protocol";
+import type { InferenceBackend, InferenceInput, InferenceResult } from "./protocol";
+
+type Outcome = Extract<InferenceResult, { kind: "done" | "error" }>;
+
+/** How long a worker may stay silent while downloading or loading the model before it is stopped. */
+export const LOAD_WATCHDOG_MS = 120_000;
+/** How long one window may take to separate before the worker is stopped. */
+export const SEPARATE_WATCHDOG_MS = 300_000;
 
 export class InferenceRunner {
-  private idle: { worker: Worker; backend: InferenceInput["backend"]; windows: number } | null = null;
-  private readonly workerWindows: 1 | 2;
-  constructor(workerWindows: 1 | 2 = 1) {
-    if (workerWindows !== 1 && workerWindows !== 2) throw new Error("This isolation worker lifetime is unsupported.");
-    this.workerWindows = workerWindows;
-  }
+  private retained: { worker: Worker; backend: InferenceInput["backend"] } | null = null;
   private backend: InferenceInput["backend"] = "auto";
   private stopped = false;
   private device: IsolationDevice | null = null;
   private stopReason: unknown = new DOMException("Cancelled", "AbortError");
-  private active: { worker: Worker; reject: (reason: unknown) => void } | null = null;
+  private active: { reject: (reason: unknown) => void } | null = null;
   stop(reason: unknown = new DOMException("Cancelled", "AbortError")) {
     this.stopped = true;this.stopReason = reason;
-    this.idle?.worker.terminate();this.idle = null;
+    this.retained?.worker.terminate();this.retained = null;
     const active = this.active;
     this.active = null;
-    active?.worker.terminate();active?.reject(reason);
+    active?.reject(reason);
+  }
+  private setDevice(device: IsolationDevice, event: (value: JobEvent) => void) {
+    this.device = device;
+    event({ kind: "isolation-device", device });
   }
   async run(planes: Float32Array<ArrayBuffer>[], event: (value: JobEvent) => void) {
     let loads = 0;
-    const attempt = (backend: InferenceInput["backend"]) => new Promise<Extract<InferenceResult, { kind: "done" | "error" }>>((resolve, reject) => {
+    const attempt = (backend: InferenceInput["backend"]) => new Promise<Outcome>((resolve, reject) => {
       if (this.stopped) { reject(this.stopReason);return; }
       if (this.active) { reject(new Error("Isolation is already running."));return; }
-      event({ kind: "phase", phase: "Loading isolation tools" });
-      if (this.stopped) { reject(this.stopReason);return; }
-      const idle = this.idle;this.idle = null;
-      if (idle && idle.backend !== backend) idle.worker.terminate();
-      const retained = idle?.backend === backend ? idle : null;
-      if (!retained) loads++;
-      const worker = retained?.worker ?? new Worker(new URL("./worker.ts", import.meta.url), { type: "module", name: "audio-isolation" });
-      let separating = false;
-      let selectedBackend: "wasm" | "webgpu+wasm" = "wasm";
-      let stage: "model" | "session" | "run" = "model";
-      let timer: ReturnType<typeof setTimeout>;
-      const finish = (successBackend?: "wasm" | "webgpu+wasm") => {
+      if (this.retained?.backend !== backend) {
+        this.retained?.worker.terminate();this.retained = null;
+        event({ kind: "phase", phase: "Loading isolation tools" });
+        if (this.stopped) { reject(this.stopReason);return; }
+        this.retained = { worker: new Worker(new URL("./worker.ts", import.meta.url), { type: "module", name: "audio-isolation" }), backend };
+        loads++;
+      }
+      const { worker } = this.retained;
+      let selected: InferenceBackend = "wasm", stage: "model" | "session" | "run" = "model", timer: ReturnType<typeof setTimeout>;
+      const finish = (keep: boolean) => {
         clearTimeout(timer);
-        if (this.active?.worker !== worker) return false;
+        if (!this.active || this.retained?.worker !== worker) return false;
         this.active = null;
-        const windows = (retained?.windows ?? 0) + 1;
-        if (successBackend && windows < this.workerWindows) this.idle = { worker, backend: successBackend === "wasm" ? "wasm" : "auto", windows };
-        else worker.terminate();
+        if (!keep) { worker.terminate();this.retained = null; }
         return true;
       };
-      const deadline = (milliseconds: number) => setTimeout(() => {
-        if (!finish()) return;
-        const message = "Isolation stopped responding. Retry, or try a shorter selection.";
-        if (selectedBackend === "webgpu+wasm" && stage !== "model") resolve({ kind: "error", backend: selectedBackend, stage, message });
-        else reject(new Error(message));
-      }, milliseconds);
-      timer = deadline(120_000);
-      this.active = { worker, reject: reason => { clearTimeout(timer);reject(reason); } };
+      const arm = (milliseconds: number) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          if (!finish(false)) return;
+          const message = "Isolation stopped responding. Retry, or try a shorter selection.";
+          if (selected === "webgpu+wasm" && stage !== "model") resolve({ kind: "error", backend: selected, stage, message });
+          else reject(new Error(message));
+        }, milliseconds);
+      };
+      arm(LOAD_WATCHDOG_MS);
+      this.active = { reject: reason => { clearTimeout(timer);reject(reason); } };
       worker.onmessage = ({ data }: MessageEvent<InferenceResult>) => {
-        if (this.active?.worker !== worker) return;
+        if (!this.active || this.retained?.worker !== worker) return;
         if (data.kind === "backend") {
-          selectedBackend = data.backend;
-          this.device = selectedBackend === "webgpu+wasm" ? (this.device === "gpu" ? "gpu" : "preparing-gpu") : this.device === "cpu-fallback" ? "cpu-fallback" : "cpu";
-          event({ kind: "isolation-device", device: this.device });
+          selected = data.backend;
+          if (this.device === null) this.setDevice(selected === "wasm" ? "cpu" : "preparing-gpu", event);
         }
-        else if (data.kind === "phase" || data.kind === "model-download") {
-          if (data.kind === "phase" && data.phase === "Loading model") stage = "session";
-          if (data.kind === "phase" && data.phase === "Separating" && !separating) { stage = "run";separating = true;clearTimeout(timer);timer = deadline(300_000); }
+        else if (data.kind === "model-download") { arm(LOAD_WATCHDOG_MS);event(data); }
+        else if (data.kind === "phase") {
+          if (data.phase === "Loading model") { stage = "session";arm(LOAD_WATCHDOG_MS); }
+          if (data.phase === "Separating") { stage = "run";arm(SEPARATE_WATCHDOG_MS); }
           event(data);
         }
-        else if (finish(data.kind === "done" ? data.backend : undefined)) resolve(data);
+        else if (finish(data.kind === "done")) resolve(data);
       };
       worker.onerror = error => {
         error.preventDefault();
-        if (finish()) reject(new Error("Could not load isolation tools. Check your connection and retry."));
+        if (finish(false)) reject(new Error("Could not load isolation tools. Check your connection and retry."));
       };
       const copy = planes.map(plane => new Float32Array(plane));
       try { worker.postMessage({ planes: copy, backend } satisfies InferenceInput, copy.map(plane => plane.buffer)); }
-      catch (error) { if (finish()) reject(error); }
+      catch (error) { if (finish(false)) reject(error); }
     });
-    let attempts = 1;
     let result = await attempt(this.backend);
-    if (result.kind === "error" && result.backend === "webgpu+wasm" && result.stage !== "model") { this.backend = "wasm";this.device = "cpu-fallback";attempts++;
-      event({ kind: "isolation-device", device: "cpu-fallback" });
+    if (result.kind === "error" && result.backend === "webgpu+wasm" && result.stage !== "model") {
+      this.backend = "wasm";
+      this.setDevice("cpu-fallback", event);
       result = await attempt(this.backend);
     }
     if (result.kind === "error") throw new Error(result.message);
-    if (result.backend === "wasm") this.backend = "wasm";
-    this.device = result.backend === "webgpu+wasm" ? "gpu" : this.device === "cpu-fallback" ? "cpu-fallback" : "cpu";
-    event({ kind: "isolation-device", device: this.device });
     if (this.stopped) throw this.stopReason;
-    return { ...result, attempts, loads };
+    const backend: InferenceBackend = result.backend === "webgpu+wasm" && result.gpuDispatches > 0 ? "webgpu+wasm" : "wasm";
+    if (result.backend === "webgpu+wasm") this.setDevice(backend === "wasm" ? "cpu" : "gpu", event);
+    return { kind: "done" as const, stems: result.stems, backend, loads };
   }
 }

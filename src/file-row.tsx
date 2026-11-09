@@ -7,13 +7,18 @@ import type { ExecutionPlan } from "./planner";
 import type { BatchJob } from "./batch";
 import type { JobOperation, IsolationDevice } from "./job-events";
 import type { PreviewState } from "./preview";
+import type { InferenceBackend } from "./inference/protocol";
 const LEVEL_CHANGING = new Set(["gain", "compress", "channels", "isolation", "speech", "normalize"]);
 const DEVICES: Record<IsolationDevice, { label: string; description: string }> = {
   "preparing-gpu": { label: "Trying GPU", description: "Checking GPU-assisted separation. Processing has not succeeded yet." },
-  gpu: { label: "GPU + CPU", description: "GPU-assisted mode with CPU support. This does not measure GPU utilization." },
-  cpu: { label: "CPU", description: "Separation is using CPU mode." },
+  gpu: { label: "GPU + CPU", description: "The model issued GPU work. Some steps still run on the CPU." },
+  cpu: { label: "CPU", description: "Separation is running on the CPU, which is slower than real time." },
   "cpu-fallback": { label: "CPU · switched from GPU", description: "GPU processing failed or stopped responding. Separation switched to CPU mode." },
 };
+function separationDevice(backends: readonly InferenceBackend[]) {
+  if (backends.length > 1) return "the GPU, then the CPU after a GPU failure";
+  return backends[0] === "webgpu+wasm" ? "the GPU" : "the CPU";
+}
 function operationLabel(operation: JobOperation) {
   switch (operation.kind) {
     case "phase": return `${operation.phase}…`;
@@ -225,6 +230,9 @@ export function FileRow({
                   {` Estimated true peak ${pcmStats.truePeakDbtp.toFixed(1)} dBTP against a ${pcmStats.peakTargetDbtp.toFixed(1)} dBTP target.`}
                   {laterNote}
                 </small>
+              )}
+              {pcmStats && pcmStats.isolationPasses > 0 && (
+                <small>Separated with Demucs on {separationDevice(pcmStats.isolationBackends)}.</small>
               )}
               {pcmStats && compressorRan && (
                 <small>Compressor max gain reduction {pcmStats.compressorMaxGainReductionDb.toFixed(1)} dB.</small>
