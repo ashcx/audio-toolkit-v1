@@ -27,6 +27,7 @@ Out of scope is a visual redesign. Colors, tokens, card shapes, spacing rhythm a
 
 ## Decisions already made by the user
 
+- Keep the names **Gain** and **Normalize** as they are, because they are industry-standard terms.
 - Keep the names **Voice / music splitter**, **Remove background noise** and **Compressor** for those steps, and call the list **Steps** instead of Recipe.
 - Keep loudness and decibel numbers visible. Clean them up for clarity, but do not hide them behind an Advanced section.
 - Settings keeps a theme toggle and the Licenses link.
@@ -78,8 +79,8 @@ These were observed in real Chrome on the Sprint 27 build, so each is a testable
 | Voice isolation | Remove background noise | decided |
 | Reduce loud/quiet differences | Compressor | decided |
 | Trim all | Trim all | unchanged |
-| Gain | Volume | proposed |
-| Normalize | Match loudness | proposed |
+| Gain | Gain | unchanged (decided: industry standard term) |
+| Normalize | Normalize | unchanged (decided: industry standard term) |
 | Channels | Channels | unchanged |
 | Sample rate | Sample rate | unchanged |
 
@@ -118,7 +119,7 @@ Do the first task, the copy deck, before the others. Group commits by task so ea
 - [ ] **Status and progress.** Remove the device badges. Replace the phase and window counters with the staged progress from the message rules. Show the first-use download as a progress state, not a standing paragraph. Show the slow-path warning only when it applies.
 - [ ] **Result card.** Keep the player, the download button and at most one attention note. Remove the success sentences, the "Exported audio" label and the separate "Clipped samples." line; if clipping or a limited level needs a note, make it one clear sentence. Make the original player unobtrusive without removing it.
 - [ ] **Persistent hints.** Remove "2/2 done" except while work is running, remove the standing clear-all and keep-open hints, and show them only when relevant.
-- [ ] **Steps.** The Compressor is on when added and its enable checkbox goes away (removing the step disables it). Show one short level line, shared by Volume, Match loudness and Compressor where useful, instead of repeating a three-box readout. Clean up Match loudness: keep the loudness numbers visible, reduce the reference marks to short clear labels, replace the paragraph about measurement blocks with one sentence, and keep the true-peak ceiling visible but visually secondary. Remove the duplicate pencil control.
+- [ ] **Steps.** The Compressor is on when added and its enable checkbox goes away (removing the step disables it). Show one short level line, shared by Gain, Normalize and Compressor where useful, instead of repeating a three-box readout. Clean up Normalize: keep the loudness numbers visible, reduce the reference marks to short clear labels, replace the paragraph about measurement blocks with one sentence, and keep the true-peak ceiling visible but visually secondary. Remove the duplicate pencil control.
 - [ ] **Add step and empty state.** Keep only the existing Add step menu. Add one line to the empty Steps panel, and a one-line hint that steps run top to bottom. Give each menu entry a short description if the native control allows it, otherwise leave it as is.
 - [ ] **Preview.** Label it with its length and replace "Excerpt estimate…" and "WAV comparison" with plain before and after wording.
 - [ ] **Settings.** The dialog keeps the theme toggle and the Licenses link. Tidy the text and the focus behavior, and add no new options.
@@ -135,7 +136,7 @@ Check a scenario only when evidence exists. Evidence is recorded in the PR body 
 | Scenario | Required observable result |
 | --- | --- |
 | 28-01 | A successful MP3 export of one file with no steps shows only the player and download, with no status sentences, and the Export panel shows no standing hint text. |
-| 28-02 | A successful export with Match loudness, Compressor and Voice / music splitter shows at most one attention note per file, and none when nothing needs attention. |
+| 28-02 | A successful export with Normalize, Compressor and Voice / music splitter shows at most one attention note per file, and none when nothing needs attention. |
 | 28-03 | While the model downloads and separation runs, progress shows Downloading with MB, then Separating with a percent, then Saving. No badge, window counter or GPU word appears. |
 | 28-04 | Each failure in the catalogue shows its plain message once, with its action, and never raw browser or engine text. A failed model download shows the retry message. |
 | 28-05 | A bad trim range shows one message, at the step, and no duplicate under the file. |
