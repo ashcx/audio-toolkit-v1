@@ -40,7 +40,7 @@ test('encoding mode labels come from the copy and carry no description text', ()
 });
 
 test('loudness marks use the short deck labels', () => {
-  assert.deepEqual(LOUDNESS_MARKS.map(mark => copy.normalize.markText(mark.value, mark.label)),
+  assert.deepEqual(LOUDNESS_MARKS.map(mark => `${copy.normalize.markValue(mark.value)} ${mark.label}`),
     ['\u221223 Broadcast', '\u221216 Podcast', '\u221214 Streaming', '\u22129.5 Loud', '\u22128 Maximum']);
 });
 

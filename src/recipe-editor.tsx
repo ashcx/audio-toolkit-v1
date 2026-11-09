@@ -1,8 +1,6 @@
 import type { ComponentChildren } from "preact";
 import { useId, useEffect, useLayoutEffect, useRef, useState } from "preact/hooks";
 import {
-  STEP_NAMES,
-  FORMAT_NAMES,
   isStepKind,
   isExportFormat,
   newStep,
@@ -15,7 +13,6 @@ import {
 } from "./recipe";
 import { TrimFields } from "./trim-fields";
 import { defaultEncodingMode, encodingModesFor } from "./encoding-modes";
-import { formatTime } from "./format";
 import { levelDb } from "./levels";
 import { useLevels } from "./use-levels";
 import {
@@ -29,54 +26,14 @@ import {
 import type { FileEntry } from "./media";
 import { usableGpu, type GpuSupport } from "./inference/gpu";
 import { validationMessage } from "./errors";
+import { copy } from "./copy";
+import { stepSummary } from "./step-summary";
 
-function summary(step: StepDraft): string {
-  switch (step.kind) {
-    case "trim":
-      if (
-        (step.range.start !== null && !Number.isFinite(step.range.start)) ||
-        (step.range.end !== null && !Number.isFinite(step.range.end))
-      )
-        return "Set range";
-      return `${formatTime(step.range.start ?? 0)} to ${step.range.end === null ? "End" : formatTime(step.range.end)}`;
-    case "gain":
-      return Number.isFinite(step.db)
-        ? `${step.db} dB${step.db > 0 ? " · May clip" : ""}`
-        : "Set gain";
-    case "normalize": {
-      const mode = step.mode ?? "peak";
-      if (mode === "peak") {
-        if (Number.isFinite(step.targetDbtp))
-          return `Peak · ${step.targetDbtp} dBTP`;
-        return Number.isFinite(step.targetDbfs)
-          ? `Peak · ${step.targetDbfs} dBFS (legacy)`
-          : "Set peak target";
-      }
-      return Number.isFinite(step.targetLufs) && Number.isFinite(step.ceilingDbtp)
-        ? `Loudness · ${step.targetLufs} LUFS · ${step.ceilingDbtp} dBTP`
-        : "Set loudness target";
-    }
-    case "compress":
-      return `${step.enabled && step.amount > 0 ? "On" : "Bypass"} · ${step.preset === "speech" ? "Speech" : "Music"} · ${step.amount}%`;
-    case "channels":
-      return step.channels === "original"
-        ? "Keep unchanged"
-        : step.channels === "mono"
-          ? "Mono"
-          : "Stereo";
-    case "resample":
-      return step.rateHz === "original"
-        ? "Keep unchanged"
-        : `${step.rateHz / 1000} kHz`;
-    case "speech":
-      return step.model === "standard" ? "Standard · GTCRN" : "Detailed · DeepFilterNet3";
-    case "isolation":
-      return step.keep === "voice" ? "Keep voice" : "Keep music";
-    default: {
-      const unreachable: never = step;
-      return unreachable;
-    }
-  }
+/** The message and element id a step shows when its own settings are wrong, or undefined when they are fine. */
+export function stepProblem(step: StepDraft): { id: string; message: string } | undefined {
+  const parsed = stepSchema.safeParse(step);
+  const message = parsed.success ? undefined : validationMessage(parsed.error.issues);
+  return message ? { id: `error-${step.id}`, message } : undefined;
 }
 function IsolationNote() {
   const [gpu, setGpu] = useState<GpuSupport | null>(null);
@@ -86,38 +43,38 @@ function IsolationNote() {
     return () => { current = false; };
   }, []);
   return <small class="panel-description" data-isolation-device={gpu === null ? "checking" : gpu.usable ? "gpu" : "cpu"}>
-    {gpu && !gpu.usable && `Isolation will run on the CPU, slower than real time: about 80 seconds per minute of audio on a fast laptop. `}
-    The first use downloads an 85 MB model, which the browser may reuse from its cache. Every job re-checks it. Some voice, music or reverb may remain.
+    {gpu && !gpu.usable && `${copy.splitter.slowDevice} `}
+    {copy.splitter.hint}
   </small>;
 }
 function SourceLevels({ files, enabled }: {files: readonly FileEntry[]; enabled: boolean}) {
   const state = useLevels(files,enabled);
-  const display = (value: number | null) => value === null ? "−∞" : value.toFixed(1);
+  if (!enabled) return null;
   return <div class="source-levels" aria-live="polite" aria-busy={state.kind === "loading"}>
-    {state.kind === "idle" ? <small>{enabled ? "Choose files to measure their levels." : "Analysis paused during export."}</small>
-      : state.kind === "loading" ? <small>Measuring audio{state.total > 1 ? ` ${state.completed}/${state.total}` : ""}…</small>
-      : state.kind === "failed" ? <small class="file-error">{state.message} Reopen this step to retry.</small>
+    {state.kind === "idle" ? <small>{copy.levels.empty}</small>
+      : state.kind === "loading" ? <small>{copy.levels.measuring}</small>
+      : state.kind === "failed" ? <small class="file-error">{state.message}</small>
       : <>
-        <div class="levels-heading">Original audio <span>{state.count} {state.count === 1 ? "file" : "files"}</span></div>
+        <div class="levels-heading">{copy.levels.heading}</div>
         <dl class="level-readout">
-          <div><dt>Peak</dt><dd>{display(levelDb(state.levels.peak))}<small>dBFS</small></dd></div>
-          <div><dt>Average <span>RMS</span></dt><dd>{display(levelDb(Math.sqrt(state.levels.squareSum / state.levels.samples)))}<small>dBFS</small></dd></div>
+          <div><dt>{copy.levels.peak}</dt><dd>{copy.levels.value(levelDb(state.levels.peak))}<small>{copy.levels.unit}</small></dd></div>
+          <div><dt>{copy.levels.average}</dt><dd>{copy.levels.value(levelDb(Math.sqrt(state.levels.squareSum / state.levels.samples)))}<small>{copy.levels.unit}</small></dd></div>
         </dl>
       </>}
   </div>;
 }
-function DbControl({ label, value, min, max, unit = "dB", errorId, onChange }: {
-  label: string; value: number; min: number; max: number; unit?: string; errorId?: string;
+function DbControl({ label, value, min, max, unit = copy.units.db, errorId, warning, onChange }: {
+  label: string; value: number; min: number; max: number; unit?: string; errorId?: string; warning?: string;
   onChange: (value: number) => void;
 }) {
   const sliderValue = Number.isFinite(value) ? Math.round(Math.max(min, Math.min(max, value)) * 10) / 10 : min;
   return <div class="db-control">
-    <div class="parameter-heading"><span>{label}</span><output>{Number.isFinite(value) ? value : "Unset"} <small>{unit}</small></output></div>
+    <div class="parameter-heading"><span>{label}</span><output>{Number.isFinite(value) ? copy.number(value) : copy.unset} <small>{unit}</small></output></div>
     <input type="range" min={min} max={max} step="0.1" aria-invalid={!!errorId} aria-describedby={errorId}
-      aria-label={`${label} slider`} aria-valuetext={`${sliderValue} ${unit}`} value={sliderValue}
+      aria-label={copy.slider(label)} aria-valuetext={`${sliderValue} ${unit}`} value={sliderValue}
       onInput={event => onChange(event.currentTarget.valueAsNumber)} />
-    <div class="parameter-scale"><span>{min} {unit}</span><span>{max} {unit}</span></div>
-    {label === "Gain (dB)" && value > 0 && <small class="file-error">May clip. Check the exported result.</small>}
+    <div class="parameter-scale"><span>{copy.number(min)} {unit}</span><span>{copy.number(max)} {unit}</span></div>
+    {warning && <small class="file-error">{warning}</small>}
   </div>;
 }
 function Choices<T extends string>({ label, value, options, onChange }: {
@@ -143,18 +100,18 @@ function LoudnessRail({ value, errorId, onChange }: {
     return lufsFromPosition((clientX - box.left) / box.width);
   };
   return <div class="loudness-control">
-    <div class="parameter-heading"><span>Loudness target</span><output>{current} <small>LUFS</small></output></div>
+    <div class="parameter-heading"><span>{copy.normalize.loudnessTarget}</span><output>{copy.number(current)} <small>{copy.units.lufs}</small></output></div>
     <div
       ref={rail}
       class="lufs-rail"
       role="slider"
       tabIndex={0}
-      aria-label="Loudness target"
+      aria-label={copy.normalize.loudnessTarget}
       aria-orientation="horizontal"
       aria-valuemin={LOUDNESS_MIN}
       aria-valuemax={LOUDNESS_MAX}
       aria-valuenow={current}
-      aria-valuetext={`${current} LUFS`}
+      aria-valuetext={`${copy.number(current)} ${copy.units.lufs}`}
       aria-invalid={!!errorId}
       aria-describedby={[marksId, errorId].filter(Boolean).join(" ") || undefined}
       onPointerDown={event => {
@@ -204,14 +161,11 @@ function LoudnessRail({ value, errorId, onChange }: {
     <div class="lufs-marks" aria-hidden="true">
       {LOUDNESS_MARKS.map(mark => (
         <span class={`lufs-mark-label ${mark.kind}`}>
-          <b>{mark.value} LUFS</b> {mark.label}
+          <b>{copy.normalize.markValue(mark.value)}</b> {mark.label}
         </span>
       ))}
     </div>
-    <small class="panel-description">Only -23 LUFS is a formal delivery target here. Other marks are references, not platform guarantees.</small>
-    <p id={marksId} class="sr-only">
-      Reference marks: {LOUDNESS_MARKS.map(mark => `${mark.value} LUFS, ${mark.label}`).join("; ")}.
-    </p>
+    <p id={marksId} class="sr-only">{copy.normalize.marksDescription(LOUDNESS_MARKS)}</p>
   </div>;
 }
 function StepFields({
@@ -235,14 +189,15 @@ function StepFields({
         <TrimFields
           errorId={errorId}
           duration={duration}
-          scope="Applies to all files. Files shorter than the selected start cannot be exported."
+          scope={copy.trim.hint}
           range={step.range}
-          prefix="Trim all"
+          prefix={copy.trim.prefix}
           onChange={(range) => onChange({ ...step, range })}
         />
       );
     case "gain":
-      return <><SourceLevels files={files} enabled={analysisEnabled} /><DbControl label="Gain (dB)" value={step.db} min={-12} max={12} errorId={errorId} onChange={db => onChange({...step, db})} /></>;
+      return <><SourceLevels files={files} enabled={analysisEnabled} /><DbControl label={copy.gain.label} value={step.db} min={-12} max={12} errorId={errorId}
+        warning={step.db > 0 ? copy.gain.warning : undefined} onChange={db => onChange({...step, db})} /></>;
     case "normalize": {
       const mode = step.mode ?? "peak";
       const targetLufs = step.targetLufs ?? -14;
@@ -251,66 +206,58 @@ function StepFields({
       const legacyDbfs = step.targetDbfs;
       return <>
         <SourceLevels files={files} enabled={analysisEnabled} />
-        <Choices label="Normalize mode" value={mode} options={[
-          { value: "loudness", label: "Loudness" }, { value: "peak", label: "Peak" },
+        <Choices label={copy.normalize.modeLegend} value={mode} options={[
+          { value: "loudness", label: copy.normalize.modes.loudness }, { value: "peak", label: copy.normalize.modes.peak },
         ]} onChange={next => onChange(next === "loudness"
           ? { id: step.id, kind: "normalize", mode: "loudness", targetLufs, ceilingDbtp }
           : { id: step.id, kind: "normalize", mode: "peak", targetDbtp })} />
         {mode === "loudness" ? <>
           <LoudnessRail value={targetLufs} errorId={errorId} onChange={targetLufs =>
             onChange({ id: step.id, kind: "normalize", mode: "loudness", targetLufs, ceilingDbtp })} />
-          <DbControl label="True-peak ceiling (dBTP)" value={ceilingDbtp} min={-6} max={0} unit="dBTP" errorId={errorId}
+          <DbControl label={copy.normalize.ceiling} value={ceilingDbtp} min={-6} max={0} unit={copy.units.dbtp} errorId={errorId}
             onChange={ceilingDbtp => onChange({ id: step.id, kind: "normalize", mode: "loudness", targetLufs, ceilingDbtp })} />
-          <small class="panel-description">Gated integrated loudness is measured in 400 ms blocks. The true-peak ceiling can prevent the requested loudness; the export reports the achieved result at this step. Later gain or compressor steps can change the final level.</small>
+          <small class="panel-description">{copy.normalize.loudnessExplainer}</small>
         </> : legacyDbfs !== undefined ? <>
-          <DbControl label="Legacy peak target (dBFS)" value={legacyDbfs} min={-60} max={0} unit="dBFS" errorId={errorId}
+          <DbControl label={copy.normalize.legacyPeakTarget} value={legacyDbfs} min={-60} max={0} unit={copy.units.dbfs} errorId={errorId}
             onChange={targetDbfs => onChange({ id: step.id, kind: "normalize", mode: "peak", targetDbfs })} />
-          <small class="panel-description">This recipe keeps its original sample-peak meaning. New peak steps use true peak.</small>
           <button type="button" class="text-button"
-            onClick={() => onChange({ id: step.id, kind: "normalize", mode: "peak", targetDbtp })}>Use a true-peak target</button>
+            onClick={() => onChange({ id: step.id, kind: "normalize", mode: "peak", targetDbtp })}>{copy.normalize.useTruePeak}</button>
         </> : <>
-          <DbControl label="Peak target (dBTP)" value={targetDbtp} min={-6} max={0} unit="dBTP" errorId={errorId}
+          <DbControl label={copy.normalize.peakTarget} value={targetDbtp} min={-6} max={0} unit={copy.units.dbtp} errorId={errorId}
             onChange={targetDbtp => onChange({ id: step.id, kind: "normalize", mode: "peak", targetDbtp })} />
-          <small class="panel-description">Peak mode aims at the requested true peak. The reported peak is this app's estimate, so another meter can read a little differently. The loudness target is not used.</small>
+          <small class="panel-description">{copy.normalize.peakExplainer}</small>
         </>}
       </>;
     }
     case "compress":
       return <>
-        <SourceLevels files={files} enabled={analysisEnabled} />
-        <label class="checkbox-field">
-          <input type="checkbox" checked={step.enabled}
-            onChange={event => onChange({ ...step, enabled: event.currentTarget.checked })} />
-          Enable compressor
-        </label>
         <div class="compressor-control">
-          <div class="parameter-heading"><span>Amount</span><output>{step.amount} <small>%</small></output></div>
+          <div class="parameter-heading"><span>{copy.compressor.amount}</span><output>{step.amount} <small>{copy.units.percent}</small></output></div>
           <input type="range" min="0" max="100" step="1" value={step.amount}
-            aria-label="Compression amount" aria-valuetext={`${step.amount}%`}
+            aria-label={copy.compressor.amountLabel} aria-valuetext={`${step.amount}${copy.units.percent}`}
             onInput={event => onChange({ ...step, amount: event.currentTarget.valueAsNumber })} />
-          <div class="parameter-scale"><span>Gentle</span><span>Strong</span></div>
+          <div class="parameter-scale"><span>{copy.compressor.gentle}</span><span>{copy.compressor.strong}</span></div>
         </div>
         <label class="field">
-          Preset
+          {copy.compressor.preset}
           <select value={step.preset} onChange={event => {
             const next = stepSchema.safeParse({ ...step, preset: event.currentTarget.value });
             if (next.success) onChange(next.data);
           }}>
-            <option value="speech">Speech</option>
-            <option value="music">Music</option>
+            <option value="speech">{copy.compressor.presets.speech}</option>
+            <option value="music">{copy.compressor.presets.music}</option>
           </select>
         </label>
-        <small class="panel-description">Loud parts are turned down more than quiet parts, so speech stays even without automatic makeup gain.</small>
-        <small class="panel-description">Compressor before loudness normalization avoids downstream gain changes. Explicit step order is respected.</small>
+        <small class="panel-description">{copy.compressor.hint}</small>
       </>;
     case "channels":
-      return <Choices label="Channels" value={step.channels} options={[
-        {value:"original",label:"Unchanged"}, {value:"mono",label:"Mono"}, {value:"stereo",label:"Stereo"}
+      return <Choices label={copy.channels.label} value={step.channels} options={[
+        {value:"original",label:copy.channels.options.original}, {value:"mono",label:copy.channels.options.mono}, {value:"stereo",label:copy.channels.options.stereo}
       ]} onChange={channels => onChange({...step,channels})} />;
     case "resample":
       return (
         <label class="field">
-          Sample rate
+          {copy.sampleRate.label}
           <select
             value={step.rateHz}
             onChange={(event) => {
@@ -322,28 +269,31 @@ function StepFields({
               if (next.success) onChange(next.data);
             }}
           >
-            <option value="original">Keep unchanged</option>
+            <option value="original">{copy.sampleRate.keep}</option>
             {[44100, 48000, 32000, 24000, 16000].map((rate) => (
-              <option value={rate}>{rate / 1000} kHz</option>
+              <option value={rate}>{copy.sampleRate.summary(rate)}</option>
             ))}
           </select>
         </label>
       );
     case "speech":
-      return <label class="field">Voice model
-        <select value={step.model} onChange={event => {
-          const next = stepSchema.safeParse({ ...step, model: event.currentTarget.value });
-          if (next.success) onChange(next.data);
-        }}>
-          <option value="standard">Standard · GTCRN</option>
-          <option value="detailed">Detailed · DeepFilterNet3</option>
-        </select>
-      </label>;
+      return <>
+        <label class="field">{copy.noise.label}
+          <select value={step.model} onChange={event => {
+            const next = stepSchema.safeParse({ ...step, model: event.currentTarget.value });
+            if (next.success) onChange(next.data);
+          }}>
+            <option value="standard">{copy.noise.options.standard}</option>
+            <option value="detailed">{copy.noise.options.detailed}</option>
+          </select>
+        </label>
+        <small class="panel-description">{copy.noise.hint}</small>
+      </>;
     case "isolation":
       return (
         <>
         <label class="field">
-          Keep
+          {copy.splitter.label}
           <select
             value={step.keep}
             onChange={(event) => {
@@ -354,8 +304,8 @@ function StepFields({
               if (next.success) onChange(next.data);
             }}
           >
-            <option value="voice">Voice</option>
-            <option value="music">Music</option>
+            <option value="voice">{copy.splitter.options.voice}</option>
+            <option value="music">{copy.splitter.options.music}</option>
           </select>
         </label>
         <IsolationNote />
@@ -411,7 +361,7 @@ export function RecipeEditor({
     if (!step || from === to) return;
     if (onChange(moveStep(value, from, to))) {
       moved.current = step.id;
-      setAnnouncement(`${STEP_NAMES[step.kind]} moved to position ${to + 1} of ${value.steps.length}.`);
+      setAnnouncement(copy.steps.moved(copy.steps.names[step.kind], to + 1, value.steps.length));
     }
   };
   const move = (index: number, direction: -1 | 1) => reorder(index, index + direction);
@@ -423,10 +373,10 @@ export function RecipeEditor({
       aria-labelledby="recipe-title"
     >
       <div class="panel-heading">
-        <h2 id="recipe-title">Recipe</h2>
+        <h2 id="recipe-title">{copy.steps.heading}</h2>
         <select
           ref={addControl}
-          aria-label="Add step"
+          aria-label={copy.steps.addStep}
           value=""
           onChange={(event) => {
             const kind = event.currentTarget.value;
@@ -438,9 +388,9 @@ export function RecipeEditor({
           }}
         >
           <option value="" disabled>
-            Add step
+            {copy.steps.addStep}
           </option>
-          {Object.entries(STEP_NAMES).map(([kind, label]) => (
+          {Object.entries(copy.steps.names).map(([kind, label]) => (
             <option
               value={kind}
               disabled={
@@ -453,31 +403,32 @@ export function RecipeEditor({
           ))}
         </select>
       </div>
-      <small id="reorder-help" class="sr-only">Drag to reorder, or use Arrow Up and Arrow Down on the grip. More actions also has move controls.</small>
+      <small id="reorder-help" class="sr-only">{copy.steps.reorderHelp}</small>
       <span class="sr-only" role="status" aria-live="polite">{announcement}</span>
+      {value.steps.length === 0
+        ? <p class="panel-description steps-empty">{copy.steps.empty}</p>
+        : <small class="panel-description steps-hint">{copy.steps.hint}</small>}
       <div class="recipe-steps">
         {value.steps.map((step, index) => {
-          const parsed = stepSchema.safeParse(step);
-          const stepError = parsed.success
-            ? undefined
-            : validationMessage(parsed.error.issues);
-          const errorId = stepError ? `error-${step.id}` : undefined;
+          const problem = stepProblem(step);
+          const stepError = problem?.message;
+          const errorId = problem?.id;
           const repeated =
             value.steps.filter((item) => item.kind === step.kind).length > 1;
           const ordinal = value.steps
             .slice(0, index + 1)
             .filter((item) => item.kind === step.kind).length;
-          const label = `${STEP_NAMES[step.kind]}${repeated ? ` ${ordinal}` : ""}`;
+          const label = `${copy.steps.names[step.kind]}${repeated ? ` ${ordinal}` : ""}`;
           return (
             <article
               class="recipe-step"
-              aria-label={STEP_NAMES[step.kind]}
+              aria-label={copy.steps.names[step.kind]}
               key={step.id}
               data-step-id={step.id}
               data-insertion={slot === index ? "before" : slot === value.steps.length && index === value.steps.length - 1 ? "after" : undefined}
             >
               <div class="step-heading">
-                <button type="button" class="step-grip" aria-label={`Drag ${label}`}
+                <button type="button" class="step-grip" aria-label={copy.steps.drag(label)}
                   aria-describedby="reorder-help"
                   onPointerDown={event => {
                     if (event.button !== 0 || event.currentTarget.disabled || gesture.current) return;
@@ -517,7 +468,7 @@ export function RecipeEditor({
                   <button
                     class="step-toggle"
                     type="button"
-                    aria-label={`${label} settings`}
+                    aria-label={copy.steps.settings(label)}
                     aria-describedby={`summary-${step.id}${errorId ? ` ${errorId}` : ""}`}
                     aria-expanded={expanded === step.id}
                     aria-controls={`settings-${step.id}`}
@@ -525,39 +476,34 @@ export function RecipeEditor({
                       setExpanded(expanded === step.id ? null : step.id)
                     }
                   >
-                    <span class="step-title">{STEP_NAMES[step.kind]}<span class="expansion-indicator" aria-hidden="true">{expanded === step.id ? "⌃" : "⌄"}</span></span>
-                    <small id={`summary-${step.id}`}>{summary(step)}</small>
+                    <span class="step-title">{copy.steps.names[step.kind]}<span class="expansion-indicator" aria-hidden="true">{expanded === step.id ? "⌃" : "⌄"}</span></span>
+                    <small id={`summary-${step.id}`}>{stepSummary(step)}</small>
                   </button>
                 </h3>
-                <button type="button" class="step-edit" aria-label={`Edit ${label}`}
-                  aria-expanded={expanded === step.id} aria-controls={`settings-${step.id}`}
-                  onClick={() => setExpanded(expanded === step.id ? null : step.id)}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m15 5 4 4M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15z" /></svg>
-                </button>
                 <details class="step-menu" onKeyDown={event=>{
                   if(event.key === "Escape") { event.currentTarget.open=false; event.currentTarget.querySelector<HTMLElement>("summary")?.focus(); }
                 }}>
-                  <summary role="button" aria-label={`More actions for ${label}`}>⋯</summary>
+                  <summary role="button" aria-label={copy.steps.moreActions(label)}>⋯</summary>
                   <div class="step-actions">
                   <button
                     type="button"
-                    aria-label={`Move ${label} up`}
+                    aria-label={copy.steps.moveStepUp(label)}
                     disabled={index === 0}
                     onClick={event => {event.currentTarget.closest("details")?.removeAttribute("open");move(index,-1);}}
                   >
-                    Up
+                    {copy.steps.moveUp}
                   </button>
                   <button
                     type="button"
-                    aria-label={`Move ${label} down`}
+                    aria-label={copy.steps.moveStepDown(label)}
                     disabled={index === value.steps.length - 1}
                     onClick={event => {event.currentTarget.closest("details")?.removeAttribute("open");move(index,1);}}
                   >
-                    Down
+                    {copy.steps.moveDown}
                   </button>
                   <button
                     type="button"
-                    aria-label={`Remove ${label}`}
+                    aria-label={copy.steps.removeStep(label)}
                     onClick={() => {
                       if (
                         onChange({
@@ -570,7 +516,7 @@ export function RecipeEditor({
                         addControl.current?.focus();
                     }}
                   >
-                    Remove
+                    {copy.steps.remove}
                   </button>
                   </div>
                 </details>
@@ -636,12 +582,12 @@ export function ExportEditor({value,onChange,disabled,children}: {
           : [];
   return (
       <section class="panel export-panel" aria-labelledby="export-title">
-      <h2 id="export-title">Export</h2>
+      <h2 id="export-title">{copy.export.heading}</h2>
       <fieldset class="export-lock" disabled={disabled}>
 
         <div class={`export-fields${modes.length > 1 ? " has-mode" : ""}`}>
           <label class="field">
-            Format
+            {copy.export.formatLabel}
             <select
               value={format}
               onChange={(event) => {
@@ -650,14 +596,14 @@ export function ExportEditor({value,onChange,disabled,children}: {
                   onChange({ ...value, export: newExport(nextFormat) }, true);
               }}
             >
-              {Object.entries(FORMAT_NAMES).map(([option, label]) => (
+              {Object.entries(copy.export.formats).map(([option, label]) => (
                 <option value={option}>{label}</option>
               ))}
             </select>
           </label>
           {modes.length > 1 && (
             <label class="field">
-              Encoding mode
+              {copy.export.modeLabel}
               <select
                 value={mode}
                 onChange={(event) => {
@@ -674,7 +620,7 @@ export function ExportEditor({value,onChange,disabled,children}: {
           )}
           {"bitrateKbps" in value.export && (
             <label class="field">
-              {format === "m4a" || (format === "opus" && mode === "vbr") ? "Target bitrate (kbps)" : "Bitrate (kbps)"}
+              {copy.export.bitrateLabel}
               <select
                 value={value.export.bitrateKbps}
                 onChange={(event) => {
@@ -693,7 +639,7 @@ export function ExportEditor({value,onChange,disabled,children}: {
           )}
         </div>
       </fieldset>
-      {format === "original" && <p class="panel-description">Preserves the encoded audio without re-encoding. Effects and accurate trims need an encoded format.</p>}
+      {format === "original" && <p class="panel-description">{copy.export.keepOriginalHint}</p>}
       {children}
     </section>
   );

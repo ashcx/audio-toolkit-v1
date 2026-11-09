@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import { formatTrimTime, parseClock } from "./format";
 import { trimHandles, changeTrimHandle } from "./trim-control";
 import type { TrimRangeDraft } from "./recipe";
+import { copy } from "./copy";
 function TimeField({ value, placeholder, label, errorId, onChange }: {
   value: number | null; placeholder: string; label: string; errorId?: string;
   onChange: (value: number | null) => void;
@@ -43,9 +44,9 @@ export function TrimFields({ range, prefix, onChange, errorId, duration, scope }
   };
   return <div class="trim-control">
     <div class="trim-times">
-      <label>Start<TimeField value={range.start} placeholder="00:00" label={`${prefix} start (time)`} errorId={errorId} onChange={start => onChange({...range,start})} /></label>
-      <span class="trim-connector" aria-hidden="true">to</span>
-      <label>End<TimeField value={range.end} placeholder={bound === null ? "End" : formatTrimTime(bound)} label={`${prefix} end (time)`} errorId={errorId} onChange={end => onChange({...range,end})} /></label>
+      <label>{copy.trim.start}<TimeField value={range.start} placeholder="00:00" label={copy.trim.startField(prefix)} errorId={errorId} onChange={start => onChange({...range,start})} /></label>
+      <span class="trim-connector" aria-hidden="true">{copy.trim.to}</span>
+      <label>{copy.trim.end}<TimeField value={range.end} placeholder={bound === null ? copy.trim.end : formatTrimTime(bound)} label={copy.trim.endField(prefix)} errorId={errorId} onChange={end => onChange({...range,end})} /></label>
     </div>
     {bound !== null && <div class="dual-range" onPointerDown={event => {
       if (event.button !== 0 || gesture.current || event.currentTarget.closest("fieldset:disabled")) return;
@@ -71,15 +72,15 @@ export function TrimFields({ range, prefix, onChange, errorId, duration, scope }
     onLostPointerCapture={() => {gesture.current = null;}} style={{"--range-start":`${start / bound * 100}%`,"--range-end":`${end / bound * 100}%`}}>
       <div class="dual-range-track"><div /></div>
       <input data-handle="start" type="range" min="0" max={bound} step="any" value={start} style={{zIndex:start / bound > .5 ? 3 : 1}}
-        aria-label={`${prefix} start handle`} aria-valuetext={formatTrimTime(start)}
+        aria-label={copy.trim.startHandle(prefix)} aria-valuetext={formatTrimTime(start)}
         onKeyDown={event => keys(event,"start")}
         onInput={event => edit("start",event.currentTarget.valueAsNumber)} />
       <input data-handle="end" type="range" min="0" max={bound} step="any" value={end}
-        aria-label={`${prefix} end handle`} aria-valuetext={formatTrimTime(end)}
+        aria-label={copy.trim.endHandle(prefix)} aria-valuetext={formatTrimTime(end)}
         onKeyDown={event => keys(event,"end")}
         onInput={event => edit("end",event.currentTarget.valueAsNumber)} />
     </div>}
-    <div class="trim-scale"><span>00:00</span><span>{bound === null ? "Duration unknown" : formatTrimTime(bound)}</span></div>
+    <div class="trim-scale"><span>00:00</span><span>{bound === null ? copy.trim.unknownDuration : formatTrimTime(bound)}</span></div>
     {scope && <small class="trim-scope">{scope}</small>}
   </div>;
 }

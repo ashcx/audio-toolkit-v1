@@ -106,7 +106,6 @@ p { margin: 0; }
 .recipe-step[data-insertion="after"]::after { bottom: -2px; }
 .recipe-column { display: grid; gap: 16px; min-width: 0; }
 .export-lock { padding: 0; margin: 0; border: 0; min-width: 0; }
-.step-edit { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; padding: 8px; background: transparent; border: 0; color: var(--muted-strong); }
 .step-title { display: flex; align-items: center; gap: 8px; }
 .expansion-indicator { color: var(--muted); font-size: 12px; }
 .export-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
@@ -143,8 +142,6 @@ input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border: 3px s
 .lufs-marks b { color: var(--muted-strong); font-weight: 600; font-variant-numeric: tabular-nums; }
 .lufs-mark-label.delivery b { color: var(--accent); }
 .lufs-mark-label.limit b { color: var(--muted); }
-.checkbox-field { display: flex; align-items: center; gap: 10px; min-height: 44px; margin-top: 12px; font-size: 13px; color: var(--text); }
-.checkbox-field input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
 .compressor-control { margin-top: 8px; }
 .source-levels { color: var(--muted-strong); font-size: 12px; }
 .levels-heading { display: flex; justify-content: space-between; margin-bottom: 10px; }

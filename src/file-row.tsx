@@ -1,25 +1,13 @@
 import { useLayoutEffect, useState } from "preact/hooks";
 import type { FileEntry } from "./media";
-import { formatBytes, formatTime } from "./format";
 import { resolveTrim, type TrimRangeDraft } from "./recipe";
 import { fileMetadata, showsPreview } from "./file-summary";
 import type { ExecutionPlan } from "./planner";
 import type { BatchJob } from "./batch";
-import type { JobOperation } from "./job-events";
 import type { PreviewState } from "./preview";
-import type { InferenceBackend } from "./inference/protocol";
-const LEVEL_CHANGING = new Set(["gain", "compress", "channels", "isolation", "speech", "normalize"]);
-function separationDevice(backends: readonly InferenceBackend[]) {
-  if (backends.length > 1) return "the GPU, then the CPU after a GPU failure";
-  return backends[0] === "webgpu+wasm" ? "the GPU" : "the CPU";
-}
-function operationLabel(operation: JobOperation) {
-  switch (operation.kind) {
-    case "phase": return `${operation.phase}…`;
-    case "model-download": return `Loading model ${formatBytes(operation.loaded)} / ${formatBytes(operation.total)}`;
-    case "isolation-progress": return `Separating ${operation.completed} / ${operation.total}`;
-  }
-}
+import { copy } from "./copy";
+import { actionFor } from "./errors";
+import { resultNote } from "./result-note";
 const pauseOthers = (event: Event) => {
   const current = event.currentTarget;
   for (const audio of document.querySelectorAll("audio"))
@@ -33,10 +21,10 @@ function SourcePlayer({ entry }: { entry: FileEntry }) {
   });
   useLayoutEffect(() => () => URL.revokeObjectURL(url), [url]);
   return <div class="file-player">
-    <small>Original</small>
+    <small>{copy.files.original}</small>
     {playable
-      ? <audio controls preload="none" src={url} aria-label={`Play original ${entry.file.name}`} onPlay={pauseOthers} />
-      : <small class="file-note">This source cannot play in the browser. Export it to hear the result.</small>}
+      ? <audio controls preload="none" src={url} aria-label={copy.files.playOriginal(entry.file.name)} onPlay={pauseOthers} />
+      : <small class="file-note">{copy.files.sourceUnplayable}</small>}
   </div>;
 }
 export function FileRow({
@@ -48,6 +36,7 @@ export function FileRow({
   onCancel,
   onRetry,
   trim,
+  trimErrorId,
   onRemove,
   preview,
   previewDisabled,
@@ -68,22 +57,15 @@ export function FileRow({
   onCancel: () => void;
   onRetry: () => void;
   trim: TrimRangeDraft | undefined;
+  /** The id of the message the Trim all step already shows, when that step is the one at fault. */
+  trimErrorId: string | undefined;
   onRemove: () => void;
 }) {
   const exported = job?.state;
   const pcmStats = exported?.kind === "done" && exported.report.kind === "pcm"
     ? exported.report.stats
     : null;
-  const compressorRan = exported?.kind === "done" && job?.spec.plan.kind === "pcm" &&
-    job.spec.plan.steps.some(step =>
-      step.kind === "compress" && step.enabled && step.amount > 0);
-  const planSteps = job?.spec.plan.kind === "pcm" ? job.spec.plan.steps : [];
-  let normalizeIndex = -1;
-  planSteps.forEach((step, index) => { if (step.kind === "normalize") normalizeIndex = index; });
-  const laterLevelChange = normalizeIndex >= 0 &&
-    planSteps.slice(normalizeIndex + 1).some(step => LEVEL_CHANGING.has(step.kind));
-  const normalizeScope = laterLevelChange ? " at the Normalize step" : "";
-  const laterNote = laterLevelChange ? " Later steps can change the final level." : "";
+  const note = pcmStats ? resultNote(pcmStats) : null;
   const operation = exported?.kind === "running" ? exported.operation : null;
   const progress = operation && operation.kind !== "phase"
     ? { value: operation.kind === "model-download" ? operation.loaded : operation.completed, max: operation.total }
@@ -96,8 +78,11 @@ export function FileRow({
     exported &&
     (!plan || plan.kind === "failed" ||
       JSON.stringify(plan.snapshot.recipe) !== JSON.stringify(job?.spec.plan.snapshot.recipe));
-  const errorId =
-    result?.kind === "failed" ? `trim-error-${entry.id}` : undefined;
+  const trimFailed = result?.kind === "failed" ? result : null;
+  // A bad range is shown once. The step owns it unless the range only fails against this file.
+  const fileOwnsTrimError = trimFailed?.code === "trim-past-end";
+  const fileErrorId = fileOwnsTrimError ? `trim-error-${entry.id}` : undefined;
+  const errorId = fileOwnsTrimError ? fileErrorId : trimFailed ? trimErrorId : undefined;
   const effective = result?.kind === "ready" ? result.trim : null;
   const metadata = entry.inspection.kind === "ready" ? fileMetadata(entry, effective) : null;
   const currentExport = exported?.kind === "done" && !previousSettings;
@@ -105,11 +90,12 @@ export function FileRow({
   const exportedPlayable = exported?.kind === "done" &&
     document.createElement("audio").canPlayType(exported.output.mime) !== "";
   const downloadLabel = previousSettings
-    ? `Download previous export for ${entry.file.name}`
-    : `Download exported audio for ${entry.file.name}`;
+    ? copy.result.downloadOlder(entry.file.name)
+    : copy.result.download(entry.file.name);
   const playLabel = previousSettings
-    ? `Play previous export ${entry.file.name}`
-    : `Play exported audio ${entry.file.name}`;
+    ? copy.result.playOlder(entry.file.name)
+    : copy.result.play(entry.file.name);
+  const failedAction = exported?.kind === "failed" ? actionFor(exported.code) : null;
   return (
     <li data-file-id={entry.id} data-inspection={entry.inspection.kind} data-job-state={exported?.kind}>
       <span class="file-name" title={entry.file.name}>
@@ -117,29 +103,29 @@ export function FileRow({
         <small>
           {entry.inspection.kind === "ready" && metadata
             ? `${metadata.primary}${metadata.secondary ? ` · ${metadata.secondary}` : ""}`
-            : entry.inspection.kind === "reading" ? "Reading…"
-              : entry.inspection.kind === "waiting" ? "Waiting" : ""}
+            : entry.inspection.kind === "reading" ? copy.files.reading
+              : entry.inspection.kind === "waiting" ? copy.files.waiting : ""}
         </small>
         {entry.inspection.kind === "failed" && (
           <small class="file-error" role="status">
             {entry.inspection.message}
           </small>
         )}
-        {plan?.kind === "failed" && result?.kind !== "failed" && (
+        {plan?.kind === "failed" && !trimFailed && (
           <small class="file-error" role="status">
             {plan.message}
           </small>
         )}
-        {result?.kind === "failed" && (
-          <small id={errorId} class="file-error" role="status">
-            {result.message}
+        {fileOwnsTrimError && trimFailed && (
+          <small id={fileErrorId} class="file-error" role="status">
+            {trimFailed.message}
           </small>
         )}
       </span>
       <div class="file-actions">
         {previewVisible && entry.inspection.kind === "ready" &&
-          <button type="button" disabled={previewDisabled || result?.kind === "failed"}
-            aria-label={`Preview ${entry.file.name}`} aria-describedby={errorId} onClick={onPreview}>Preview</button>}
+          <button type="button" disabled={previewDisabled || trimFailed !== null}
+            aria-label={copy.preview.buttonLabel(entry.file.name)} aria-describedby={errorId} onClick={onPreview}>{copy.preview.button}</button>}
         {exported?.kind === "done" &&
           <a class="icon-button download-button" href={exported.url} download={exported.output.name}
             aria-label={downloadLabel} title={`${downloadLabel} (${exported.output.name})`}>
@@ -152,7 +138,7 @@ export function FileRow({
           class="icon-button"
           type="button"
           disabled={downloadBusy} data-remove-file={entry.id}
-          aria-label={`Remove ${entry.file.name}`}
+          aria-label={copy.files.removeLabel(entry.file.name)}
           onClick={onRemove}
         >
           ×
@@ -161,78 +147,41 @@ export function FileRow({
       {entry.inspection.kind === "ready" && !preview && <SourcePlayer entry={entry} />}
       {preview && <div class="file-preview" data-preview-state={preview.kind}>
         {preview.kind === "ready" ? <>
-          <small>Preview · {formatTime(preview.range.start)} to {formatTime(preview.range.end)} · WAV comparison</small>
-          {preview.estimate && <small>Excerpt estimate. Normalization and isolation may differ with full-track context.</small>}
-          {preview.stats.compressorMaxGainReductionDb > 0 && <small>Compressor reduced peaks by up to {preview.stats.compressorMaxGainReductionDb.toFixed(1)} dB in this excerpt.</small>}
-          <label>Original excerpt<audio controls preload="none" src={preview.original} aria-label={`Original preview ${entry.file.name}`} onPlay={pauseOthers} /></label>
-          <label>Processed preview<audio controls preload="none" src={preview.processed} aria-label={`Processed preview ${entry.file.name}`} onPlay={pauseOthers} /></label>
-          <button type="button" onClick={onClearPreview}>Close preview</button>
+          <small>{copy.preview.heading}</small>
+          {preview.estimate && <small>{copy.preview.estimate}</small>}
+          <label>{copy.preview.before}<audio controls preload="none" src={preview.original} aria-label={copy.preview.beforeLabel(entry.file.name)} onPlay={pauseOthers} /></label>
+          <label>{copy.preview.after}<audio controls preload="none" src={preview.processed} aria-label={copy.preview.afterLabel(entry.file.name)} onPlay={pauseOthers} /></label>
+          <button type="button" onClick={onClearPreview}>{copy.preview.close}</button>
         </> : preview.kind === "running" ? <>
-          <span role="status">Preview · {preview.stage === "original" ? "Preparing original" : "Processing excerpt"} · {operationLabel(preview.operation)}</span>
-          <button type="button" onClick={onClearPreview}>Cancel preview</button>
-        </> : preview.kind === "cleanup" ? <>
-          <span role="status">{preview.message}</span><button type="button" onClick={onClearPreview}>Retry preview cleanup</button>
-        </> : <span role="status">{preview.kind === "failed" ? preview.message : preview.kind === "cancelling" ? "Cancelling preview…" : "Cleaning up preview…"}</span>}
+          <span role="status">{copy.progress.preview(preview.operation)}</span>
+          <button type="button" onClick={onClearPreview}>{copy.preview.cancel}</button>
+        </> : preview.kind === "cleanup" ? preview.attempts >= 2 && <>
+          <span role="status">{preview.message}</span><button type="button" onClick={onClearPreview}>{copy.actions["try-again"]}</button>
+        </> : preview.kind === "failed" ? <span role="status">{preview.message}</span>
+          : preview.kind === "cancelling" ? <span role="status">{copy.preview.cancelling}</span> : null}
       </div>}
       {exported && (
         <div class="file-result" role="status">
           {exported.kind === "waiting" || exported.kind === "running" || exported.kind === "cancelling" ? (
             <>
-              <progress aria-label={`Export ${entry.file.name}`} {...progress} />
-              <span>{operation ? operationLabel(operation) : exported.kind === "waiting" ? "Waiting" : "Cancelling…"}</span>
-              {exported.kind !== "cancelling" && <button type="button" aria-label={`Cancel ${entry.file.name}`} onClick={onCancel}>Cancel</button>}
+              <progress aria-label={copy.files.progressLabel(entry.file.name)} {...progress} />
+              <span>{operation ? copy.progress.label(operation) : exported.kind === "waiting" ? copy.files.waiting : copy.files.cancelling}</span>
+              {exported.kind !== "cancelling" && <button type="button" aria-label={copy.files.cancelLabel(entry.file.name)} onClick={onCancel}>{copy.files.cancel}</button>}
             </>
           ) : exported.kind === "failed" || exported.kind === "cancelled" ? (
             <>
-              <span>{exported.kind === "failed" ? exported.message : "Cancelled"}</span>
-              <button type="button" disabled={busy} aria-label={`Retry ${entry.file.name}`} onClick={onRetry}>Retry</button>
+              <span>{exported.kind === "failed" ? exported.message : copy.files.cancelled}</span>
+              {failedAction === "remove"
+                ? <button type="button" disabled={downloadBusy} aria-label={copy.files.removeLabel(entry.file.name)} onClick={onRemove}>{copy.actions.remove}</button>
+                : <button type="button" disabled={busy} aria-label={copy.files.retryLabel(entry.file.name)} onClick={onRetry}>{copy.actions.retry}</button>}
             </>
           ) : (
             <>
-              <small>{previousSettings ? "Previous export" : "Exported audio"}</small>
-              {job?.spec.plan.kind === "copy" && <small>No re-encoding.</small>}
+              <small>{previousSettings ? copy.result.olderLabel : copy.result.label}</small>
               {exportedPlayable
                 ? <audio controls preload="none" src={exported.url} aria-label={playLabel} onPlay={pauseOthers} />
-                : <small class="file-note">This exported format cannot play here. Download it to listen.</small>}
-              {pcmStats && pcmStats.loudnessRequestedLufs !== null &&
-                pcmStats.loudnessAchievedLufs === null && (
-                  <small>Loudness target not reached{normalizeScope}. The audio was silent or below the measurement gate.{laterNote}</small>
-                )}
-              {pcmStats && pcmStats.normalizationLimitedByCeiling && (
-                <small>
-                  Peak ceiling limited loudness{normalizeScope}.
-                  {pcmStats.loudnessAchievedLufs === null
-                    ? " Achieved loudness is unavailable."
-                    : ` Achieved ${pcmStats.loudnessAchievedLufs.toFixed(1)} LUFS${pcmStats.truePeakDbtp === null ? "." : ` at an estimated ${pcmStats.truePeakDbtp.toFixed(1)} dBTP.`}`}{laterNote}
-                </small>
-              )}
-              {pcmStats && pcmStats.limitedNormalizations > 0 &&
-                !pcmStats.normalizationLimitedByCeiling && (
-                  <small>
-                    Limited by the maximum gain{normalizeScope}.{pcmStats.loudnessAchievedLufs === null ? "" : ` Achieved ${pcmStats.loudnessAchievedLufs.toFixed(1)} LUFS.`}{laterNote}
-                  </small>
-                )}
-              {pcmStats && pcmStats.loudnessRequestedLufs !== null &&
-                pcmStats.loudnessAchievedLufs !== null &&
-                pcmStats.limitedNormalizations === 0 && (
-                  <small>Loudness target reached{normalizeScope}. Achieved {pcmStats.loudnessAchievedLufs.toFixed(1)} LUFS.{laterNote}</small>
-                )}
-              {pcmStats && pcmStats.peakTargetDbtp !== null && pcmStats.truePeakDbtp !== null && (
-                <small>
-                  {pcmStats.limitedNormalizations > 0 ? "Limited by the maximum gain" : "Peak target applied"} at the Peak step.
-                  {` Estimated true peak ${pcmStats.truePeakDbtp.toFixed(1)} dBTP against a ${pcmStats.peakTargetDbtp.toFixed(1)} dBTP target.`}
-                  {laterNote}
-                </small>
-              )}
-              {pcmStats && pcmStats.isolationPasses > 0 && (
-                <small>Separated with Demucs on {separationDevice(pcmStats.isolationBackends)}.</small>
-              )}
-              {pcmStats && compressorRan && (
-                <small>Compressor max gain reduction {pcmStats.compressorMaxGainReductionDb.toFixed(1)} dB.</small>
-              )}
-              {pcmStats && pcmStats.clippedSamples > 0 && (
-                <small class="file-error">Clipped samples.</small>
-              )}
+                : <small class="file-note">{copy.files.resultUnplayable}</small>}
+              {note && <small>{note}</small>}
             </>
           )}
         </div>

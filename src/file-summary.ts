@@ -1,6 +1,6 @@
 import type { BatchJob } from "./batch.ts";
 import { copy } from "./copy.ts";
-import { formatDuration, formatTime } from "./format.ts";
+import { formatTime } from "./format.ts";
 import type { FileEntry } from "./media.ts";
 import type { EffectiveRecipe } from "./recipe.ts";
 
@@ -16,10 +16,10 @@ export function fileMetadata(
   trim: EffectiveRecipe["trim"] | null,
 ): FileMetadata {
   const duration = entry.inspection.kind === "ready" ? entry.inspection.metadata.duration : null;
-  if (!trim || fullRange(trim, duration)) return { primary: formatDuration(duration) };
-  const primary = trim.duration === null ? "Duration unknown" : formatTime(trim.duration);
-  const end = trim.end === null ? "end" : formatTime(trim.end);
-  return { primary, secondary: `${formatTime(trim.start)} to ${end}` };
+  if (!trim || fullRange(trim, duration)) return { primary: duration === null ? copy.trim.unknownDuration : formatTime(duration) };
+  const primary = trim.duration === null ? copy.trim.unknownDuration : formatTime(trim.duration);
+  const end = trim.end === null ? copy.trim.end : formatTime(trim.end);
+  return { primary, secondary: `${formatTime(trim.start)} ${copy.trim.to} ${end}` };
 }
 
 export function showsPreview(hasSteps: boolean, hasCurrentExport: boolean): boolean {

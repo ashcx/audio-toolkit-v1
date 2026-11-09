@@ -111,6 +111,11 @@ export type FolderOutcome = Readonly<{ saved: number; failed: number; folder: st
 type LoudnessNotes = Readonly<{ achievedLufs: number | null }>;
 
 export const copy = {
+  units: { db: "dB", dbtp: "dBTP", dbfs: "dBFS", lufs: "LUFS", percent: "%" },
+  unset: "Unset",
+  /** A level, gain or loudness number with a true minus sign and at most one decimal. */
+  number: (value: number) => minus(Number(value.toFixed(1))),
+  slider: (label: string) => `${label} slider`,
   steps: {
     names: STEP_NAMES,
     heading: "Steps",
@@ -137,6 +142,10 @@ export const copy = {
     to: "to",
     unknownDuration: "Duration unknown",
     setRange: "Set range",
+    startField: (prefix: string) => `${prefix} start (time)`,
+    endField: (prefix: string) => `${prefix} end (time)`,
+    startHandle: (prefix: string) => `${prefix} start handle`,
+    endHandle: (prefix: string) => `${prefix} end handle`,
     summary(range: Readonly<{ start: number | null; end: number | null }>) {
       const { start, end } = range;
       if ((start !== null && !Number.isFinite(start)) || (end !== null && !Number.isFinite(end))) return copy.trim.setRange;
@@ -166,7 +175,9 @@ export const copy = {
     setPeak: "Set peak target",
     setLoudness: "Set loudness target",
     marks: { "-23": "Broadcast", "-16": "Podcast", "-14": "Streaming", "-9.5": "Loud", "-8": "Maximum" } as Readonly<Record<string, string>>,
-    markText: (value: number, label: string) => `${minus(value)} ${label}`,
+    markValue: (value: number) => minus(value),
+    marksDescription: (marks: readonly Readonly<{ value: number; label: string }>[]) =>
+      `Reference marks. ${marks.map(mark => `${minus(mark.value)} LUFS, ${mark.label}`).join("; ")}.`,
     summary(step: {
       mode?: "loudness" | "peak";
       targetDbtp?: number;
@@ -192,7 +203,7 @@ export const copy = {
     unit: "dBFS",
     empty: "Add a file to see its levels.",
     measuring: "Measuring…",
-    value: (db: number | null) => (db === null ? "−∞" : minus(Number(db.toFixed(1)))),
+    value: (db: number | null) => (db === null ? "−∞" : copy.number(db)),
   },
   compressor: {
     amount: "Amount",
@@ -288,6 +299,7 @@ export const copy = {
     retryLabel: (name: string) => `Retry ${name}`,
     original: "Original",
     playOriginal: (name: string) => `Play original ${name}`,
+    progressLabel: (name: string) => `Export ${name}`,
     sourceUnplayable: "This source cannot play in the browser. Export it to hear the result.",
     resultUnplayable: "This exported format cannot play here. Download it to listen.",
   },
