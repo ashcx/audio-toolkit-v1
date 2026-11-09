@@ -48,9 +48,9 @@ Drawing bars from cached peaks is modest work. Producing accurate source peaks s
 
 The detailed authoritative sprint file is [sprint-27-demucs-runtime.md](sprint-27-demucs-runtime.md). It contains scope, entry criteria, task checklists, acceptance scenarios, evidence and PR delivery requirements.
 
-## Sprint 28. Select and export four stems or instrumentals
+## Sprint 28. Withdrawn
 
-The detailed authoritative sprint file is [sprint-28-stem-selection.md](sprint-28-stem-selection.md). It contains scope, entry criteria, task checklists, acceptance scenarios, evidence and PR delivery requirements.
+The stem-selection sprint was withdrawn by the user on 2026-11-09. Sprint 28 was redirected to a UI and wording overhaul, pending plan approval. The Sprint 27 worker still returns all four stems internally, which keeps the option open, but no stem-selection work is planned.
 
 ## Sprint 29. Add waveform playback and individual-track trimming
 

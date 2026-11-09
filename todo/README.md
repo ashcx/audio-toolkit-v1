@@ -22,7 +22,7 @@ These files are the authoritative execution checklists. The grouped documents re
 | [25](sprint-25-compact-playback.md) | Compact the workspace and clarify playback | Merged, [PR #28](https://github.com/ashcx/audio-toolkit-v1/pull/28) |
 | [26](sprint-26-encoding-modes.md) | Expose verified CBR, VBR and supported encoding modes | Merged, [PR #31](https://github.com/ashcx/audio-toolkit-v1/pull/31), [PR #32](https://github.com/ashcx/audio-toolkit-v1/pull/32) |
 | [27](sprint-27-demucs-runtime.md) | Evaluate and optimize browser Demucs v4 | Planned |
-| [28](sprint-28-stem-selection.md) | Select and export four stems or instrumentals | Planned |
+| 28 | UI and wording overhaul (the stem-selection plan was withdrawn) | Awaiting plan approval |
 | [29](sprint-29-waveform-trimming.md) | Add waveform playback and individual-track trimming | Planned |
 
-Sprint 27 may run first for separation speed. Sprint 28 follows 27. Four-stem waveform audition in 29 also requires 28. Sprints 27–29 remain planning-only.
+Sprint 27 may run first for separation speed. Sprint 28 was redirected to a UI and wording overhaul and the stem-selection sprint was withdrawn. Sprint 29 no longer includes four-stem audition. Sprints 28 and 29 remain planning-only.

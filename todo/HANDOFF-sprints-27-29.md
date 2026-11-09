@@ -1,6 +1,6 @@
 # Handoff: finishing Sprint 27 and starting Sprints 28 and 29
 
-Written 2026-11-08 when the user paused the work. A future AI session should read this file first, then `todo/sprint-27-demucs-runtime.md`, `todo/sprint-28-stem-selection.md`, `todo/sprint-29-waveform-trimming.md` and `docs/sprint-evidence/sprint-27/coverage.md`.
+Written 2026-11-08 when the user paused the work. A future AI session should read this file first, then `todo/sprint-27-demucs-runtime.md`, `todo/sprint-29-waveform-trimming.md` and `docs/sprint-evidence/sprint-27/coverage.md`.
 
 ## User goal and standing instructions
 
@@ -89,7 +89,7 @@ Real recordings used for speed and app checks live at `/Users/macbook/Documents/
 
 Start only after the user reviews the Sprint 27 PR and says to continue. Base each on the previous branch and open each PR against the previous branch (stacked). Use the same method that worked here: a fresh agent per phase with a full brief, independent review by two agents that did not write the code, a combined fix round, then the coordinator re-verifies and pushes.
 
-**Sprint 28, select and export stems** (`todo/sprint-28-stem-selection.md`): choose Vocals, Drums, Bass, Other, Instrumental (drums+bass+other summed in float on one timeline, no per-stem normalization) or All four. Run the network once. Take the stem order from model metadata. Tie every output to its source, stem, recipe and range. Previews, individual/ZIP/folder downloads, bounded retention. The worker already returns all four stems, so no protocol change is needed. Do the deferred `outputs: DemucsSource[][]` reshape here. Note the plan's distinction between summing predicted stems and subtracting vocals from the source.
+**Sprint 28 (withdrawn 2026-11-09, redirected to a UI and wording overhaul; the stem-selection plan below is no longer wanted)**: choose Vocals, Drums, Bass, Other, Instrumental (drums+bass+other summed in float on one timeline, no per-stem normalization) or All four. Run the network once. Take the stem order from model metadata. Tie every output to its source, stem, recipe and range. Previews, individual/ZIP/folder downloads, bounded retention. The worker already returns all four stems, so no protocol change is needed. Do the deferred `outputs: DemucsSource[][]` reshape here. Note the plan's distinction between summing predicted stems and subtracting vocals from the source.
 
 **Sprint 29, waveform playback and per-track trimming** (`todo/sprint-29-waveform-trimming.md`): real peak generation and cache, a compact waveform with seek, trim handles that edit only that one track (never other files or the batch Trim all range), "Custom range" and "Reset to Trim all" with a warning before replacing custom ranges, no batch waveform, no decorative bars, no retaining full PCM just for drawing. Source and single-output waveforms do not need Demucs. Synchronized four-stem audition needs Sprint 28.
 

@@ -8,7 +8,7 @@ Replace the generic-looking player with a compact, accurate waveform that suppor
 
 ## Dependencies and execution order
 
-Sprint 25 playback/source semantics. Source and single-output waveforms can ship independently of Demucs. Full stem audition integrates with Sprint 28.
+Sprint 25 playback/source semantics. Source and single-output waveforms can ship independently of Demucs. Stem audition is out of scope because the stem-selection sprint was withdrawn.
 
 Sprint numbers identify scope, not a mandatory numerical execution order. Verify current main and existing PR state before branching.
 
@@ -31,7 +31,7 @@ The user explicitly confirmed waveform trimming applies only to individual track
 
 ## Implementation checklist
 
-Can begin after Sprint 25's playback semantics. Source and single-output waveform work does not depend on Demucs; separated-stem rows integrate after Sprint 28.
+Can begin after Sprint 25's playback semantics. Source and single-output waveform work does not depend on Demucs. Separated-stem rows are out of scope because the stem-selection sprint was withdrawn.
 
 ### Preserve the user's trim distinction
 
