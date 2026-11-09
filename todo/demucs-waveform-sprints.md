@@ -50,7 +50,7 @@ The detailed authoritative sprint file is [sprint-27-demucs-runtime.md](sprint-2
 
 ## Sprint 28. Withdrawn
 
-The stem-selection sprint was withdrawn by the user on 2026-11-09. Sprint 28 was redirected to a UI and wording overhaul, pending plan approval. The Sprint 27 worker still returns all four stems internally, which keeps the option open, but no stem-selection work is planned.
+The stem-selection sprint was withdrawn by the user on 2026-11-09. Sprint 28 is now a UI and wording overhaul, described in [sprint-28-ui-ux-overhaul.md](sprint-28-ui-ux-overhaul.md). The Sprint 27 worker still returns all four stems internally, which keeps the option open, but no stem-selection work is planned.
 
 ## Sprint 29. Add waveform playback and individual-track trimming
 
