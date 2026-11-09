@@ -71,6 +71,7 @@ p { margin: 0; }
 .file-actions > button:not(.icon-button) { border: 0; background: transparent; }
 .file-player { flex-basis: 100%; min-width: 0; display: grid; gap: 2px; }
 .file-player small { color: var(--muted-strong); }
+.file-player-toggle > summary { padding: 13px 0; font: var(--type-hint); color: var(--muted-strong); }
 .file-player audio, .file-result audio { display: block; width: 100%; min-width: 0; flex-basis: 100%; }
 .file-note { color: var(--muted-strong); }
 .file-result { flex-basis: 100%; display: flex; align-items: center; gap: 6px 8px; flex-wrap: wrap; font: var(--type-status); }

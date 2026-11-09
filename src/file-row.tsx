@@ -13,19 +13,20 @@ const pauseOthers = (event: Event) => {
   for (const audio of document.querySelectorAll("audio"))
     if (audio !== current) audio.pause();
 };
-function SourcePlayer({ entry }: { entry: FileEntry }) {
+/** The original sits behind a small toggle once a result exists, so a finished file shows one player. */
+function SourcePlayer({ entry, collapsed }: { entry: FileEntry; collapsed: boolean }) {
   const [url] = useState(() => URL.createObjectURL(entry.file));
   const [playable] = useState(() => {
     const audio = document.createElement("audio");
     return entry.file.type !== "" && audio.canPlayType(entry.file.type) !== "";
   });
   useLayoutEffect(() => () => URL.revokeObjectURL(url), [url]);
-  return <div class="file-player">
-    <small>{copy.files.original}</small>
-    {playable
-      ? <audio controls preload="none" src={url} aria-label={copy.files.playOriginal(entry.file.name)} onPlay={pauseOthers} />
-      : <small class="file-note">{copy.files.sourceUnplayable}</small>}
-  </div>;
+  const player = playable
+    ? <audio controls preload="none" src={url} aria-label={copy.files.playOriginal(entry.file.name)} onPlay={pauseOthers} />
+    : <small class="file-note">{copy.files.sourceUnplayable}</small>;
+  return collapsed
+    ? <details class="file-player file-player-toggle"><summary>{copy.files.original}</summary>{player}</details>
+    : <div class="file-player"><small>{copy.files.original}</small>{player}</div>;
 }
 export function FileRow({
   entry,
@@ -144,7 +145,7 @@ export function FileRow({
           ×
         </button>
       </div>
-      {entry.inspection.kind === "ready" && !preview && <SourcePlayer entry={entry} />}
+      {entry.inspection.kind === "ready" && !preview && <SourcePlayer entry={entry} collapsed={exported?.kind === "done"} />}
       {preview && <div class="file-preview" data-preview-state={preview.kind}>
         {preview.kind === "ready" ? <>
           <small>{copy.preview.heading}</small>
