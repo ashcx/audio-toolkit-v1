@@ -46,7 +46,7 @@ Replacing music separation, automatic model selection, deployment, and the user'
 
 2026-10-30: User authorized comparison and implementing both choices for evaluation. No results yet.
 
-2026-10-30: Started on codex/sprint-13-speech-evaluation at e9d68cc. Both pinned CPU runtimes executed in Chrome. See [coverage](../docs/sprint-evidence/sprint-13/coverage.md) for incomplete representative-quality, memory, provenance, acceleration and review gates. Sprints 14–15 remain dependent.
+2026-10-30: Started on codex/sprint-13-speech-evaluation at e9d68cc. Both pinned CPU runtimes executed in Chrome. See coverage for incomplete representative-quality, memory, provenance, acceleration and review gates. Sprints 14–15 remain dependent.
 
 2026-10-30: Terra high and Luna high reviewed the integrated research checkpoint. The parent fixed and reproduced a reference-grid validation defect, recorded fixture digests, and reran Chrome. Both reviewers confirmed the fixes and withheld Sprint 13 acceptance and dependent progression. A supported project-local Node 22.23.1 clean locked build passes. Representative corpus, listening, end-to-end timing, memory and full source/model rights audit remain open. No last-resort exception or completed-sprint PR is claimed. Review and exact evidence are in the Sprint 13 evidence directory.
 

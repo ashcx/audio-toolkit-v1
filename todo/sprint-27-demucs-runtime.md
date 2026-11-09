@@ -1,6 +1,6 @@
 # Sprint 27. Evaluate and optimize browser Demucs v4
 
-Status is implemented on branch `codex/sprint-27-demucs`, not merged. Updated 2026-11-08. By the user's later instruction Demucs replaced SCNet as the only isolation engine. Listening (27-05), physical-device checks and independent review remain open. Evidence and the requirement coverage table are in [coverage.md](../docs/sprint-evidence/sprint-27/coverage.md). Do not merge or deploy without a separate user instruction.
+Status is implemented on branch `codex/sprint-27-demucs`, not merged. Updated 2026-11-08. By the user's later instruction Demucs replaced SCNet as the only isolation engine. Listening (27-05), physical-device checks and independent review remain open. Evidence and the requirement coverage table are in coverage.md. Do not merge or deploy without a separate user instruction.
 
 ## Goal
 

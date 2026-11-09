@@ -1,6 +1,6 @@
 import { chromium, webkit } from 'playwright';
 import { mkdir, writeFile } from 'node:fs/promises';
-const root='docs/sprint-evidence/sprint-1';
+const root='.artifacts/evidence/sprint-1';
 await mkdir(root,{recursive:true});
 for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   let browser;

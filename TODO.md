@@ -1,5 +1,7 @@
 # Audio Toolkit TODO roadmap
 
+> **Sprint evidence removed from the tree.** The per-sprint evidence files that used to live under `docs/sprint-evidence/` are no longer tracked. They are recoverable from git history, for example `git show 918380b:docs/sprint-evidence/sprint-27/coverage.md` or `git ls-tree -r 918380b docs/sprint-evidence`. Plain-text paths and Sprint decisions in these planning documents still describe that history. Scripts that wrote evidence there now default to `.artifacts/evidence/`.
+
 ## Delivered refinement sprints
 
 [The refinement plan](todo/workspace-audio-refinement-sprints.md) authorizes Sprints 21–23. Sprints 24–26 have individual checklist files below. Merged means the PR landed; it does not by itself establish the sprint's listening, device or acceptance gates.
@@ -19,7 +21,7 @@ These files are the authoritative execution checklists. The grouped documents re
 
 | Sprint | Outcome | Status |
 | --- | --- | --- |
-| [27](todo/sprint-27-demucs-runtime.md) | Evaluate and optimize browser Demucs v4 | Implemented on branch; listening and device gates open. Demucs replaced SCNet; [coverage](docs/sprint-evidence/sprint-27/coverage.md) |
+| [27](todo/sprint-27-demucs-runtime.md) | Evaluate and optimize browser Demucs v4 | Implemented on branch; listening and device gates open. Demucs replaced SCNet; coverage |
 | [28](todo/sprint-28-stem-selection.md) | Select and export four stems or instrumentals | Planned |
 | [29](todo/sprint-29-waveform-trimming.md) | Add waveform playback and individual-track trimming | Planned |
 
@@ -74,7 +76,7 @@ Read [orchestration](todo/orchestration-plan.md), [Scrum policy](todo/redesign-s
 
 ## Planning delivery
 
-Planning validation and independent review are in [planning evidence](docs/sprint-evidence/planning/validation.md). The decision trail is [decisions.tsv](docs/sprint-evidence/planning/decisions.tsv). Planning PR: [#1](https://github.com/ashcx/audio-toolkit-v1/pull/1). This PR is separate from all future implementation sprint PRs.
+Planning validation and independent review are in planning evidence. The decision trail is decisions.tsv. Planning PR: [#1](https://github.com/ashcx/audio-toolkit-v1/pull/1). This PR is separate from all future implementation sprint PRs.
 
 ## 2026-10-31 UI redesign
 

@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 const url = process.env.APP_URL ?? 'http://127.0.0.1:5183/audio-toolkit-v1/';
-const root = process.env.SPRINT25_EVIDENCE_DIR ?? 'docs/sprint-evidence/sprint-25';
+const root = process.env.SPRINT25_EVIDENCE_DIR ?? '.artifacts/evidence/sprint-25';
 await mkdir(`${root}/captures`, { recursive: true });
 const browser = await chromium.launch({ channel: 'chrome', args: ['--autoplay-policy=no-user-gesture-required'] });
 const page = await browser.newPage({ viewport: { width: 1440, height: 1200 } });
