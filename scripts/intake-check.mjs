@@ -1,13 +1,16 @@
 import {setAppearance} from './browser-controls.mjs';
+import {engines,launchOptions} from './lib/engines.mjs';
+import {loadCopy} from './lib/harness.mjs';
 import assert from 'node:assert/strict';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {chromium,webkit} from 'playwright';
+const copy=await loadCopy();
 const appUrl=process.env.APP_URL??'http://127.0.0.1:4173/audio-toolkit-v1/';
 const root=process.env.INTAKE_EVIDENCE_DIR??'.artifacts/intake-check';await mkdir(`${root}/captures`,{recursive:true});
 const manifest=JSON.parse(await readFile('tests/fixtures/manifest.json','utf8'));
 const records=[];
-for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
- const browser=await type.launch();
+for(const [name,type] of engines()){
+ const browser=await type.launch(launchOptions(name));
  try{
   const page=await browser.newPage({viewport:{width:1440,height:1000}});
   const errors=[];page.on('pageerror',error=>errors.push(error.message));
@@ -19,15 +22,15 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   });
   await page.goto(appUrl);
   const names=[...manifest.fixtures.map(x=>x.name),'corrupt.wav'];
-  await page.getByLabel('Choose audio or video files').setInputFiles(names.map(file=>`tests/fixtures/${file}`));
+  await page.locator('input[type=file]').setInputFiles(names.map(file=>`tests/fixtures/${file}`));
   await page.waitForFunction(count=>document.querySelectorAll('.file-list li').length===count&&[...document.querySelectorAll('.file-list li')].every(row=>['ready','failed'].includes(row.dataset.inspection)),names.length);
   const rows=await page.locator('.file-list li').evaluateAll(elements=>elements.map(row=>({id:row.dataset.fileId,status:row.dataset.inspection,name:row.querySelector('.file-name').firstChild.textContent.trim(),text:row.textContent})));
   assert.equal(new Set(rows.map(row=>row.id)).size,names.length,'Each entry has stable unique identity');
   for(const fixture of manifest.fixtures){
    const row=rows.find(row=>row.name===fixture.name);
    const audio=fixture.reference.streams.find(stream=>stream.codec_type==='audio');
-   if(!audio){assert.equal(row.status,'failed');assert.match(row.text,/No audio track/);continue;}
-   if(audio.codec_name==='wmav2'){assert.equal(row.status,'failed');assert.match(row.text,/Unsupported audio codec/);continue;}
+   if(!audio){assert.equal(row.status,'failed');assert(row.text.includes(copy.errors['file-no-audio'].message),row.text);continue;}
+   if(audio.codec_name==='wmav2'){assert.equal(row.status,'failed');assert(row.text.includes(copy.errors['file-unsupported-audio'].message),row.text);continue;}
    assert.equal(row.status,'ready',`${name} ${fixture.name}: ${row.text}`);
    assert(!/kHz|Stereo|Mono/.test(row.text),`${fixture.name} compact row hides technical metadata`);
   }
@@ -36,7 +39,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   assert.match(rows.find(row=>row.name==='long-video.webm').text,/0:02/,'Video length does not replace primary audio duration');
   assert.match(rows.find(row=>row.name==='offset.mp4').text,/0:02/,'Positive media timestamps are not mistaken for duration');
   assert.match(rows.find(row=>row.name==='tone.m4a').text,/0:02/,'Duration display avoids floating-point truncation');
-  assert.match(rows.find(row=>row.name==='tone.aac').text,/Duration unknown/,'Unavailable metadata is distinct from invalid media');
+  assert(rows.find(row=>row.name==='tone.aac').text.includes(copy.trim.unknownDuration),'Unavailable metadata is distinct from invalid media');
   const originalIds=new Set(rows.map(row=>row.id));
   const base64=(await readFile('tests/fixtures/tone.wav')).toString('base64');
   const transfer=await page.evaluateHandle(base64=>{const data=new DataTransfer();const bytes=Uint8Array.from(atob(base64),c=>c.charCodeAt(0));data.items.add(new File([bytes],'duplicate.wav',{type:'audio/wav'}));data.items.add(new File([bytes],'duplicate.wav',{type:'audio/wav'}));return data;},base64);
@@ -59,7 +62,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
     window.__readingObserver.observe(document.querySelector('.file-list'),{subtree:true,attributes:true,childList:true});
   });
   const payload=await readFile('tests/fixtures/tone.wav');
-  await page.getByLabel('Choose audio or video files').setInputFiles(Array.from({length:40},(_,i)=>({name:`stress-${i}.wav`,mimeType:'audio/wav',buffer:payload})));
+  await page.locator('input[type=file]').setInputFiles(Array.from({length:40},(_,i)=>({name:`stress-${i}.wav`,mimeType:'audio/wav',buffer:payload})));
   await setAppearance(page,'light');
   for(let i=0;i<5;i++)await page.getByRole('button',{name:`Remove stress-${i}.wav`,exact:true}).click();
   await page.waitForFunction(count=>document.querySelectorAll('.file-list li').length===count&&[...document.querySelectorAll('.file-list li')].every(row=>['ready','failed'].includes(row.dataset.inspection)),names.length+36);

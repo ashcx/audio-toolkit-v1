@@ -53,10 +53,10 @@ test('analysis worker is terminated on completion, abort and clone failure; late
   const success=analyzeLevels(new File(['x'],'b.wav'),{},new AbortController().signal);const second=workers.at(-1);
   second.onmessage({data:{kind:'done',levels:{peak:.5,squareSum:.25,samples:1}}});assert.equal((await success).peak,.5);assert.equal(second.terminated,1);
   globalThis.Worker.prototype.postMessage=()=>{throw Error('clone');};
-  await assert.rejects(analyzeLevels(new File(['x'],'clone.wav'),{},new AbortController().signal),/Could not start/);assert.equal(workers.at(-1).terminated,1);
+  await assert.rejects(analyzeLevels(new File(['x'],'clone.wav'),{},new AbortController().signal),{code:'levels-failed'});assert.equal(workers.at(-1).terminated,1);
   globalThis.Worker.prototype.postMessage=()=>{};
   const failed=analyzeLevels(new File(['x'],'c.wav'),{},new AbortController().signal);const third=workers.at(-1);
-  third.onmessage({data:{kind:'error',message:'Unavailable'}});await assert.rejects(failed,/Unavailable/);assert.equal(third.terminated,1);
+  third.onmessage({data:{kind:'error',code:'file-no-audio'}});await assert.rejects(failed,{code:'file-no-audio'});assert.equal(third.terminated,1);
  }finally{globalThis.Worker=original;}
 });
 
@@ -72,7 +72,7 @@ test('the loudness rail is monotonic, preserves every 0.5 LUFS step and exposes 
  const values=LOUDNESS_MARKS.map(mark=>mark.value);
  for(const value of [-23,-16,-14,-9.5,-8])assert(values.includes(value),`missing mark ${value}`);
  assert.deepEqual(LOUDNESS_MARKS.filter(mark=>mark.kind==='delivery').map(mark=>mark.value),[-23]);
- assert.equal(LOUDNESS_MARKS.find(mark=>mark.value===-16).label,'Podcast reference');
+ assert.equal(LOUDNESS_MARKS.find(mark=>mark.value===-16).label,'Podcast');
 });
 test('the loudness rail magnetises near a mark without trapping the pointer',()=>{
  const fourteen=positionForLufs(-14);

@@ -1,13 +1,16 @@
 import {setAppearance} from './browser-controls.mjs';
+import {engines,launchOptions} from './lib/engines.mjs';
+import {loadCopy} from './lib/harness.mjs';
 import assert from 'node:assert/strict';
 import {chromium,webkit} from 'playwright';
 import {writeFile,mkdir} from 'node:fs/promises';
+const copy=await loadCopy();
 const appUrl=process.env.APP_URL??'http://127.0.0.1:4173/audio-toolkit-v1/';
 const root=process.env.WORKSPACE_EVIDENCE_DIR??'.artifacts/workspace-check';
 await mkdir(`${root}/captures`,{recursive:true});
 const records=[];
-for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
- const browser=await type.launch();
+for(const [name,type] of engines()){
+ const browser=await type.launch(launchOptions(name));
  try{
   const page=await browser.newPage();
   const errors=[];const requests=[];
@@ -15,7 +18,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   page.on('request',request=>requests.push(request.url()));
   await page.goto(appUrl);
   await page.getByRole('heading',{name:'Audio Toolkit'}).waitFor();
-  assert.equal(await page.getByRole('link',{name:'Back to Tools'}).getAttribute('href'),'https://ashcx.github.io/tools/');
+  assert.equal(await page.getByRole('link',{name:copy.app.backToTools}).getAttribute('href'),'https://ashcx.github.io/tools/');
   for(const viewport of [{width:1440,height:1000},{width:390,height:844}]){
    await page.setViewportSize(viewport);
    for(const theme of ['light','dark']){
@@ -33,7 +36,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   await page.waitForFunction(()=>document.documentElement.dataset.theme==='dark');
   await page.reload();
   await page.waitForFunction(()=>document.documentElement.dataset.theme==='dark');
-  await page.getByLabel('Choose audio or video files').setInputFiles([{name:'very-long-recording-name-'.repeat(8)+'.wav',mimeType:'audio/wav',buffer:Buffer.alloc(128)},{name:'duplicate.wav',mimeType:'audio/wav',buffer:Buffer.alloc(64)}]);
+  await page.locator('input[type=file]').setInputFiles([{name:'very-long-recording-name-'.repeat(8)+'.wav',mimeType:'audio/wav',buffer:Buffer.alloc(128)},{name:'duplicate.wav',mimeType:'audio/wav',buffer:Buffer.alloc(64)}]);
   assert.equal(await page.getByRole('list',{name:'Selected files'}).locator('li').count(),2);
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Long names do not overflow');
   await page.getByRole('button',{name:'Remove duplicate.wav'}).focus();
@@ -41,7 +44,7 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   assert.equal(await page.getByRole('list',{name:'Selected files'}).locator('li').count(),1);
   await page.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')?.startsWith('Remove very-long-recording'));
   await page.keyboard.press('Enter');
-  await page.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='Choose audio or video files');
+  await page.waitForFunction(()=>document.activeElement?.matches('input[type=file]'));
   await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('flac');
   assert.equal(await page.getByRole('combobox',{name:'Format',exact:true}).inputValue(),'flac');
   assert.deepEqual(errors,[]);
@@ -53,13 +56,13 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   await limited.addInitScript(()=>{Object.defineProperty(window,'AudioDecoder',{value:undefined});Object.defineProperty(navigator,'storage',{value:undefined});Object.defineProperty(window,'Worker',{value:undefined});});
   const unsupported=await limited.newPage();
   await unsupported.goto(appUrl);
-  await unsupported.getByText('Firefox is unsupported.',{exact:false}).waitFor();
-  await unsupported.getByText('Temporary storage is unavailable.',{exact:false}).waitFor();
-  await unsupported.getByText('Audio workers are unavailable.',{exact:false}).waitFor();
-  await unsupported.getByText('Some formats need a compatibility component.',{exact:false}).waitFor();
+  await unsupported.getByText(copy.banners.firefox,{exact:true}).waitFor();
+  await unsupported.getByText(copy.banners.storage,{exact:true}).waitFor();
+  await unsupported.getByText(copy.banners.workers,{exact:true}).waitFor();
+  assert.equal(await unsupported.locator('.notice').count(),3,'one banner per limit, no more');
   await limited.close();
   const iosFirefox=await browser.newContext({userAgent:'Mozilla/5.0 (iPhone) AppleWebKit/605.1.15 FxiOS/131.0 Mobile/15E148 Safari/605.1.15'});
-  const iosPage=await iosFirefox.newPage();await iosPage.goto(appUrl);await iosPage.getByText('Firefox is unsupported.',{exact:false}).waitFor();await iosFirefox.close();
+  const iosPage=await iosFirefox.newPage();await iosPage.goto(appUrl);await iosPage.getByText(copy.banners.firefox,{exact:true}).waitFor();await iosFirefox.close();
  }finally{await browser.close();}
 }
 await writeFile(`${root}/workspace-check.json`,JSON.stringify(records,null,2)+'\n');

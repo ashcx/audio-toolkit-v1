@@ -52,7 +52,7 @@ test('silent and single-frame inputs stay finite and report completed work',asyn
  for(const frames of [1,441])for(const keep of ['voice','music']){const state=context(),events=[];state.event=event=>events.push(event);const input=(async function*(){yield{origin:.625,offset:0,rate:44100,planes:[new Float32Array(frames)]};})();const output=await collect(isolate(input,keep,state));assert.equal(output.length,frames);assert(output.every(value=>value===0));assert.deepEqual(events.filter(event=>event.kind==='isolation-progress'),[{kind:'isolation-progress',completed:0,total:1},{kind:'isolation-progress',completed:1,total:1}]);assert(state.released);}
 });
 test('empty audio fails before allocating a model or checkpoint',async()=>{
- const state=context();state.infer=async()=>assert.fail('Empty audio must not invoke inference');await assert.rejects(collect(isolate((async function*(){})(),'voice',state)),/no audio/);assert.equal(state.stats.isolationLoads,0);
+ const state=context();state.infer=async()=>assert.fail('Empty audio must not invoke inference');await assert.rejects(collect(isolate((async function*(){})(),'voice',state)),{code:'range-no-audio'});assert.equal(state.stats.isolationLoads,0);
 });
 test('failure after a completed window releases its checkpoint and does not advance progress',async()=>{
  const state=context(),events=[];let calls=0;state.event=event=>events.push(event);state.infer=async planes=>{if(++calls===2)throw new Error('Late model failure');return stems(planes);};await assert.rejects(collect(isolate(source(700000,44100),'music',state)),/Late model failure/);assert.equal(calls,2);assert(state.released);assert.deepEqual(events.filter(event=>event.kind==='isolation-progress').map(event=>event.completed),[0,1]);

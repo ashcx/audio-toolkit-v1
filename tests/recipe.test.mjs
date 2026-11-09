@@ -84,9 +84,9 @@ test('normalize rejects mixed mode fields and out-of-range loudness or ceiling v
  ];
  for(const value of invalid)assert.equal(recipeSchema.safeParse({...base,steps:[value]}).success,false,JSON.stringify(value));
 });
-test('compressor steps start bypassed and bound amount plus preset', () => {
+test('a new compressor step is already on and bounds amount plus preset', () => {
  const compressor=newStep('compress');
- assert.deepEqual(compressor,{id:compressor.id,kind:'compress',enabled:false,amount:50,preset:'speech'});
+ assert.deepEqual(compressor,{id:compressor.id,kind:'compress',enabled:true,amount:50,preset:'speech'});
  const base=newRecipe();
  const step=overrides=>({...compressor,...overrides});
  for(const value of [step({}),step({enabled:true,amount:0,preset:'music'}),step({enabled:true,amount:100})])

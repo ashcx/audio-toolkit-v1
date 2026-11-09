@@ -1,5 +1,6 @@
 import { createOutputStore, type StoredOutput } from "./output-store.ts";
 import { cleanupAll } from "./cleanup.ts";
+import { UserFacingError } from "./errors.ts";
 
 export type ZipProgress = Readonly<{ loaded: number; total: number }>;
 export const ZIP_CHUNK = 1024 * 1024;
@@ -18,19 +19,19 @@ function header(length: number) {
 export async function writeStoredZip(files: readonly File[], write: Sink, signal: AbortSignal, progress: (value: ZipProgress) => void) {
   let position = 0, loaded = 0;
   const total = files.reduce((size, file) => size + file.size, 0);
-  if (!Number.isSafeInteger(total)) throw new Error("These files are too large for a ZIP.");
+  if (!Number.isSafeInteger(total)) throw new UserFacingError("zip-failed", "These files are too large for a ZIP.");
   const entries: { name: Uint8Array<ArrayBuffer>; size: number; offset: number; crc: number }[] = [];
   const names = new Set<string>();
   const put = async (bytes: Uint8Array<ArrayBuffer>) => {
     signal.throwIfAborted();
-    if (!Number.isSafeInteger(position + bytes.length)) throw new Error("This ZIP is too large.");
+    if (!Number.isSafeInteger(position + bytes.length)) throw new UserFacingError("zip-failed", "This ZIP is too large.");
     await write(position, bytes);
     position += bytes.length;
     signal.throwIfAborted();
   };
   for (const file of files) {
     const name = encoder.encode(file.name);
-    if (!name.length || name.length > 65535 || /[\\/\x00-\x1f\x7f]/.test(file.name) || /^\.+$/.test(file.name) || names.has(file.name.normalize("NFC").toLowerCase())) throw new Error("ZIP filenames must be safe and unique.");
+    if (!name.length || name.length > 65535 || /[\\/\x00-\x1f\x7f]/.test(file.name) || /^\.+$/.test(file.name) || names.has(file.name.normalize("NFC").toLowerCase())) throw new UserFacingError("names-unsafe", "ZIP filenames must be safe and unique.");
     names.add(file.name.normalize("NFC").toLowerCase());
     const offset = position;
     const local = header(30 + name.length + 20);

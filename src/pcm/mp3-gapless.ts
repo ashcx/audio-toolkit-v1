@@ -1,3 +1,4 @@
+import { UserFacingError } from "../errors.ts";
 export function mp3GaplessHeader(header: Uint8Array, inputFrames: number): Uint8Array {
   const data = new Uint8Array(header), view = new DataView(data.buffer);
   const version = (data[1] >> 3) & 3;
@@ -5,7 +6,7 @@ export function mp3GaplessHeader(header: Uint8Array, inputFrames: number): Uint8
   const side = version === 3 ? (mono ? 17 : 32) : mono ? 9 : 17;
   const xing = 4 + side;
   const word = new TextDecoder().decode(data.subarray(xing, xing + 4));
-  if (!["Xing", "Info"].includes(word)) throw new Error("MP3 timing metadata is unavailable.");
+  if (!["Xing", "Info"].includes(word)) throw new UserFacingError("audio-unprocessable", "MP3 timing metadata is unavailable.");
   let flags = view.getUint32(xing + 4);
   const frames = view.getUint32(xing + 8) - 1;
   const delay = 576;

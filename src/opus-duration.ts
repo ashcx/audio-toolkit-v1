@@ -1,3 +1,4 @@
+import { UserFacingError } from "./errors.ts";
 export function packetFrames(data: Uint8Array): number {
   if (!data.length) throw new Error("Empty Opus packet.");
   const config = data[0] >> 3;
@@ -25,7 +26,7 @@ export async function opusDuration(
     if (last) frames += packetFrames(last.data);
     last = packet;
   }
-  if (!last) throw new Error("The audio track contains no packets.");
+  if (!last) throw new UserFacingError("file-no-audio", "The audio track contains no packets.");
   const complete = packetFrames(last.data);
   frames +=
     last.duration > 0

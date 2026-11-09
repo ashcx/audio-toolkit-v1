@@ -1,5 +1,6 @@
 import { BLOCK_FRAMES, frameTime, type PcmBlock, type PcmCheckpoint, type PcmReplay, type PcmStream } from "./blocks.ts";
 import { resample } from "./resample.ts";
+import { UserFacingError } from "../errors.ts";
 import { demucsWindows, demucsWindowCount } from "./demucs-window.ts";
 import { DEMUCS_MODEL, type DemucsSource } from "../inference/demucs-model.ts";
 import type { InferenceDone } from "../inference/protocol";
@@ -14,7 +15,7 @@ type Analysis = {
 };
 async function analyze(source: PcmStream, checkpoint: () => Promise<PcmCheckpoint>): Promise<Analysis> {
   const iterator = source[Symbol.asyncIterator](), first = await iterator.next();
-  if (first.done) throw new Error("The selected range contains no audio.");
+  if (first.done) throw new UserFacingError("range-no-audio");
   const channels = first.value.planes.length, originalRate = first.value.rate, origin = frameTime(first.value);
   let originalFrames = 0, frames = 0, mean = 0, squared = 0;
   let spool: PcmCheckpoint | null = null;
@@ -31,11 +32,11 @@ async function analyze(source: PcmStream, checkpoint: () => Promise<PcmCheckpoin
     for await (const block of originalRate === ISOLATION_RATE ? counted(spool) : resample(counted(spool), ISOLATION_RATE)) {
       for (let index = 0; index < block.planes[0].length; index++) {
         let value = 0;for (const plane of block.planes) value += plane[index] / channels;
-        if (!Number.isFinite(value)) throw new Error("The processed audio exceeds the supported sample range.");
+        if (!Number.isFinite(value)) throw new UserFacingError("audio-damaged", "The processed audio has a sample outside the supported range.");
         frames++;const difference = value - mean;mean += difference / frames;squared += difference * (value - mean);
       }
     }
-    if (!frames) throw new Error("The selected range is too short for isolation. Keep a longer range.");
+    if (!frames) throw new UserFacingError("range-too-short");
     const owned = spool;
     const replay = await owned.seal(), deviation = Math.sqrt(squared / Math.max(1, frames - 1)) + 1e-8;
     return { frames, channels, origin, originalFrames, originalRate, mean, deviation, replay, release: () => owned.discard() };
@@ -55,7 +56,7 @@ export async function* fitIsolationFrames(source: PcmStream, frames: number | ((
     }
   }
   const remaining = (typeof frames === "number" ? frames : frames()) - emitted, actual = held.reduce((sum, block) => sum + block.planes[0].length, 0);
-  if (!held.length || remaining < 0 || Math.abs(remaining - actual) > Math.ceil(rate / correctionRate) + 1) throw new Error("The isolated audio duration is inconsistent.");
+  if (!held.length || remaining < 0 || Math.abs(remaining - actual) > Math.ceil(rate / correctionRate) + 1) throw new UserFacingError("split-failed", "The separated audio length does not match the source.");
   const planes = held[0].planes.map(() => new Float32Array(remaining));
   let used = 0;
   for (const block of held) {

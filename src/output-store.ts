@@ -1,4 +1,5 @@
 import { cleanupAll } from "./cleanup.ts";
+import { UserFacingError } from "./errors.ts";
 export type StoredOutput = Readonly<{
   file: File;
   name: string;
@@ -7,17 +8,15 @@ export type StoredOutput = Readonly<{
 }>;
 export async function createOutputStore(name: string, mime: string) {
   if (!navigator.storage?.getDirectory)
-    throw new Error("Temporary storage is unavailable in this browser.");
+    throw new UserFacingError("storage-private-mode", "The origin private file system is unavailable.");
   let directory: FileSystemDirectoryHandle;
   try {
     const root = await navigator.storage.getDirectory();
     directory = await root.getDirectoryHandle("audio-toolkit-v1", {
       create: true,
     });
-  } catch {
-    throw new Error(
-      "Temporary storage is unavailable. Try a non-private browser window.",
-    );
+  } catch (error) {
+    throw new UserFacingError("storage-private-mode", `The origin private file system could not be opened. ${String(error)}`);
   }
   const key = crypto.randomUUID();
   const handle = await directory.getFileHandle(key, { create: true });

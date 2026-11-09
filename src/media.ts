@@ -4,6 +4,7 @@ import {
 } from "./mp3-presentation.ts";
 import { opusDuration } from "./opus-duration.ts";
 import type { AudioCodec } from "mediabunny";
+import { failure, failureOf, type Failure } from "./errors.ts";
 export type FileId = string & { readonly __brand: "FileId" };
 function isFileId(value: string): value is FileId {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
@@ -12,7 +13,7 @@ function isFileId(value: string): value is FileId {
 }
 export function createFileId(): FileId {
   const id = crypto.randomUUID();
-  if (!isFileId(id)) throw new Error("Could not create a file identity.");
+  if (!isFileId(id)) throw new Error("Could not create a file id.");
   return id;
 }
 export type AudioMetadata = {
@@ -27,7 +28,7 @@ export type AudioMetadata = {
 };
 export type InspectionResult =
   | { kind: "ready"; metadata: AudioMetadata }
-  | { kind: "failed"; message: string };
+  | ({ kind: "failed" } & Failure);
 export type Inspection =
   | { kind: "waiting" }
   | { kind: "reading" }
@@ -59,7 +60,7 @@ export async function inspectMedia(
   signal.addEventListener("abort", abort, { once: true });
   try {
     const track = await input.getPrimaryAudioTrack();
-    if (!track) return { kind: "failed", message: "No audio track." };
+    if (!track) return { kind: "failed", ...failure("file-no-audio") };
     const [
       format,
       codec,
@@ -79,7 +80,7 @@ export async function inspectMedia(
     ]);
     signal.throwIfAborted();
     if (codec === null)
-      return { kind: "failed", message: "Unsupported audio codec." };
+      return { kind: "failed", ...failure("file-unsupported-audio") };
     const presentation =
       format instanceof Mp3InputFormat
         ? await readMp3Presentation(file, signal)
@@ -133,7 +134,7 @@ export async function inspectMedia(
     };
   } catch (error) {
     signal.throwIfAborted();
-    return { kind: "failed", message: "Unsupported or unreadable media." };
+    return { kind: "failed", ...failureOf(error, "file-unreadable") };
   } finally {
     signal.removeEventListener("abort", abort);
     input.dispose();

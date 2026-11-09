@@ -10,13 +10,15 @@ import { useExport } from "./use-export";
 import { compilePlan } from "./planner";
 import { automaticExport } from "./export-default";
 import { snapshotForFile } from "./recipe";
-import { RecipeEditor, ExportEditor } from "./recipe-editor";
+import { RecipeEditor, ExportEditor, stepProblem } from "./recipe-editor";
 import {
   newRecipe,
   recipeSchema,
   type RecipeDraft,
 } from "./recipe";
 import { exportStatus } from "./file-summary";
+import { validationMessage, messageFor } from "./errors";
+import { copy } from "./copy";
 
 type Theme = "system" | "light" | "dark";
 function initialTheme(): Theme {
@@ -88,7 +90,11 @@ function App() {
       : [];
   });
   const trim = draft.steps.find((step) => step.kind === "trim");
-  const previewCleanup = preview.state.kind === "cleanup" ? preview.state : null;
+  const trimErrorId = trim ? stepProblem(trim)?.id : undefined;
+  const previewCleanup = preview.state.kind === "cleanup" && preview.state.attempts >= 2 ? preview.state : null;
+  const zipProblem = archive.state.kind === "failed" || (archive.state.kind === "cleanup" && archive.state.attempts >= 2) ? archive.state : null;
+  const zipStuck = zipProblem?.kind === "cleanup";
+  const exportText = exportStatus([...exports.jobs.values()]);
   const changeRecipe = (next: RecipeDraft) => {
     if (locked) return false;
     setDraft(next);
@@ -126,20 +132,20 @@ function App() {
   }, [clearing, files.length]);
   useLayoutEffect(() => {
     if (!pendingResultFocus.current) return;
-    if (archive.state.kind === "cleanup") {pendingResultFocus.current=false;zipCleanupButton.current?.focus();return;}
+    if (zipStuck) {pendingResultFocus.current=false;zipCleanupButton.current?.focus();return;}
     if (locked) return;
+    if (exports.cleanupCount > 0 && !exports.cleanupStuck) return;
     pendingResultFocus.current = false;
     if (exports.cleanupCount > 0) {cleanupButton.current?.focus();return;}
     const target = jobs.length ? exportButton.current
       : document.querySelector<HTMLButtonElement>(".step-toggle[aria-describedby*='error-']") ?? picker.current;
     target?.focus();
-  },[locked,completed.length,jobs.length,exports.cleanupCount,archive.state.kind]);
+  },[locked,completed.length,jobs.length,exports.cleanupCount,exports.cleanupStuck,zipStuck]);
   const fileList = useRef<HTMLUListElement>(null);
   const pendingFocus = useRef<number | null>(null);
   const capabilities = {
     workers: typeof Worker !== "undefined",
     storage: typeof navigator.storage?.getDirectory === "function",
-    webCodecs: typeof AudioDecoder !== "undefined",
     firefox: /Firefox\/|FxiOS\//.test(navigator.userAgent),
   };
   useLayoutEffect(() => {
@@ -172,38 +178,20 @@ function App() {
         <a
           class="brand"
           href="https://ashcx.github.io/tools/"
-          aria-label="Back to Tools"
+          aria-label={copy.app.backToTools}
         >
-          <h1>Audio Toolkit</h1>
+          <h1>{copy.app.title}</h1>
         </a>
-        <button ref={settingsButton} type="button" onClick={() => settings.current?.showModal()}>Settings</button>
+        <button ref={settingsButton} type="button" onClick={() => settings.current?.showModal()}>{copy.settings.open}</button>
       </header>
       <main>
-        {capabilities.firefox && (
-          <p class="notice" role="status">
-            Firefox is unsupported. Use Chrome, Edge or Safari.
-          </p>
-        )}
-        {!capabilities.workers && (
-          <p class="notice" role="status">
-            Audio workers are unavailable. Use a supported browser.
-          </p>
-        )}
-        {!capabilities.storage && (
-          <p class="notice" role="status">
-            Temporary storage is unavailable. Large files may be limited.
-          </p>
-        )}
-        {!capabilities.webCodecs && (
-          <p class="notice" role="status">
-            Some formats need a compatibility component. Support is checked
-            before processing.
-          </p>
-        )}
+        {capabilities.firefox && <p class="notice" role="status">{copy.banners.firefox}</p>}
+        {!capabilities.workers && <p class="notice" role="status">{copy.banners.workers}</p>}
+        {!capabilities.storage && <p class="notice" role="status">{copy.banners.storage}</p>}
         <div class="workspace">
           <section class="panel files-panel" aria-labelledby="files-title">
             <div class="panel-heading">
-              <h2 id="files-title">Files</h2>
+              <h2 id="files-title">{copy.files.heading}</h2>
               {files.length > 0 && (
                 <span class="count">{files.length}</span>
               )}
@@ -233,14 +221,13 @@ function App() {
                 type="file"
                 multiple
                 accept="audio/*,video/*,.mkv,.flac,.opus,.ogg,.m4a,.aac"
-                aria-label="Choose audio or video files"
                 onChange={(event) => {
                   add(Array.from(event.currentTarget.files ?? []));
                   event.currentTarget.value = "";
                 }}
               />
-              <span class="button primary">{files.length ? "Add files" : "Choose files"}</span>
-              <small>or drop audio or video</small>
+              <span class="button primary">{files.length ? copy.files.add : copy.files.choose}</span>
+              <small>{copy.files.drop}</small>
             </label>
             {files.length > 0 && (
               <p class="sr-only" role="status">
@@ -249,17 +236,18 @@ function App() {
                     entry.inspection.kind === "waiting" ||
                     entry.inspection.kind === "reading",
                 )
-                  ? "Inspecting files."
-                  : "File inspection complete."}
+                  ? copy.files.inspecting
+                  : copy.files.inspected}
               </p>
             )}
             {files.length > 0 && (
-              <ul ref={fileList} class="file-list" aria-label="Selected files">
+              <ul ref={fileList} class="file-list" aria-label={copy.files.listLabel}>
                 {files.map((entry, index) => (
                   <FileRow
                     key={entry.id}
                     entry={entry}
                     trim={trim?.range}
+                    trimErrorId={trimErrorId}
                     plan={plans.get(entry.id) ?? null}
                     job={exports.jobs.get(entry.id)}
                     preview={preview.state.kind !== "idle" && preview.state.fileId === entry.id ? preview.state : undefined}
@@ -298,7 +286,7 @@ function App() {
               parsedRecipe.success ||
               parsedRecipe.error.issues[0].path[0] === "steps"
                 ? undefined
-                : parsedRecipe.error.issues[0].message
+                : validationMessage(parsedRecipe.error.issues)
             }
           />
           </fieldset>
@@ -309,61 +297,60 @@ function App() {
           }}>
         <div class="run-actions">
           <div class="run-status" aria-live="polite">
-            {clearing && <span>Cancelling and cleaning up before clearing…</span>}
+            {clearing && <span>{copy.export.clearing}</span>}
             {previewCleanup && !files.some(entry => entry.id === previewCleanup.fileId) && <>
-              <span>{previewCleanup.message}</span><button type="button" class="text-button" onClick={preview.clear}>Retry preview cleanup</button>
+              <span>{previewCleanup.message}</span><button type="button" class="text-button" onClick={preview.clear}>{copy.actions["try-again"]}</button>
             </>}
-            {folder.state.kind === "choosing" && <span>Choose a folder for a new batch folder.</span>}
-            {folder.state.kind === "saving" && <span>Saving {folder.state.completed} / {folder.state.total}</span>}
-            {(folder.state.kind === "choosing" || folder.state.kind === "saving") && <button type="button" class="text-button" onClick={folder.cancel}>Cancel folder save</button>}
-            {folder.state.kind === "cancelling" && <span>Cancelling folder save…</span>}
+            {folder.state.kind === "choosing" && <span>{copy.delivery.chooseFolder}</span>}
+            {folder.state.kind === "saving" && <span>{copy.delivery.savingProgress(folder.state.completed, folder.state.total)}</span>}
+            {(folder.state.kind === "choosing" || folder.state.kind === "saving") && <button type="button" class="text-button" onClick={folder.cancel}>{copy.delivery.cancel}</button>}
+            {folder.state.kind === "cancelling" && <span>{copy.delivery.finishing}</span>}
             {folder.state.kind === "failed" && <span>{folder.state.message}</span>}
             {folder.state.kind === "result" && <div class="folder-report">
-              <p>{folder.state.report.cancelled ? "Cancelled. " : ""}{folder.state.report.saved.length} saved to {folder.state.report.folder}. {folder.state.report.failed.length} failed, {folder.state.report.remaining} not saved.</p>
-              {folder.state.report.failed.map(item => <p>{item.name}: {item.message}</p>)}
+              <p>{copy.delivery.folderResult({ saved: folder.state.report.saved.length, failed: folder.state.report.failed.length, folder: folder.state.report.folder, cancelled: folder.state.report.cancelled })}</p>
+              {folder.state.report.failed.filter(item => item.code !== "folder-cancelled").map(item => <p>{item.message}</p>)}
             </div>}
             {archive.state.kind === "building" && <>
-              <progress aria-label="ZIP progress" value={archive.state.progress.loaded} max={archive.state.progress.total || 1} />
-              <span>Creating ZIP</span>
-              <button type="button" class="text-button" onClick={archive.cancel}>Cancel ZIP</button>
+              <progress aria-label={copy.delivery.zipProgress} value={archive.state.progress.loaded} max={archive.state.progress.total || 1} />
+              <span>{copy.delivery.creatingZip}</span>
+              <button type="button" class="text-button" onClick={archive.cancel}>{copy.delivery.cancel}</button>
             </>}
-            {(archive.state.kind === "cancelling" || archive.state.kind === "releasing") && <span>Cleaning up ZIP…</span>}
-            {(archive.state.kind === "failed" || archive.state.kind === "cleanup") && <span>{archive.state.message}</span>}
-            {archive.state.kind === "cleanup" && <button ref={zipCleanupButton} type="button" class="text-button" onClick={() => {pendingResultFocus.current=true;void archive.clear();}}>Retry ZIP cleanup</button>}
-            {exports.cleanupCount > 0 && <>
-              <span>Temporary files need cleanup.</span>
-              <button ref={cleanupButton} type="button" class="text-button" disabled={locked} onClick={() => {pendingResultFocus.current=true;void exports.retryCleanup();}}>Retry cleanup</button>
+            {(archive.state.kind === "cancelling" || archive.state.kind === "releasing") && <span>{copy.delivery.finishing}</span>}
+            {zipProblem && <span>{zipProblem.message}</span>}
+            {zipStuck && <button ref={zipCleanupButton} type="button" class="text-button" onClick={() => {pendingResultFocus.current=true;void archive.clear();}}>{copy.actions["try-again"]}</button>}
+            {exports.cleanupStuck && <>
+              <span>{messageFor("storage-stuck")}</span>
+              <button ref={cleanupButton} type="button" class="text-button" disabled={locked} onClick={() => {pendingResultFocus.current=true;void exports.retryCleanup();}}>{copy.actions["try-again"]}</button>
             </>}
-            {exports.jobs.size > 0 && <span class="run-count">{exportStatus([...exports.jobs.values()])}</span>}
-            {exports.busy && <button type="button" class="text-button" onClick={exports.cancelAll}>Cancel all</button>}
+            {exportText && <span class="run-count" aria-hidden="true">{exportText}</span>}
+            {exports.busy && <button type="button" class="text-button" onClick={exports.cancelAll}>{copy.export.cancelAll}</button>}
             {!workLocked && exports.cleanupCount === 0 && [...exports.jobs.values()].some(job => job.state.kind === "failed") &&
-              <button type="button" class="text-button" onClick={() => exports.retry()}>Retry failed</button>}
-            {completed.length > 0 && !clearing && <small>Clear all removes unsaved exports. Saved downloads stay on your device.</small>}
-            {exports.busy && <small>{exports.cleaning ? "Cleaning up…" : "Keep this page open. Cancellation waits for cleanup."}</small>}
+              <button type="button" class="text-button" onClick={() => exports.retry()}>{copy.export.retryFailed}</button>}
+            {exportText && <small>{copy.export.keepOpen}</small>}
           </div>
           <div class="run-actions-group">
             {files.length > 0 && <button
               type="button"
               disabled={clearing}
-              title="Removes loaded files and unsaved exports. Files saved to your device stay."
+              title={copy.export.clearAllTooltip}
               onClick={clearAll}
-            >Clear all</button>}
-            {completed.length > 0 && <details class="delivery-menu" onKeyDown={event=>{
+            >{copy.export.clearAll}</button>}
+            {completed.length > 0 && <details class="delivery-menu" onToggle={event => { if (event.currentTarget.open) event.currentTarget.scrollIntoView({ block: "nearest" }); }} onKeyDown={event=>{
               if(event.key === "Escape") {event.currentTarget.open=false;event.currentTarget.querySelector<HTMLElement>("summary")?.focus();}
             }}>
-              <summary role="button" class="button">Save to device</summary>
+              <summary role="button" class="button">{copy.delivery.saveToDevice}</summary>
               <div class="delivery-options">
-                {archive.state.kind === "ready" ? <a class="button" href={archive.state.url} download={archive.state.output.name}>Download ZIP</a>
-                  : <button type="button" disabled={workLocked || exports.cleanupCount > 0} onClick={() => archive.start(completed.map(result => result.output.file))}>Create ZIP</button>}
+                {archive.state.kind === "ready" ? <a class="button" href={archive.state.url} download={archive.state.output.name}>{copy.delivery.downloadZip}</a>
+                  : <button type="button" disabled={workLocked || exports.cleanupCount > 0} onClick={() => archive.start(completed.map(result => result.output.file))}>{copy.delivery.createZip}</button>}
                 {folder.supported && <button type="button" disabled={workLocked || exports.cleanupCount > 0} onClick={event => {
                   event.currentTarget.closest("details")?.removeAttribute("open");
                   void folder.start(completed.map(result => result.output.file));
-                }}>Save to folder</button>}
+                }}>{copy.delivery.saveToFolder}</button>}
                 <button type="button" disabled={locked} onClick={() => {
                   pendingResultFocus.current = true;
                   void archive.clear();
                   for (const id of exports.jobs.keys()) exports.clear(id);
-                }}>Clear results</button>
+                }}>{copy.delivery.discard}</button>
               </div>
             </details>}
             <button
@@ -373,7 +360,7 @@ function App() {
               disabled={workLocked || exports.cleanupCount > 0 || !jobs.length}
               onClick={() => void exports.run(jobs)}
             >
-              Export
+              {copy.export.exportButton}
             </button>
           </div>
         </div>
@@ -382,13 +369,13 @@ function App() {
         </div>
       </main>
       <dialog ref={settings} class="settings-dialog" aria-labelledby="settings-title" onClose={() => settingsButton.current?.focus()}>
-        <div class="panel-heading"><h2 id="settings-title">Settings</h2><button type="button" onClick={() => settings.current?.close()}>Close</button></div>
-        <fieldset><legend>Appearance</legend><div class="theme-options">
-          {([{ value: "system", label: "System" }, { value: "light", label: "Light" }, { value: "dark", label: "Dark" }] satisfies { value: Theme; label: string }[]).map(option => <label>
-            <input class="sr-only" type="radio" name="appearance" checked={theme === option.value} onChange={() => setTheme(option.value)} />{option.label}
+        <div class="panel-heading"><h2 id="settings-title">{copy.settings.heading}</h2><button type="button" onClick={() => settings.current?.close()}>{copy.settings.close}</button></div>
+        <fieldset><legend>{copy.settings.theme}</legend><div class="theme-options">
+          {(Object.keys(copy.settings.themes) as Theme[]).map(value => <label>
+            <input class="sr-only" type="radio" name="appearance" checked={theme === value} onChange={() => setTheme(value)} />{copy.settings.themes[value]}
           </label>)}
         </div></fieldset>
-        <a href={`${import.meta.env.BASE_URL}third-party/`} target="_blank" rel="noopener">Licenses</a>
+        <a href={`${import.meta.env.BASE_URL}third-party/`} target="_blank" rel="noopener">{copy.settings.licenses}</a>
       </dialog>
     </div>
   );

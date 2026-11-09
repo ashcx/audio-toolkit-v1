@@ -1,6 +1,7 @@
 import type { AudioLevels } from "./levels";
 import type { AudioMetadata } from "./media";
 import type { LevelsReply } from "./levels-worker";
+import { UserFacingError } from "./errors.ts";
 export function analyzeLevels(file: File, metadata: AudioMetadata, signal: AbortSignal): Promise<AudioLevels> {
   return new Promise((resolve,reject) => {
     signal.throwIfAborted();
@@ -14,15 +15,15 @@ export function analyzeLevels(file: File, metadata: AudioMetadata, signal: Abort
       if (levels) resolve(levels); else reject(error);
     };
     const abort = () => finish(null,new DOMException("Analysis cancelled","AbortError"));
-    const resetTimer = () => {if (finished) return;clearTimeout(timer);timer=setTimeout(()=>finish(null,new Error("Level analysis stalled. Reopen this step to retry.")),30000);};
+    const resetTimer = () => {if (finished) return;clearTimeout(timer);timer=setTimeout(()=>finish(null,new UserFacingError("levels-failed","Level analysis stalled.")),30000);};
     signal.addEventListener("abort",abort,{once:true});
     worker.onmessage = (event: MessageEvent<LevelsReply>) => {
       resetTimer();
       if (event.data.kind === "done") finish(event.data.levels);
-      else if (event.data.kind === "error") finish(null,new Error(`${file.name}: ${event.data.message}`));
+      else if (event.data.kind === "error") finish(null,new UserFacingError(event.data.code,`Level analysis failed for ${file.name}.`));
     };
-    worker.onerror = () => finish(null,new Error(`Level analysis is unavailable for ${file.name}.`));
+    worker.onerror = () => finish(null,new UserFacingError("levels-failed",`Level analysis is unavailable for ${file.name}.`));
     resetTimer();
-    try {worker.postMessage({file,metadata});} catch {finish(null,new Error("Could not start level analysis."));}
+    try {worker.postMessage({file,metadata});} catch {finish(null,new UserFacingError("levels-failed","Could not start level analysis."));}
   });
 }

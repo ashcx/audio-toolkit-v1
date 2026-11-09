@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {previewPlans,previewExcerpt} from '../src/preview-plan.ts';
+import {previewPlans,previewExcerpt,previewCutSeconds,PREVIEW_SECONDS} from '../src/preview-plan.ts';
 import {Preview,previewBusy} from '../src/preview.ts';
 import {newRecipe,newStep,recipeSchema,snapshotForFile} from '../src/recipe.ts';
 import {createFileId} from '../src/media.ts';
@@ -17,6 +17,18 @@ test('preview resolves per-file trim without reordering the recipe or changing i
  assert.equal(plans.processed.steps[1].range.start,2);assert.equal(plans.processed.snapshot.source.startTime,2);
  assert.deepEqual(plans.original.steps,[]);assert.equal(plans.processed.snapshot.recipe.export.format,'wav');assert.equal(snap.recipe.export.format,'mp3');
  assert.deepEqual(previewPlans(snapshot()).range,{start:0,end:15});
+});
+test('the excerpt length is named only when the selection is longer than the excerpt',()=>{
+ assert.equal(PREVIEW_SECONDS,15);
+ assert.equal(previewCutSeconds(null,50),15);
+ assert.equal(previewCutSeconds(null,2),null);
+ assert.equal(previewCutSeconds(null,15),null);
+ assert.equal(previewCutSeconds(null,null),null);
+ assert.equal(previewCutSeconds({start:2,end:40},50),15);
+ assert.equal(previewCutSeconds({start:2,end:12},50),null);
+ assert.equal(previewCutSeconds({start:10,end:null},20),null);
+ assert.equal(previewCutSeconds({start:0,end:null},20),15);
+ assert.deepEqual(previewPlans(snapshot([{...newStep('trim'),range:{start:2,end:12}}])).range,{start:2,end:12});
 });
 test('both excerpts retain the same source clock and stop decoding at the preview end',async()=>{
  let read=0,closed=false;
@@ -60,4 +72,27 @@ test('processed sine excerpt applies the actual gain transform to identical orig
  assert.equal(original[0].offset,2530);assert.equal(processed[0].offset,2530);
  assert.equal(original.reduce((sum,b)=>sum+b.planes[0].length,0),12640);
  for(let b=0;b<original.length;b++)for(let i=0;i<original[b].planes[0].length;i++)assert(Math.abs(processed[b].planes[0][i]-original[b].planes[0][i]*10**(6/20))<2e-8);
+});
+function retryOnFirstCleanupFailure(preview){
+ preview.subscribe(state=>{if(state.kind==='cleanup'&&state.attempts===1)Promise.resolve().then(()=>preview.clear());});
+}
+test('the silent retry after a failed cleanup runs once the preview has stopped working, not while it is still winding down',async()=>{
+ let calls=0,releaseFailures=1;const f=fixture(async()=>{calls++;if(calls===2)throw new Error('Processing broke');const output=f.output();return{output:{...output,release:async()=>{if(releaseFailures-->0)throw new Error('busy');await output.release();}},stats:{}};});
+ retryOnFirstCleanupFailure(f.preview);
+ f.preview.start(entry,snapshot());await settle();
+ assert.equal(f.preview.state.kind,'idle');assert.equal(previewBusy(f.preview.state),false);
+});
+test('closing a ready preview whose cleanup fails once ends idle after the silent retry',async()=>{
+ let releaseFailures=0;const f=fixture(async()=>{const output=f.output();return{output:{...output,release:async()=>{if(releaseFailures-->0)throw new Error('busy');await output.release();}},stats:{}};});
+ f.preview.start(entry,snapshot());await settle();assert.equal(f.preview.state.kind,'ready');
+ retryOnFirstCleanupFailure(f.preview);releaseFailures=1;
+ f.preview.clear();await settle();
+ assert.equal(f.preview.state.kind,'idle');assert.equal(previewBusy(f.preview.state),false);
+});
+test('the second cleanup failure is shown and stays retryable',async()=>{
+ let releaseFailures=4;const f=fixture(async()=>{const output=f.output();return{output:{...output,release:async()=>{if(releaseFailures-->0)throw new Error('busy');await output.release();}},stats:{}};});
+ f.preview.start(entry,snapshot());await settle();retryOnFirstCleanupFailure(f.preview);
+ f.preview.clear();await settle();
+ assert.equal(f.preview.state.kind,'cleanup');assert.equal(f.preview.state.attempts,2);
+ f.preview.clear();await settle();assert.equal(f.preview.state.kind,'idle');
 });

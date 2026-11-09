@@ -1,3 +1,4 @@
+import { UserFacingError } from "../errors.ts";
 import {
   BLOCK_FRAMES,
   type PcmBlock,
@@ -100,7 +101,7 @@ export async function* resample(source: PcmStream, target: number): PcmStream {
       block.planes.length !== buffer.length ||
       Math.abs(frameTime(block) - (origin + received / rate)) > 0.5 / rate
     )
-      throw new Error("The audio timeline changes unexpectedly.");
+      throw new UserFacingError("audio-unprocessable", "The audio timeline changes unexpectedly.");
     buffer = buffer.map((plane, index) => {
       const joined = new Float32Array(
         plane.length + block.planes[index].length,

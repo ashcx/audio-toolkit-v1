@@ -1,7 +1,11 @@
+import { copy } from "./copy.ts";
+import { UserFacingError, failure, failureOf, messageFor, type ErrorCode, type Failure } from "./errors.ts";
+/** `code` is the catalogue entry behind `message`, or null for the per-file sentences that name the file. */
+export type FailedItem = Readonly<{ name: string; code: ErrorCode | null; message: string }>;
 export type FolderReport = Readonly<{
   folder: string;
   saved: readonly string[];
-  failed: readonly { name: string; message: string }[];
+  failed: readonly FailedItem[];
   remaining: number;
   cancelled: boolean;
 }>;
@@ -11,10 +15,30 @@ export type FolderState =
   | Readonly<{ kind: "choosing" | "cancelling" }>
   | Readonly<{ kind: "saving"; completed: number; total: number }>
   | Readonly<{ kind: "result"; report: FolderReport }>
-  | Readonly<{ kind: "failed"; message: string }>;
+  | Readonly<{ kind: "failed" } & Failure>;
 
 function namedError(error: unknown, name: string) {
   return error instanceof DOMException && error.name === name;
+}
+class AlreadyExists extends Error {}
+function blockedCode(error: unknown): "folder-blocked" | "folder-no-space" | null {
+  if (namedError(error, "NotAllowedError")) return "folder-blocked";
+  if (namedError(error, "QuotaExceededError")) return "folder-no-space";
+  return null;
+}
+/** The one sentence for a file that did not make it into the folder. */
+function itemFailure(error: unknown, name: string, cancelled: boolean, partial: boolean): FailedItem {
+  const unfinished = { name, code: null, message: copy.delivery.folderUnfinished(name) };
+  if (partial) return unfinished;
+  const code = cancelled ? "folder-cancelled" : blockedCode(error);
+  if (code) return { name, code, message: messageFor(code) };
+  if (error instanceof AlreadyExists) return { name, code: null, message: copy.delivery.folderSkipped(name) };
+  console.error(error);
+  return unfinished;
+}
+function folderFailure(error: unknown): Failure {
+  const code = blockedCode(error);
+  return code ? failure(code) : failureOf(error, "folder-blocked");
 }
 async function exists(directory: FileSystemDirectoryHandle, name: string) {
   try { await directory.getFileHandle(name); return true; }
@@ -29,7 +53,7 @@ function validateNames(files: readonly File[]) {
   for (const file of files) {
     const name = file.name.normalize("NFC").toLowerCase();
     if (!name || /[<>:"/\\|?*\x00-\x1f\x7f]/.test(name) || /[. ]$/.test(name) || /^\.+$/.test(name) || used.has(name))
-      throw new Error("Output names must be safe and unique. Download individually instead.");
+      throw new UserFacingError("names-unsafe", "Output names must be safe and unique.");
     used.add(name);
   }
 }
@@ -40,10 +64,10 @@ async function freshDirectory(parent: FileSystemDirectoryHandle, signal: AbortSi
     if (await exists(parent, name)) continue;
     const directory = await parent.getDirectoryHandle(name, { create: true });
     for await (const _entry of directory.values())
-      throw new Error("The new batch folder is already occupied. Try saving again.");
+      throw new UserFacingError("folder-blocked", "The new batch folder is already occupied.");
     return directory;
   }
-  throw new Error("Could not create a new batch folder. Try saving again.");
+  throw new UserFacingError("folder-blocked", "Could not create a new batch folder.");
 }
 export async function saveFilesToFolder(
   files: readonly File[], parent: FileSystemDirectoryHandle, signal: AbortSignal,
@@ -53,14 +77,14 @@ export async function saveFilesToFolder(
   signal.throwIfAborted();
   const directory = await freshDirectory(parent, signal);
   const saved: string[] = [];
-  const failed: { name: string; message: string }[] = [];
+  const failed: FailedItem[] = [];
   let attempted = 0;
   for (const file of files) {
     if (signal.aborted) break;
     let writable: FileSystemWritableFileStream | null = null;
     let created = false;
     try {
-      if (await exists(directory, file.name)) throw new Error("Name already exists; existing file was kept.");
+      if (await exists(directory, file.name)) throw new AlreadyExists("Name already exists; existing file was kept.");
       signal.throwIfAborted();
       const handle = await directory.getFileHandle(file.name, { create: true });
       created = true;
@@ -83,12 +107,7 @@ export async function saveFilesToFolder(
       if (created) {
         try { await directory.removeEntry(file.name); partial = false; } catch { partial = true; }
       }
-      failed.push({ name: file.name, message: partial
-        ? `A partial file may remain in ${directory.name}/${file.name}. Original download is available.`
-        : signal.aborted ? "Cancelled; original download is available."
-        : namedError(error, "NotAllowedError") ? "Folder access denied; original download is available."
-        : namedError(error, "QuotaExceededError") ? "Not enough space; original download is available."
-        : error instanceof Error ? error.message : "Could not save; original download is available." });
+      failed.push(itemFailure(error, file.name, signal.aborted, partial));
     }
     attempted++;
     progress(attempted);
@@ -119,10 +138,7 @@ export class FolderSave {
       });
       this.set({ kind: "result", report });
     } catch (error) {
-      this.set({ kind: "failed", message: controller.signal.aborted || namedError(error, "AbortError")
-        ? "Folder saving cancelled. Downloads are still available."
-        : namedError(error, "NotAllowedError") ? "Folder access denied. Download individually or create a ZIP."
-        : error instanceof Error ? error.message : "Folder could not be saved. Downloads are still available." });
+      this.set({ kind: "failed", ...(controller.signal.aborted || namedError(error, "AbortError") ? failure("folder-cancelled") : folderFailure(error)) });
     } finally { this.active = null; this.set(this.state); }
   }
   resetReport() { if (!this.busy) this.set({ kind: "idle" }); }

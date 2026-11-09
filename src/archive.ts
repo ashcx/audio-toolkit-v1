@@ -1,4 +1,5 @@
 import { cleanupAll, CleanupFailure } from "./cleanup.ts";
+import { UserFacingError, errorCode, failure, failureOf, type ErrorCode, type Failure } from "./errors.ts";
 import type { StoredOutput } from "./output-store.ts";
 import type { ZipProgress } from "./zip.ts";
 export type ArchiveState =
@@ -6,8 +7,13 @@ export type ArchiveState =
   | Readonly<{ kind: "building"; progress: ZipProgress }>
   | Readonly<{ kind: "cancelling" | "releasing" }>
   | Readonly<{ kind: "ready"; url: string; output: StoredOutput }>
-  | Readonly<{ kind: "failed" | "cleanup"; message: string }>;
+  | Readonly<{ kind: "failed" } & Failure>
+  | Readonly<{ kind: "cleanup"; attempts: number } & Failure>;
 export type ArchiveBuilder = (files: readonly File[], signal: AbortSignal, progress: (value: ZipProgress) => void) => Promise<StoredOutput>;
+const SHOWN_ZIP_CODES: readonly ErrorCode[] = ["names-unsafe", "storage-private-mode", "storage-full"];
+function zipFailure(error: unknown): Failure {
+  return SHOWN_ZIP_CODES.includes(errorCode(error, "zip-failed")) ? failureOf(error) : failureOf(new UserFacingError("zip-failed", String(error)));
+}
 export class Archive {
   state: ArchiveState = { kind: "idle" };
   private listeners = new Set<(state: ArchiveState) => void>();
@@ -16,6 +22,7 @@ export class Archive {
   private url: string | null = null;
   private cleanup: CleanupFailure | null = null;
   private clearing: Promise<void> | null = null;
+  private cleanupFailures = 0;
   private disposed = false;
   private build: ArchiveBuilder;
   constructor(build: ArchiveBuilder) { this.build = build; }
@@ -28,6 +35,10 @@ export class Archive {
     const output = this.output; this.output = null;
     const retry = this.cleanup; this.cleanup = null;
     await cleanupAll([...(output ? [output.release] : []), ...(retry ? [retry.recover] : [])]);
+    this.cleanupFailures = 0;
+  }
+  private stuck(): ArchiveState {
+    return { kind: "cleanup", attempts: ++this.cleanupFailures, ...failure("storage-stuck") };
   }
   start(files: readonly File[]) {
     if (this.busy || this.disposed || !files.length) return;
@@ -53,14 +64,15 @@ export class Archive {
         }
       } catch (error) {
         if (error instanceof CleanupFailure) {
-          this.cleanup = error; this.set({ kind: "cleanup", message: error.message });
-        } else this.set(controller.signal.aborted ? { kind: "idle" } : { kind: "failed", message: error instanceof DOMException && error.name === "QuotaExceededError" ? "Not enough temporary storage for the ZIP. Download files individually or free space and retry." : "ZIP could not be saved. Download files individually or retry." });
+          this.cleanup = error; this.set(this.stuck());
+        } else this.set(controller.signal.aborted ? { kind: "idle" } : { kind: "failed", ...zipFailure(error) });
       } finally { this.active = null; finish(); this.set(this.state); }
     })();
   }
   cancel() { if (this.active) { this.active.controller.abort(); this.set({ kind: "cancelling" }); } }
   clear(): Promise<void> {
     if (this.clearing) return this.clearing;
+    if (this.state.kind === "idle" && !this.active && !this.output && !this.url && !this.cleanup) return Promise.resolve();
     this.cancel();
     const pending = this.active?.done;
     let finish!: () => void;
@@ -71,7 +83,7 @@ export class Archive {
       try { await pending; await this.release(); this.set({ kind: "idle" }); }
       catch (error) {
         if (error instanceof CleanupFailure) this.cleanup = error;
-        this.set({ kind: "cleanup", message: "Temporary ZIP could not be removed. Retry cleanup." });
+        this.set(this.stuck());
       } finally { this.clearing = null; finish(); this.set(this.state); }
     })();
     return task;

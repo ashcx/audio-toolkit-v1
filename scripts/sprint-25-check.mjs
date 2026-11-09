@@ -1,6 +1,8 @@
 import { chromium } from 'playwright';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import {loadCopy} from './lib/harness.mjs';
+const copy=await loadCopy();
 const url = process.env.APP_URL ?? 'http://127.0.0.1:5183/audio-toolkit-v1/';
 const root = process.env.SPRINT25_EVIDENCE_DIR ?? '.artifacts/evidence/sprint-25';
 await mkdir(`${root}/captures`, { recursive: true });
@@ -29,7 +31,7 @@ await page.goto(url);
 await page.getByRole('heading', { name: 'Audio Toolkit' }).waitFor();
 const storageCount = () => page.evaluate(async () => { const d = await (await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1', { create: true }); let n = 0; for await (const _ of d.values()) n++; return n; });
 const row = name => page.locator('li', { hasText: name });
-await page.getByLabel('Choose audio or video files').setInputFiles(['tests/fixtures/tone.wav', 'tests/fixtures/tone.mp3']);
+await page.locator('input[type=file]').setInputFiles(['tests/fixtures/tone.wav', 'tests/fixtures/tone.mp3']);
 await page.waitForFunction(() => [...document.querySelectorAll('li[data-inspection]')].length === 2 && [...document.querySelectorAll('li[data-inspection]')].every(li => li.dataset.inspection === 'ready'), null, { timeout: 30000 });
 await page.waitForTimeout(300);
 const metaText = await row('tone.wav').innerText();
@@ -53,8 +55,8 @@ await page.setViewportSize({ width: 1440, height: 1200 });
 // Trim all
 await page.getByLabel('Add step').selectOption('trim');
 await page.waitForTimeout(200);
-await page.getByLabel('Trim all start (time)').fill('0');
-await page.getByLabel('Trim all end (time)').fill('1');
+await page.getByLabel(copy.trim.startField(copy.trim.prefix),{exact:true}).fill('0');
+await page.getByLabel(copy.trim.endField(copy.trim.prefix),{exact:true}).fill('1');
 await page.waitForTimeout(300);
 const trimmed = await row('tone.wav').innerText();
 if (!/00:01 · 00:00 to 00:01/.test(trimmed)) throw new Error('trim metadata mismatch: ' + trimmed);
@@ -64,10 +66,10 @@ await page.waitForTimeout(300);
 if (!(await row('tone.wav').getByRole('button', { name: 'Preview tone.wav' }).count())) throw new Error('Preview missing after recipe step');
 // Preview
 await row('tone.wav').getByRole('button', { name: 'Preview tone.wav' }).click();
-await page.getByText('WAV comparison').first().waitFor({ timeout: 60000 });
+await page.locator('[data-preview-state=ready]').waitFor({ timeout: 60000 });
 await page.waitForTimeout(300);
 const previewText = await row('tone.wav').locator('.file-preview').innerText();
-if (!/Original excerpt/.test(previewText) || !/Processed preview/.test(previewText)) throw new Error('preview labels: ' + previewText);
+if (!previewText.includes(copy.preview.before) || !previewText.includes(copy.preview.after) || !previewText.includes(copy.preview.heading(null))) throw new Error('preview labels: ' + previewText);
 if (await row('tone.wav').locator('.file-player').count()) throw new Error('duplicate original player during preview');
 const players = page.locator('audio');
 await players.nth(0).evaluate(el => el.play());
@@ -81,14 +83,14 @@ await page.waitForTimeout(300);
 if (!(await row('tone.wav').locator('.file-player').count())) throw new Error('original player did not return');
 // Export
 await page.getByRole('button', { name: 'Export', exact: true }).click();
-const download = page.getByRole('link', { name: /Download exported audio for tone\.wav/ });
+const download = row('tone.wav').locator('a[download]');
 await download.waitFor({ timeout: 60000 });
 await page.waitForTimeout(300);
 const result = await row('tone.wav').locator('.file-result').innerText();
-if (!/Exported audio/.test(result) || /Listen/.test(result)) throw new Error('export result labels: ' + result);
+if (result.trim() !== copy.result.label) throw new Error('a finished export shows only its label and player: ' + JSON.stringify(result));
 if (!(await row('tone.wav').locator('audio').count())) throw new Error('export player missing');
 const status = await page.locator('.run-status').innerText();
-if (!/2\/2 done/.test(status)) throw new Error('export status: ' + status);
+if (status.trim() !== '') throw new Error('no standing export status after completion: ' + JSON.stringify(status));
 const exportHref = await download.getAttribute('href');
 const exportSrc = await row('tone.wav').locator('.file-result audio').getAttribute('src');
 const sourceSrc = await row('tone.wav').locator('.file-player audio').getAttribute('src');
@@ -111,10 +113,10 @@ await page.setViewportSize({ width: 1440, height: 1200 });
 await page.getByRole('slider', { name: 'Gain (dB) slider' }).evaluate(el => { el.value = '-3'; el.dispatchEvent(new Event('input', { bubbles: true })); });
 await page.waitForTimeout(500);
 const previous = await row('tone.wav').innerText();
-if (!/Previous export/.test(previous)) throw new Error('previous export label missing: ' + previous);
-if (!(await page.getByRole('link', { name: /Download previous export for tone\.wav/ }).count())) throw new Error('previous download label missing');
+if (!previous.includes(copy.result.olderLabel)) throw new Error('older-settings label missing: ' + previous);
+if (!(await page.getByRole('link', { name: copy.result.downloadOlder('tone.wav'), exact: true }).count())) throw new Error('older-settings download label missing');
 const previousPlay = await row('tone.wav').locator('.file-result audio').getAttribute('aria-label');
-if (previousPlay !== 'Play previous export tone.wav') throw new Error('previous player label: ' + previousPlay);
+if (previousPlay !== copy.result.playOlder('tone.wav')) throw new Error('older-settings player label: ' + previousPlay);
 if (!(await row('tone.wav').getByRole('button', { name: 'Preview tone.wav' }).count())) throw new Error('Preview missing after recipe edit');
 await page.screenshot({ path: `${root}/captures/05-previous-export.png`, fullPage: true });
 // Clear all
@@ -127,13 +129,13 @@ if (await page.getByRole('article', { name: /Gain|Trim all/ }).count() === 0) th
 if ((await page.getByRole('combobox', { name: 'Format', exact: true }).inputValue()) !== 'mp3') throw new Error('format preference lost');
 const storageAfterClear = await storageCount();
 if (storageAfterClear !== 0) throw new Error('temp outputs remain after Clear all');
-const focusedAfterClear = await page.evaluate(() => document.activeElement?.getAttribute('aria-label'));
-if (focusedAfterClear !== 'Choose audio or video files') throw new Error('focus after Clear all: ' + focusedAfterClear);
+const focusedAfterClear = await page.evaluate(() => document.activeElement?.matches('input[type=file]'));
+if (!focusedAfterClear) throw new Error('focus after Clear all did not land on the file picker');
 await page.screenshot({ path: `${root}/captures/06-cleared.png`, fullPage: true });
 // Clear all keeps an automatic stream-copy choice visible.
 const autoPage = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
 await autoPage.goto(url); await autoPage.waitForTimeout(400);
-await autoPage.getByLabel('Choose audio or video files').setInputFiles(['tests/fixtures/video.mkv']);
+await autoPage.locator('input[type=file]').setInputFiles(['tests/fixtures/video.mkv']);
 await autoPage.waitForFunction(() => document.querySelector('li[data-inspection=ready]'), null, { timeout: 30000 });
 const autoFormat = autoPage.getByRole('combobox', { name: 'Format', exact: true });
 if (await autoFormat.inputValue() !== 'original') throw new Error('video batch did not auto-select the stream copy');
@@ -144,14 +146,14 @@ await autoPage.screenshot({ path: `${root}/captures/06b-auto-format-cleared.png`
 await autoPage.close();
 // Unsupported source playback
 const wavBytes = readFileSync('tests/fixtures/tone.wav');
-await page.getByLabel('Choose audio or video files').setInputFiles([{ name: 'opaque.wav', mimeType: 'application/octet-stream', buffer: wavBytes }]);
+await page.locator('input[type=file]').setInputFiles([{ name: 'opaque.wav', mimeType: 'application/octet-stream', buffer: wavBytes }]);
 await page.waitForFunction(() => document.querySelector('li[data-inspection=ready]'), null, { timeout: 30000 });
 const opaque = await page.locator('li[data-inspection=ready]').innerText();
-if (!/cannot play in the browser/.test(opaque)) throw new Error('unsupported playback note missing: ' + opaque);
+if (!opaque.includes(copy.files.sourceUnplayable)) throw new Error('unsupported playback note missing: ' + opaque);
 if (await page.locator('li[data-inspection=ready] audio').count()) throw new Error('broken player rendered for unsupported source');
 // Clear all during processing
 await page.getByRole('button', { name: 'Remove opaque.wav' }).click();
-await page.getByLabel('Choose audio or video files').setInputFiles([longPath]);
+await page.locator('input[type=file]').setInputFiles([longPath]);
 await page.waitForFunction(() => document.querySelector('li[data-inspection=ready]'), null, { timeout: 60000 });
 await page.getByLabel('Add step').selectOption('gain');
 await page.getByRole('button', { name: 'Export', exact: true }).click();
@@ -161,19 +163,19 @@ await page.waitForFunction(() => document.querySelectorAll('li[data-file-id]').l
 await page.waitForFunction(async () => { const d = await (await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1', { create: true }); for await (const _ of d.values()) return false; return true; }, null, { timeout: 60000 });
 if (await page.getByRole('article', { name: /Gain/ }).count() === 0) throw new Error('recipe lost after clear during work');
 // Cancel a preview on a long excerpt
-await page.getByLabel('Choose audio or video files').setInputFiles([longPath]);
+await page.locator('input[type=file]').setInputFiles([longPath]);
 await page.waitForFunction(() => document.querySelector('li[data-inspection=ready]'), null, { timeout: 60000 });
-const trimToggle = page.getByRole('button', { name: 'Trim all settings', exact: true });
+const trimToggle = page.locator('[data-step-kind=trim] .step-toggle');
 if (await trimToggle.getAttribute('aria-expanded') === 'false') await trimToggle.click();
-await page.getByLabel('Trim all end (time)').fill('60');
+await page.getByLabel(copy.trim.endField(copy.trim.prefix),{exact:true}).fill('60');
 await page.getByLabel('Add step').selectOption('normalize');
-await page.getByRole('button', { name: 'Preview sprint-25-long.wav' }).click();
+await page.getByRole('button', { name: /^Preview .*sprint-25-long\.wav$/ }).click();
 await page.getByRole('button', { name: 'Cancel preview' }).click({ timeout: 15000 });
 await page.waitForFunction(() => !document.querySelector('.file-preview'), null, { timeout: 30000 });
 if (await storageCount() !== 0) throw new Error('preview cancel left a temporary output');
 await page.screenshot({ path: `${root}/captures/03b-preview-cancelled.png`, fullPage: true });
 // Clear all while a preview is running
-await page.getByRole('button', { name: 'Preview sprint-25-long.wav' }).click();
+await page.getByRole('button', { name: /^Preview .*sprint-25-long\.wav$/ }).click();
 await page.getByRole('button', { name: 'Cancel preview' }).waitFor({ timeout: 15000 });
 await page.getByRole('button', { name: 'Clear all', exact: true }).click();
 await page.waitForFunction(() => document.querySelectorAll('li[data-file-id]').length === 0, null, { timeout: 60000 });
@@ -182,28 +184,29 @@ if (await page.getByRole('article', { name: /Normalize/ }).count() === 0) throw 
 // Cleanup failure keeps a retry path
 const cleanupPage = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
 await cleanupPage.goto(url); await cleanupPage.waitForTimeout(400);
-await cleanupPage.getByLabel('Choose audio or video files').setInputFiles(['tests/fixtures/tone.wav']);
+await cleanupPage.locator('input[type=file]').setInputFiles(['tests/fixtures/tone.wav']);
 await cleanupPage.waitForFunction(() => document.querySelector('li[data-inspection=ready]'), null, { timeout: 30000 });
 await cleanupPage.getByLabel('Add step').selectOption('gain');
 await cleanupPage.getByRole('button', { name: 'Export', exact: true }).click();
-await cleanupPage.getByRole('link', { name: /Download exported audio/ }).waitFor({ timeout: 60000 });
+await cleanupPage.locator('li[data-job-state=done] a[download]').waitFor({ timeout: 60000 });
 await cleanupPage.evaluate(() => {
   const proto = FileSystemDirectoryHandle.prototype;
   const original = proto.removeEntry;
-  let failed = false;
+  window.__busy = true;
   proto.removeEntry = async function (...args) {
-    if (!failed) { failed = true; throw new DOMException('File is busy', 'InvalidModificationError'); }
+    if (window.__busy) throw new DOMException('File is busy', 'InvalidModificationError');
     return original.apply(this, args);
   };
 });
 await cleanupPage.getByRole('button', { name: 'Clear all', exact: true }).click();
-await cleanupPage.getByText('Temporary files need cleanup.', { exact: true }).waitFor({ timeout: 30000 });
+await cleanupPage.getByText(copy.errors['storage-stuck'].message, { exact: true }).waitFor({ timeout: 30000 });
 await cleanupPage.screenshot({ path: `${root}/captures/05b-cleanup-retry.png`, fullPage: true });
-await cleanupPage.getByRole('button', { name: 'Retry cleanup', exact: true }).click();
+await cleanupPage.evaluate(() => { window.__busy = false; });
+await cleanupPage.getByRole('button', { name: copy.actions['try-again'], exact: true }).click();
 await cleanupPage.waitForFunction(async () => { const d = await (await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1', { create: true }); for await (const _ of d.values()) return false; return true; }, null, { timeout: 60000 });
 await cleanupPage.close();
 // Long error and narrow dark
-await page.getByLabel('Choose audio or video files').setInputFiles([{ name: 'very-long-recording-name-'.repeat(8) + '.wav', mimeType: 'audio/wav', buffer: Buffer.from('not audio') }]);
+await page.locator('input[type=file]').setInputFiles([{ name: 'very-long-recording-name-'.repeat(8) + '.wav', mimeType: 'audio/wav', buffer: Buffer.from('not audio') }]);
 await page.waitForFunction(() => document.querySelector('li[data-inspection=failed]'), null, { timeout: 30000 });
 await page.setViewportSize({ width: 320, height: 800 });
 await page.screenshot({ path: `${root}/captures/07-error-320-light.png`, fullPage: true });
@@ -222,12 +225,12 @@ if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)
 await page.screenshot({ path: `${root}/captures/07b-long-token-320-dark.png`, fullPage: true });
 const copyPage = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
 await copyPage.goto(url); await copyPage.waitForTimeout(500);
-await copyPage.getByLabel('Choose audio or video files').setInputFiles(['tests/fixtures/video.mkv']);
+await copyPage.locator('input[type=file]').setInputFiles(['tests/fixtures/video.mkv']);
 await copyPage.waitForFunction(() => document.querySelector('li[data-inspection=ready]'), null, { timeout: 30000 });
 await copyPage.getByRole('button', { name: 'Export', exact: true }).click();
-await copyPage.getByRole('link', { name: /Download exported audio/ }).waitFor({ timeout: 60000 });
+await copyPage.locator('li[data-job-state=done] a[download]').waitFor({ timeout: 60000 });
 const copyText = await copyPage.locator('.file-result').innerText();
-if (!/No re-encoding/.test(copyText)) throw new Error('stream copy explanation missing: ' + copyText);
+if (copyText.trim() !== copy.result.label) throw new Error('a kept original shows only its label and player: ' + JSON.stringify(copyText));
 await copyPage.screenshot({ path: `${root}/captures/09-stream-copy.png`, fullPage: true });
 await copyPage.close();
 await writeFile(`${root}/result.json`, JSON.stringify({ errors, metaText, trimmed, previewText, result, status, actions, previous, storageAfterClear, copyText }, null, 2) + '\n');

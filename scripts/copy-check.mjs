@@ -1,4 +1,5 @@
 import {setSlider,recipeAction} from './browser-controls.mjs';
+import {engines,launchOptions} from './lib/engines.mjs';
 import {setAppearance} from './browser-controls.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
@@ -6,6 +7,8 @@ import {execFileSync} from 'node:child_process';
 import {createHash,randomUUID} from 'node:crypto';
 import {chromium,webkit} from 'playwright';
 import {Input,FilePathSource,ALL_FORMATS,EncodedPacketSink} from 'mediabunny';
+import {loadCopy} from './lib/harness.mjs';
+const copy=await loadCopy();
 const appUrl=process.env.APP_URL??'http://127.0.0.1:4173/audio-toolkit-v1/';
 const root=process.env.COPY_EVIDENCE_DIR??'.artifacts/copy-check';await mkdir(`${root}/captures`,{recursive:true});
 const files=['tone.m4a','tone.mp3','tone.opus','tone.ogg','tone.flac','tone.wav','tone.aac','video.mp4','video.mov','video.mkv','video.webm','offset.mp4','long-video.webm','laced-opus.mka'];
@@ -52,8 +55,8 @@ function decodingConfig(config){
 }
 const records=[];
 const runId=randomUUID();
-for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
- const context=await type.launchPersistentContext(`.artifacts/copy-profiles/${runId}/${name}`,{headless:true,acceptDownloads:true,hasTouch:true,viewport:{width:1440,height:1000}});
+for(const [name,type] of engines()){
+ const context=await type.launchPersistentContext(`.artifacts/copy-profiles/${runId}/${name}`,{...launchOptions(name),headless:true,acceptDownloads:true,hasTouch:true,viewport:{width:1440,height:1000}});
  try{
   const page=await context.newPage();const errors=[];page.on('pageerror',error=>errors.push(error.message));
   const requests=[];page.on('request',request=>requests.push(request.url()));
@@ -74,15 +77,15 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
    };
   });
   await page.goto(appUrl);
-  await page.getByLabel('Choose audio or video files').setInputFiles(files.map(file=>`tests/fixtures/${file}`));
+  await page.locator('input[type=file]').setInputFiles(files.map(file=>`tests/fixtures/${file}`));
   await page.waitForFunction(count=>document.querySelectorAll('li[data-inspection=ready]').length===count,files.length);
   await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('original');
   assert.equal(await page.locator('[data-inspection=ready]').count(),files.length);
   await page.getByRole('button',{name:'Export',exact:true}).click();
-  await page.waitForFunction(count=>document.querySelectorAll('.file-result a[download]').length===count,files.length);
+  await page.waitForFunction(count=>document.querySelectorAll('li[data-job-state=done] a[download]').length===count,files.length);
   const downloads=[];
   for(let i=0;i<files.length;i++){
-   const row=page.locator('.file-list>li').nth(i),link=row.getByRole('link',{name:/Download exported audio/});
+   const row=page.locator('.file-list>li').nth(i),link=row.locator('a[download]');
    const downloadPromise=page.waitForEvent('download');await link.click();const download=await downloadPromise;
    const output=`${root}/outputs/${name}/${download.suggestedFilename()}`;await mkdir(`${root}/outputs/${name}`,{recursive:true});await download.saveAs(output);
    const before=await packets(`tests/fixtures/${files[i]}`),after=await packets(output);
@@ -110,32 +113,32 @@ for(const [name,type] of [['chromium',chromium],['webkit',webkit]]){
   await page.setViewportSize({width:390,height:844});await setAppearance(page,'dark');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.screenshot({path:`${root}/captures/${name}-mobile-dark.png`,fullPage:true,animations:'disabled'});
   await page.getByLabel('Add step',{exact:true}).selectOption('gain');await setSlider(page,'Gain (dB) slider',1);
-  assert.equal(await page.locator('.file-name').getByText('Gain requires re-encoding. Choose another format.',{exact:true}).count(),files.length);
-  assert.equal(await page.getByText('Previous export',{exact:true}).count(),files.length,'Old outputs must be explicitly identified after edits');assert(await page.getByRole('button',{name:'Export',exact:true}).isDisabled());
+  assert.equal(await page.locator('.file-name').getByText(copy.errors['copy-needs-encoding'].message,{exact:true}).count(),files.length);
+  assert.equal(await page.getByText(copy.result.olderLabel,{exact:true}).count(),files.length,'Old outputs must be explicitly identified after edits');assert(await page.getByRole('button',{name:'Export',exact:true}).isDisabled());
   await setSlider(page,'Gain (dB) slider',0);assert(await page.getByRole('button',{name:'Export',exact:true}).isEnabled());
-  const touchDownload=page.waitForEvent('download');await page.getByRole('link',{name:/Download exported audio/}).first().tap();await touchDownload;
+  const touchDownload=page.waitForEvent('download');await page.locator('li[data-job-state=done] a[download]').first().tap();await touchDownload;
   for(const input of files)await page.getByRole('button',{name:`Remove ${input}`,exact:true}).click();
   await (await recipeAction(page,'Remove Gain')).click();
-  await page.getByLabel('Choose audio or video files').setInputFiles(['tests/fixtures/tone.wav','tests/fixtures/tone.wav']);
+  await page.locator('input[type=file]').setInputFiles(['tests/fixtures/tone.wav','tests/fixtures/tone.wav']);
   await page.waitForFunction(()=>document.querySelectorAll('li[data-inspection=ready]').length===2);
   await page.evaluate(()=>{window.__storageFails=true;});
   await page.getByRole('button',{name:'Export',exact:true}).tap();
-  await page.waitForFunction(()=>document.querySelectorAll('.file-result').length===2&&[...document.querySelectorAll('.file-result')].every(e=>e.textContent.includes('Temporary storage is unavailable.')));
+  await page.waitForFunction(msg=>document.querySelectorAll('.file-result').length===2&&[...document.querySelectorAll('.file-result')].every(e=>e.textContent.includes(msg)),copy.errors['storage-private-mode'].message);
   await page.evaluate(()=>{window.__storageFails=false;window.__failWrite=true;});
   await page.getByRole('button',{name:'Export',exact:true}).focus();await page.keyboard.press('Enter');
-  await page.waitForFunction(()=>document.querySelectorAll('.file-result a[download]').length===1&&[...document.querySelectorAll('.file-result')].some(e=>e.textContent.includes('Not enough device storage')));
+  await page.waitForFunction(msg=>document.querySelectorAll('li[data-job-state=done] a[download]').length===1&&[...document.querySelectorAll('.file-result')].some(e=>e.textContent.includes(msg)),copy.errors['storage-full'].message);
   await page.getByRole('button',{name:'Export',exact:true}).tap();
-  await page.waitForFunction(()=>document.querySelectorAll('.file-result a[download]').length===2);
+  await page.waitForFunction(()=>document.querySelectorAll('li[data-job-state=done] a[download]').length===2);
   const retryEntries=await page.evaluate(async()=>{const root=await navigator.storage.getDirectory();const dir=await root.getDirectoryHandle('audio-toolkit-v1');const entries=[];for await(const name of dir.keys())entries.push(name);return entries.length;});assert.equal(retryEntries,2,'Retries replace retained output and discard failed partials');
   await page.evaluate(()=>{window.__pauseWrites=true;});
   await page.getByRole('button',{name:'Export',exact:true}).tap();
-  await page.waitForFunction(()=>[...document.querySelectorAll('.file-result')].some(e=>e.textContent.includes('Extracting…')));
+  await page.waitForFunction(msg=>[...document.querySelectorAll('.file-result')].some(e=>e.textContent.includes(msg)),copy.progress.label({kind:'phase',phase:'Extracting'}));
   assert.equal(await page.getByLabel('Add step',{exact:true}).isDisabled(),true,'Recipe edits are locked during the run');
   await page.evaluate(()=>{window.__pauseWrites=false;});
-  await page.waitForFunction(()=>document.querySelectorAll('.file-result a[download]').length===2);
+  await page.waitForFunction(()=>document.querySelectorAll('li[data-job-state=done] a[download]').length===2);
   await page.getByLabel('Add step',{exact:true}).selectOption('gain');await setSlider(page,'Gain (dB) slider',1);
-  assert.equal(await page.getByText('Previous export',{exact:true}).count(),2,'Later edits do not relabel old snapshots as current');
-  await (await recipeAction(page,'Remove Gain')).click();assert.equal(await page.getByText('Previous export',{exact:true}).count(),0);
+  assert.equal(await page.getByText(copy.result.olderLabel,{exact:true}).count(),2,'Later edits do not relabel old snapshots as current');
+  await (await recipeAction(page,'Remove Gain')).click();assert.equal(await page.getByText(copy.result.olderLabel,{exact:true}).count(),0);
   await page.getByRole('button',{name:'Remove tone.wav',exact:true}).first().tap();await page.getByRole('button',{name:'Remove tone.wav',exact:true}).tap();
   const remaining=await page.evaluate(async()=>{const root=await navigator.storage.getDirectory();const dir=await root.getDirectoryHandle('audio-toolkit-v1');for(let i=0;i<50;i++){const entries=[];for await(const name of dir.keys())entries.push(name);if(!entries.length)return entries;await new Promise(resolve=>setTimeout(resolve,20));}return [...await Array.fromAsync(dir.keys())];});
   assert.deepEqual(remaining,[],'Removed outputs leave no owned OPFS entries');assert.deepEqual(errors,[]);

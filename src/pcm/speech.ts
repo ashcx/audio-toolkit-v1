@@ -1,3 +1,4 @@
+import { UserFacingError } from '../errors.ts';
 import { frameTime, type PcmBlock, type PcmStream } from './blocks.ts';
 import { resample } from './resample.ts';
 import { fitIsolationFrames } from './isolate.ts';
@@ -19,7 +20,7 @@ export async function* speech(source: PcmStream, model: SpeechModel, context: {
   const first = await iterator.next();
   if (first.done) return;
   const { rate: originalRate } = first.value, channelCount = first.value.planes.length;
-  if (channelCount < 1 || channelCount > 2) { await iterator.return?.(); throw new Error('Voice isolation supports mono and stereo audio.'); }
+  if (channelCount < 1 || channelCount > 2) { await iterator.return?.(); throw new UserFacingError('file-unsupported-audio', 'Noise removal supports mono and stereo audio.'); }
   const origin = frameTime(first.value), format = SPEECH_FORMATS[model], processors: SpeechProcessor[] = [];
   let originalFrames = 0;
   const counted = async function* (): PcmStream {

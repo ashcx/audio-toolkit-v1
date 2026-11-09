@@ -1,10 +1,13 @@
 import {setSlider} from './browser-controls.mjs';
+import {engines,launchOptions} from './lib/engines.mjs';
 import {setAppearance} from './browser-controls.mjs';
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import {randomUUID} from 'node:crypto';
 import {chromium,webkit} from 'playwright';
+import {loadCopy} from './lib/harness.mjs';
+const copy=await loadCopy();
 
 const root=process.env.FORMAT_EVIDENCE_DIR??'.artifacts/format-check';
 const outputs=`.artifacts/format-outputs/${randomUUID()}`;
@@ -29,7 +32,7 @@ function decode(path,filter){
  return new Float32Array(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength));
 }
 const records=[];
-for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
+for(const [engine,type]of engines()){
  if(process.env.FORMAT_CHECK_ENGINE&&process.env.FORMAT_CHECK_ENGINE!==engine)continue;
  const context=await type.launchPersistentContext(`.artifacts/format-check-profiles/${randomUUID()}`,{channel:engine==='chromium'?'chrome':undefined,headless:true,acceptDownloads:true,hasTouch:true,viewport:{width:1440,height:1000}});
  try{
@@ -41,15 +44,15 @@ for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
    if(original)prototype.createWritable=async function(...args){const writer=await original.apply(this,args),write=writer.write.bind(writer),truncate=writer.truncate.bind(writer);writer.write=async data=>{window.__maxWrite=Math.max(window.__maxWrite,data?.data?.byteLength??data?.byteLength??0);return write(data);};writer.truncate=async length=>{if(window.__failTruncate){window.__failTruncate=false;throw new DOMException('Full','QuotaExceededError');}return truncate(length);};return writer;};
   });
   async function setup({format,bitrate=128,rate=48000,channels=2,path=shortPath,mode='cbr'}){
-   await page.goto(appUrl);await page.getByLabel('Choose audio or video files').setInputFiles(path);await page.locator('[data-inspection=ready]').waitFor();
+   await page.goto(appUrl);await page.locator('input[type=file]').setInputFiles(path);await page.locator('[data-inspection=ready]').waitFor();
    await page.getByRole('combobox',{name:'Format',exact:true}).selectOption(format);
    if(format==='opus'){
     if(mode==='vbr'){
      await page.getByRole('combobox',{name:'Encoding mode',exact:true}).selectOption('vbr');
-     await page.getByRole('combobox',{name:'Target bitrate (kbps)',exact:true}).selectOption(String(bitrate));
+     await page.getByRole('combobox',{name:copy.export.bitrateLabel,exact:true}).selectOption(String(bitrate));
     }else await page.getByRole('combobox',{name:'Bitrate (kbps)',exact:true}).selectOption(String(bitrate));
    }else if(format==='mp3')await page.getByRole('combobox',{name:'Bitrate (kbps)',exact:true}).selectOption(String(bitrate));
-   else if(format==='m4a')await page.getByRole('combobox',{name:'Target bitrate (kbps)',exact:true}).selectOption(String(bitrate));
+   else if(format==='m4a')await page.getByRole('combobox',{name:copy.export.bitrateLabel,exact:true}).selectOption(String(bitrate));
    await page.getByLabel('Add step',{exact:true}).selectOption('gain');await setSlider(page,'Gain (dB) slider',-6);
    if(channels===1){await page.getByLabel('Add step',{exact:true}).selectOption('channels');await page.getByRole('radio',{name:'Mono',exact:true}).check();}
    if(rate!==48000){await page.getByLabel('Add step',{exact:true}).selectOption('resample');await page.getByRole('combobox',{name:'Sample rate',exact:true}).selectOption(String(rate));}
@@ -60,8 +63,8 @@ for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
    if(process.env.FORMAT_CHECK_FORMAT&&process.env.FORMAT_CHECK_FORMAT!==format)return;
    await setup(test);
    const button=page.getByRole('button',{name:'Export',exact:true});await button.focus();await page.keyboard.press('Enter');
-   const link=page.getByRole('link',{name:/Download exported audio/});await link.waitFor({timeout:60000});
-   assert.equal(await page.getByText('Previous export',{exact:true}).count(),0);
+   const link=page.locator('li[data-job-state=done] a[download]');await link.waitFor({timeout:60000});
+   assert.equal(await page.getByText(copy.result.olderLabel,{exact:true}).count(),0);
    const descriptor=descriptors[format];assert.equal(await link.evaluate(async e=>(await fetch(e.href)).headers.get('content-type')),descriptor[1]);
    const pending=page.waitForEvent('download');await link.tap();const download=await pending;
    assert(download.suggestedFilename().endsWith(`.${descriptor[0]}`));
@@ -121,16 +124,15 @@ for(const [engine,type]of[['chromium',chromium],['webkit',webkit]]){
   await run({format:'opus',bitrate:128,mode:'vbr'});
   await run({format:'mp3',path:'tests/fixtures/video.mp4'});
   await setup({format:'opus'});await page.evaluate(()=>window.__failTruncate=true);await page.getByRole('button',{name:'Export',exact:true}).click();
-  await page.getByText('Not enough device storage for this output.',{exact:true}).waitFor();assert.equal(await countStores(),0);
-  assert.equal(await page.getByRole('link',{name:/Download exported audio/}).count(),0);await page.getByRole('button',{name:'Export',exact:true}).click();await page.getByRole('link',{name:/Download exported audio/}).waitFor();
+  await page.getByText(copy.errors['storage-full'].message,{exact:true}).waitFor();assert.equal(await countStores(),0);
+  assert.equal(await page.locator('li[data-job-state=done] a[download]').count(),0);await page.getByRole('button',{name:'Export',exact:true}).click();await page.locator('li[data-job-state=done] a[download]').waitFor();
   await page.getByRole('button',{name:'Remove reference.wav',exact:true}).click();
   await page.waitForFunction(async()=>{const d=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1');for await(const f of d.values())return false;return true;});
-  await setup({format:'opus',rate:44100});await page.getByText('Opus needs 16, 24 or 48 kHz. Add a sample rate step.',{exact:true}).waitFor();assert(await page.getByRole('button',{name:'Export',exact:true}).isDisabled());
-  await page.getByRole('combobox',{name:'Sample rate',exact:true}).selectOption('48000');assert(await page.getByRole('button',{name:'Export',exact:true}).isEnabled());
+  await setup({format:'opus',rate:44100});assert(await page.getByRole('button',{name:'Export',exact:true}).isEnabled(),'Opus at 44.1 kHz needs no extra step');assert.equal(await page.locator('.file-error').count(),0,'Opus at 44.1 kHz shows no message');
   await page.getByRole('button',{name:'Remove reference.wav',exact:true}).click();
-  await setup({format:'mp3',bitrate:320,rate:16000});await page.getByText('At this sample rate, choose MP3 at 128 kbps or increase the sample rate.',{exact:true}).waitFor();assert(await page.getByRole('button',{name:'Export',exact:true}).isDisabled());
+  await setup({format:'mp3',bitrate:320,rate:16000});await page.getByText(copy.errors['mp3-bitrate'].message,{exact:true}).waitFor();assert(await page.getByRole('button',{name:'Export',exact:true}).isDisabled());
   await page.getByRole('combobox',{name:'Bitrate (kbps)',exact:true}).selectOption('128');assert(await page.getByRole('button',{name:'Export',exact:true}).isEnabled());await page.getByRole('button',{name:'Remove reference.wav',exact:true}).click();
-  await setup({format:'m4a',bitrate:256,rate:16000,channels:1});await page.getByText('AAC bitrate is too high for this rate and channel count. Lower the bitrate or increase the sample rate.',{exact:true}).waitFor();
+  await setup({format:'m4a',bitrate:256,rate:16000,channels:1});await page.getByText(copy.errors['aac-bitrate'].message,{exact:true}).waitFor();
   await page.screenshot({path:`${root}/captures/${engine}-desktop-error.png`,fullPage:true,animations:'disabled'});
   await page.setViewportSize({width:390,height:844});await setAppearance(page,'dark');await page.waitForFunction(()=>getComputedStyle(document.querySelector('.panel')).backgroundColor==='rgb(29, 31, 36)');
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:`${root}/captures/${engine}-mobile-dark-error.png`,fullPage:true,animations:'disabled'});

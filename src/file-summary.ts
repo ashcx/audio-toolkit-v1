@@ -1,5 +1,7 @@
 import type { BatchJob } from "./batch.ts";
-import { formatDuration, formatTime } from "./format.ts";
+import { copy } from "./copy.ts";
+import type { ErrorCode } from "./errors.ts";
+import { formatTime } from "./format.ts";
 import type { FileEntry } from "./media.ts";
 import type { EffectiveRecipe } from "./recipe.ts";
 
@@ -15,35 +17,36 @@ export function fileMetadata(
   trim: EffectiveRecipe["trim"] | null,
 ): FileMetadata {
   const duration = entry.inspection.kind === "ready" ? entry.inspection.metadata.duration : null;
-  if (!trim || fullRange(trim, duration)) return { primary: formatDuration(duration) };
-  const primary = trim.duration === null ? "Duration unknown" : formatTime(trim.duration);
-  const end = trim.end === null ? "end" : formatTime(trim.end);
-  return { primary, secondary: `${formatTime(trim.start)} to ${end}` };
+  if (!trim || fullRange(trim, duration)) return { primary: duration === null ? copy.trim.unknownDuration : formatTime(duration) };
+  const primary = trim.duration === null ? copy.trim.unknownDuration : formatTime(trim.duration);
+  const end = trim.end === null ? copy.trim.end : formatTime(trim.end);
+  return { primary, secondary: `${formatTime(trim.start)} ${copy.trim.to} ${end}` };
+}
+
+/**
+ * Where a bad Trim all range is shown. Only a range that fits the settings but not this file
+ * belongs under the file. Every other trim problem is a setting problem and shows once, at the step.
+ */
+export function trimErrorOwner(code: ErrorCode): "file" | "step" {
+  return code === "trim-past-end" ? "file" : "step";
 }
 
 export function showsPreview(hasSteps: boolean, hasCurrentExport: boolean): boolean {
   return hasSteps && !hasCurrentExport;
 }
 
+/** Progress for a running export. Nothing once work has finished. */
 export function exportStatus(jobs: readonly Pick<BatchJob, "state">[]): string {
-  const total = jobs.length;
-  if (!total) return "";
-  let done = 0, active = 0, failed = 0, cancelled = 0, waiting = 0;
+  let finished = 0, running = 0;
   for (const job of jobs) {
     switch (job.state.kind) {
-      case "done": done++; break;
-      case "waiting": waiting++; break;
+      case "done":
+      case "failed":
+      case "cancelled": finished++; break;
+      case "waiting":
       case "running":
-      case "cancelling": active++; break;
-      case "failed": failed++; break;
-      case "cancelled": cancelled++; break;
+      case "cancelling": running++; break;
     }
   }
-  const parts: string[] = [];
-  const processing = active + waiting;
-  if (processing) parts.push(`${processing}/${total} processing`);
-  if (done) parts.push(`${done}/${total} done`);
-  if (failed) parts.push(`${failed}/${total} failed`);
-  if (cancelled) parts.push(`${cancelled}/${total} cancelled`);
-  return parts.join(" · ");
+  return running ? copy.export.exporting(Math.min(jobs.length, finished + 1), jobs.length) : "";
 }

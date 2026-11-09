@@ -1,11 +1,13 @@
 import { chromium } from 'playwright';
+import { loadCopy } from './lib/harness.mjs';
+const copy = await loadCopy();
 import { execFileSync } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { mkdirSync, writeFileSync, statSync, readFileSync } from 'node:fs';
 const appUrl = process.env.APP_URL ?? 'http://127.0.0.1:5184/audio-toolkit-v1/';
 const root = process.env.SPRINT26_EVIDENCE_DIR ?? '.artifacts/evidence/sprint-26';
 const outputs = '.artifacts/sprint-26-outputs';
-const ffprobe = process.env.FFPROBE ?? '/opt/homebrew/bin/ffprobe';
+const ffprobe = process.env.FFPROBE ?? 'ffprobe';
 await mkdir(`${root}/captures`, { recursive: true });
 mkdirSync(outputs, { recursive: true });
 function wav(seconds, kind, rate = 48000) {
@@ -44,38 +46,34 @@ async function exportOne({ format, bitrate, mode, fixture = fixtures.tone, captu
   await page.goto(appUrl);
   await page.waitForTimeout(400);
   const sourceName = fixture === 'tests/fixtures/video.mkv' ? 'video.mkv' : fixture.split('/').at(-1);
-  await page.getByLabel('Choose audio or video files').setInputFiles(fixture);
+  await page.locator('input[type=file]').setInputFiles(fixture);
   await page.waitForFunction(() => document.querySelector('[data-inspection=ready]'), null, { timeout: 30000 });
   await page.getByRole('combobox', { name: 'Format', exact: true }).selectOption(format);
   if (await page.getByRole('button', { name: /^Preview / }).count()) throw new Error(`${format}: Preview visible with an empty recipe`);
   let modeLabel = null, bitrateLabel = null;
   if (format === 'opus') {
-    const modeSelect = page.getByRole('combobox', { name: 'Encoding mode', exact: true });
+    const modeSelect = page.getByRole('combobox', { name: copy.export.modeLabel, exact: true });
     if (!(await modeSelect.count())) throw new Error('opus: Encoding mode control missing');
     await modeSelect.selectOption(mode);
-    bitrateLabel = mode === 'vbr' ? 'Target bitrate (kbps)' : 'Bitrate (kbps)';
+    bitrateLabel = copy.export.bitrateLabel;
     if (!(await page.getByRole('combobox', { name: bitrateLabel, exact: true }).count())) throw new Error(`opus ${mode}: ${bitrateLabel} missing`);
     await page.getByRole('combobox', { name: bitrateLabel, exact: true }).selectOption(String(bitrate));
-    const note = await page.locator('.export-panel .panel-description').innerText();
-    if (mode === 'vbr' && !/Variable bitrate/.test(note)) throw new Error(`opus vbr note: ${note}`);
-    if (mode === 'cbr' && !/Constant bitrate/.test(note)) throw new Error(`opus cbr note: ${note}`);
+    if (await page.locator('.export-panel .panel-description').count()) throw new Error(`opus ${mode}: the mode needs no explanatory note`);
     modeLabel = await modeSelect.inputValue();
   } else if (format === 'mp3') {
-    if (await page.getByRole('combobox', { name: 'Encoding mode', exact: true }).count()) throw new Error('mp3: unsupported Encoding mode control');
-    const note = await page.locator('.export-panel .panel-description').innerText();
-    if (!/Constant bitrate/.test(note)) throw new Error(`mp3: constant-mode note missing: ${note}`);
-    await page.getByRole('combobox', { name: 'Bitrate (kbps)', exact: true }).selectOption(String(bitrate));
+    if (await page.getByRole('combobox', { name: copy.export.modeLabel, exact: true }).count()) throw new Error('mp3: unsupported Encoding mode control');
+    if (await page.locator('.export-panel .panel-description').count()) throw new Error('mp3: the mode needs no explanatory note');
+    await page.getByRole('combobox', { name: copy.export.bitrateLabel, exact: true }).selectOption(String(bitrate));
   } else if (format === 'm4a') {
-    if (await page.getByRole('combobox', { name: 'Encoding mode', exact: true }).count()) throw new Error('m4a: unsupported Encoding mode control');
-    const note = await page.locator('.export-panel .panel-description').innerText();
-    if (!/Variable bitrate/.test(note)) throw new Error(`m4a: adaptive-mode note missing: ${note}`);
-    await page.getByRole('combobox', { name: 'Target bitrate (kbps)', exact: true }).selectOption(String(bitrate));
+    if (await page.getByRole('combobox', { name: copy.export.modeLabel, exact: true }).count()) throw new Error('m4a: unsupported Encoding mode control');
+    if (await page.locator('.export-panel .panel-description').count()) throw new Error('m4a: the mode needs no explanatory note');
+    await page.getByRole('combobox', { name: copy.export.bitrateLabel, exact: true }).selectOption(String(bitrate));
   } else if (format === 'wav' || format === 'flac') {
-    if (await page.getByRole('combobox', { name: 'Encoding mode', exact: true }).count()) throw new Error(`${format}: mode control must be hidden`);
-    if (await page.getByRole('combobox', { name: 'Bitrate (kbps)', exact: true }).count()) throw new Error(`${format}: bitrate control must be hidden`);
+    if (await page.getByRole('combobox', { name: copy.export.modeLabel, exact: true }).count()) throw new Error(`${format}: mode control must be hidden`);
+    if (await page.getByRole('combobox', { name: copy.export.bitrateLabel, exact: true }).count()) throw new Error(`${format}: bitrate control must be hidden`);
   } else if (format === 'original') {
-    if (await page.getByRole('combobox', { name: 'Encoding mode', exact: true }).count()) throw new Error('original: mode control must be hidden');
-    if (await page.getByRole('combobox', { name: 'Bitrate (kbps)', exact: true }).count()) throw new Error('original: bitrate control must be hidden');
+    if (await page.getByRole('combobox', { name: copy.export.modeLabel, exact: true }).count()) throw new Error('original: mode control must be hidden');
+    if (await page.getByRole('combobox', { name: copy.export.bitrateLabel, exact: true }).count()) throw new Error('original: bitrate control must be hidden');
   }
   if (format !== 'original') {
     await page.getByLabel('Add step', { exact: true }).selectOption('gain');
@@ -92,7 +90,7 @@ async function exportOne({ format, bitrate, mode, fixture = fixtures.tone, captu
   }
   const started = Date.now();
   await page.getByRole('button', { name: 'Export', exact: true }).click();
-  const link = page.getByRole('link', { name: /Download exported audio/ });
+  const link = page.locator('li[data-job-state=done] a[download]');
   await link.waitFor({ timeout: 90000 });
   const elapsedMs = Date.now() - started;
   const href = await link.getAttribute('href');
@@ -100,8 +98,7 @@ async function exportOne({ format, bitrate, mode, fixture = fixtures.tone, captu
   const playerSrc = await player.getAttribute('src');
   if (playerSrc !== href) throw new Error(`${format} ${mode ?? ''}: playback and download differ`);
   const resultText = await page.locator('.file-result').innerText();
-  if (!/Exported audio/.test(resultText)) throw new Error(`${format}: Exported audio label missing`);
-  if (format === 'original' && !/No re-encoding/.test(resultText)) throw new Error('original: stream-copy explanation missing');
+  if (resultText.trim() !== copy.result.label) throw new Error(`${format}: a finished export shows only its label and player, got ${JSON.stringify(resultText)}`);
   const base64 = await page.evaluate(async href => {
     const bytes = new Uint8Array(await (await fetch(href)).arrayBuffer());
     let text = '';

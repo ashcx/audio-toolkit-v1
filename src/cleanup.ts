@@ -1,7 +1,8 @@
-export class CleanupFailure extends Error {
+import { UserFacingError } from "./errors.ts";
+export class CleanupFailure extends UserFacingError {
   readonly recover: () => Promise<void>;
   constructor(recover: () => Promise<void>) {
-    super("Temporary files could not be removed. Retry cleanup.");
+    super("storage-stuck", "Stored files could not be removed.");
     this.recover = recover;
   }
 }

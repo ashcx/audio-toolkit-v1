@@ -1,6 +1,7 @@
 import type { AudioCodec } from "mediabunny";
 import type { AudioMetadata } from "./media";
 import type { EffectiveRecipe, Recipe } from "./recipe";
+import { failure, type Failure } from "./errors.ts";
 import { exportShapeError, wavSizeError } from "./export-format.ts";
 
 export type CopyTarget = Readonly<{
@@ -32,9 +33,8 @@ export type ExecutionPlan =
       kind: "pcm";
       snapshot: EffectiveRecipe;
       steps: readonly Recipe["steps"][number][];
-      reason: string;
     }>
-  | Readonly<{ kind: "failed"; message: string }>;
+  | ({ kind: "failed" } & Failure);
 
 function changesSignal(
   step: Recipe["steps"][number],
@@ -67,16 +67,6 @@ function changesSignal(
     }
   }
 }
-const PCM_REASONS = {
-  trim: "Accurate trimming requires re-encoding.",
-  gain: "Gain requires re-encoding.",
-  normalize: "Normalization requires re-encoding.",
-  compress: "Compression requires re-encoding.",
-  channels: "Changing channels requires re-encoding.",
-  resample: "Changing sample rate requires re-encoding.",
-  isolation: "Voice / music isolation requires re-encoding.",
-  speech: "Voice isolation requires re-encoding.",
-} satisfies Record<Recipe["steps"][number]["kind"], string>;
 export function compilePlan(
   snapshot: EffectiveRecipe,
   source: AudioMetadata,
@@ -92,17 +82,9 @@ export function compilePlan(
   });
   if (snapshot.recipe.export.format === "original") {
     if (steps.length)
-      return {
-        kind: "failed",
-        message: `${PCM_REASONS[steps[0].kind]} Choose another format.`,
-      };
+      return { kind: "failed", ...failure("copy-needs-encoding") };
     const target = COPY_TARGETS[source.codec];
-    if (!target)
-      return {
-        kind: "failed",
-        message:
-          "This codec has no supported stream-copy container. Choose another format.",
-      };
+    if (!target) return { kind: "failed", ...failure("copy-unsupported") };
     return Object.freeze({
       kind: "copy",
       snapshot,
@@ -111,19 +93,16 @@ export function compilePlan(
     });
   }
   const invalidRate = exportShapeError(snapshot.recipe.export, { rate: current.sampleRate, channels: current.channels });
-  if (invalidRate) return { kind: "failed", message: invalidRate };
+  if (invalidRate) return { kind: "failed", ...failure(invalidRate) };
   const duration = snapshot.trim?.duration ?? source.duration;
   if (snapshot.recipe.export.format === "wav" && duration !== null && current.sampleRate !== null && current.channels !== null) {
     const invalidSize = wavSizeError(Math.round(duration * current.sampleRate), current.channels);
-    if (invalidSize) return { kind: "failed", message: invalidSize };
+    if (invalidSize) return { kind: "failed", ...failure(invalidSize) };
   }
   return Object.freeze({
     kind: "pcm",
     snapshot,
     steps: Object.freeze(steps),
-    reason: steps.length
-      ? PCM_REASONS[steps[0].kind]
-      : "Selected format requires encoding.",
   });
 }
 

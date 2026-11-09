@@ -27,6 +27,10 @@ export function useExport(files: readonly FileEntry[]) {
     for (const id of previous.current) if (!ids.has(id)) batch.remove(id);
     previous.current = ids;
   }, [files, batch]);
+  const retryable = snapshot.cleanupCount > 0 && !snapshot.cleanupStuck && !snapshot.busy;
+  useLayoutEffect(() => {
+    if (retryable) void batch.retryCleanup();
+  }, [retryable, batch]);
   useLayoutEffect(() => {
     const unsubscribe = batch.subscribe(setSnapshot);
     return () => { unsubscribe(); batch.dispose(); };

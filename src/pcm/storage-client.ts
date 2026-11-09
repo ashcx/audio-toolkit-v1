@@ -1,3 +1,4 @@
+import { UserFacingError } from "../errors.ts";
 import type { StorageReply, StoreOperation, StorageRequest } from "./protocol";
 export class StorageClient {
   private sequence = 0;
@@ -18,7 +19,7 @@ export class StorageClient {
       this.replies.set(sequence, resolve);
       this.send({ kind: "storage", sequence, request }, transfer);
     });
-    if (reply.op === "error") throw new Error(reply.message);
+    if (reply.op === "error") throw new UserFacingError(reply.code);
     return reply;
   }
   async create(name: string, mime: string) {
