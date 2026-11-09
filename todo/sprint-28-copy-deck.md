@@ -174,3 +174,9 @@ GPU, CPU, model (except "the voice/music model" in the download and its error), 
 2. **Compressor has no on/off.** The step is on when added and you remove it to turn it off. This changes behavior, not only words.
 3. **"Discard exports".** I renamed "Clear results" and kept it in the Save menu but separated and in the destructive style. Tell me if you would rather lose it, since re-exporting replaces results anyway.
 4. **Two figures need checking before they ship.** The "about 1½ minutes per minute of audio" slow-path estimate and the Standard versus Detailed speed claim. I will measure or soften them.
+
+### Figures checked while building
+
+1. **Slow-path estimate.** Sprint 27 measured Demucs on WASM at about 81 s per 60 s of audio on one Apple M5 (`todo/HANDOFF-sprints-27-29.md`, PR 36). That is about 1.35 minutes per minute on a fast machine, so the shipped line says roughly 1½ minutes or more per minute of audio. Slower devices will take longer. Only that one device was timed.
+2. **Standard versus Detailed.** The Sprint 13 YouTube evaluation (commit 6d64371, `docs/sprint-evidence/sprint-13/chrome-youtube.json`, since removed from the tree) timed both models over 20 runs each on 20 s excerpts in Chrome. GTCRN averaged about 1.9 s and DeepFilterNet3 about 3.2 s, so "Detailed is slower" has a recorded basis. The timings are diagnostic and include decoding and start-up. No listening session or noise measurement backs "removes more noise" (the Sprint 14 gate for quality labels is still unchecked), so the shipped hint says Detailed is "more thorough on noisy recordings" and keeps the speed claim.
+
