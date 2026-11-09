@@ -1,5 +1,16 @@
 import {readFile,readdir} from 'node:fs/promises';
+import {existsSync} from 'node:fs';
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
+const run=promisify(execFile);
+/** Process tree from ps, for machines without /proc such as macOS. rss is reported in KB. */
+async function psProcesses(){
+ const values=new Map();const {stdout}=await run('ps',['-A','-o','pid=,ppid=,rss=']);
+ for(const line of stdout.trim().split('\n')){const [id,parent,rss]=line.trim().split(/\s+/).map(Number);values.set(id,{parent,rss:rss*1024});}
+ return values;
+}
 async function processes(){
+ if(!existsSync('/proc/self'))return psProcesses();
  const values=new Map();await Promise.all((await readdir('/proc')).filter(value=>/^\d+$/.test(value)).map(async value=>{
   try{const text=await readFile(`/proc/${value}/status`,'utf8');values.set(Number(value),{parent:Number(text.match(/^PPid:\s+(\d+)/m)?.[1]),rss:Number(text.match(/^VmRSS:\s+(\d+)/m)?.[1]??0)*1024});}catch{}
  }));return values;
