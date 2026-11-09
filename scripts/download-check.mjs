@@ -40,7 +40,7 @@ for(const [engine,type] of engines().filter(([name])=>!process.env.TEST_ENGINE||
   }
   console.log(engine,'downloaded');await freshResults();
   await page.evaluate(()=>window.__failWrite=true);await (await saveAction(page,'Create ZIP')).click();
-  await page.waitForFunction(messages=>messages.some(message=>document.body.textContent.includes(message)),[copy.errors['zip-failed'].message,copy.errors['storage-stuck'].message]);
+  await page.waitForFunction(messages=>messages.some(message=>document.body.textContent.includes(message)),[copy.errors['storage-full'].message,copy.errors['storage-stuck'].message]);
   assert.equal(await individual.count(),3);assert.equal(await page.locator('.delivery-options a[download]').count(),0);
   await page.evaluate(()=>window.__failWrite=false);
   if(await page.getByRole('button',{name:tryAgain,exact:true}).count())await page.getByRole('button',{name:tryAgain,exact:true}).click();
