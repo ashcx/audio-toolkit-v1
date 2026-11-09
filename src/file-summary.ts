@@ -1,5 +1,6 @@
 import type { BatchJob } from "./batch.ts";
 import { copy } from "./copy.ts";
+import type { ErrorCode } from "./errors.ts";
 import { formatTime } from "./format.ts";
 import type { FileEntry } from "./media.ts";
 import type { EffectiveRecipe } from "./recipe.ts";
@@ -20,6 +21,14 @@ export function fileMetadata(
   const primary = trim.duration === null ? copy.trim.unknownDuration : formatTime(trim.duration);
   const end = trim.end === null ? copy.trim.end : formatTime(trim.end);
   return { primary, secondary: `${formatTime(trim.start)} ${copy.trim.to} ${end}` };
+}
+
+/**
+ * Where a bad Trim all range is shown. Only a range that fits the settings but not this file
+ * belongs under the file. Every other trim problem is a setting problem and shows once, at the step.
+ */
+export function trimErrorOwner(code: ErrorCode): "file" | "step" {
+  return code === "trim-past-end" ? "file" : "step";
 }
 
 export function showsPreview(hasSteps: boolean, hasCurrentExport: boolean): boolean {

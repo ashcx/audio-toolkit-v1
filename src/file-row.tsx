@@ -1,7 +1,7 @@
 import { useLayoutEffect, useState } from "preact/hooks";
 import type { FileEntry } from "./media";
 import { resolveTrim, type TrimRangeDraft } from "./recipe";
-import { fileMetadata, showsPreview } from "./file-summary";
+import { fileMetadata, showsPreview, trimErrorOwner } from "./file-summary";
 import type { ExecutionPlan } from "./planner";
 import type { BatchJob } from "./batch";
 import type { PreviewState } from "./preview";
@@ -80,8 +80,7 @@ export function FileRow({
     (!plan || plan.kind === "failed" ||
       JSON.stringify(plan.snapshot.recipe) !== JSON.stringify(job?.spec.plan.snapshot.recipe));
   const trimFailed = result?.kind === "failed" ? result : null;
-  // A bad range is shown once. The step owns it unless the range only fails against this file.
-  const fileOwnsTrimError = trimFailed?.code === "trim-past-end";
+  const fileOwnsTrimError = trimFailed !== null && trimErrorOwner(trimFailed.code) === "file";
   const fileErrorId = fileOwnsTrimError ? `trim-error-${entry.id}` : undefined;
   const errorId = fileOwnsTrimError ? fileErrorId : trimFailed ? trimErrorId : undefined;
   const effective = result?.kind === "ready" ? result.trim : null;
