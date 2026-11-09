@@ -104,6 +104,8 @@ test('summaries use plain wording and true minus signs', () => {
   assert.equal(copy.normalize.summary({ mode: 'loudness', targetLufs: -14, ceilingDbtp: -0.3 }), 'Loudness \u00b7 \u221214 LUFS \u00b7 \u22120.3 dBTP');
   assert.equal(copy.compressor.summary({ preset: 'speech', amount: 50 }), 'Speech \u00b7 50%');
   assert.equal(copy.levels.value(-4.52), '\u22124.5');
+  assert.equal(copy.levels.value(-19), '\u221219.0');
+  assert.equal(copy.levels.value(-0.04), '0.0');
   assert.equal(copy.levels.value(null), '\u2212\u221e');
   assert.equal(minus(-9.5), '\u22129.5');
 });

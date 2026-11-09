@@ -5,7 +5,7 @@ import type { EncodingMode } from "./encoding-modes.ts";
 import type { ExportFormat, StepKind } from "./recipe.ts";
 
 /** True minus sign. Level and loudness numbers read better with it than with a hyphen. */
-export const minus = (value: number) => String(value).replace("-", "−");
+export const minus = (value: number | string) => String(value).replace("-", "−");
 const signed = (value: number) => (value > 0 ? `+${value}` : minus(value));
 
 export type ErrorAction = "retry" | "try-again" | "remove" | "download";
@@ -203,7 +203,12 @@ export const copy = {
     unit: "dBFS",
     empty: "Add a file to see its levels.",
     measuring: "Measuring…",
-    value: (db: number | null) => (db === null ? "−∞" : copy.number(db)),
+    /** A measured level with one decimal, so a steady reading never changes width. */
+    value(db: number | null) {
+      if (db === null) return "−∞";
+      const text = db.toFixed(1);
+      return Number(text) === 0 ? "0.0" : minus(text);
+    },
   },
   compressor: {
     amount: "Amount",
