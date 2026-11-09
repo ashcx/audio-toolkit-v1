@@ -1,5 +1,5 @@
 import { cleanupAll, CleanupFailure } from "./cleanup.ts";
-import { UserFacingError, errorCode, failure, failureOf, type Failure } from "./errors.ts";
+import { UserFacingError, errorCode, failure, failureOf, type ErrorCode, type Failure } from "./errors.ts";
 import type { StoredOutput } from "./output-store.ts";
 import type { ZipProgress } from "./zip.ts";
 export type ArchiveState =
@@ -10,9 +10,9 @@ export type ArchiveState =
   | Readonly<{ kind: "failed" } & Failure>
   | Readonly<{ kind: "cleanup"; attempts: number } & Failure>;
 export type ArchiveBuilder = (files: readonly File[], signal: AbortSignal, progress: (value: ZipProgress) => void) => Promise<StoredOutput>;
+const SHOWN_ZIP_CODES: readonly ErrorCode[] = ["names-unsafe", "storage-private-mode", "storage-full"];
 function zipFailure(error: unknown): Failure {
-  const code = errorCode(error, "zip-failed");
-  return failureOf(code === "names-unsafe" || code === "storage-private-mode" ? error : new UserFacingError("zip-failed", String(error)));
+  return SHOWN_ZIP_CODES.includes(errorCode(error, "zip-failed")) ? failureOf(error) : failureOf(new UserFacingError("zip-failed", String(error)));
 }
 export class Archive {
   state: ArchiveState = { kind: "idle" };

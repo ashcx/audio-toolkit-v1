@@ -209,3 +209,7 @@ Was: "Gain needs a format other than Keep original. Choose another format." (the
 Now: "Steps that change the sound need a format other than Keep original. Choose another format."
 
 Why. The old sentence was built in the planner from the first changing step, so it was not in the message catalogue, the catalogue test could not scan it, and it named only one step when several needed encoding. It is now the catalogue entry `copy-needs-encoding`. The new sentence is the Keep original hint from section 2 turned into an instruction.
+
+### 2026-11-09. ZIP that runs out of space
+
+A ZIP that fails because the browser is out of space now shows the storage-full sentence, "Not enough space to finish. Free some space and try again.", with Retry. The catalogue rewrite had sent it to "Couldn't create the ZIP. Download the files one by one.", which hides the one thing the person can fix. No new wording.

@@ -124,7 +124,10 @@ test('a ZIP that fails says what to do, names the unsafe-name case, and counts s
   };
   const quota = await run(async () => { throw new DOMException('full', 'QuotaExceededError'); });
   assert.equal(quota.kind, 'failed');
-  assert.equal(quota.message, "Couldn't create the ZIP. Download the files one by one.");
+  assert.equal(quota.code, 'storage-full');
+  assert.equal(quota.message, "Not enough space to finish. Free some space and try again.");
+  const privateMode = await run(async () => { throw new UserFacingError('storage-private-mode', 'no opfs'); });
+  assert.equal(privateMode.code, 'storage-private-mode');
   const names = await run(async () => { throw new UserFacingError('names-unsafe', 'ZIP filenames must be safe and unique.'); });
   assert.equal(names.message, "Some file names can't be saved together. Download them one by one.");
   const raw = await run(async () => { throw new Error('boom'); });
