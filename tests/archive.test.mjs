@@ -22,3 +22,9 @@ test('clearing an archive that holds nothing shows no Finishing state, and a fai
  broken.start([new File(['x'],'x')]);await tick();assert.equal(broken.state.kind,'failed');
  await broken.clear();assert.equal(broken.state.kind,'idle');assert(kinds.includes('releasing'));
 });
+test('the silent retry after a failed cleanup runs even when it is requested the moment the cleanup state appears',async()=>{
+ const f=fixture();f.archive.start([f.output.file]);await tick();f.finish();await tick();assert.equal(f.archive.state.kind,'ready');
+ f.archive.subscribe(state=>{if(state.kind==='cleanup'&&state.attempts===1){f.fail(false);Promise.resolve().then(()=>f.archive.clear());}});
+ f.fail(true);await f.archive.clear();await tick();
+ assert.equal(f.archive.state.kind,'idle');assert.equal(f.archive.busy,false);assert.equal(f.releases,1);
+});

@@ -73,3 +73,26 @@ test('processed sine excerpt applies the actual gain transform to identical orig
  assert.equal(original.reduce((sum,b)=>sum+b.planes[0].length,0),12640);
  for(let b=0;b<original.length;b++)for(let i=0;i<original[b].planes[0].length;i++)assert(Math.abs(processed[b].planes[0][i]-original[b].planes[0][i]*10**(6/20))<2e-8);
 });
+function retryOnFirstCleanupFailure(preview){
+ preview.subscribe(state=>{if(state.kind==='cleanup'&&state.attempts===1)Promise.resolve().then(()=>preview.clear());});
+}
+test('the silent retry after a failed cleanup runs once the preview has stopped working, not while it is still winding down',async()=>{
+ let calls=0,releaseFailures=1;const f=fixture(async()=>{calls++;if(calls===2)throw new Error('Processing broke');const output=f.output();return{output:{...output,release:async()=>{if(releaseFailures-->0)throw new Error('busy');await output.release();}},stats:{}};});
+ retryOnFirstCleanupFailure(f.preview);
+ f.preview.start(entry,snapshot());await settle();
+ assert.equal(f.preview.state.kind,'idle');assert.equal(previewBusy(f.preview.state),false);
+});
+test('closing a ready preview whose cleanup fails once ends idle after the silent retry',async()=>{
+ let releaseFailures=0;const f=fixture(async()=>{const output=f.output();return{output:{...output,release:async()=>{if(releaseFailures-->0)throw new Error('busy');await output.release();}},stats:{}};});
+ f.preview.start(entry,snapshot());await settle();assert.equal(f.preview.state.kind,'ready');
+ retryOnFirstCleanupFailure(f.preview);releaseFailures=1;
+ f.preview.clear();await settle();
+ assert.equal(f.preview.state.kind,'idle');assert.equal(previewBusy(f.preview.state),false);
+});
+test('the second cleanup failure is shown and stays retryable',async()=>{
+ let releaseFailures=4;const f=fixture(async()=>{const output=f.output();return{output:{...output,release:async()=>{if(releaseFailures-->0)throw new Error('busy');await output.release();}},stats:{}};});
+ f.preview.start(entry,snapshot());await settle();retryOnFirstCleanupFailure(f.preview);
+ f.preview.clear();await settle();
+ assert.equal(f.preview.state.kind,'cleanup');assert.equal(f.preview.state.attempts,2);
+ f.preview.clear();await settle();assert.equal(f.preview.state.kind,'idle');
+});

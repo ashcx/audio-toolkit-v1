@@ -54,7 +54,12 @@ export class Preview {
     const controller = new AbortController();
     this.controller = controller;
     this.publish({ kind: "releasing", fileId: entry.id });
-    this.task = this.execute(entry, snapshot, controller).finally(() => { this.task = null; this.controller = null; });
+    this.task = this.execute(entry, snapshot, controller);
+  }
+  private finish(state: PreviewState) {
+    this.task = null;
+    this.controller = null;
+    this.publish(state);
   }
   private async execute(entry: FileEntry, snapshot: EffectiveRecipe, controller: AbortController) {
     let thrown: unknown;
@@ -78,15 +83,15 @@ export class Preview {
         urls.push(url);
       }
       if (!processedStats) throw new Error("The processed preview did not report DSP statistics.");
-      this.publish({ kind: "ready", fileId: entry.id, original: urls[0], processed: urls[1], range: plans.range, estimate: plans.estimate, stats: processedStats });
+      this.finish({ kind: "ready", fileId: entry.id, original: urls[0], processed: urls[1], range: plans.range, estimate: plans.estimate, stats: processedStats });
       return;
     } catch (error) { thrown = error; }
     try { await this.release(); }
     catch {
-      this.publish(this.stuck(entry.id));
+      this.finish(this.stuck(entry.id));
       return;
     }
-    this.publish(controller.signal.aborted ? { kind: "idle" } : { kind: "failed", fileId: entry.id, ...failureOf(thrown, "preview-failed") });
+    this.finish(controller.signal.aborted ? { kind: "idle" } : { kind: "failed", fileId: entry.id, ...failureOf(thrown, "preview-failed") });
   }
   clear() {
     const state = this.state;
@@ -98,9 +103,9 @@ export class Preview {
     }
     this.publish({ kind: "releasing", fileId: state.fileId });
     this.task = this.release().then(
-      () => this.publish({ kind: "idle" }),
-      () => this.publish(this.stuck(state.fileId)),
-    ).finally(() => { this.task = null; });
+      () => this.finish({ kind: "idle" }),
+      () => this.finish(this.stuck(state.fileId)),
+    );
   }
   dispose() { this.listeners.clear(); this.clear(); }
 }
