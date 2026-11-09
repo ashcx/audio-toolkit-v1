@@ -1,7 +1,7 @@
 import { InferenceRunner } from "./inference/runner";
 import { cleanupAll } from "./cleanup";
 import { UserFacingError, failureOf } from "./errors.ts";
-import type { JobOperation } from "./job-events";
+import { showsDuringSeparation, type JobOperation } from "./job-events";
 import { createOutputStore, type StoredOutput } from "./output-store";
 import type {
   DspStats,
@@ -88,7 +88,7 @@ export function processAudio(
         isolating = false;phase(data);
       }
       else if (data.kind === "inference") {
-        inferenceTask = inference.run(data.planes, value => { if (!isolating) phase(value); }).then(
+        inferenceTask = inference.run(data.planes, value => { if (!isolating || showsDuringSeparation(value)) phase(value); }).then(
           reply => { if (!settled) worker.postMessage({ kind: "inference", sequence: data.sequence, reply } satisfies WorkerInput, reply.stems.flat().map(plane => plane.buffer)); },
           error => { if (!settled) worker.postMessage({ kind: "inference", sequence: data.sequence, reply: { kind: "error", code: failureOf(error, "split-failed").code } } satisfies WorkerInput); },
         );
