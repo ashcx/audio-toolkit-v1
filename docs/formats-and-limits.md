@@ -9,7 +9,7 @@
 | WAV | Size guards reject unsupported lengths rather than emitting corrupt headers |
 | Preview | Actual retained output, native browser playback when supported; no separate low-quality preview pipeline |
 | ZIP | Stored ZIP64, safe unique UTF-8 names, CRC32; includes only completed outputs. Desktop unzip/browser save behavior is still device dependent |
-| Isolation | Two stems only (voice or music), model quality depends on source, with possible leakage/artifacts; no promise of perfect separation or LUFS mastering |
+| Isolation | Two stems only (voice or music) from HTDemucs v4; music is drums + bass + other, so voice + music is close to but not exactly the mix. Keep music is a sum of predicted stems at the model's 44.1 kHz, not the original minus voice: sources at other rates are resampled and band-limited (96 and 192 kHz lose content above 22.05 kHz, and 48 kHz takes a 48 to 44.1 to 48 kHz round trip). Quality depends on the source and has not been judged by ear; leakage and artifacts are possible. First use downloads an 85 MB model. WebGPU on an Apple M5 separated 60 s in about 13 s; without a usable GPU it runs on single-thread WASM at about 81 s per 60 s. Memory is bounded per window, not per track: no length cap. No promise of perfect separation or LUFS mastering |
 
 Automated integrated coverage is Linux Chromium and Playwright WebKit, including desktop 390 px responsive simulation. It does not establish branded Chrome on macOS, Edge, actual Safari/iOS or Android. Firefox is explicitly unsupported by this app. Native preview codec support is separate from export support.
 

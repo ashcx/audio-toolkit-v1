@@ -40,10 +40,6 @@
       "sha256": "ca319e9539cd0f1e291cf56074760121eaf39650f5dbf84b6e52c07f4b2944ec"
     },
     {
-      "file": "public/vendor/neural/scnet.int8.onnx",
-      "sha256": "3f049a0e4ce3c08264a6212a50445ba77f02a517cd4c6dc86cbe1ca130176d67"
-    },
-    {
       "file": "public/vendor/neural/ort-wasm-simd-threaded.mjs",
       "sha256": "30ed0b5cd1182ede931fea448afb567d4dc705ec957af09f108a2be5f770dac3"
     },
@@ -64,6 +60,13 @@
       "file": "vendor/neural/runtime-types.d.ts",
       "sha256": "2a9dd57c4f30750fb41c199cc35e064cc9d2b81b38b7f80a437c28fc235ab83f",
       "source": "@audio/neural-runtime@0.2.0/index.d.ts"
+    },
+    {
+      "file": "public/vendor/neural/htdemucs_fp16.onnx",
+      "sha256": "742a4f8594a48d6306da303b8b2dd8be2b54389b88557db034408b436effd775",
+      "bytes": 85034606,
+      "source": "https://huggingface.co/Ryan5453/unblend/resolve/30b749fd691312b1e4b3f8fe79df0b51cde836cd/htdemucs_fp16.onnx",
+      "license": "Unresolved. The file's metadata says unlicensed and the model card grants nothing; bundled by the user's decision (docs/sprint-evidence/sprint-27/provenance.md)."
     }
   ]
 }

@@ -99,3 +99,9 @@ test('voice isolation has one bounded model selection per recipe', () => {
  assert.equal(recipeSchema.safeParse({ ...newRecipe(), steps: [first] }).success, true);
  assert.equal(recipeSchema.safeParse({ ...newRecipe(), steps: [first, second] }).success, false);
 });
+test('isolation steps take only a voice or music keep choice', () => {
+ const step = newStep('isolation');
+ assert.deepEqual(recipeSchema.parse({ ...newRecipe(), steps: [step] }).steps[0], { id: step.id, kind: 'isolation', keep: 'voice' });
+ assert.equal(recipeSchema.safeParse({ ...newRecipe(), steps: [{ ...step, keep: 'drums' }] }).success, false);
+ assert.equal(recipeSchema.safeParse({ ...newRecipe(), steps: [{ ...step, extra: 1 }] }).success, false);
+});

@@ -1,49 +1,150 @@
-import {setAppearance} from './browser-controls.mjs';
-import {childProcesses,monitorBrowserMemory} from "./browser-memory.mjs";
-import {chromium,webkit} from 'playwright';
+import {chromium} from 'playwright';
+import {createServer} from 'vite';
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import assert from 'node:assert/strict';
-const root=process.env.ISOLATION_EVIDENCE_DIR??'.artifacts/isolation-check',inputs=`.artifacts/isolation-inputs/${crypto.randomUUID()}`;await mkdir(`${root}/captures`,{recursive:true});await mkdir(inputs,{recursive:true});
-const frames=44100*13+137,path=`${inputs}/boundaries.wav`,bytes=Buffer.alloc(44+frames*4);
-bytes.write('RIFF');bytes.writeUInt32LE(bytes.length-8,4);bytes.write('WAVEfmt ',8);bytes.writeUInt32LE(16,16);bytes.writeUInt16LE(1,20);bytes.writeUInt16LE(2,22);bytes.writeUInt32LE(44100,24);bytes.writeUInt32LE(176400,28);bytes.writeUInt16LE(4,32);bytes.writeUInt16LE(16,34);bytes.write('data',36);bytes.writeUInt32LE(frames*4,40);
-for(let i=0;i<frames;i++)for(let c=0;c<2;c++){const t=i/44100,value=.18*Math.sin(2*Math.PI*(c?660:440)*t)+.03*Math.cos(2*Math.PI*123*t)+(i>=frames-37?.08:0);bytes.writeInt16LE(Math.round(value*32767),44+(i*2+c)*2);}await writeFile(path,bytes);
-const decode=path=>{const pcm=execFileSync('ffmpeg',['-v','error','-i',path,'-f','f32le','-'],{maxBuffer:16*1024*1024});return new Float32Array(pcm.buffer.slice(pcm.byteOffset,pcm.byteOffset+pcm.byteLength));};
-const original=decode(path),records=[];
-for(const[engine,type]of[['chromium',chromium],['webkit',webkit]]){
- if(process.env.ISOLATION_CHECK_ENGINE&&process.env.ISOLATION_CHECK_ENGINE!==engine)continue;
- const previous=await childProcesses();
- const context=await type.launchPersistentContext(`.artifacts/isolation-profiles/${crypto.randomUUID()}`,{headless:true,acceptDownloads:true,hasTouch:true,viewport:{width:1440,height:1000}});
- const roots=[...await childProcesses()].filter(id=>!previous.has(id));assert(roots.length>0,"Browser root must be observed before measuring memory");
- const memory=monitorBrowserMemory(roots,()=>context.close());
- try{
-  await context.addInitScript(()=>{window.__stats=[];window.__downloads=[];window.__phases=[];window.__modelTrace=[];window.__pcmTrace=[];window.__activeModels=0;window.__maxModels=0;window.__activePcm=0;window.__maxPcm=0;const Original=Worker;
-   function signature(planes){return planes.map(plane=>{let hash=2166136261;for(const value of new Uint32Array(plane.buffer,plane.byteOffset,plane.length))hash=Math.imul(hash^value,16777619);return {frames:plane.length,hash:hash>>>0};});}
-   window.Worker=new Proxy(Original,{construct(target,args){const worker=Reflect.construct(target,args),model=args[1]?.name==='audio-isolation',pcm=String(args[0]).includes('pcm-worker');let stopped=false;
-    if(model){window.__activeModels++;window.__maxModels=Math.max(window.__maxModels,window.__activeModels);}if(pcm){window.__activePcm++;window.__maxPcm=Math.max(window.__maxPcm,window.__activePcm);}
-    const terminate=worker.terminate.bind(worker);worker.terminate=()=>{if(!stopped){stopped=true;if(model)window.__activeModels--;if(pcm)window.__activePcm--;}return terminate();};
-    if(model){const post=worker.postMessage.bind(worker);worker.postMessage=(data,...rest)=>{window.__modelTrace.push({input:signature(data.planes)});return post(data,...rest);};worker.addEventListener('message',({data})=>{if(data.kind==='done')window.__modelTrace.push({output:signature(data.planes)});});}
-    if(pcm)worker.addEventListener('message',event=>{if(event.data.kind==='debug-pcm'){event.stopImmediatePropagation();window.__pcmTrace.push(event.data);}});
-    worker.addEventListener('message',({data})=>{if(data.stats)window.__stats.push(data.stats);if(data.kind==='phase')window.__phases.push(data.phase);if(data.kind==='model-download')window.__downloads.push(data);});return worker;}});
-  });
-  const page=context.pages()[0]??await context.newPage();assert.equal(context.pages().length,1);await page.reload();page.setDefaultTimeout(180000);const errors=[],requests=[];page.on('pageerror',error=>errors.push(error.message));page.on('request',request=>requests.push({url:request.url(),method:request.method()}));
-  async function setup(mode,input=path){await page.goto(process.env.APP_URL??'http://127.0.0.1:4174/audio-toolkit-v1/');await page.getByLabel('Choose audio or video files').setInputFiles(input);await page.locator('[data-inspection=ready]').waitFor();await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('wav');await page.getByLabel('Add step',{exact:true}).selectOption('isolation');await page.getByRole('combobox',{name:'Keep',exact:true}).selectOption(mode);}
-  async function stores(){return page.evaluate(async()=>{const directory=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1',{create:true});let count=0;for await(const f of directory.values())count++;return count;});}
-  async function remove(name){await page.getByRole('button',{name:`Remove ${name}`,exact:true}).tap();await page.waitForFunction(async()=>{const directory=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1');for await(const f of directory.values())return false;return true;});}
-  const outputs=[];
-  for(const mode of ['voice','music']){
-   await setup(mode);assert(!requests.some(request=>/scnet|isolation-runtime|ort-wasm/.test(request.url))||mode==='music');await page.getByRole('button',{name:'Export',exact:true}).focus();await page.keyboard.press('Enter');const link=page.getByRole('link',{name:/Download exported audio/});await link.waitFor();const pending=page.waitForEvent('download');await link.tap();const download=await pending;const output=`${inputs}/${engine}-${mode}.wav`;await download.saveAs(output);const samples=decode(output);assert.equal(samples.length,frames*2);assert(samples.every(Number.isFinite));outputs.push(samples);
-   const stats=await page.evaluate(()=>window.__stats.at(-1));assert.equal(stats.decodePasses,1);assert.equal(stats.terminalEncoders,1);assert.equal(stats.isolationPasses,1);assert.equal(stats.isolationWindows,4);assert.equal(stats.isolationLoads,4);assert(stats.maxIsolationFrames<=485100);assert(stats.maxBlockFrames<=4096);assert.deepEqual(stats.isolationBackends,['wasm']);
-   const counters=await page.evaluate(()=>({models:window.__activeModels,pcm:window.__activePcm,maxModels:window.__maxModels,maxPcm:window.__maxPcm}));assert.equal(counters.models,0);assert.equal(counters.pcm,0);assert.equal(counters.maxModels,1);assert.equal(counters.maxPcm,1);assert.equal(await stores(),1);
-   const progress=await page.evaluate(()=>window.__downloads);assert(progress.length>0);assert(progress.every(event=>event.loaded>0&&event.loaded<=13184191&&event.total===13184191));assert(progress.some(event=>event.loaded===13184191));
-   if(process.env.PCM_TRACE){const raw=await page.evaluate(()=>{if(!window.__pcmTrace.length)throw Error('No diagnostic PCM messages received');const output=new Float32Array(573437*2);for(const block of window.__pcmTrace)for(let channel=0;channel<2;channel++)for(let index=0;index<block.planes[channel].length;index++)output[(block.offset+index)*2+channel]=block.planes[channel][index];const bytes=new Uint8Array(output.buffer);let binary='';for(let offset=0;offset<bytes.length;offset+=8192)binary+=String.fromCharCode(...bytes.subarray(offset,offset+8192));return btoa(binary);});await writeFile(`${root}/${mode}-pre-encode.f32`,Buffer.from(raw,'base64'));}
-   records.push({engine,mode,frames,stats,counters,modelTrace:await page.evaluate(()=>window.__modelTrace),progressEvents:progress.length,onlyCompletedStore:true});await writeFile(`${root}/results.json`,JSON.stringify(records,null,2)+'\n');await remove('boundaries.wav');console.log(engine,mode,'long overlap passed');
-  }
-  let maxError=0,sum=0;for(let i=0;i<original.length;i++){const error=outputs[0][i]+outputs[1][i]-original[i];sum+=error*error;maxError=Math.max(maxError,Math.abs(error));}assert(maxError<1e-4,`source reconstruction ${maxError}`);records.push({engine,voicePlusMusicMaxError:maxError,rmse:Math.sqrt(sum/original.length)});
-  await setup('voice','tests/fixtures/tone.wav');let corrupted=false;const model=await readFile('public/vendor/neural/scnet.int8.onnx');model[0]^=1;
-  await page.route('**/scnet.int8.onnx',route=>{if(!corrupted){corrupted=true;return route.fulfill({status:200,body:model});}return route.continue();});await page.getByRole('button',{name:'Export',exact:true}).click();await page.getByText('The isolation model could not be verified. Retry.',{exact:true}).waitFor();assert.equal(await stores(),0);assert.equal(await page.getByRole('link',{name:/Download exported audio/}).count(),0);await page.getByRole('button',{name:'Retry tone.wav',exact:true}).click();await page.getByRole('link',{name:/Download exported audio/}).waitFor();await page.unroute('**/scnet.int8.onnx');await page.screenshot({path:`${root}/captures/${engine}-desktop.png`,fullPage:true});await page.setViewportSize({width:390,height:844});await setAppearance(page,'dark');await page.waitForFunction(()=>getComputedStyle(document.body).backgroundColor==='rgb(18, 19, 22)');await page.screenshot({path:`${root}/captures/${engine}-mobile-dark.png`,fullPage:true});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await remove('tone.wav');
-  await setup('voice','tests/fixtures/tone.wav');let release;const held=new Promise(resolve=>release=resolve);let intercepted=false;await page.route('**/scnet.int8.onnx',async route=>{intercepted=true;await held;await route.continue().catch(()=>undefined);});await page.getByRole('button',{name:'Export',exact:true}).click();await page.waitForFunction(()=>document.querySelector('[data-job-state=running]'));for(let attempt=0;!intercepted&&attempt<1000;attempt++)await new Promise(resolve=>setTimeout(resolve,20));assert(intercepted,"Model request must reach the download hold");await page.getByRole('button',{name:'Cancel tone.wav',exact:true}).tap();await page.locator('[data-job-state=cancelled]').waitFor();assert.equal(await stores(),0);assert.equal(await page.evaluate(()=>window.__activeModels+window.__activePcm),0);release();await page.unroute('**/scnet.int8.onnx');await remove('tone.wav');
-  await setup('music','tests/fixtures/tone.wav');await page.getByRole('button',{name:'Export',exact:true}).click();await page.waitForFunction(()=>window.__phases.includes('Separating'));await page.getByRole('button',{name:'Cancel tone.wav',exact:true}).click();await page.locator('[data-job-state=cancelled]').waitFor();assert.equal(await stores(),0);assert.equal(await page.evaluate(()=>window.__activeModels+window.__activePcm),0);await remove('tone.wav');assert.deepEqual(errors,[]);assert(requests.every(request=>request.method==='GET'));assert(requests.every(request=>request.url.startsWith(new URL(process.env.APP_URL??'http://127.0.0.1:4174').origin)||request.url.startsWith('blob:')));
-  records.push({engine,hashFailureRetry:true,cancelDownload:true,cancelInference:true,ownedStoresAfterCleanup:0,pageErrors:errors,networkMethods:[...new Set(requests.map(request=>request.method))]});await writeFile(`${root}/results.json`,JSON.stringify(records,null,2)+'\n');console.log(engine,'isolation recovery passed');
- }finally{await memory.stop();records.push({engine,memory:memory.report,claim:'Single-run sampled owned-browser aggregate RSS, not PSS, throughput or phone support'});await writeFile(`${root}/results.json`,JSON.stringify(records,null,2)+'\n');await context.close();if(memory.report.budgetExceeded)throw new Error(`${engine} exceeded the declared 2 GiB isolated-browser RSS budget`);}
+
+const evidence=process.env.ISOLATION_EVIDENCE_DIR??'.artifacts/sprint-27/evidence';
+const outputs=process.env.ISOLATION_OUTPUT_DIR??'.artifacts/sprint-27/app-check';
+const music=process.env.ISOLATION_MUSIC_DIR??'../../../.artifacts/music16';
+const ffmpeg=process.env.FFMPEG??'ffmpeg',ffprobe=process.env.FFPROBE??'ffprobe';
+await mkdir(outputs,{recursive:true});await mkdir(evidence,{recursive:true});
+const hosted=!!process.env.APP_URL;
+const server=await createServer({server:hosted?{middlewareMode:true}:{host:'127.0.0.1',port:4275,strictPort:true},logLevel:'error'});
+if(!hosted)await server.listen();
+const {DEMUCS_MODEL}=await server.ssrLoadModule('/src/inference/demucs-model.ts');
+const {bytes:MODEL_BYTES,stride:STRIDE,segment:SEGMENT}=DEMUCS_MODEL;
+const app=process.env.APP_URL??'http://127.0.0.1:4275/audio-toolkit-v1/';
+const duration=path=>Number(execFileSync(ffprobe,['-v','error','-show_entries','format=duration','-of','csv=p=0',path],{encoding:'utf8'}));
+const decode=path=>{const pcm=execFileSync(ffmpeg,['-v','error','-i',path,'-f','f32le','-'],{maxBuffer:512*1024*1024});return new Float32Array(pcm.buffer.slice(pcm.byteOffset,pcm.byteOffset+pcm.byteLength));};
+const rms=samples=>Math.sqrt(samples.reduce((sum,value)=>sum+value*value,0)/samples.length);
+function ownedRss(){
+ const rows=execFileSync('ps',['-A','-o','pid=,ppid=,rss='],{encoding:'utf8'}).trim().split('\n').map(line=>line.trim().split(/\s+/).map(Number));
+ const owned=new Set([process.pid]);let changed=true;
+ while(changed){changed=false;for(const [pid,ppid] of rows)if(owned.has(ppid)&&!owned.has(pid)){owned.add(pid);changed=true;}}
+ return rows.reduce((sum,[pid,,rss])=>pid!==process.pid&&owned.has(pid)?sum+rss*1024:sum,0);
 }
+const record={app,chrome:null,runs:[],checks:[]};
+const pass=(name,detail={})=>{record.checks.push({name,...detail});console.log('ok',name,JSON.stringify(detail));};
+
+async function open(args){
+ const browser=await chromium.launch({channel:'chrome',headless:true,args});record.chrome??=browser.version();
+ const context=await browser.newContext({acceptDownloads:true,viewport:{width:1440,height:1000}});
+ await context.addInitScript(()=>{
+  window.__stats=[];window.__downloads=[];window.__done=[];window.__devices=[];window.__activeModels=0;window.__maxModels=0;const Original=Worker;
+  window.Worker=new Proxy(Original,{construct(target,args){
+   const worker=Reflect.construct(target,args),model=args[1]?.name==='audio-isolation';let stopped=false;
+   if(model){window.__activeModels++;window.__maxModels=Math.max(window.__maxModels,window.__activeModels);const terminate=worker.terminate.bind(worker);worker.terminate=()=>{if(!stopped){stopped=true;window.__activeModels--;}return terminate();};}
+   worker.addEventListener('message',({data})=>{
+    if(data.stats)window.__stats.push(data.stats);
+    if(model&&data.kind==='model-download')window.__downloads.push(data);
+    if(model&&data.kind==='done')window.__done.push({backend:data.backend,gpuDispatches:data.gpuDispatches,stems:data.stems.length,channels:data.stems[0].length});
+   });
+   return worker;}});
+  setInterval(()=>{const label=document.querySelector('.device-badge')?.textContent;if(label&&window.__devices.at(-1)!==label)window.__devices.push(label);},20);
+ });
+ const page=await context.newPage(),errors=[],requests=[];page.setDefaultTimeout(600000);
+ page.on('pageerror',error=>errors.push(error.message));page.on('request',request=>requests.push(request.url()));
+ await page.goto(app);
+ return {browser,page,errors,requests};
+}
+async function setup(page,input,keep){
+ await page.goto(app);
+ await page.getByLabel('Choose audio or video files').setInputFiles(input);await page.locator('[data-inspection=ready]').waitFor();
+ await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('wav');
+ await page.getByLabel('Add step',{exact:true}).selectOption('isolation');
+ await page.getByRole('combobox',{name:'Keep',exact:true}).selectOption(keep);
+ await page.locator('[data-isolation-device]:not([data-isolation-device=checking])').waitFor();
+}
+async function stores(page){return page.evaluate(async()=>{const directory=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1',{create:true});let count=0;for await(const entry of directory.values())count++;return count;});}
+async function exportAndDownload(page,name,label,capture){
+ await page.getByRole('button',{name:'Export',exact:true}).click();
+ if(capture){await page.getByText(/Separating \d+ \/ \d+/).first().waitFor();await page.screenshot({path:`${evidence}/${capture}-running.png`,fullPage:true});}
+ const link=page.getByRole('link',{name:/Download exported audio/});await link.waitFor();
+ const pending=page.waitForEvent('download');await link.click();const download=await pending;const path=`${outputs}/${label}.wav`;await download.saveAs(path);
+ if(capture)await page.screenshot({path:`${evidence}/${capture}-done.png`,fullPage:true});
+ return path;
+}
+function verifyOutput(path,input,label){
+ const expected=duration(input),actual=duration(path),samples=decode(path),level=rms(samples);
+ assert(Math.abs(actual-expected)<1e-3,`${label}: output ${actual}s, input ${expected}s`);
+ assert(samples.every(Number.isFinite),`${label}: finite samples`);assert(level>1e-3,`${label}: non-silent output, rms ${level}`);
+ return {seconds:actual,inputSeconds:expected,rms:level};
+}
+
+let failed=false;
+try{
+ const live=`${music}/live.ogg`,instrumental=`${music}/instrumental.ogg`,tone='tests/fixtures/tone.wav';
+ {
+  const {browser,page,errors,requests}=await open(['--enable-unsafe-webgpu']);
+  try{
+   const adapter=await page.evaluate(async()=>{const value=await navigator.gpu?.requestAdapter();return value?{vendor:value.info.vendor,architecture:value.info.architecture,isFallbackAdapter:value.info.isFallbackAdapter??null}:null;});
+   assert(adapter&&!adapter.isFallbackAdapter,'GPU run needs a hardware WebGPU adapter');record.gpuAdapter=adapter;
+   for(const keep of ['music','voice']){
+    await setup(page,live,keep);
+    if(keep==='music'){
+     await page.getByRole('button',{name:'Preview live.ogg',exact:true}).click();await page.getByRole('button',{name:'Close preview',exact:true}).waitFor();
+     assert.equal(await page.evaluate(()=>window.__stats.at(-1).isolationBackends.join()),'webgpu+wasm');assert.equal(await page.evaluate(()=>window.__stats.at(-1).isolationPasses),1);
+     await page.screenshot({path:`${evidence}/app-gpu-preview.png`,fullPage:true});await page.getByRole('button',{name:'Close preview',exact:true}).click();
+     pass('preview isolates the excerpt with Demucs on the GPU');await page.evaluate(()=>{window.__done.length=0;window.__downloads.length=0;});
+     const note=await page.locator('[data-isolation-device]').innerText();assert.match(note,/85 MB/);assert.doesNotMatch(note,/on the CPU/);pass('editor names the 85 MB first-use download and no CPU warning with a GPU',{note});}
+    const started=Date.now(),path=await exportAndDownload(page,'live.ogg',`gpu-${keep}`,keep==='music'?'app-gpu':null),elapsedMs=Date.now()-started;
+    const output=verifyOutput(path,live,keep),stats=await page.evaluate(()=>window.__stats.at(-1)),done=await page.evaluate(()=>window.__done),downloads=await page.evaluate(()=>window.__downloads);
+    const windows=Math.ceil(Math.round(output.inputSeconds*44100)/STRIDE);
+    assert.equal(stats.isolationPasses,1);assert.equal(stats.isolationWindows,windows);assert.equal(stats.isolationLoads,1,'one model session per job');assert.equal(stats.maxIsolationFrames,SEGMENT);assert.deepEqual(stats.isolationBackends,['webgpu+wasm']);
+    assert(done.length>=windows&&done.every(value=>value.stems===4&&value.gpuDispatches>0),'every window returns four stems and issued GPU work');
+    assert(downloads.length>0&&downloads.at(-1).loaded===MODEL_BYTES&&downloads.every(event=>event.total===MODEL_BYTES),'model download progress reaches the verified size');
+    await page.getByText('Separated with Demucs on the GPU.',{exact:true}).waitFor();
+    assert.equal(await page.evaluate(()=>window.__devices.at(-1)),'GPU + CPU','badge shows GPU only after GPU work was observed');
+    assert.equal(await page.evaluate(()=>window.__activeModels),0,'model worker released after export');assert.equal(await page.evaluate(()=>window.__maxModels),1);
+    record.runs.push({device:'gpu',keep,input:'live.ogg',elapsedMs,windows,output,stats,gpuDispatchesPerWindow:done.slice(-windows).map(value=>value.gpuDispatches)});
+    pass(`GPU ${keep} export`,{elapsedMs,windows,seconds:output.seconds,rms:output.rms});
+    await page.evaluate(()=>{window.__done.length=0;window.__downloads.length=0;});
+   }
+   const truncated=Buffer.from((await readFile('public/vendor/neural/htdemucs_fp16.onnx')).subarray(0,1<<20));let served=false;
+   await page.route('**/htdemucs_fp16.onnx',route=>{if(served)return route.continue();served=true;return route.fulfill({status:200,body:truncated});});
+   await setup(page,tone,'voice');let kept=await stores(page);await page.getByRole('button',{name:'Export',exact:true}).click();
+   await page.getByText('The isolation model download is incomplete. Retry.',{exact:true}).waitFor();assert.equal(await stores(page),kept,'a failed export leaves no temporary files');
+   await page.getByRole('button',{name:'Retry tone.wav',exact:true}).click();await page.getByRole('link',{name:/Download exported audio/}).waitFor();await page.unroute('**/htdemucs_fp16.onnx');
+   pass('a short model download is refused before use and retry recovers');
+   await setup(page,instrumental,'voice');kept=await stores(page);await page.getByRole('button',{name:'Export',exact:true}).click();
+   await page.getByText(/Separating 2 \/ \d+/).first().waitFor();await page.screenshot({path:`${evidence}/app-cancel-before.png`,fullPage:true});
+   const cancelAt=Date.now();await page.getByRole('button',{name:'Cancel instrumental.ogg',exact:true}).click();
+   await page.getByText('Cancelled',{exact:true}).waitFor();const cancelMs=Date.now()-cancelAt;
+   assert.equal(await page.evaluate(()=>window.__activeModels),0,'cancel terminates the model worker');
+   await page.waitForFunction(async kept=>{const directory=await(await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1',{create:true});let count=0;for await(const entry of directory.values())count++;return count===kept;},kept);
+   assert.equal(await page.getByRole('link',{name:/Download exported audio/}).count(),0);
+   await page.screenshot({path:`${evidence}/app-cancel-after.png`,fullPage:true});
+   pass('cancel mid-separation stops the model worker and leaves no temporary files',{cancelMs});
+   const longSeconds=Number(process.env.ISOLATION_LONG_SECONDS??0);
+   if(longSeconds){
+    const long=`${outputs}/long-${longSeconds}s.wav`;
+    execFileSync(ffmpeg,['-v','error','-y','-stream_loop','-1','-i',instrumental,'-t',String(longSeconds),'-ar','44100','-ac','2','-c:a','pcm_s16le',long]);
+    await setup(page,long,'music');const baseline=ownedRss();let peak=baseline;const sampler=setInterval(()=>{peak=Math.max(peak,ownedRss());},500);
+    const started=Date.now();let path;try{path=await exportAndDownload(page,'long',`gpu-long-${longSeconds}s`,null);}finally{clearInterval(sampler);}
+    const elapsedMs=Date.now()-started,output=verifyOutput(path,long,'long'),stats=await page.evaluate(()=>window.__stats.at(-1));
+    record.long={seconds:longSeconds,elapsedMs,windows:stats.isolationWindows,maxIsolationFrames:stats.maxIsolationFrames,backends:stats.isolationBackends,baselineOwnedRssMiB:Math.round(baseline/2**20),peakOwnedRssMiB:Math.round(peak/2**20),peakIncreaseMiB:Math.round((peak-baseline)/2**20),output};
+    pass(`GPU ${longSeconds} s export with sampled browser memory`,record.long);
+   }
+   const foreign=requests.filter(url=>!url.startsWith('http://127.0.0.1')&&!url.startsWith('blob:')&&!url.startsWith('data:'));
+   assert.deepEqual(foreign,[],'no third-party requests');assert.deepEqual(errors,[]);pass('no third-party requests and no page errors');
+  }finally{await browser.close();}
+ }
+ {
+  const {browser,page,errors}=await open(['--disable-gpu','--disable-software-rasterizer']);
+  try{
+   assert.equal(await page.evaluate(async()=>!!(await navigator.gpu?.requestAdapter().catch(()=>null))),false,'this launch has no WebGPU adapter');
+   await setup(page,tone,'music');
+   const note=await page.locator('[data-isolation-device]').innerText();assert.match(note,/on the CPU, slower than real time/);assert.match(note,/85 MB/);
+   await page.screenshot({path:`${evidence}/app-cpu-editor.png`,fullPage:true});
+   const started=Date.now(),path=await exportAndDownload(page,'tone.wav','cpu-music',null),elapsedMs=Date.now()-started,output=verifyOutput(path,tone,'cpu music');
+   const stats=await page.evaluate(()=>window.__stats.at(-1));assert.deepEqual(stats.isolationBackends,['wasm']);
+   assert.deepEqual(await page.evaluate(()=>window.__devices),['CPU'],'device label is CPU throughout');
+   await page.getByText('Separated with Demucs on the CPU.',{exact:true}).waitFor();await page.screenshot({path:`${evidence}/app-cpu-done.png`,fullPage:true});
+   assert.deepEqual(errors,[]);record.runs.push({device:'cpu',keep:'music',input:'tone.wav',elapsedMs,output,stats});
+   pass('without WebGPU the editor warns, isolation runs on CPU and is labelled CPU',{elapsedMs,note});
+  }finally{await browser.close();}
+ }
+}catch(error){failed=true;record.error=String(error?.stack??error);console.error(error);}
+finally{await server.close();await writeFile(`${evidence}/app-check.json`,JSON.stringify(record,null,2)+'\n');}
+assert(!failed,'Demucs app check failed');

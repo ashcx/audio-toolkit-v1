@@ -52,14 +52,15 @@ Sprints 1–26 are merged, and the app runs live at the link above.
 - Batch processing with cancellation, retry and per-file fault isolation
 - Preview of the actual processed output
 - Individual downloads, stored ZIP and folder saving
-- Voice/music isolation (two stems) and speech cleanup
+- Voice/music isolation (two stems, HTDemucs v4 on WebGPU, slower CPU fallback) and speech cleanup
 
 ## What is not done yet
 
 - **Real-device testing.** Automated checks cover Linux Chromium and Playwright WebKit only. Branded Chrome on macOS, Safari on iPhone and iPad, and Android are not verified.
 - **Listening acceptance.** Isolation and loudness quality has not been signed off by ear.
 - **Firefox is unsupported.**
-- **Sprints 27–29 are planned, not built:** browser Demucs v4 performance, four-stem export, and waveform playback with per-track trimming.
+- **Sprint 27 is implemented on its branch, not merged.** Demucs replaced SCNet. Its separation quality has not been judged by ear, and the model weights' license is unresolved.
+- **Sprints 28–29 are planned, not built:** four-stem export and waveform playback with per-track trimming.
 - **Long files and huge batches** are measured only for specific synthetic workloads, not proven in general.
 
 [TODO.md](TODO.md) tracks sprint-by-sprint status and every open gate.
