@@ -98,6 +98,18 @@ export function FileRow({
     ? copy.result.playOlder(entry.file.name)
     : copy.result.play(entry.file.name);
   const failedAction = exported?.kind === "failed" ? actionFor(exported.code) : null;
+  const spoken = !exported ? ""
+    : exported.kind === "waiting" ? copy.files.waiting
+    : exported.kind === "running" ? copy.progress.stage(exported.operation)
+    : exported.kind === "cancelling" ? copy.files.cancelling.replace("…", "")
+    : exported.kind === "cancelled" ? copy.files.cancelled
+    : exported.kind === "failed" ? exported.message
+    : note ? `${copy.files.done}. ${note}` : copy.files.done;
+  const previewSpoken = !preview ? ""
+    : preview.kind === "running" ? copy.preview.announceRunning(entry.file.name)
+    : preview.kind === "ready" ? copy.preview.announceReady(entry.file.name)
+    : preview.kind === "cancelling" ? copy.preview.cancelling
+    : preview.kind === "failed" || (preview.kind === "cleanup" && preview.attempts >= 2) ? preview.message : "";
   return (
     <li data-file-id={entry.id} data-inspection={entry.inspection.kind} data-job-state={exported?.kind}>
       <span class="file-name" title={entry.file.name}>
@@ -146,6 +158,7 @@ export function FileRow({
           ×
         </button>
       </div>
+      <span class="sr-only" role="status">{[spoken && copy.files.announce(entry.file.name, spoken), previewSpoken].filter(Boolean).join(" ")}</span>
       {entry.inspection.kind === "ready" && !preview && <SourcePlayer entry={entry} collapsed={exported?.kind === "done"} />}
       {preview && <div class="file-preview" data-preview-state={preview.kind}>
         {preview.kind === "ready" ? <>
@@ -155,15 +168,15 @@ export function FileRow({
           <label>{copy.preview.after}<audio controls preload="none" src={preview.processed} aria-label={copy.preview.afterLabel(entry.file.name)} onPlay={pauseOthers} /></label>
           <button type="button" onClick={onClearPreview}>{copy.preview.close}</button>
         </> : preview.kind === "running" ? <>
-          <span role="status">{copy.progress.preview(preview.operation)}</span>
+          <span>{copy.progress.preview(preview.operation)}</span>
           <button type="button" onClick={onClearPreview}>{copy.preview.cancel}</button>
         </> : preview.kind === "cleanup" ? preview.attempts >= 2 && <>
-          <span role="status">{preview.message}</span><button type="button" onClick={onClearPreview}>{copy.actions["try-again"]}</button>
-        </> : preview.kind === "failed" ? <span role="status">{preview.message}</span>
-          : preview.kind === "cancelling" ? <span role="status">{copy.preview.cancelling}</span> : null}
+          <span>{preview.message}</span><button type="button" onClick={onClearPreview}>{copy.actions["try-again"]}</button>
+        </> : preview.kind === "failed" ? <span>{preview.message}</span>
+          : preview.kind === "cancelling" ? <span>{copy.preview.cancelling}</span> : null}
       </div>}
       {exported && (
-        <div class="file-result" role="status">
+        <div class="file-result">
           {exported.kind === "waiting" || exported.kind === "running" || exported.kind === "cancelling" ? (
             <>
               <progress aria-label={copy.files.progressLabel(entry.file.name)} {...progress} />

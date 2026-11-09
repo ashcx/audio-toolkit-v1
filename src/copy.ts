@@ -300,6 +300,9 @@ export const copy = {
     retry: "Retry",
     cancel: "Cancel",
     remove: "Remove",
+    /** What a screen reader says about one file. It names the file and the stage, never a counter, so it changes only when the stage does. */
+    announce: (name: string, text: string) => `${name}, ${text}`,
+    done: "done",
     removeLabel: (name: string) => `Remove ${name}`,
     cancelLabel: (name: string) => `Cancel ${name}`,
     retryLabel: (name: string) => `Retry ${name}`,
@@ -334,6 +337,8 @@ export const copy = {
     close: "Close preview",
     cancel: "Cancel preview",
     cancelling: "Cancelling preview…",
+    announceRunning: (name: string) => `Previewing ${name}`,
+    announceReady: (name: string) => `Preview ready for ${name}`,
     buttonLabel: (name: string, seconds: number | null) => (seconds === null ? `Preview ${name}` : `Preview ${seconds} s of ${name}`),
     beforeLabel: (name: string) => `Before preview ${name}`,
     afterLabel: (name: string) => `After preview ${name}`,
@@ -357,6 +362,14 @@ export const copy = {
   copyNeedsEncoding: (step: string) => `${step} needs a format other than Keep original. Choose another format.`,
   progress: {
     phase: (phase: JobPhase) => STAGE_BY_PHASE[phase],
+    /** The stage alone, with no percent or MB, for the one line a screen reader speaks per stage change. */
+    stage(operation: JobOperation): string {
+      switch (operation.kind) {
+        case "phase": return operation.phase === "Separating" ? "Separating voice and music" : STAGE_BY_PHASE[operation.phase].replace("…", "");
+        case "model-download": return "Downloading model";
+        case "isolation-progress": return "Separating voice and music";
+      }
+    },
     /** One line for a running export. Counters are percent or MB, never internal units. */
     label(operation: JobOperation): string {
       switch (operation.kind) {

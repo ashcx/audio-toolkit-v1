@@ -15,3 +15,10 @@ test('builder cleanup failures remain recoverable, disposal cancels and releases
  let recovered=0;const archive=new Archive(async()=>{throw new CleanupFailure(async()=>{recovered++;});});archive.start([new File(['x'],'x')]);await tick();assert.equal(archive.state.kind,'cleanup');await archive.clear();assert.equal(recovered,1);
  const f=fixture();f.archive.start([f.output.file]);await tick();f.archive.dispose();f.finish();await tick();assert.equal(f.releases,1);assert.equal(f.archive.state.kind,'idle');
 });
+test('clearing an archive that holds nothing shows no Finishing state, and a failed zip is still cleared',async()=>{
+ const f=fixture(),seen=[];f.archive.subscribe(state=>seen.push(state.kind));
+ await f.archive.clear();assert.deepEqual(seen,[]);
+ const broken=new Archive(async()=>{throw new Error('boom');});const kinds=[];broken.subscribe(state=>kinds.push(state.kind));
+ broken.start([new File(['x'],'x')]);await tick();assert.equal(broken.state.kind,'failed');
+ await broken.clear();assert.equal(broken.state.kind,'idle');assert(kinds.includes('releasing'));
+});

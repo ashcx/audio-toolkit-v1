@@ -72,6 +72,7 @@ export class Archive {
   cancel() { if (this.active) { this.active.controller.abort(); this.set({ kind: "cancelling" }); } }
   clear(): Promise<void> {
     if (this.clearing) return this.clearing;
+    if (this.state.kind === "idle" && !this.active && !this.output && !this.url && !this.cleanup) return Promise.resolve();
     this.cancel();
     const pending = this.active?.done;
     let finish!: () => void;

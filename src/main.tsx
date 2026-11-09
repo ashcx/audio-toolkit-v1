@@ -323,7 +323,7 @@ function App() {
               <span>{messageFor("storage-stuck")}</span>
               <button ref={cleanupButton} type="button" class="text-button" disabled={locked} onClick={() => {pendingResultFocus.current=true;void exports.retryCleanup();}}>{copy.actions["try-again"]}</button>
             </>}
-            {exportText && <span class="run-count">{exportText}</span>}
+            {exportText && <span class="run-count" aria-hidden="true">{exportText}</span>}
             {exports.busy && <button type="button" class="text-button" onClick={exports.cancelAll}>{copy.export.cancelAll}</button>}
             {!workLocked && exports.cleanupCount === 0 && [...exports.jobs.values()].some(job => job.state.kind === "failed") &&
               <button type="button" class="text-button" onClick={() => exports.retry()}>{copy.export.retryFailed}</button>}

@@ -54,6 +54,9 @@ test('no copy string or formatter output contains a banned term', () => {
     copy.progress.label({ kind: 'model-download', loaded: 12_582_912, total: 85_034_606 }),
     copy.progress.label({ kind: 'isolation-progress', completed: 2, total: 5 }),
     copy.progress.preview({ kind: 'isolation-progress', completed: 2, total: 5 }),
+    copy.progress.stage({ kind: 'model-download', loaded: 1, total: 85_034_606 }), copy.progress.stage({ kind: 'isolation-progress', completed: 1, total: 4 }),
+    copy.progress.stage({ kind: 'phase', phase: 'Encoding' }), copy.files.announce('a.wav', copy.files.done),
+    copy.preview.announceRunning('a.wav'), copy.preview.announceReady('a.wav'),
   ];
   for (const text of samples) {
     assert.notEqual(text.trim(), '', 'copy strings are never empty');
@@ -86,6 +89,18 @@ test('progress labels follow the staged wording and show percent or MB, never in
   assert.equal(label({ kind: 'isolation-progress', completed: 0, total: 0 }), 'Separating voice and music, 0%');
   assert.equal(copy.progress.preview({ kind: 'isolation-progress', completed: 2, total: 5 }), 'Previewing\u2026 40%');
   assert.equal(copy.progress.preview({ kind: 'phase', phase: 'Decoding' }), 'Previewing\u2026');
+});
+
+test('what a screen reader says during a run names the stage and never carries a counter', () => {
+  const stage = operation => copy.progress.stage(operation);
+  assert.equal(stage({ kind: 'model-download', loaded: 1_000_000, total: 85_034_606 }), stage({ kind: 'model-download', loaded: 80_000_000, total: 85_034_606 }));
+  assert.equal(stage({ kind: 'isolation-progress', completed: 0, total: 4 }), stage({ kind: 'isolation-progress', completed: 3, total: 4 }));
+  assert.equal(stage({ kind: 'model-download', loaded: 1, total: 85_034_606 }), 'Downloading model');
+  assert.equal(stage({ kind: 'isolation-progress', completed: 2, total: 5 }), 'Separating voice and music');
+  assert.equal(stage({ kind: 'phase', phase: 'Separating' }), stage({ kind: 'isolation-progress', completed: 1, total: 4 }));
+  assert.equal(stage({ kind: 'phase', phase: 'Decoding' }), 'Preparing');
+  assert.equal(stage({ kind: 'phase', phase: 'Encoding' }), 'Saving');
+  assert.equal(copy.files.announce('clip-1.wav', stage({ kind: 'phase', phase: 'Processing' })), 'clip-1.wav, Processing');
 });
 
 test('summaries use plain wording and true minus signs', () => {
