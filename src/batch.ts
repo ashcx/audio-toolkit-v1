@@ -1,4 +1,4 @@
-import type { JobEvent, JobOperation, IsolationDevice } from "./job-events";
+import type { JobOperation } from "./job-events";
 import { cleanupAll, CleanupFailure } from "./cleanup.ts";
 import { GENERIC_ERROR, failure, failureOf, type Failure } from "./errors.ts";
 import type { FileEntry, FileId } from "./media";
@@ -24,11 +24,11 @@ export type JobState =
   | { kind: "cancelled" }
   | ({ kind: "failed" } & Failure)
   | ({ kind: "done"; url: string } & JobOutput);
-type OwnedJob = { readonly spec: JobSpec; state: JobState; ready: Promise<void>; device: IsolationDevice | null };
-export type BatchJob = Readonly<Pick<OwnedJob, "spec" | "state" | "device">>;
+type OwnedJob = { readonly spec: JobSpec; state: JobState; ready: Promise<void> };
+export type BatchJob = Readonly<Pick<OwnedJob, "spec" | "state">>;
 /** `cleanupStuck` is true once a retry has also failed, which is when the interface should say so. */
 export type BatchSnapshot = { jobs: ReadonlyMap<FileId, BatchJob>; busy: boolean; cleanupCount: number; cleanupStuck: boolean; cleaning: boolean };
-export type JobRunner = (spec: JobSpec, signal: AbortSignal, phase: (value: JobEvent) => void) => Promise<JobOutput>;
+export type JobRunner = (spec: JobSpec, signal: AbortSignal, phase: (value: JobOperation) => void) => Promise<JobOutput>;
 
 export function batchConcurrency(capabilities: {
   cores: number;
@@ -91,7 +91,7 @@ export class Batch {
       void ready.catch(() => undefined);
       const extension = input.plan.kind === "copy" ? input.plan.target.container : exportDescriptor(input.plan.snapshot.recipe.export).extension;
       const name = outputName(input.entry.file.name, extension, names);
-      this.jobs.set(input.entry.id, { spec: Object.freeze({ ...input, name }), state: { kind: "waiting" }, ready, device: null });
+      this.jobs.set(input.entry.id, { spec: Object.freeze({ ...input, name }), state: { kind: "waiting" }, ready });
     }
     this.pump();
   }
@@ -162,7 +162,6 @@ export class Batch {
         const isolation = job.spec.plan.kind === "pcm" && job.spec.plan.steps.some(step => (step.kind === "isolation" || step.kind === "speech"));
         if (isolation && this.occupied > 0) continue;
         this.isolating = isolation;
-        job.device = null;
         const attempt = { controller: new AbortController() };
         job.state = { kind: "running", attempt, operation: { kind: "phase", phase: "Preparing" } };
         this.occupied++;
@@ -180,8 +179,7 @@ export class Batch {
       signal.throwIfAborted();
       const completed = await this.runner(job.spec, signal, operation => {
         if (current() && !signal.aborted) {
-          if (operation.kind === "isolation-device") job.device = operation.device;
-          else job.state = { kind: "running", attempt, operation };
+          job.state = { kind: "running", attempt, operation };
           this.emit();
         }
       });

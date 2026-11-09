@@ -5,16 +5,10 @@ import { resolveTrim, type TrimRangeDraft } from "./recipe";
 import { fileMetadata, showsPreview } from "./file-summary";
 import type { ExecutionPlan } from "./planner";
 import type { BatchJob } from "./batch";
-import type { JobOperation, IsolationDevice } from "./job-events";
+import type { JobOperation } from "./job-events";
 import type { PreviewState } from "./preview";
 import type { InferenceBackend } from "./inference/protocol";
 const LEVEL_CHANGING = new Set(["gain", "compress", "channels", "isolation", "speech", "normalize"]);
-const DEVICES: Record<IsolationDevice, { label: string; description: string }> = {
-  "preparing-gpu": { label: "Trying GPU", description: "Checking GPU-assisted separation. Processing has not succeeded yet." },
-  gpu: { label: "GPU + CPU", description: "The model issued GPU work. Some steps still run on the CPU." },
-  cpu: { label: "CPU", description: "Separation is running on the CPU, which is slower than real time." },
-  "cpu-fallback": { label: "CPU · switched from GPU", description: "GPU processing failed or stopped responding. Separation switched to CPU mode." },
-};
 function separationDevice(backends: readonly InferenceBackend[]) {
   if (backends.length > 1) return "the GPU, then the CPU after a GPU failure";
   return backends[0] === "webgpu+wasm" ? "the GPU" : "the CPU";
@@ -174,7 +168,7 @@ export function FileRow({
           <label>Processed preview<audio controls preload="none" src={preview.processed} aria-label={`Processed preview ${entry.file.name}`} onPlay={pauseOthers} /></label>
           <button type="button" onClick={onClearPreview}>Close preview</button>
         </> : preview.kind === "running" ? <>
-          <span role="status">Preview · {preview.stage === "original" ? "Preparing original" : "Processing excerpt"} · {preview.operation.kind === "isolation-device" ? DEVICES[preview.operation.device].label : operationLabel(preview.operation)}</span>
+          <span role="status">Preview · {preview.stage === "original" ? "Preparing original" : "Processing excerpt"} · {operationLabel(preview.operation)}</span>
           <button type="button" onClick={onClearPreview}>Cancel preview</button>
         </> : preview.kind === "cleanup" ? <>
           <span role="status">{preview.message}</span><button type="button" onClick={onClearPreview}>Retry preview cleanup</button>
@@ -182,7 +176,6 @@ export function FileRow({
       </div>}
       {exported && (
         <div class="file-result" role="status">
-          {job?.device && exported.kind === "running" && <span class="device-badge" aria-label="Separation processor" title={DEVICES[job.device].description}>{DEVICES[job.device].label}</span>}
           {exported.kind === "waiting" || exported.kind === "running" || exported.kind === "cancelling" ? (
             <>
               <progress aria-label={`Export ${entry.file.name}`} {...progress} />

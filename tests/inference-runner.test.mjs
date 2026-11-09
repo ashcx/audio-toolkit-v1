@@ -5,7 +5,7 @@ const tick=()=>new Promise(resolve=>setImmediate(resolve));
 function fakeWorkers(){const previous=globalThis.Worker,workers=[];globalThis.Worker=class{constructor(){this.stopped=false;this.inputs=[];workers.push(this);}postMessage(data){this.input=data;this.inputs.push(data);}terminate(){this.stopped=true;}reply(data){this.onmessage({data});}};return{workers,restore:()=>{if(previous)globalThis.Worker=previous;else delete globalThis.Worker;}};}
 const stems=planes=>[0,1,2,3].map(()=>planes.map(plane=>new Float32Array(plane)));
 const done=(planes,backend,gpuDispatches=backend==='wasm'?0:1363)=>({kind:'done',stems:stems(planes),backend,gpuDispatches});
-const lastDevice=events=>events.filter(event=>event.kind==='isolation-device').at(-1)?.device;
+const PROGRESS_KINDS=new Set(['phase','model-download','isolation-progress']);
 
 test('one worker and session serve every window of a job until it stops',async()=>{
  const fixture=fakeWorkers();try{
@@ -22,9 +22,9 @@ test('a GPU session or run failure closes its worker before one sticky CPU retry
   const pending=runner.run(planes,event=>events.push(event));fixture.workers[0].reply({kind:'error',stage,backend:'webgpu+wasm',code:'split-failed'});await tick();
   assert.equal(fixture.workers[0].stopped,true);assert.equal(fixture.workers[1].input.backend,'wasm');assert.deepEqual(fixture.workers[1].input.planes,planes);
   fixture.workers[1].reply({kind:'backend',backend:'wasm'});fixture.workers[1].reply(done(planes,'wasm'));
-  const result=await pending;assert.equal(result.backend,'wasm');assert.equal(result.loads,2,'the failed GPU worker and the CPU worker each loaded once');assert.equal(lastDevice(events),'cpu-fallback');
+  const result=await pending;assert.equal(result.backend,'wasm');assert.equal(result.loads,2,'the failed GPU worker and the CPU worker each loaded once');assert.ok(events.every(event=>PROGRESS_KINDS.has(event.kind)),'a fallback adds no event beyond progress');
   const next=runner.run(planes,event=>events.push(event));assert.equal(fixture.workers.length,2,'the CPU worker is kept');assert.equal(fixture.workers[1].input.backend,'wasm');
-  fixture.workers[1].reply(done(planes,'wasm'));assert.equal((await next).backend,'wasm');assert.equal(lastDevice(events),'cpu-fallback');runner.stop();
+  fixture.workers[1].reply(done(planes,'wasm'));assert.equal((await next).backend,'wasm');runner.stop();
  }finally{fixture.restore();}}
 });
 test('cancellation between GPU rejection and fallback cannot launch another worker',async()=>{
@@ -33,13 +33,13 @@ test('cancellation between GPU rejection and fallback cannot launch another work
 test('model download or verification errors do not retry on CPU',async()=>{
  const fixture=fakeWorkers();try{const runner=new InferenceRunner(),pending=runner.run([new Float32Array([.1])],()=>{});fixture.workers[0].reply({kind:'error',stage:'model',backend:'webgpu+wasm',code:'model-damaged'});await assert.rejects(pending,{code:'model-damaged'});assert.equal(fixture.workers.length,1);assert.equal(fixture.workers[0].stopped,true);runner.stop();}finally{fixture.restore();}
 });
-test('the GPU label needs GPU dispatches; a WebGPU session that ran on CPU is reported as CPU',async()=>{
- for(const [dispatches,device,backend] of [[1363,'gpu','webgpu+wasm'],[0,'cpu','wasm']]){const fixture=fakeWorkers();try{
+test('a WebGPU session counts as GPU only when it dispatched GPU work, and progress events stay free of device state',async()=>{
+ for(const [dispatches,backend] of [[1363,'webgpu+wasm'],[0,'wasm']]){const fixture=fakeWorkers();try{
   const runner=new InferenceRunner(),planes=[new Float32Array([.1])],events=[];
-  const pending=runner.run(planes,event=>events.push(event));fixture.workers[0].reply({kind:'backend',backend:'webgpu+wasm'});assert.equal(lastDevice(events),'preparing-gpu');
-  fixture.workers[0].reply(done(planes,'webgpu+wasm',dispatches));const result=await pending;assert.equal(lastDevice(events),device);assert.equal(result.backend,backend);runner.stop();
+  const pending=runner.run(planes,event=>events.push(event));fixture.workers[0].reply({kind:'backend',backend:'webgpu+wasm'});fixture.workers[0].reply({kind:'phase',phase:'Separating'});
+  fixture.workers[0].reply(done(planes,'webgpu+wasm',dispatches));const result=await pending;assert.equal(result.backend,backend);assert.deepEqual(events,[{kind:'phase',phase:'Loading isolation tools'},{kind:'phase',phase:'Separating'}]);runner.stop();
  }finally{fixture.restore();}}
- const fixture=fakeWorkers();try{const runner=new InferenceRunner(),planes=[new Float32Array([.1])],events=[];const pending=runner.run(planes,event=>events.push(event));fixture.workers[0].reply({kind:'backend',backend:'wasm'});fixture.workers[0].reply(done(planes,'wasm'));await pending;assert.equal(lastDevice(events),'cpu');runner.stop();}finally{fixture.restore();}
+ const fixture=fakeWorkers();try{const runner=new InferenceRunner(),planes=[new Float32Array([.1])],events=[];const pending=runner.run(planes,event=>events.push(event));fixture.workers[0].reply({kind:'backend',backend:'wasm'});fixture.workers[0].reply(done(planes,'wasm'));assert.equal((await pending).backend,'wasm');assert.deepEqual(events,[{kind:'phase',phase:'Loading isolation tools'}]);runner.stop();}finally{fixture.restore();}
 });
 test('a stalled download, session or window terminates once, and download progress keeps a slow download alive',async t=>{
  t.mock.timers.enable({apis:['setTimeout']});
@@ -52,7 +52,7 @@ test('a stalled download, session or window terminates once, and download progre
  }finally{fixture.restore();}
  const gpu=fakeWorkers();try{
   const runner=new InferenceRunner(),planes=[new Float32Array([.1])],events=[],pending=runner.run(planes,event=>events.push(event));gpu.workers[0].reply({kind:'backend',backend:'webgpu+wasm'});gpu.workers[0].reply({kind:'phase',phase:'Loading model'});t.mock.timers.tick(LOAD_WATCHDOG_MS);await tick();
-  assert.equal(gpu.workers[0].stopped,true);assert.equal(gpu.workers[1].input.backend,'wasm','a stalled GPU session falls back to CPU');gpu.workers[1].reply(done(planes,'wasm'));assert.equal((await pending).backend,'wasm');assert.equal(lastDevice(events),'cpu-fallback');runner.stop();
+  assert.equal(gpu.workers[0].stopped,true);assert.equal(gpu.workers[1].input.backend,'wasm','a stalled GPU session falls back to CPU');gpu.workers[1].reply(done(planes,'wasm'));assert.equal((await pending).backend,'wasm');runner.stop();
  }finally{gpu.restore();}
 });
 test('cancellation from a progress callback cannot start work afterward',async()=>{

@@ -1,5 +1,5 @@
 import type { ErrorCode } from "../errors.ts";
-import type { JobEvent } from "../job-events";
+import type { JobOperation } from "../job-events";
 import type { Stems } from "./demucs-model";
 export type InferenceBackend = "wasm" | "webgpu+wasm";
 export type InferenceInput = {
@@ -7,7 +7,7 @@ export type InferenceInput = {
   backend: "auto" | "wasm";
 };
 export type InferenceResult =
-  | Extract<JobEvent, { kind: "phase" | "model-download" }>
+  | Extract<JobOperation, { kind: "phase" | "model-download" }>
   | { kind: "backend"; backend: InferenceBackend }
   | { kind: "done"; stems: Stems; backend: InferenceBackend; gpuDispatches: number }
   | { kind: "error"; code: ErrorCode; stage: "model" | "session" | "run"; backend: InferenceBackend };

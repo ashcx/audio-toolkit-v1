@@ -1,7 +1,7 @@
 import { InferenceRunner } from "./inference/runner";
 import { cleanupAll } from "./cleanup";
 import { UserFacingError, failureOf } from "./errors.ts";
-import type { JobEvent } from "./job-events";
+import type { JobOperation } from "./job-events";
 import { createOutputStore, type StoredOutput } from "./output-store";
 import type {
   DspStats,
@@ -21,7 +21,7 @@ export function processAudio(
   plan: PcmPlan,
   signal: AbortSignal,
   name: string,
-  phase: (value: JobEvent) => void = () => undefined,
+  phase: (value: JobOperation) => void = () => undefined,
 ): Promise<ProcessedOutput> {
   signal.throwIfAborted();
   return new Promise((resolve, reject) => {
@@ -88,7 +88,7 @@ export function processAudio(
         isolating = false;phase(data);
       }
       else if (data.kind === "inference") {
-        inferenceTask = inference.run(data.planes, value => { if (value.kind === "isolation-device" || !isolating) phase(value); }).then(
+        inferenceTask = inference.run(data.planes, value => { if (!isolating) phase(value); }).then(
           reply => { if (!settled) worker.postMessage({ kind: "inference", sequence: data.sequence, reply } satisfies WorkerInput, reply.stems.flat().map(plane => plane.buffer)); },
           error => { if (!settled) worker.postMessage({ kind: "inference", sequence: data.sequence, reply: { kind: "error", code: failureOf(error, "split-failed").code } } satisfies WorkerInput); },
         );

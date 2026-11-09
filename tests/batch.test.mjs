@@ -83,11 +83,15 @@ for(const kind of ['isolation','speech'])test(`${kind} has an exclusive slot and
  const {batch,calls,finish}=harness(2);const a=spec('a.wav',[newStep(kind)]),b=spec('b.wav',[newStep(kind)]),c=spec('c.wav');
  batch.start([a,b,c]);await tick();assert.equal(calls.length,1);assert.equal(calls[0].job.entry.id,a.entry.id);batch.cancel(a.entry.id);assert.equal(calls.length,1);finish(0);await tick();assert.equal(calls.length,2);assert.equal(calls[1].job.entry.id,b.entry.id);finish(1);await tick();assert.equal(calls.length,3);assert.equal(calls[2].job.entry.id,c.entry.id);finish(2);await tick();batch.dispose();
 });
-test('device metadata preserves progress and completion but resets for each new export and retry',async()=>{
- const {batch,calls,finish}=harness();const item=spec('device.wav',[newStep('isolation')]);batch.start([item]);await tick();const id=item.entry.id;
- calls[0].phase({kind:'isolation-progress',completed:2,total:5});calls[0].phase({kind:'isolation-device',device:'gpu'});assert.deepEqual(batch.snapshot.jobs.get(id).state.operation,{kind:'isolation-progress',completed:2,total:5});
- calls[0].phase({kind:'isolation-device',device:'cpu-fallback'});finish(0);await tick();assert.equal(batch.snapshot.jobs.get(id).device,'cpu-fallback');
- batch.start([item]);await tick();assert.equal(calls.length,2);assert.equal(batch.snapshot.jobs.get(id).device,null);calls[1].phase({kind:'isolation-device',device:'cpu'});batch.cancel(id);calls[1].phase({kind:'isolation-device',device:'gpu'});assert.equal(batch.snapshot.jobs.get(id).device,'cpu');finish(1);await tick();batch.retry(id);await tick();assert.equal(batch.snapshot.jobs.get(id).device,null);finish(2);await tick();batch.dispose();
+test('a running job shows its latest progress and ignores progress after cancel, and a retry starts clean',async()=>{
+ const {batch,calls,finish}=harness();const item=spec('progress.wav',[newStep('isolation')]);batch.start([item]);await tick();const id=item.entry.id;
+ calls[0].phase({kind:'model-download',loaded:10,total:85});calls[0].phase({kind:'isolation-progress',completed:2,total:5});
+ assert.deepEqual(batch.snapshot.jobs.get(id).state.operation,{kind:'isolation-progress',completed:2,total:5});
+ finish(0);await tick();assert.equal(batch.snapshot.jobs.get(id).state.kind,'done');
+ batch.start([item]);await tick();assert.equal(calls.length,2);assert.deepEqual(batch.snapshot.jobs.get(id).state.operation,{kind:'phase',phase:'Preparing'});
+ calls[1].phase({kind:'isolation-progress',completed:1,total:5});batch.cancel(id);calls[1].phase({kind:'isolation-progress',completed:4,total:5});
+ assert.equal(batch.snapshot.jobs.get(id).state.kind,'cancelling');finish(1);await tick();assert.equal(batch.snapshot.jobs.get(id).state.kind,'cancelled');
+ batch.retry(id);await tick();assert.equal(calls.length,3);assert.deepEqual(batch.snapshot.jobs.get(id).state.operation,{kind:'phase',phase:'Preparing'});finish(2);await tick();batch.dispose();
 });
 test('Export always processes requested current specs and releases the prior result',async()=>{
  const {batch,calls,released,finish}=harness();const item=spec();batch.start([item]);await tick();finish(0);await tick();batch.start([item]);await tick();assert.equal(calls.length,2);assert.equal(released.length,1);finish(1);await tick();batch.dispose();

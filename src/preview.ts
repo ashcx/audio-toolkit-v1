@@ -1,6 +1,6 @@
 import type { FileEntry, FileId } from "./media.ts";
 import type { EffectiveRecipe } from "./recipe.ts";
-import type { JobEvent } from "./job-events.ts";
+import type { JobOperation } from "./job-events.ts";
 import type { StoredOutput } from "./output-store.ts";
 import type { processAudio } from "./process-audio.ts";
 import type { DspStats } from "./pcm/protocol.ts";
@@ -8,7 +8,7 @@ import { previewPlans, type PreviewRange } from "./preview-plan.ts";
 import { UserFacingError, failure, failureOf, type Failure } from "./errors.ts";
 export type PreviewState =
   | { kind: "idle" }
-  | { kind: "running"; fileId: FileId; operation: JobEvent; stage: "original" | "processed" }
+  | { kind: "running"; fileId: FileId; operation: JobOperation; stage: "original" | "processed" }
   | { kind: "cancelling" | "releasing"; fileId: FileId }
   | ({ kind: "failed"; fileId: FileId } & Failure)
   | ({ kind: "cleanup"; fileId: FileId; attempts: number } & Failure)

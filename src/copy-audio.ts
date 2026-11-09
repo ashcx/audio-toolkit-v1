@@ -1,6 +1,6 @@
 import { UserFacingError } from "./errors.ts";
 import { cleanupAll } from "./cleanup";
-import type { JobEvent, JobPhase } from "./job-events";
+import type { JobOperation, JobPhase } from "./job-events";
 import {
   ALL_FORMATS,
   Mp3InputFormat,
@@ -46,7 +46,7 @@ export async function copyAudio(
   plan: CopyPlan,
   signal: AbortSignal,
   name: string,
-  event: (value: JobEvent) => void = () => undefined,
+  event: (value: JobOperation) => void = () => undefined,
 ): Promise<StoredOutput> {
   signal.throwIfAborted();
   const phase = (value: JobPhase) => event({ kind: "phase", phase: value });

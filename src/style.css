@@ -78,7 +78,6 @@ p { margin: 0; }
 .playback summary { min-height: 44px; display: flex; align-items: center; padding: 8px 12px; cursor: pointer; border-radius: 8px; }
 .playback[open] { flex-basis: 100%; }
 .playback audio { width: 100%; margin-top: 8px; display: block; }
-.device-badge { padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 11px; }
 .recipe-lock { margin: 0; padding: 0; border: 0; min-width: 0; }
 .recipe-lock:disabled .recipe-panel { opacity: .75; }
 .recipe-panel .panel-heading select { max-width: 150px; font-size: 12px; }
