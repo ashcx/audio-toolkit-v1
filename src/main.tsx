@@ -308,7 +308,7 @@ function App() {
             {folder.state.kind === "failed" && <span>{folder.state.message}</span>}
             {folder.state.kind === "result" && <div class="folder-report">
               <p>{copy.delivery.folderResult({ saved: folder.state.report.saved.length, failed: folder.state.report.failed.length, folder: folder.state.report.folder, cancelled: folder.state.report.cancelled })}</p>
-              {folder.state.report.failed.filter(item => item.message !== messageFor("folder-cancelled")).map(item => <p>{item.message}</p>)}
+              {folder.state.report.failed.filter(item => item.code !== "folder-cancelled").map(item => <p>{item.message}</p>)}
             </div>}
             {archive.state.kind === "building" && <>
               <progress aria-label={copy.delivery.zipProgress} value={archive.state.progress.loaded} max={archive.state.progress.total || 1} />

@@ -52,14 +52,14 @@ test('unsafe or duplicate output basenames never create destination files',async
 test('partial failures are isolated, partial files removed, later outputs saved',async()=>{
  const root=directory('chosen',{fail:name=>name==='bad.wav'});
  const report=await saveFilesToFolder([new File(['a'],'good.wav'),new File(['b'],'bad.wav'),new File(['c'],'last.wav')],root,new AbortController().signal,()=>{});
- assert.deepEqual(report.saved,['good.wav','last.wav']);assert.equal(report.failed[0].message,'Not enough space on that drive.');assert.equal(report.remaining,0);
+ assert.deepEqual(report.saved,['good.wav','last.wav']);assert.equal(report.failed[0].code,'folder-no-space');assert.equal(report.failed[0].message,'Not enough space on that drive.');assert.equal(report.remaining,0);
  const child=root.entries.get(report.folder.split('/')[1]);assert.equal(child.entries.has('bad.wav'),false);
 });
 test('permission and close failures preserve original files and identify cleanup failures',async()=>{
  for(const options of [{deny:()=>true},{closeFail:()=>true}]){
   const root=directory('chosen',{...options,removeFail:()=>true});const original=new File(['original'],'song.wav');
   const report=await saveFilesToFolder([original],root,new AbortController().signal,()=>{});
-  assert.equal(report.saved.length,0);assert.equal(report.failed[0].message,"Couldn't finish saving song.wav. Download it instead.");assert.equal(await original.text(),'original');
+  assert.equal(report.saved.length,0);assert.equal(report.failed[0].code,null);assert.equal(report.failed[0].message,"Couldn't finish saving song.wav. Download it instead.");assert.equal(await original.text(),'original');
  }
 });
 test('cancel waits for pending write and removes only its partial file, keeping completed results',async()=>{
@@ -68,7 +68,7 @@ test('cancel waits for pending write and removes only its partial file, keeping 
  const root=directory('chosen',{onWrite:async name=>{if(name==='second.wav'){started();await pending;}}});
  const operation=saveFilesToFolder(['first','second','third'].map(name=>new File([name],name+'.wav')),root,controller.signal,()=>{});
  await entered;controller.abort();release();const report=await operation;
- assert.equal(report.cancelled,true);assert.deepEqual(report.saved,['first.wav']);assert.equal(report.failed.length,1);assert.equal(report.remaining,1);
+ assert.equal(report.cancelled,true);assert.deepEqual(report.saved,['first.wav']);assert.equal(report.failed.length,1);assert.equal(report.failed[0].code,'folder-cancelled');assert.equal(report.remaining,1);
  const child=root.entries.get(report.folder.split('/')[1]);assert.equal(child.entries.has('first.wav'),true);assert.equal(child.entries.has('second.wav'),false);assert.equal(child.entries.has('third.wav'),false);
 });
 test('session invokes picker in gesture, rejects overlapping starts and survives cancellation or denied access',async()=>{
@@ -82,7 +82,7 @@ test('session invokes picker in gesture, rejects overlapping starts and survives
 test('an existing destination inside a new batch is reported and never overwritten',async()=>{
  const root=directory('chosen',{collide:'song.wav'});
  const report=await saveFilesToFolder([new File(['new'],'song.wav')],root,new AbortController().signal,()=>{});
- assert.equal(report.saved.length,0);assert.equal(report.failed[0].message,'Skipped song.wav because it already exists.');
+ assert.equal(report.saved.length,0);assert.equal(report.failed[0].code,null);assert.equal(report.failed[0].message,'Skipped song.wav because it already exists.');
  const child=root.entries.get(report.folder.split('/')[1]);assert.deepEqual([...child.entries.get('song.wav').bytes],[99]);
 });
 test('a UUID batch-name collision creates a different folder and preserves its contents',async()=>{
@@ -100,4 +100,9 @@ test('source changes clear old reports without clearing an active save or touchi
  owner.resetReport();assert.equal(owner.state.kind,'idle');assert.equal(root.entries.has(folder.split('/')[1]),true);
  let finish;const pending=new FolderSave(()=>new Promise(resolve=>finish=resolve));const operation=pending.start(files);
  pending.resetReport();assert.equal(pending.state.kind,'choosing');pending.cancel();finish(root);await operation;
+});
+test('a file the browser refuses to write is reported with the blocked code and a cancelled batch can be told apart',async()=>{
+ const root=directory('chosen',{deny:()=>true});
+ const report=await saveFilesToFolder([new File(['a'],'a.wav')],root,new AbortController().signal,()=>{});
+ assert.deepEqual(report.failed.map(item=>[item.name,item.code,item.message]),[['a.wav','folder-blocked',"Couldn't save to that folder. Download the files instead."]]);
 });

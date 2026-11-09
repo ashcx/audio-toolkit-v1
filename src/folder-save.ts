@@ -1,9 +1,11 @@
 import { copy } from "./copy.ts";
-import { UserFacingError, failure, failureOf, messageFor, type Failure } from "./errors.ts";
+import { UserFacingError, failure, failureOf, messageFor, type ErrorCode, type Failure } from "./errors.ts";
+/** `code` is the catalogue entry behind `message`, or null for the per-file sentences that name the file. */
+export type FailedItem = Readonly<{ name: string; code: ErrorCode | null; message: string }>;
 export type FolderReport = Readonly<{
   folder: string;
   saved: readonly string[];
-  failed: readonly { name: string; message: string }[];
+  failed: readonly FailedItem[];
   remaining: number;
   cancelled: boolean;
 }>;
@@ -19,20 +21,24 @@ function namedError(error: unknown, name: string) {
   return error instanceof DOMException && error.name === name;
 }
 class AlreadyExists extends Error {}
+function blockedCode(error: unknown): "folder-blocked" | "folder-no-space" | null {
+  if (namedError(error, "NotAllowedError")) return "folder-blocked";
+  if (namedError(error, "QuotaExceededError")) return "folder-no-space";
+  return null;
+}
 /** The one sentence for a file that did not make it into the folder. */
-function itemMessage(error: unknown, name: string, cancelled: boolean, partial: boolean) {
-  if (partial) return copy.delivery.folderUnfinished(name);
-  if (cancelled) return messageFor("folder-cancelled");
-  if (error instanceof AlreadyExists) return copy.delivery.folderSkipped(name);
-  if (namedError(error, "NotAllowedError")) return messageFor("folder-blocked");
-  if (namedError(error, "QuotaExceededError")) return messageFor("folder-no-space");
+function itemFailure(error: unknown, name: string, cancelled: boolean, partial: boolean): FailedItem {
+  const unfinished = { name, code: null, message: copy.delivery.folderUnfinished(name) };
+  if (partial) return unfinished;
+  const code = cancelled ? "folder-cancelled" : blockedCode(error);
+  if (code) return { name, code, message: messageFor(code) };
+  if (error instanceof AlreadyExists) return { name, code: null, message: copy.delivery.folderSkipped(name) };
   console.error(error);
-  return copy.delivery.folderUnfinished(name);
+  return unfinished;
 }
 function folderFailure(error: unknown): Failure {
-  if (namedError(error, "NotAllowedError")) return failure("folder-blocked");
-  if (namedError(error, "QuotaExceededError")) return failure("folder-no-space");
-  return failureOf(error, "folder-blocked");
+  const code = blockedCode(error);
+  return code ? failure(code) : failureOf(error, "folder-blocked");
 }
 async function exists(directory: FileSystemDirectoryHandle, name: string) {
   try { await directory.getFileHandle(name); return true; }
@@ -71,7 +77,7 @@ export async function saveFilesToFolder(
   signal.throwIfAborted();
   const directory = await freshDirectory(parent, signal);
   const saved: string[] = [];
-  const failed: { name: string; message: string }[] = [];
+  const failed: FailedItem[] = [];
   let attempted = 0;
   for (const file of files) {
     if (signal.aborted) break;
@@ -101,7 +107,7 @@ export async function saveFilesToFolder(
       if (created) {
         try { await directory.removeEntry(file.name); partial = false; } catch { partial = true; }
       }
-      failed.push({ name: file.name, message: itemMessage(error, file.name, signal.aborted, partial) });
+      failed.push(itemFailure(error, file.name, signal.aborted, partial));
     }
     attempted++;
     progress(attempted);
