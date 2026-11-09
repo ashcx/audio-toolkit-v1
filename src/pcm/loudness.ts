@@ -1,3 +1,4 @@
+import { UserFacingError } from "../errors.ts";
 export type BiquadCoefficients = Readonly<{
   b: readonly [number, number, number];
   a: readonly [number, number, number];
@@ -116,7 +117,7 @@ export class LoudnessMeter {
 
   constructor(rate: number, channels: number) {
     if (!Number.isInteger(channels) || channels < 1 || channels > 2)
-      throw new Error("Loudness measurement supports mono and stereo audio.");
+      throw new UserFacingError("file-unsupported-audio", "Loudness measurement supports mono and stereo audio.");
     this.channels = channels;
     this.hopFrames = Math.max(1, Math.round(rate * HOP_SECONDS));
     this.blockFrames = this.hopFrames * BLOCK_HOPS;

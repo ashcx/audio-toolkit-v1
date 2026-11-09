@@ -1,5 +1,6 @@
 import { InferenceRunner } from "./inference/runner";
 import { cleanupAll } from "./cleanup";
+import { UserFacingError, failureOf } from "./errors.ts";
 import type { JobEvent } from "./job-events";
 import { createOutputStore, type StoredOutput } from "./output-store";
 import type {
@@ -59,14 +60,14 @@ export function processAudio(
         return { op: "create", id };
       }
       const entry = stores.get(request.id);
-      if (!entry) throw new Error("Temporary output is unavailable.");
+      if (!entry) throw new Error("The worker referred to an output that does not exist.");
       if (request.op === "discard") {
         await entry.store.discard();
         stores.delete(request.id);
         return { op: "discard" };
       }
       if (entry.kind !== "open")
-        throw new Error("Temporary output is already closed.");
+        throw new Error("The worker wrote to an output that was already closed.");
       if (request.op === "write") {
         await entry.store.write(request.position, request.data);
         return { op: "write" };
@@ -89,7 +90,7 @@ export function processAudio(
       else if (data.kind === "inference") {
         inferenceTask = inference.run(data.planes, value => { if (value.kind === "isolation-device" || !isolating) phase(value); }).then(
           reply => { if (!settled) worker.postMessage({ kind: "inference", sequence: data.sequence, reply } satisfies WorkerInput, reply.stems.flat().map(plane => plane.buffer)); },
-          error => { if (!settled) worker.postMessage({ kind: "inference", sequence: data.sequence, reply: { kind: "error", message: error instanceof Error ? error.message : "Isolation failed." } } satisfies WorkerInput); },
+          error => { if (!settled) worker.postMessage({ kind: "inference", sequence: data.sequence, reply: { kind: "error", code: failureOf(error, "split-failed").code } } satisfies WorkerInput); },
         );
       } else if (data.kind === "storage") {
         serial = serial.then(async () => {
@@ -97,16 +98,7 @@ export function processAudio(
           try {
             reply = await handle(data.request);
           } catch (error) {
-            reply = {
-              op: "error",
-              message:
-                error instanceof DOMException &&
-                error.name === "QuotaExceededError"
-                  ? "Not enough device storage for this output."
-                  : error instanceof Error
-                    ? error.message
-                    : "Temporary storage failed.",
-            };
+            reply = { op: "error", code: failureOf(error).code };
           }
           if (!settled)
             worker.postMessage({
@@ -115,11 +107,11 @@ export function processAudio(
               reply,
             } satisfies WorkerInput);
         });
-      } else if (data.kind === "error") fail(new Error(data.message));
+      } else if (data.kind === "error") fail(new UserFacingError(data.code));
       else {
         const entry = stores.get(data.outputId);
         if (entry?.kind !== "closed") {
-          fail(new Error("The output did not finish saving."));
+          fail(new Error("The worker finished without a stored output."));
           return;
         }
         settled = true;
@@ -136,7 +128,7 @@ export function processAudio(
     };
     worker.onerror = (event) => {
       event.preventDefault();
-      fail(new Error(event.message || "Audio processing failed."));
+      fail(new Error(event.message || "The audio worker failed."));
     };
     signal.addEventListener("abort", abort, { once: true });
     worker.postMessage({

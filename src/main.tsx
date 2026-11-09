@@ -17,6 +17,7 @@ import {
   type RecipeDraft,
 } from "./recipe";
 import { exportStatus } from "./file-summary";
+import { validationMessage } from "./errors";
 
 type Theme = "system" | "light" | "dark";
 function initialTheme(): Theme {
@@ -298,7 +299,7 @@ function App() {
               parsedRecipe.success ||
               parsedRecipe.error.issues[0].path[0] === "steps"
                 ? undefined
-                : parsedRecipe.error.issues[0].message
+                : validationMessage(parsedRecipe.error.issues)
             }
           />
           </fieldset>

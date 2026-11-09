@@ -1,3 +1,4 @@
+import type { ErrorCode } from "./errors.ts";
 import type { Recipe } from "./recipe";
 
 export type EncodedExport = Exclude<Recipe["export"], { format: "original" }>;
@@ -24,19 +25,18 @@ export function encoderRate(settings: Recipe["export"], rate: number): number {
   return settings.format === "opus" && !OPUS_RATES.includes(rate) ? OPUS_FALLBACK_RATE : rate;
 }
 
+/** A rate or channel layout the chosen format cannot take, as an error code, or null when it fits. */
 export function exportShapeError(
   settings: Recipe["export"],
   { rate, channels }: { rate: number | null; channels: number | null },
-) {
+): ErrorCode | null {
   if (settings.format === "mp3" && rate !== null && rate < 32000 && settings.bitrateKbps > 160)
-    return "At this sample rate, choose MP3 at 128 kbps or increase the sample rate.";
+    return "mp3-bitrate";
   if (settings.format === "m4a" && rate !== null && channels !== null && settings.bitrateKbps * 1000 > 6 * rate * channels)
-    return "AAC bitrate is too high for this rate and channel count. Lower the bitrate or increase the sample rate.";
+    return "aac-bitrate";
   return null;
 }
 
-export function wavSizeError(frames: number, channels: number) {
-  return frames * channels * 2 + 4096 >= 0xffffffff
-    ? "Processed WAV output must be smaller than 4 GB."
-    : null;
+export function wavSizeError(frames: number, channels: number): ErrorCode | null {
+  return frames * channels * 2 + 4096 >= 0xffffffff ? "wav-too-large" : null;
 }

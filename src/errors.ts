@@ -87,6 +87,11 @@ export function userMessage(error: unknown, fallback: ErrorCode = GENERIC_ERROR)
 
 export type Failure = Readonly<{ code: ErrorCode; message: string }>;
 
+/** Visible state for a condition that is already known, with no thrown value to inspect. */
+export function failure(code: ErrorCode): Failure {
+  return { code, message: messageFor(code) };
+}
+
 /**
  * Turns a thrown value into visible state. Raw errors and developer detail go to the console,
  * so a browser or engine message such as "Failed to fetch" cannot reach the screen.

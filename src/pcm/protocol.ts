@@ -1,3 +1,4 @@
+import type { ErrorCode } from "../errors.ts";
 import type { InferenceBackend, InferenceRequest, InferenceReply } from "../inference/protocol";
 import type { JobOperation } from "../job-events";
 import type { ExecutionPlan } from "../planner";
@@ -14,7 +15,7 @@ export type StorageReply =
   | { op: "truncate" }
   | { op: "finish"; file: File }
   | { op: "discard" }
-  | { op: "error"; message: string };
+  | { op: "error"; code: ErrorCode };
 export type StorageRequest = {
   kind: "storage";
   sequence: number;
@@ -48,7 +49,7 @@ export type WorkerResult =
   | InferenceRequest
   | JobOperation
   | { kind: "done"; outputId: string; stats: DspStats }
-  | { kind: "error"; message: string };
+  | { kind: "error"; code: ErrorCode };
 export type WorkerInput =
   | { kind: "start"; file: File; plan: PcmPlan; name: string }
   | { kind: "storage"; sequence: number; reply: StorageReply }

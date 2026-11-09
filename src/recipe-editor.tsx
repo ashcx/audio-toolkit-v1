@@ -28,6 +28,7 @@ import {
 } from "./loudness-rail";
 import type { FileEntry } from "./media";
 import { usableGpu, type GpuSupport } from "./inference/gpu";
+import { validationMessage } from "./errors";
 
 function summary(step: StepDraft): string {
   switch (step.kind) {
@@ -85,7 +86,7 @@ function IsolationNote() {
     return () => { current = false; };
   }, []);
   return <small class="panel-description" data-isolation-device={gpu === null ? "checking" : gpu.usable ? "gpu" : "cpu"}>
-    {gpu && !gpu.usable && `${gpu.reason} Isolation will run on the CPU, slower than real time: about 80 seconds per minute of audio on a fast laptop. `}
+    {gpu && !gpu.usable && `Isolation will run on the CPU, slower than real time: about 80 seconds per minute of audio on a fast laptop. `}
     The first use downloads an 85 MB model, which the browser may reuse from its cache. Every job re-checks it. Some voice, music or reverb may remain.
   </small>;
 }
@@ -459,7 +460,7 @@ export function RecipeEditor({
           const parsed = stepSchema.safeParse(step);
           const stepError = parsed.success
             ? undefined
-            : parsed.error.issues[0].message;
+            : validationMessage(parsed.error.issues);
           const errorId = stepError ? `error-${step.id}` : undefined;
           const repeated =
             value.steps.filter((item) => item.kind === step.kind).length > 1;

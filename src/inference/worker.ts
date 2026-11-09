@@ -3,6 +3,7 @@ import type { InferenceBackend, InferenceInput, InferenceResult } from "./protoc
 import { DEMUCS_MODEL, fetchModelBytes, type Stems } from "./demucs-model";
 import { separateSegment } from "./demucs-segment";
 import { usableGpu } from "./gpu";
+import { failureOf } from "../errors.ts";
 
 const report = (message: InferenceResult, transfer: Transferable[] = []) => self.postMessage(message, { transfer });
 // ORT can create a "webgpu" session that runs every kernel on CPU when no adapter exists, so GPU use is
@@ -18,7 +19,7 @@ self.onmessage = async ({ data }: MessageEvent<InferenceInput>) => {
   let backend: InferenceBackend = "wasm";
   let stage: "model" | "session" | "run" = "model";
   try {
-    if (data.planes.length < 1 || data.planes.length > 2 || data.planes.some(plane => plane.length !== DEMUCS_MODEL.segment)) throw new Error("This isolation window is unsupported.");
+    if (data.planes.length < 1 || data.planes.length > 2 || data.planes.some(plane => plane.length !== DEMUCS_MODEL.segment)) throw new Error("The splitter received a window of an unsupported size.");
     if (retained) backend = retained.backend;
     else if (data.backend === "auto" && (await usableGpu()).usable) backend = "webgpu+wasm";
     report({ kind: "backend", backend });
@@ -40,6 +41,6 @@ self.onmessage = async ({ data }: MessageEvent<InferenceInput>) => {
     const planes: Stems = data.planes.length === 1 ? stems.map(([l, r]) => [Float32Array.from(l, (value, index) => (value + r[index]) / 2)]) : stems;
     report({ kind: "done", stems: planes, backend, gpuDispatches: dispatches - before }, planes.flat().map(plane => plane.buffer));
   } catch (error) {
-    report({ kind: "error", backend, stage, message: error instanceof Error ? error.message : "Voice / music isolation failed." });
+    report({ kind: "error", backend, stage, code: failureOf(error, "split-failed").code });
   }
 };

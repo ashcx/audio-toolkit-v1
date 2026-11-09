@@ -6,6 +6,7 @@ import {
   type FileId,
   type Inspection,
 } from "./media";
+import { failureOf } from "./errors.ts";
 
 export function useFiles() {
   const [entries, setEntries] = useState<FileEntry[]>([]);
@@ -31,12 +32,9 @@ export function useFiles() {
         .then((result) => {
           if (!controller.signal.aborted) update(entry.id, result);
         })
-        .catch(() => {
+        .catch((error) => {
           if (!controller.signal.aborted)
-            update(entry.id, {
-              kind: "failed",
-              message: "Could not inspect this file.",
-            });
+            update(entry.id, { kind: "failed", ...failureOf(error, "file-unreadable") });
         })
         .finally(() => {
           active.current.delete(entry.id);

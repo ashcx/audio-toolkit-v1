@@ -1,3 +1,4 @@
+import { UserFacingError } from "../errors.ts";
 import { LoudnessMeter, type LoudnessMeasurement } from "./loudness.ts";
 import type { Recipe } from "../recipe";
 
@@ -75,7 +76,7 @@ export async function* trim(
 export async function* channels(source: PcmStream, count: 1 | 2): PcmStream {
   for await (const block of source) {
     if (block.planes.length > 2)
-      throw new Error("Processing supports mono and stereo audio.");
+      throw new UserFacingError("file-unsupported-audio", "Processing supports mono and stereo audio.");
     if (block.planes.length === count) yield block;
     else if (count === 2)
       yield {

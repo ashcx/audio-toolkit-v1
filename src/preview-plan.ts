@@ -7,7 +7,7 @@ export function previewPlans(snapshot: EffectiveRecipe) {
   const end = Math.min(start + 15, snapshot.trim?.end ?? snapshot.source.duration ?? Infinity);
   const range: PreviewRange = { start, end };
   const previewSnapshot = { ...snapshot, recipe: recipeSchema.parse({ ...snapshot.recipe, export: { format: "wav" } }) };
-  const processed: PcmPlan = { kind: "pcm", snapshot: previewSnapshot, steps: previewSnapshot.recipe.steps, reason: "Excerpt preview", previewRange: range };
+  const processed: PcmPlan = { kind: "pcm", snapshot: previewSnapshot, steps: previewSnapshot.recipe.steps, previewRange: range };
   const original: PcmPlan = { ...processed, steps: [] };
   const estimate = snapshot.recipe.steps.some(step => step.kind === "normalize" || step.kind === "isolation" || step.kind === "speech");
   return { original, processed, range, estimate };

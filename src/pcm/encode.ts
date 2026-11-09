@@ -13,6 +13,7 @@ import {
 import type { Recipe } from "../recipe";
 import { encoderBitrateMode } from "../encoding-modes";
 import { exportShapeError } from "../export-format";
+import { UserFacingError } from "../errors.ts";
 
 export function encoderSettings(
   settings: Recipe["export"],
@@ -51,7 +52,7 @@ export async function prepareEncoder(
   shape: { rate: number; channels: number },
 ): Promise<"pcm" | "native" | "wasm"> {
   const invalidRate = exportShapeError(settings, shape);
-  if (invalidRate) throw new Error(invalidRate);
+  if (invalidRate) throw new UserFacingError(invalidRate);
   const { config } = encoderSettings(settings);
   const options = { sampleRate: shape.rate, numberOfChannels: shape.channels, quality: config.quality };
   let backend: "pcm" | "native" | "wasm" = settings.format === "wav" ? "pcm" : "native";
@@ -69,11 +70,7 @@ export async function prepareEncoder(
     }
   }
   if (!(await canEncodeAudio(config.codec, options))) {
-    if (settings.format === "opus")
-      throw new Error(
-        "This browser cannot encode Opus with the selected bitrate mode. Choose another encoding mode or format.",
-      );
-    throw new Error("This format cannot encode the selected rate and channels. Try another format or sample rate.");
+    throw new Error(`This browser cannot encode ${settings.format} at ${shape.rate} Hz with ${shape.channels} channels.`);
   }
   return backend;
 }

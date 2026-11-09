@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "preact/hooks";
 import { FolderSave, type DirectoryPicker, type FolderState } from "./folder-save";
+import { UserFacingError } from "./errors.ts";
 export function useFolderSave(sourceKey: string) {
   const picker = (window as Window & { showDirectoryPicker?: (options: {mode: "readwrite"}) => Promise<FileSystemDirectoryHandle> }).showDirectoryPicker;
   const supported = window.isSecureContext && typeof picker === "function";
@@ -7,7 +8,7 @@ export function useFolderSave(sourceKey: string) {
   if (!owner.current) {
     const choose: DirectoryPicker = () => supported
       ? picker.call(window, { mode: "readwrite" })
-      : Promise.reject(new Error("Folder saving is unavailable. Download individually or create a ZIP."));
+      : Promise.reject(new UserFacingError("folder-blocked", "Folder saving is unavailable."));
     owner.current = new FolderSave(choose);
   }
   const folder = owner.current;

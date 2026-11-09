@@ -21,6 +21,7 @@ import { encoderRate, exportDescriptor, wavSizeError } from "./export-format";
 import { encoderSettings, prepareEncoder } from "./pcm/encode";
 import { mp3GaplessHeader } from "./pcm/mp3-gapless";
 import { opusTail } from "./pcm/opus-tail";
+import { UserFacingError, failureOf } from "./errors.ts";
 const report = (message: WorkerResult, transfer: Transferable[] = []) =>
   self.postMessage(message, { transfer });
 const client = new StorageClient(report);
@@ -156,7 +157,7 @@ async function execute({
       const invalidSize = settings.format === "wav"
         ? wavSizeError(stats.encodedFrames + frames, block.planes.length)
         : null;
-      if (invalidSize) throw new Error(invalidSize);
+      if (invalidSize) throw new UserFacingError(invalidSize);
       stats.maxBlockFrames = Math.max(stats.maxBlockFrames, frames);
       if (!rate) {
         report({ kind: "phase", phase: "Processing" });
@@ -173,18 +174,14 @@ async function execute({
         lastSourceTime !== null &&
         Math.abs(timestamp - lastSourceTime) > 1.1 / rate
       )
-        throw new Error(
-          "The audio timeline has an unsupported gap or overlap.",
-        );
+        throw new UserFacingError("audio-unprocessable", "The audio timeline has a gap or overlap.");
       lastSourceTime = timestamp + frames / rate;
       const data = new Float32Array(frames * count);
       block.planes.forEach((plane, channel) => {
         for (let frame = 0; frame < frames; frame++) {
           const value = plane[frame];
           if (!Number.isFinite(value))
-            throw new Error(
-              "The processed audio exceeds the supported sample range.",
-            );
+            throw new UserFacingError("audio-damaged", "The processed audio has a sample outside the supported range.");
           if (Math.abs(value) > 1) stats.clippedSamples++;
           data[channel * frames + frame] = Math.max(-1, Math.min(1, value));
         }
@@ -212,7 +209,7 @@ async function execute({
       }
     }
     if (!stats.encodedFrames)
-      throw new Error("The selected range contains no audio.");
+      throw new UserFacingError("range-no-audio");
     if (settings.format === "opus") {
       const padding = new AudioSample({
         data: new Float32Array(Math.ceil(rate * .02) * count),
@@ -228,7 +225,7 @@ async function execute({
     await output.finalize();
     if (settings.format === "mp3") {
       const header = headers[0];
-      if (!header) throw new Error("MP3 timing metadata is unavailable.");
+      if (!header) throw new UserFacingError("audio-unprocessable", "MP3 timing metadata is unavailable.");
       await client.write(outputId, header.position, mp3GaplessHeader(header.data, stats.encodedFrames));
     }
     if (settings.format === "opus") {
@@ -251,11 +248,5 @@ self.onmessage = ({ data }: MessageEvent<WorkerInput>) => {
   if (data.kind === "storage") client.receive(data.sequence, data.reply);
   else if (data.kind === "inference") inference.receive(data.sequence, data.reply);
   else
-    void execute(data).catch((error) =>
-      report({
-        kind: "error",
-        message:
-          error instanceof Error ? error.message : "Audio processing failed.",
-      }),
-    );
+    void execute(data).catch((error) => report({ kind: "error", code: failureOf(error).code }));
 };

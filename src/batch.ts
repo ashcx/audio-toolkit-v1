@@ -1,5 +1,6 @@
 import type { JobEvent, JobOperation, IsolationDevice } from "./job-events";
 import { cleanupAll, CleanupFailure } from "./cleanup.ts";
+import { GENERIC_ERROR, failure, failureOf, type Failure } from "./errors.ts";
 import type { FileEntry, FileId } from "./media";
 import { outputName, type ExecutionPlan } from "./planner.ts";
 import { exportDescriptor } from "./export-format.ts";
@@ -21,11 +22,12 @@ export type JobState =
   | { kind: "running"; attempt: Attempt; operation: JobOperation }
   | { kind: "cancelling"; attempt: Attempt }
   | { kind: "cancelled" }
-  | { kind: "failed"; message: string }
+  | ({ kind: "failed" } & Failure)
   | ({ kind: "done"; url: string } & JobOutput);
 type OwnedJob = { readonly spec: JobSpec; state: JobState; ready: Promise<void>; device: IsolationDevice | null };
 export type BatchJob = Readonly<Pick<OwnedJob, "spec" | "state" | "device">>;
-export type BatchSnapshot = { jobs: ReadonlyMap<FileId, BatchJob>; busy: boolean; cleanupCount: number; cleaning: boolean };
+/** `cleanupStuck` is true once a retry has also failed, which is when the interface should say so. */
+export type BatchSnapshot = { jobs: ReadonlyMap<FileId, BatchJob>; busy: boolean; cleanupCount: number; cleanupStuck: boolean; cleaning: boolean };
 export type JobRunner = (spec: JobSpec, signal: AbortSignal, phase: (value: JobEvent) => void) => Promise<JobOutput>;
 
 export function batchConcurrency(capabilities: {
@@ -46,7 +48,7 @@ export class Batch {
   private disposed = false;
   private cleaning = false;
   private releasing = 0;
-  private pendingCleanup = new Map<FileId, { failure: CleanupFailure; cancelled: boolean }>();
+  private pendingCleanup = new Map<FileId, { failure: CleanupFailure; cancelled: boolean; attempts: number }>();
   private runner: JobRunner;
   private concurrency: 1 | 2;
   constructor(runner: JobRunner, concurrency: 1 | 2) {
@@ -54,7 +56,7 @@ export class Batch {
     this.concurrency = concurrency;
   }
   get snapshot(): BatchSnapshot {
-    return { jobs: new Map(this.jobs), cleanupCount: this.pendingCleanup.size, cleaning: this.cleaning || this.releasing > 0, busy: this.cleaning || this.releasing > 0 || this.occupied > 0 || [...this.jobs.values()].some(job => job.state.kind === "waiting") };
+    return { jobs: new Map(this.jobs), cleanupCount: this.pendingCleanup.size, cleanupStuck: [...this.pendingCleanup.values()].some(pending => pending.attempts > 1), cleaning: this.cleaning || this.releasing > 0, busy: this.cleaning || this.releasing > 0 || this.occupied > 0 || [...this.jobs.values()].some(job => job.state.kind === "waiting") };
   }
   subscribe(listener: (snapshot: BatchSnapshot) => void) {
     this.listeners.add(listener);
@@ -72,7 +74,7 @@ export class Batch {
     try {
       await cleanupAll([() => state.output.release()]);
     } catch (error) {
-      if (error instanceof CleanupFailure) this.pendingCleanup.set(id, { failure: error, cancelled: true });
+      if (error instanceof CleanupFailure) this.pendingCleanup.set(id, { failure: error, cancelled: true, attempts: 1 });
       throw error;
     } finally {
       this.releasing--;
@@ -136,9 +138,9 @@ export class Batch {
           this.pendingCleanup.delete(id);
           const job = this.jobs.get(id);
           if (job) job.ready = Promise.resolve();
-          if (job?.state.kind === "failed") job.state = pending.cancelled ? { kind: "cancelled" } : { kind: "failed", message: "Audio export failed. Retry this file." };
+          if (job?.state.kind === "failed") job.state = pending.cancelled ? { kind: "cancelled" } : { kind: "failed", ...failure(GENERIC_ERROR) };
         } catch (error) {
-          if (error instanceof CleanupFailure) pending.failure = error;
+          if (error instanceof CleanupFailure) { pending.failure = error; pending.attempts++; }
         }
       }
     } finally {
@@ -187,11 +189,9 @@ export class Batch {
       else job.state = { kind: "done", ...completed, url: URL.createObjectURL(completed.output.file) };
     } catch (error) {
       if (error instanceof CleanupFailure) {
-        this.pendingCleanup.set(job.spec.entry.id, { failure: error, cancelled: signal.aborted });
-        if (current()) job.state = { kind: "failed", message: error.message };
-      } else if (current()) job.state = signal.aborted ? { kind: "cancelled" } : {
-        kind: "failed", message: error instanceof Error ? error.message : "Audio export failed.",
-      };
+        this.pendingCleanup.set(job.spec.entry.id, { failure: error, cancelled: signal.aborted, attempts: 1 });
+        if (current()) job.state = { kind: "failed", ...failure(GENERIC_ERROR) };
+      } else if (current()) job.state = signal.aborted ? { kind: "cancelled" } : { kind: "failed", ...failureOf(error) };
     } finally {
       if (current() && signal.aborted) job.state = { kind: "cancelled" };
       if (job.spec.plan.kind === "pcm" && job.spec.plan.steps.some(step => (step.kind === "isolation" || step.kind === "speech"))) this.isolating = false;

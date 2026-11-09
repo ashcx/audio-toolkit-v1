@@ -2,8 +2,9 @@ import { useEffect, useState } from "preact/hooks";
 import { combineLevels, type AudioLevels } from "./levels";
 import { analyzeLevels } from "./levels-client";
 import type { FileEntry } from "./media";
+import { UserFacingError, failureOf, type Failure } from "./errors.ts";
 const measured = new WeakMap<File, AudioLevels>();
-type LevelsState = {kind:"idle"} | {kind:"loading";key:string;completed:number;total:number} | {kind:"ready";key:string;levels:AudioLevels;count:number} | {kind:"failed";key:string;message:string};
+type LevelsState = {kind:"idle"} | {kind:"loading";key:string;completed:number;total:number} | {kind:"ready";key:string;levels:AudioLevels;count:number} | ({kind:"failed";key:string} & Failure);
 export function useLevels(files: readonly FileEntry[], enabled: boolean) {
   const ready = files.flatMap(entry => entry.inspection.kind === "ready" ? [{file:entry.file,metadata:entry.inspection.metadata,id:entry.id}] : []);
   const key = ready.map(entry=>entry.id).join("|");
@@ -24,7 +25,7 @@ export function useLevels(files: readonly FileEntry[], enabled: boolean) {
         }
         setState({kind:"ready",key,levels:combineLevels(values),count:values.length});
       } catch (error) {
-        if (!controller.signal.aborted) setState({kind:"failed",key,message:error instanceof Error ? error.message : "Could not measure audio levels."});
+        if (!controller.signal.aborted) setState({kind:"failed",key,...failureOf(new UserFacingError("levels-failed",String(error)))});
       }
     })();
     return () => controller.abort();

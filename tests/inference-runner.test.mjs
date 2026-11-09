@@ -19,7 +19,7 @@ test('one worker and session serve every window of a job until it stops',async()
 test('a GPU session or run failure closes its worker before one sticky CPU retry of the same window',async()=>{
  for(const stage of ['session','run']){const fixture=fakeWorkers();try{
   const runner=new InferenceRunner(),planes=[new Float32Array([.1,.2])],events=[];
-  const pending=runner.run(planes,event=>events.push(event));fixture.workers[0].reply({kind:'error',stage,backend:'webgpu+wasm',message:'GPU failed'});await tick();
+  const pending=runner.run(planes,event=>events.push(event));fixture.workers[0].reply({kind:'error',stage,backend:'webgpu+wasm',code:'split-failed'});await tick();
   assert.equal(fixture.workers[0].stopped,true);assert.equal(fixture.workers[1].input.backend,'wasm');assert.deepEqual(fixture.workers[1].input.planes,planes);
   fixture.workers[1].reply({kind:'backend',backend:'wasm'});fixture.workers[1].reply(done(planes,'wasm'));
   const result=await pending;assert.equal(result.backend,'wasm');assert.equal(result.loads,2,'the failed GPU worker and the CPU worker each loaded once');assert.equal(lastDevice(events),'cpu-fallback');
@@ -28,10 +28,10 @@ test('a GPU session or run failure closes its worker before one sticky CPU retry
  }finally{fixture.restore();}}
 });
 test('cancellation between GPU rejection and fallback cannot launch another worker',async()=>{
- const fixture=fakeWorkers();try{const runner=new InferenceRunner(),pending=runner.run([new Float32Array([.1])],()=>{});fixture.workers[0].reply({kind:'error',stage:'run',backend:'webgpu+wasm',message:'GPU failed'});runner.stop();await assert.rejects(pending,error=>error.name==='AbortError');assert.equal(fixture.workers.length,1);}finally{fixture.restore();}
+ const fixture=fakeWorkers();try{const runner=new InferenceRunner(),pending=runner.run([new Float32Array([.1])],()=>{});fixture.workers[0].reply({kind:'error',stage:'run',backend:'webgpu+wasm',code:'split-failed'});runner.stop();await assert.rejects(pending,error=>error.name==='AbortError');assert.equal(fixture.workers.length,1);}finally{fixture.restore();}
 });
 test('model download or verification errors do not retry on CPU',async()=>{
- const fixture=fakeWorkers();try{const runner=new InferenceRunner(),pending=runner.run([new Float32Array([.1])],()=>{});fixture.workers[0].reply({kind:'error',stage:'model',backend:'webgpu+wasm',message:'Model mismatch'});await assert.rejects(pending,/Model mismatch/);assert.equal(fixture.workers.length,1);assert.equal(fixture.workers[0].stopped,true);runner.stop();}finally{fixture.restore();}
+ const fixture=fakeWorkers();try{const runner=new InferenceRunner(),pending=runner.run([new Float32Array([.1])],()=>{});fixture.workers[0].reply({kind:'error',stage:'model',backend:'webgpu+wasm',code:'model-damaged'});await assert.rejects(pending,{code:'model-damaged'});assert.equal(fixture.workers.length,1);assert.equal(fixture.workers[0].stopped,true);runner.stop();}finally{fixture.restore();}
 });
 test('the GPU label needs GPU dispatches; a WebGPU session that ran on CPU is reported as CPU',async()=>{
  for(const [dispatches,device,backend] of [[1363,'gpu','webgpu+wasm'],[0,'cpu','wasm']]){const fixture=fakeWorkers();try{
@@ -44,7 +44,7 @@ test('the GPU label needs GPU dispatches; a WebGPU session that ran on CPU is re
 test('a stalled download, session or window terminates once, and download progress keeps a slow download alive',async t=>{
  t.mock.timers.enable({apis:['setTimeout']});
  const fixture=fakeWorkers();try{
-  const runner=new InferenceRunner(),pending=runner.run([new Float32Array([.1])],()=>{}),rejected=assert.rejects(pending,/stopped responding/);
+  const runner=new InferenceRunner(),pending=runner.run([new Float32Array([.1])],()=>{}),rejected=assert.rejects(pending,{code:'split-stalled'});
   fixture.workers[0].reply({kind:'backend',backend:'wasm'});
   for(let step=0;step<3;step++){t.mock.timers.tick(LOAD_WATCHDOG_MS-1000);fixture.workers[0].reply({kind:'model-download',loaded:step,total:3});}
   fixture.workers[0].reply({kind:'phase',phase:'Separating'});t.mock.timers.tick(SEPARATE_WATCHDOG_MS-1);assert.equal(fixture.workers[0].stopped,false);t.mock.timers.tick(1);

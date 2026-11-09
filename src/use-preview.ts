@@ -12,5 +12,7 @@ export function usePreview(revision: string) {
     return () => { unsubscribe(); preview.dispose(); };
   }, [preview]);
   useLayoutEffect(() => { preview.clear(); }, [preview, revision]);
+  const retryable = state.kind === "cleanup" && state.attempts === 1;
+  useLayoutEffect(() => { if (retryable) preview.clear(); }, [retryable, preview]);
   return { state, busy: previewBusy(state), start: preview.start.bind(preview), clear: preview.clear.bind(preview) };
 }

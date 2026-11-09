@@ -1,3 +1,4 @@
+import { UserFacingError } from "../errors.ts";
 import type { JobEvent, IsolationDevice } from "../job-events";
 import type { InferenceBackend, InferenceInput, InferenceResult } from "./protocol";
 
@@ -30,7 +31,7 @@ export class InferenceRunner {
     let loads = 0;
     const attempt = (backend: InferenceInput["backend"]) => new Promise<Outcome>((resolve, reject) => {
       if (this.stopped) { reject(this.stopReason);return; }
-      if (this.active) { reject(new Error("Isolation is already running."));return; }
+      if (this.active) { reject(new Error("The splitter is already running."));return; }
       if (this.retained?.backend !== backend) {
         this.retained?.worker.terminate();this.retained = null;
         event({ kind: "phase", phase: "Loading isolation tools" });
@@ -51,9 +52,8 @@ export class InferenceRunner {
         clearTimeout(timer);
         timer = setTimeout(() => {
           if (!finish(false)) return;
-          const message = "Isolation stopped responding. Retry, or try a shorter selection.";
-          if (selected === "webgpu+wasm" && stage !== "model") resolve({ kind: "error", backend: selected, stage, message });
-          else reject(new Error(message));
+          if (selected === "webgpu+wasm" && stage !== "model") resolve({ kind: "error", backend: selected, stage, code: "split-stalled" });
+          else reject(new UserFacingError("split-stalled", "The splitter stopped responding."));
         }, milliseconds);
       };
       arm(LOAD_WATCHDOG_MS);
@@ -74,7 +74,7 @@ export class InferenceRunner {
       };
       worker.onerror = error => {
         error.preventDefault();
-        if (finish(false)) reject(new Error("Could not load isolation tools. Check your connection and retry."));
+        if (finish(false)) reject(new UserFacingError("model-download-failed", `The splitter worker failed to load. ${error.message}`));
       };
       const copy = planes.map(plane => new Float32Array(plane));
       try { worker.postMessage({ planes: copy, backend } satisfies InferenceInput, copy.map(plane => plane.buffer)); }
@@ -86,7 +86,7 @@ export class InferenceRunner {
       this.setDevice("cpu-fallback", event);
       result = await attempt(this.backend);
     }
-    if (result.kind === "error") throw new Error(result.message);
+    if (result.kind === "error") throw new UserFacingError(result.code);
     if (this.stopped) throw this.stopReason;
     const backend: InferenceBackend = result.backend === "webgpu+wasm" && result.gpuDispatches > 0 ? "webgpu+wasm" : "wasm";
     if (result.backend === "webgpu+wasm") this.setDevice(backend === "wasm" ? "cpu" : "gpu", event);

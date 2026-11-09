@@ -1,3 +1,4 @@
+import { UserFacingError } from "../errors.ts";
 import {
   Input,
   BlobSource,
@@ -31,9 +32,7 @@ export async function* decodePcm(
     offset: number,
   ): Generator<PcmBlock> {
     if (planes.length < 1 || planes.length > 2 || rate < 8000 || rate > 384000)
-      throw new Error(
-        "Processing supports mono or stereo audio from 8 to 384 kHz.",
-      );
+      throw new UserFacingError("file-unsupported-audio", "Processing supports mono or stereo audio from 8 to 384 kHz.");
     if (planes.some((plane) => plane.length !== planes[0].length))
       throw new Error("The decoded audio has inconsistent channels.");
     stats.maxDecodedFrames = Math.max(stats.maxDecodedFrames, planes[0].length);
@@ -50,20 +49,20 @@ export async function* decodePcm(
       if (
         values.some((plane) => plane.some((value) => !Number.isFinite(value)))
       )
-        throw new Error("The decoded audio contains invalid samples.");
+        throw new UserFacingError("audio-damaged", "The decoded audio contains invalid samples.");
       yield { origin: 0, offset: offset + index, rate, planes: values };
     }
   };
   try {
     signal.throwIfAborted();
     const track = await input.getPrimaryAudioTrack();
-    if (!track) throw new Error("No audio track.");
+    if (!track) throw new UserFacingError("file-no-audio");
     const codec = await track.getCodec();
     stats.passes++;
     if (codec === "flac") {
       const config = await track.getDecoderConfig();
       if (!config?.description)
-        throw new Error("FLAC configuration is unavailable.");
+        throw new UserFacingError("audio-unprocessable", "FLAC configuration is unavailable.");
       const { decoder } = await import("@audio/decode-flac");
       const decode = await decoder();
       try {
@@ -92,7 +91,7 @@ export async function* decodePcm(
         !((await input.getFormat()) instanceof OggInputFormat) ||
         (await input.getTracks()).length !== 1
       )
-        throw new Error("This Vorbis container cannot be processed yet.");
+        throw new UserFacingError("file-unsupported-audio", "This Vorbis container cannot be processed yet.");
       const { decoder } = await import("@audio/decode-vorbis");
       const decode = await decoder();
       try {
@@ -115,7 +114,7 @@ export async function* decodePcm(
       }
     } else {
       if (!(await track.canDecode()))
-        throw new Error("This audio decoder is unavailable in your browser.");
+        throw new UserFacingError("file-unsupported-audio", "This browser cannot decode this audio.");
       for await (const sample of new AudioSampleSink(track).samples()) {
         try {
           signal.throwIfAborted();

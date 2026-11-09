@@ -1,5 +1,6 @@
 import { BLOCK_FRAMES, type PcmBlock, type PcmStream } from "./blocks.ts";
 import { DEMUCS_MODEL, type DemucsSource, type Stems } from "../inference/demucs-model.ts";
+import { UserFacingError } from "../errors.ts";
 
 const { segment: DEMUCS_SEGMENT, stride: DEMUCS_STRIDE, sources: DEMUCS_SOURCES, rate: ISOLATION_RATE } = DEMUCS_MODEL;
 const HISTORY = DEMUCS_STRIDE + DEMUCS_SEGMENT, HALF = DEMUCS_SEGMENT >> 1;
@@ -17,7 +18,7 @@ function planeReader(source: PcmStream, count: number) {
           pending = await iterator.next();
           used = 0;
         }
-        if (pending.done) throw new Error("The temporary isolation audio is incomplete.");
+        if (pending.done) throw new UserFacingError("split-failed", "The spooled audio ended early.");
         const take = Math.min(length - copied, pending.value.planes[0].length - used);
         for (let channel = 0; channel < count; channel++) planes[channel].set(pending.value.planes[channel].subarray(used, used + take), offset + copied);
         copied += take;
@@ -57,7 +58,7 @@ export async function* demucsWindows(source: PcmStream, shape: { frames: number;
         return planes;
       });
       const stems = await infer(window);
-      if (stems.length !== DEMUCS_SOURCES.length || stems.some(stem => stem.length !== channels || stem.some(plane => plane.length !== DEMUCS_SEGMENT))) throw new Error("The isolation model returned incomplete audio.");
+      if (stems.length !== DEMUCS_SOURCES.length || stems.some(stem => stem.length !== channels || stem.some(plane => plane.length !== DEMUCS_SEGMENT))) throw new UserFacingError("split-failed", "The model returned incomplete audio.");
       const trim = offset - start;
       for (let index = 0; index < length; index++) {
         const scale = weight(index);

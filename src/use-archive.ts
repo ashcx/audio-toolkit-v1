@@ -8,6 +8,8 @@ export function useArchive(sourceKey: string) {
   const [state, setState] = useState<ArchiveState>(archive.state);
   useLayoutEffect(() => archive.subscribe(setState), [archive]);
   useLayoutEffect(() => { void archive.clear(); }, [archive, sourceKey]);
+  const retryable = state.kind === "cleanup" && state.attempts === 1;
+  useLayoutEffect(() => { if (retryable) void archive.clear(); }, [retryable, archive]);
   useLayoutEffect(() => () => archive.dispose(), [archive]);
   return { state, busy: archive.busy, start: archive.start.bind(archive), cancel: archive.cancel.bind(archive), clear: archive.clear.bind(archive) };
 }

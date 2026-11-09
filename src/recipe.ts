@@ -1,11 +1,12 @@
 import { z } from "zod";
 import { copy } from "./copy.ts";
+import { GENERIC_ERROR, failure, internalIssue, isErrorCode, type Failure } from "./errors.ts";
 import type { AudioMetadata, FileEntry, FileId } from "./media";
 
 const sourceSeconds = z
-  .number({ error: "Enter a valid timestamp." })
-  .finite("Enter a finite timestamp.")
-  .nonnegative("Timestamps cannot be negative.")
+  .number({ error: "time-invalid" })
+  .finite("time-invalid")
+  .nonnegative("time-negative")
   .brand<"SourceSeconds">();
 export const trimRangeSchema = z
   .strictObject({
@@ -16,7 +17,7 @@ export const trimRangeSchema = z
     if (range.end !== null && (range.start ?? 0) >= range.end)
       context.addIssue({
         code: "custom",
-        message: "Trim all start must be before end.",
+        message: "trim-order",
         path: ["end"],
       });
   })
@@ -41,10 +42,10 @@ export const stepSchema = z
       id: stepId,
       kind: z.literal("gain"),
       db: z
-        .number({ error: "Enter a gain value." })
-        .finite()
-        .min(-12, "Gain must be between -12 and 12 dB.")
-        .max(12, "Gain must be between -12 and 12 dB.")
+        .number({ error: "number-invalid" })
+        .finite("number-invalid")
+        .min(-12, "gain-range")
+        .max(12, "gain-range")
         .brand<"GainDb">(),
     }),
     z
@@ -53,42 +54,42 @@ export const stepSchema = z
         kind: z.literal("normalize"),
         mode: z.enum(["loudness", "peak"]).default("peak"),
         targetDbfs: z
-          .number({ error: "Enter a peak target." })
-          .finite()
-          .min(-60, "Peak target must be between -60 and 0 dBFS.")
-          .max(0, "Peak target must be between -60 and 0 dBFS.")
+          .number({ error: "number-invalid" })
+          .finite("number-invalid")
+          .min(-60, "peak-range")
+          .max(0, "peak-range")
           .brand<"PeakTargetDbfs">()
           .optional(),
         targetDbtp: z
-          .number({ error: "Enter a true-peak target." })
-          .finite()
-          .min(-6, "True-peak target must be between -6 and 0 dBTP.")
-          .max(0, "True-peak target must be between -6 and 0 dBTP.")
+          .number({ error: "number-invalid" })
+          .finite("number-invalid")
+          .min(-6, "true-peak-range")
+          .max(0, "true-peak-range")
           .refine(
             (value) => Math.abs(value * 10 - Math.round(value * 10)) < 1e-9,
-            "True-peak target must be in 0.1 dB steps.",
+            "true-peak-step",
           )
           .brand<"TruePeakTargetDbtp">()
           .optional(),
         targetLufs: z
-          .number({ error: "Enter a loudness target." })
-          .finite()
-          .min(-30, "Loudness target must be between -30 and -8 LUFS.")
-          .max(-8, "Loudness target must be between -30 and -8 LUFS.")
+          .number({ error: "number-invalid" })
+          .finite("number-invalid")
+          .min(-30, "loudness-range")
+          .max(-8, "loudness-range")
           .refine(
             (value) => Math.abs(value * 2 - Math.round(value * 2)) < 1e-9,
-            "Loudness target must be in 0.5 LUFS steps.",
+            "loudness-step",
           )
           .brand<"LoudnessTargetLufs">()
           .optional(),
         ceilingDbtp: z
-          .number({ error: "Enter a true-peak ceiling." })
-          .finite()
-          .min(-6, "True-peak ceiling must be between -6 and 0 dBTP.")
-          .max(0, "True-peak ceiling must be between -6 and 0 dBTP.")
+          .number({ error: "number-invalid" })
+          .finite("number-invalid")
+          .min(-6, "ceiling-range")
+          .max(0, "ceiling-range")
           .refine(
             (value) => Math.abs(value * 10 - Math.round(value * 10)) < 1e-9,
-            "True-peak ceiling must be in 0.1 dB steps.",
+            "ceiling-step",
           )
           .brand<"TruePeakCeilingDbtp">()
           .optional(),
@@ -98,22 +99,22 @@ export const stepSchema = z
           context.addIssue({ code: "custom", message, path: [field] });
         if (step.mode === "loudness") {
           if (step.targetLufs === undefined)
-            reject("targetLufs", "Loudness mode requires a loudness target.");
+            reject("targetLufs", internalIssue("Loudness mode requires a loudness target."));
           if (step.ceilingDbtp === undefined)
-            reject("ceilingDbtp", "Loudness mode requires a true-peak ceiling.");
+            reject("ceilingDbtp", internalIssue("Loudness mode requires a true-peak ceiling."));
           if (step.targetDbfs !== undefined)
-            reject("targetDbfs", "Loudness mode cannot also use a peak target.");
+            reject("targetDbfs", internalIssue("Loudness mode cannot also use a peak target."));
           if (step.targetDbtp !== undefined)
-            reject("targetDbtp", "Loudness mode cannot also use a true-peak target.");
+            reject("targetDbtp", internalIssue("Loudness mode cannot also use a true-peak target."));
         } else {
           if (step.targetDbtp !== undefined && step.targetDbfs !== undefined)
-            reject("targetDbfs", "Peak mode cannot use both sample peak and true peak.");
+            reject("targetDbfs", internalIssue("Peak mode cannot use both sample peak and true peak."));
           if (step.targetDbtp === undefined && step.targetDbfs === undefined)
-            reject("targetDbtp", "Peak mode requires a peak target.");
+            reject("targetDbtp", internalIssue("Peak mode requires a peak target."));
           if (step.targetLufs !== undefined)
-            reject("targetLufs", "Peak mode cannot also use a loudness target.");
+            reject("targetLufs", internalIssue("Peak mode cannot also use a loudness target."));
           if (step.ceilingDbtp !== undefined)
-            reject("ceilingDbtp", "Peak mode cannot also use a true-peak ceiling.");
+            reject("ceilingDbtp", internalIssue("Peak mode cannot also use a true-peak ceiling."));
         }
       }),
     z.strictObject({
@@ -121,10 +122,10 @@ export const stepSchema = z
       kind: z.literal("compress"),
       enabled: z.boolean(),
       amount: z
-        .number({ error: "Enter a compression amount." })
+        .number({ error: "number-invalid" })
         .finite()
-        .min(0, "Compression amount must be between 0 and 100.")
-        .max(100, "Compression amount must be between 0 and 100."),
+        .min(0, "compression-range")
+        .max(100, "compression-range"),
       preset: z.enum(["speech", "music"]),
     }),
     z.strictObject({
@@ -188,18 +189,18 @@ export const recipeSchema = z
     recipe.steps.forEach((step, index) => {
       const issue = (message: string) =>
         context.addIssue({ code: "custom", message, path: ["steps", index] });
-      if (seen.has(step.id)) issue("Each step needs a unique identity.");
+      if (seen.has(step.id)) issue(internalIssue("Each step needs a unique identity."));
       seen.add(step.id);
       if (step.kind === "trim") {
-        if (trim) issue("Use only one Trim all step.");
+        if (trim) issue(internalIssue("Use only one Trim all step."));
         trim = true;
       }
       if (step.kind === "speech") {
-        if (speech) issue("Use only one Voice isolation step.");
+        if (speech) issue(internalIssue("Use only one Voice isolation step."));
         speech = true;
       }
       if (step.kind === "isolation") {
-        if (isolation) issue("Use only one voice/music isolation step.");
+        if (isolation) issue(internalIssue("Use only one voice/music isolation step."));
         isolation = true;
       }
     });
@@ -304,19 +305,15 @@ export type EffectiveRecipe = Readonly<{
 }>;
 export type SnapshotResult =
   | { kind: "ready"; snapshot: EffectiveRecipe }
-  | { kind: "failed"; message: string };
+  | ({ kind: "failed" } & Failure);
 export function snapshotForFile(
   recipe: Recipe,
   entry: FileEntry,
 ): SnapshotResult {
   if (entry.inspection.kind !== "ready")
-    return {
-      kind: "failed",
-      message:
-        entry.inspection.kind === "failed"
-          ? entry.inspection.message
-          : "File inspection is not complete.",
-    };
+    return entry.inspection.kind === "failed"
+      ? { kind: "failed", code: entry.inspection.code, message: entry.inspection.message }
+      : { kind: "failed", ...failure(GENERIC_ERROR) };
   const meta = entry.inspection.metadata;
   const trim = recipe.steps.find((step) => step.kind === "trim");
   if (!trim)
@@ -356,17 +353,19 @@ export function resolveTrim(
   sourceDuration: number | null,
 ):
   | { kind: "ready"; trim: NonNullable<EffectiveRecipe["trim"]> }
-  | { kind: "failed"; message: string } {
+  | ({ kind: "failed" } & Failure) {
   const parsed = trimRangeSchema.safeParse(range);
-  if (!parsed.success)
-    return { kind: "failed", message: parsed.error.issues[0].message };
+  if (!parsed.success) {
+    const code = parsed.error.issues.map((issue) => issue.message).find(isErrorCode) ?? "time-invalid";
+    return { kind: "failed", ...failure(code) };
+  }
   const start = parsed.data.start ?? 0;
   const end =
     sourceDuration === null
       ? parsed.data.end
       : Math.min(parsed.data.end ?? sourceDuration, sourceDuration);
   if (end !== null && start >= end)
-    return { kind: "failed", message: "Trim all starts at or after the file end." };
+    return { kind: "failed", ...failure("trim-past-end") };
   return {
     kind: "ready",
     trim: Object.freeze({

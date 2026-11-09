@@ -1,3 +1,4 @@
+import { UserFacingError } from "./errors.ts";
 import { cleanupAll } from "./cleanup";
 import type { JobEvent, JobPhase } from "./job-events";
 import {
@@ -77,9 +78,9 @@ export async function copyAudio(
     phase("Reading");
     const track = await input.getPrimaryAudioTrack();
     if (!track || (await track.getCodec()) !== plan.codec)
-      throw new Error("The source audio no longer matches the recipe.");
+      throw new UserFacingError("source-changed", "The source audio no longer matches the plan.");
     if (!(await new EncodedPacketSink(track).getFirstPacket()))
-      throw new Error("The audio track contains no packets.");
+      throw new UserFacingError("file-no-audio", "The audio track contains no packets.");
     const format = await input.getFormat();
     const sameContainer =
       (plan.target.container === "mp3" && format instanceof Mp3InputFormat) ||
@@ -111,7 +112,7 @@ export async function copyAudio(
     }
     const config = await track.getDecoderConfig();
     if (!config)
-      throw new Error("Original audio configuration is unavailable.");
+      throw new UserFacingError("audio-unprocessable", "Original audio configuration is unavailable.");
     const source = new EncodedAudioPacketSource(plan.codec);
     output.addAudioTrack(source);
     await output.start();
@@ -127,7 +128,7 @@ export async function copyAudio(
       );
       packets++;
     }
-    if (!packets) throw new Error("The audio track contains no packets.");
+    if (!packets) throw new UserFacingError("file-no-audio", "The audio track contains no packets.");
     source.close();
     await output.finalize();
     signal.throwIfAborted();
@@ -139,7 +140,7 @@ export async function copyAudio(
   } catch (error) {
     signal.throwIfAborted();
     if (error instanceof DOMException && error.name === "QuotaExceededError")
-      throw new Error("Not enough device storage for this output.");
+      throw new UserFacingError("storage-full", "The device has no room for this output.");
     throw error;
   } finally {
     signal.removeEventListener("abort", abort);
