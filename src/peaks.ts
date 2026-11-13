@@ -1,6 +1,6 @@
 import { frameTime, type PcmStream } from "./pcm/blocks.ts";
 
-/** Min and max sample per bin over the whole duration. Channels are averaged, so a bin stays within -1 to 1. */
+/** Min and max sample per bin over the whole duration. Channels keep their largest extreme per bin, so a hard-panned or out-of-phase channel still draws at full height and a bin stays within -1 to 1. */
 export type Peaks = Readonly<{ bins: number; min: Float32Array; max: Float32Array; duration: number }>;
 
 /** Fixed, so the memory a waveform holds never depends on the length of the file. */
@@ -35,7 +35,7 @@ export async function measurePeaks(source: PcmStream, duration: number, signal: 
   if (!samples) throw new Error("No measurable audio samples.");
   const min = new Float32Array(bins), max = new Float32Array(bins);
   for (let bin = 0; bin < bins; bin++) {
-    for (let channel = 0; channel < channels; channel++) { min[bin] += low[channel][bin] / channels; max[bin] += high[channel][bin] / channels; }
+    for (let channel = 0; channel < channels; channel++) { min[bin] = Math.min(min[bin], low[channel][bin]); max[bin] = Math.max(max[bin], high[channel][bin]); }
   }
   return { bins, min, max, duration };
 }

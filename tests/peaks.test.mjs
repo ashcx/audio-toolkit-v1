@@ -24,15 +24,19 @@ test('a negative impulse fills min and the last sample belongs to the last bin',
   assert.equal(peaks.max[9], 0);
 });
 
-test('stereo channels are averaged so a hard-panned channel and an in-phase pair stay within range', async () => {
+test('stereo bins keep the largest extreme of any channel, so a hard-panned or out-of-phase channel is not drawn smaller', async () => {
   const left = impulse(1000, 100, 1), silent = new Float32Array(1000);
   const panned = await run([left, silent], 1000, 1, 10);
-  assert.equal(panned.max[1], 0.5);
+  assert.equal(panned.max[1], 1);
+  assert.equal((await run([silent, left], 1000, 1, 10)).max[1], 1);
   const both = await run([left, left], 1000, 1, 10);
   assert.equal(both.max[1], 1);
   const opposed = await run([left, left.map(value => -value)], 1000, 1, 10);
-  assert.equal(opposed.max[1], 0.5);
-  assert.equal(opposed.min[1], -0.5);
+  assert.equal(opposed.max[1], 1);
+  assert.equal(opposed.min[1], -1);
+  const mixed = await run([impulse(1000, 100, 0.3), impulse(1000, 100, -0.6)], 1000, 1, 10);
+  assert.equal(Math.fround(mixed.max[1]), Math.fround(0.3));
+  assert.equal(Math.fround(mixed.min[1]), Math.fround(-0.6));
 });
 
 test('silence gives flat zero bins instead of failing', async () => {
