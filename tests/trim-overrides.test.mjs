@@ -44,6 +44,26 @@ test('a file range past the end of that file fails with trim-past-end and spares
  assert.equal(snapshotForFile(shared,long,{start:3,end:null}).kind,'ready');
  assert.equal(snapshotForFile(shared,short,{start:null,end:null}).kind,'ready');
 });
+test('an override that covers the whole file adds no trim step, so the recipe and plan match the one with no override',()=>{
+ const shared=recipe([newStep('gain')]),entry=file(10);
+ const plain=ready(snapshotForFile(shared,entry));
+ for(const whole of [{start:0,end:null},{start:null,end:null},{start:0,end:10},{start:null,end:99}]){
+  const own=ready(snapshotForFile(shared,entry,whole));
+  assert.equal(JSON.stringify(own.recipe),JSON.stringify(plain.recipe),JSON.stringify(whole));
+  assert.equal(own.trim,null);
+  assert.equal(JSON.stringify(compilePlan(own,entry.inspection.metadata)),JSON.stringify(compilePlan(plain,entry.inspection.metadata)));
+ }
+ assert.deepEqual(ready(snapshotForFile(shared,entry,{start:0.5,end:null})).recipe.steps.map(step=>step.kind),['trim','gain']);
+ assert.deepEqual(ready(snapshotForFile(shared,entry,{start:0,end:9})).recipe.steps.map(step=>step.kind),['trim','gain']);
+});
+test('a whole-file override still replaces a Trim all range, since that differs from the shared range',()=>{
+ const shared=recipe([trimStep(1,9)]),entry=file(10);
+ for(const whole of [{start:0,end:null},{start:0,end:10}]){
+  const own=ready(snapshotForFile(shared,entry,whole));
+  assert.deepEqual(own.trim,{start:0,end:10,duration:10});
+  assert.deepEqual(own.recipe.steps.map(step=>step.range),[{start:0,end:10}]);
+ }
+});
 test('an override clamps its end to the file duration like the shared range does',()=>{
  assert.deepEqual(ready(snapshotForFile(recipe([]),file(5),{start:1,end:99})).trim,{start:1,end:5,duration:4});
 });

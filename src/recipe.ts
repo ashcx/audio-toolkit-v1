@@ -311,7 +311,7 @@ export type SnapshotResult =
   | ({ kind: "failed" } & Failure);
 /**
  * `override` is one file's own range. It replaces the Trim all range, or adds a trim step when the
- * recipe has none. The added step takes the file's id, so the recipe is the same on every call and
+ * recipe has none and the range cuts something. The added step takes the file's id, so the recipe is the same on every call and
  * a finished export is not mistaken for one made with older settings.
  */
 export function snapshotForFile(
@@ -326,20 +326,22 @@ export function snapshotForFile(
   const meta = entry.inspection.metadata;
   const trim = recipe.steps.find((step) => step.kind === "trim");
   const range = override ?? trim?.range;
-  if (!range)
-    return {
-      kind: "ready",
-      snapshot: Object.freeze({
-        fileId: entry.id,
-        recipe,
-        sourceStartTime: meta.startTime,
-        source: Object.freeze({ ...meta }),
-        trim: null,
-      }),
-    };
+  const untrimmed = (): SnapshotResult => ({
+    kind: "ready",
+    snapshot: Object.freeze({
+      fileId: entry.id,
+      recipe,
+      sourceStartTime: meta.startTime,
+      source: Object.freeze({ ...meta }),
+      trim: null,
+    }),
+  });
+  if (!range) return untrimmed();
   const resolved = resolveTrim(range, meta.duration);
   if (resolved.kind === "failed") return resolved;
   const { start, end } = resolved.trim;
+  // A whole-file override on a recipe with no trim step would only add a step that cuts nothing, and make a finished export look older.
+  if (!trim && start === 0 && (end === null || end === meta.duration)) return untrimmed();
   const perFile = recipeSchema.parse({
     ...recipe,
     steps: trim
