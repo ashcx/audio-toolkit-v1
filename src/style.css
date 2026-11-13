@@ -103,7 +103,8 @@ p { margin: 0; }
 .wave-handle { position: absolute; top: -6px; bottom: -6px; width: 44px; margin-left: -22px; z-index: 2; cursor: ew-resize; touch-action: none; outline: 0; }
 .wave-knob { position: absolute; left: 50%; top: 50%; width: 14px; height: 34px; transform: translate(-50%, -50%); border-radius: 7px; background: var(--trim-line) linear-gradient(var(--surface), var(--surface)) center / 2px 14px no-repeat; box-shadow: 0 0 0 1px var(--surface); }
 .wave-handle:focus-visible .wave-knob { box-shadow: 0 0 0 1px var(--surface), 0 0 0 4px var(--accent); }
-.wave-tag { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 4px; padding: 1px 7px; border-radius: 6px; background: var(--trim-line); color: var(--surface); font: var(--type-status); font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none; }
+.wave-tag { position: absolute; bottom: 100%; left: 50%; transform: translateX(-12px); margin-bottom: 4px; padding: 1px 7px; border-radius: 6px; background: var(--trim-line); color: var(--surface); font: var(--type-status); font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none; }
+.wave-handle[data-handle="end"] .wave-tag { transform: translateX(calc(12px - 100%)); }
 .wave-fields { display: flex; flex-wrap: wrap; align-items: end; gap: 8px 12px; }
 .wave-fields label { display: flex; flex-direction: column; gap: 4px; flex: 1 1 110px; min-width: 0; color: var(--muted-strong); font: var(--type-label); }
 .wave-fields input { width: 100%; min-width: 0; min-height: 44px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-subtle); color: var(--text); padding: 7px 10px; font: var(--type-value); font-variant-numeric: tabular-nums; }
