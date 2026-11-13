@@ -1,6 +1,6 @@
 # Sprint 29. Add waveform playback and individual-track trimming
 
-Status is in implementation. Updated 2026-11-13. On 2026-11-13 the user authorized implementing this sprint, interactive UI/UX testing and one PR. Do not merge or deploy without a separate user instruction.
+Status is implemented and awaiting review and merge. Updated 2026-11-13. Evidence and the coverage table are in `docs/sprint-evidence/sprint-29/`. Scenarios 29-01 to 29-04 have evidence, 29-05 was not measured and 29-06 is out of scope. On 2026-11-13 the user authorized implementing this sprint, interactive UI/UX testing and one PR. Do not merge or deploy without a separate user instruction.
 
 ## Decisions recorded 2026-11-13
 

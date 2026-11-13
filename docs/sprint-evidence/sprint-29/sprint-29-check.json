@@ -1,0 +1,190 @@
+{
+  "lines": [
+    {
+      "name": "29-02 both source rows draw real peaks",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "29-03 compact rows have no handles, so a stray tap cannot trim",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "compact waveform is 44px tall",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Trim grows only that row to 130px",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "edit mode shows start and end handles",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Trim button turns into Done",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "dragging both handles sets Start near 5 s and End near 15 s",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the dragged file shows Custom range and Reset",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the other file is untouched",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the file summary follows the range",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "29 a start line and an end line are drawn full height in the contrast colour",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "scrub while playing",
+      "ok": true,
+      "note": true
+    },
+    {
+      "name": "29-03 playback never pauses during or after a scrub",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "29-03 the audio follows the pointer with several seeks and ends where it was released",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "29-03 seeks during the drag only move forward with the pointer (no snap back)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "29-03 the playhead moved during the drag",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Reset to Trim all removes the custom range",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "29-03 pointer cancel puts the handle back where the gesture began",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "29-03 arrow keys nudge a focused handle",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Done folds the row back and keeps the range",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Trim all conflicts",
+      "ok": true,
+      "note": true
+    },
+    {
+      "name": "29-03 editing Trim all while a file is custom asks before replacing",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Keep custom ranges leaves the custom range in place",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Replace custom ranges clears it and the file follows Trim all",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "29 export honours each file range (Trim all 2 to 18 s gives 16 s, the custom file is shorter)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "the exported waveform is labelled as the result, not the original",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "plain result rows still say only their label and player",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "06-desktop-light has no horizontal page scroll",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "06-desktop-light keeps handles, fields and buttons inside the file list",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "06-desktop-light touch targets are at least 44px",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "07-320-light has no horizontal page scroll",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "07-320-light keeps handles, fields and buttons inside the file list",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "07-320-light touch targets are at least 44px",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "08-320-dark has no horizontal page scroll",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "08-320-dark keeps handles, fields and buttons inside the file list",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "08-320-dark touch targets are at least 44px",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "no page errors during the run",
+      "ok": true,
+      "detail": ""
+    }
+  ],
+  "failures": []
+}

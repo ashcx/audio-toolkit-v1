@@ -23,6 +23,6 @@ These files are the authoritative execution checklists. The grouped documents re
 | [26](sprint-26-encoding-modes.md) | Expose verified CBR, VBR and supported encoding modes | Merged, [PR #31](https://github.com/ashcx/audio-toolkit-v1/pull/31), [PR #32](https://github.com/ashcx/audio-toolkit-v1/pull/32) |
 | [27](sprint-27-demucs-runtime.md) | Evaluate and optimize browser Demucs v4 | Planned |
 | [28](sprint-28-ui-ux-overhaul.md) | Clear wording, quieter status and plain errors | Implemented on branch; physical-device, screen-reader and listening gates open |
-| [29](sprint-29-waveform-trimming.md) | Add waveform playback and individual-track trimming | Planned |
+| [29](sprint-29-waveform-trimming.md) | Add waveform playback and individual-track trimming | Implemented, in review |
 
-Sprint 27 may run first for separation speed. Sprint 28 is a UI and wording overhaul that replaced the withdrawn stem-selection sprint. Sprint 29 no longer includes four-stem audition. Sprint 28 is implemented on branch `ui/ux-audit`, and Sprint 29 remains planning-only.
+Sprint 27 may run first for separation speed. Sprint 28 is a UI and wording overhaul that replaced the withdrawn stem-selection sprint. Sprint 29 no longer includes four-stem audition. Sprint 28 is implemented on branch `ui/ux-audit`. Sprint 29 is implemented and awaiting review and merge, with its evidence in `docs/sprint-evidence/sprint-29/`.
