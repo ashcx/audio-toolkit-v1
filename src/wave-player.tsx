@@ -187,11 +187,13 @@ export function WavePlayer({ src, source, label, name, duration, preload, paused
   const handle = (which: Handle) => {
     if (!trim?.range || !total) return null;
     const value = trim.range[which];
+    // Overlapping handles stack by which one still has room to move away, so neither can be buried.
+    const front = (trim.range.start + trim.range.end) / 2 > total / 2 ? "start" : "end";
     const dragging = (event: PointerEvent) => {
       const current = gesture.current;
       return current.kind === "dragging-handle" && current.pointerId === event.pointerId ? current : null;
     };
-    return <div class="wave-handle" role="slider" tabIndex={0} data-handle={which}
+    return <div class="wave-handle" role="slider" tabIndex={0} data-handle={which} data-front={front === which ? "" : undefined}
       aria-label={which === "start" ? copy.trim.startHandle(name) : copy.trim.endHandle(name)}
       aria-valuemin={0} aria-valuemax={total} aria-valuenow={Number(value.toFixed(3))} aria-valuetext={formatTrimTime(value)} aria-disabled={trim.locked}
       style={{ left: `${value / total * 100}%` }}

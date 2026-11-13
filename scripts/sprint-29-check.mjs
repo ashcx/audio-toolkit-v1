@@ -246,6 +246,12 @@ const trackPoint = async (page, rowName, fraction, y = 0.5) => {
   const trackWidth = (await box(row(page, a).locator('.wave-track'))).width;
   check('29-03 grabbing a handle off its centre does not make it jump to the pointer', Math.abs((await valueOf('start')) - startValue) < 3 / trackWidth * 20 + 0.05, `${startValue} -> ${await valueOf('start')} on ${trackWidth}px`);
 
+  note('a Start dragged past the right edge');
+  await dragHandle('start', 1.05);
+  check('29-03 dragging Start past the right edge stops just short of End', (await valueOf('start')) >= 19.9, await valueOf('start'));
+  await dragHandle('start', 0.5);
+  check('29-03 a Start dragged to the far right can be dragged back with a pointer', Math.abs((await valueOf('start')) - 10) < 1, await valueOf('start'));
+
   await context.close();
 }
 
