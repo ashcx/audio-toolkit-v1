@@ -252,6 +252,20 @@ const trackPoint = async (page, rowName, fraction, y = 0.5) => {
   await dragHandle('start', 0.5);
   check('29-03 a Start dragged to the far right can be dragged back with a pointer', Math.abs((await valueOf('start')) - 10) < 1, await valueOf('start'));
 
+  note('compact touch scrolling');
+  const touchAction = () => row(page, a).locator('.wave-track').evaluate(node => getComputedStyle(node).touchAction);
+  check('29-03 the editing track and handles take every touch gesture', (await touchAction()) === 'none' && (await row(page, a).locator('.wave-handle').first().evaluate(node => getComputedStyle(node).touchAction)) === 'none');
+  await doneButton().click(); await page.waitForTimeout(400);
+  check('29-03 the compact track leaves vertical swipes to the page scroll', (await touchAction()) === 'pan-y', await touchAction());
+  const seekFrom = await trackPoint(page, a, 0.3), seekTo = await trackPoint(page, a, 0.7);
+  await page.mouse.move(seekFrom.x, seekFrom.y); await page.mouse.down();
+  await page.evaluate(() => document.querySelector('.wave-track').dispatchEvent(new PointerEvent('pointercancel', { bubbles: true, pointerId: 1 })));
+  await page.mouse.up();
+  await page.mouse.click(seekTo.x, seekTo.y);
+  await page.waitForTimeout(400);
+  const sought = await row(page, a).locator('audio').evaluate(audio => ({ t: audio.currentTime, duration: audio.duration }));
+  check('29-03 a pointercancel during a seek leaves the next click seeking', Math.abs(sought.t - 0.7 * sought.duration) < 1.5, JSON.stringify(sought));
+
   await context.close();
 }
 

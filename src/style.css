@@ -92,11 +92,11 @@ p { margin: 0; }
 .wave-label { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; font: var(--type-status); color: var(--muted-strong); }
 .wave-time { font: var(--type-status); font-variant-numeric: tabular-nums; color: var(--muted-strong); white-space: nowrap; }
 .wave-trim { flex: none; margin-left: auto; }
-.wave-track { position: relative; height: 44px; margin: 6px 22px; border-radius: 8px; touch-action: none; user-select: none; cursor: pointer; }
+.wave-track { position: relative; height: 44px; margin: 6px 22px; border-radius: 8px; touch-action: pan-y; user-select: none; cursor: pointer; }
 .wave-track[aria-disabled="true"] { cursor: default; }
 .wave-track:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .wave-track canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.wave-player[data-editing] .wave-track { height: 130px; margin-top: 30px; }
+.wave-player[data-editing] .wave-track { height: 130px; margin-top: 30px; touch-action: none; }
 .wave-playhead { position: absolute; top: 0; bottom: 0; left: 0; width: 0; pointer-events: none; }
 .wave-playhead::before { content: ""; position: absolute; left: -.5px; top: 0; bottom: 0; width: 1px; background: var(--accent); box-shadow: 0 0 0 1px var(--surface); }
 .wave-playhead::after { content: ""; position: absolute; left: -6px; top: -6px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: 2px solid var(--surface); }
