@@ -3,7 +3,7 @@ import { formatTrimTime, parseClock } from "./format";
 import { trimHandles, changeTrimHandle } from "./trim-control";
 import type { TrimRangeDraft } from "./recipe";
 import { copy } from "./copy";
-function TimeField({ value, placeholder, label, errorId, onChange }: {
+export function TimeField({ value, placeholder, label, errorId, onChange }: {
   value: number | null; placeholder: string; label: string; errorId?: string;
   onChange: (value: number | null) => void;
 }) {

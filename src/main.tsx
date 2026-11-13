@@ -6,6 +6,9 @@ import { FileRow } from "./file-row";
 import { useFolderSave } from "./use-folder-save";
 import { useArchive } from "./use-archive";
 import { usePreview } from "./use-preview";
+import { useTrimOverrides } from "./use-trim-overrides";
+import { sharedRangeChanged } from "./trim-overrides";
+import type { FileId } from "./media";
 import { useExport } from "./use-export";
 import { compilePlan } from "./planner";
 import { automaticExport } from "./export-default";
@@ -53,8 +56,11 @@ function App() {
   const [recipeDraft, setDraft] = useState<RecipeDraft>(newRecipe);
   const [explicitFormat, setExplicitFormat] = useState(false);
   const [clearing, setClearing] = useState(false);
-  const draft = explicitFormat ? recipeDraft : {...recipeDraft, export: automaticExport(recipeDraft,files)};
-  const preview = usePreview(JSON.stringify([draft, files.map(entry => [entry.id, entry.inspection])]));
+  const custom = useTrimOverrides();
+  const [editingId, setEditingId] = useState<FileId | null>(null);
+  const [conflict, setConflict] = useState(false);
+  const draft = explicitFormat ? recipeDraft : {...recipeDraft, export: automaticExport(recipeDraft,files,custom.overrides)};
+  const preview = usePreview(JSON.stringify([draft, files.map(entry => [entry.id, entry.inspection]), [...custom.overrides]]));
   const locked = deliveryLocked;
   const workLocked = locked || preview.busy;
   const settings = useRef<HTMLDialogElement>(null);
@@ -72,6 +78,7 @@ function App() {
       const effective = snapshotForFile(
         parsedRecipe.data,
         entry,
+        custom.overrides.get(entry.id),
       );
       return [
         entry.id,
@@ -97,6 +104,9 @@ function App() {
   const exportText = exportStatus([...exports.jobs.values()]);
   const changeRecipe = (next: RecipeDraft) => {
     if (locked) return false;
+    // The prompt only shows inside the Trim all step, so a flag left from a deleted step would return with the next one.
+    if (!next.steps.some(step => step.kind === "trim")) setConflict(false);
+    else if (custom.overrides.size && sharedRangeChanged(draft, next)) setConflict(true);
     setDraft(next);
     return true;
   };
@@ -116,6 +126,8 @@ function App() {
     if (preview.busy || archive.busy || folder.busy || exports.busy) return;
     for (const id of exports.jobs.keys()) exports.clear(id);
     clear();
+    custom.clear();
+    setEditingId(null);
     setClearing(false);
   }, [clearing, preview.busy, archive.busy, folder.busy, exports.busy, exports.cleanupCount]);
   useLayoutEffect(() => {
@@ -141,6 +153,7 @@ function App() {
       : document.querySelector<HTMLButtonElement>(".step-toggle[aria-describedby*='error-']") ?? picker.current;
     target?.focus();
   },[locked,completed.length,jobs.length,exports.cleanupCount,exports.cleanupStuck,zipStuck]);
+  useLayoutEffect(() => { if (!custom.overrides.size) setConflict(false); }, [custom.overrides.size]);
   const fileList = useRef<HTMLUListElement>(null);
   const pendingFocus = useRef<number | null>(null);
   const capabilities = {
@@ -247,24 +260,34 @@ function App() {
                     key={entry.id}
                     entry={entry}
                     trim={trim?.range}
+                    override={custom.overrides.get(entry.id)}
+                    editing={editingId === entry.id}
+                    onEdit={() => setEditingId(current => current === entry.id ? null : entry.id)}
+                    onOverride={range => {
+                      if (locked || exports.cleanupCount > 0) return;
+                      if (range) custom.set(entry.id, range); else custom.reset(entry.id);
+                    }}
                     trimErrorId={trimErrorId}
                     plan={plans.get(entry.id) ?? null}
                     job={exports.jobs.get(entry.id)}
                     preview={preview.state.kind !== "idle" && preview.state.fileId === entry.id ? preview.state : undefined}
                     previewDisabled={workLocked || exports.cleanupCount > 0 || !parsedRecipe.success}
-                    hasRecipeSteps={draft.steps.length > 0}
+                    hasRecipeSteps={draft.steps.length > 0 || custom.overrides.has(entry.id)}
                     onPreview={() => {
                       if (workLocked || exports.cleanupCount > 0 || !parsedRecipe.success) return;
-                      const effective = snapshotForFile(parsedRecipe.data, entry);
+                      const effective = snapshotForFile(parsedRecipe.data, entry, custom.overrides.get(entry.id));
                       if (effective.kind === "ready") preview.start(entry, effective.snapshot);
                     }}
                     onClearPreview={preview.clear}
                     busy={workLocked || exports.cleanupCount > 0}
+                    trimLocked={locked || exports.cleanupCount > 0}
                     downloadBusy={archive.busy || folder.busy}
                     onCancel={() => exports.cancel(entry.id)}
                     onRetry={() => { if (!preview.busy) exports.retry(entry.id); }}
                     onRemove={() => {
                       pendingFocus.current = index;
+                      custom.reset(entry.id);
+                      if (editingId === entry.id) setEditingId(null);
                       if (preview.state.kind !== "idle" && preview.state.fileId === entry.id) preview.clear();
                       exports.clear(entry.id);
                       remove(entry.id);
@@ -282,6 +305,11 @@ function App() {
             duration={Math.max(0, ...files.flatMap(file => file.inspection.kind === "ready" && file.inspection.metadata.duration !== null ? [file.inspection.metadata.duration] : []))}
             value={draft}
             onChange={changeRecipe}
+            trimConflict={conflict && custom.overrides.size > 0 ? {
+              count: custom.overrides.size,
+              onReplace: () => { custom.clear(); setConflict(false); },
+              onKeep: () => setConflict(false),
+            } : undefined}
             error={
               parsedRecipe.success ||
               parsedRecipe.error.issues[0].path[0] === "steps"

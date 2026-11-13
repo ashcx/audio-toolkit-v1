@@ -23,9 +23,9 @@ These files are the authoritative execution checklists. The grouped documents re
 | --- | --- | --- |
 | [27](todo/sprint-27-demucs-runtime.md) | Evaluate and optimize browser Demucs v4 | Implemented on branch; listening and device gates open. Demucs replaced SCNet; coverage |
 | [28](todo/sprint-28-ui-ux-overhaul.md) | Clear wording, quieter status and plain errors | Implemented on branch; physical-device, screen-reader and listening gates open |
-| [29](todo/sprint-29-waveform-trimming.md) | Add waveform playback and individual-track trimming | Planned |
+| [29](todo/sprint-29-waveform-trimming.md) | Add waveform playback and individual-track trimming | Implemented, in review |
 
-SCNet was removed in Sprint 27: Demucs on WebGPU separated 3.7 to 4 times faster, and one engine keeps one model, license and test surface. Sprint 28 is a UI and wording overhaul that replaced the withdrawn stem-selection sprint. Sprint 29 no longer includes four-stem audition. Sprint 28 is implemented on branch `ui/ux-audit`, and Sprint 29 remains planning-only.
+SCNet was removed in Sprint 27: Demucs on WebGPU separated 3.7 to 4 times faster, and one engine keeps one model, license and test surface. Sprint 28 is a UI and wording overhaul that replaced the withdrawn stem-selection sprint. Sprint 29 no longer includes four-stem audition. Sprint 28 is implemented on branch `ui/ux-audit`. Sprint 29 is implemented and awaiting review and merge, with its evidence in `docs/sprint-evidence/sprint-29/`.
 
 [Sprints 27–29](todo/demucs-waveform-sprints.md) add research-backed planning for optimized browser Demucs v4, selectable four-stem/instrumental outputs, and compact waveform playback with individual-track trimming. Waveform handles never edit the batch range.
 

@@ -25,7 +25,7 @@ test('the scanner flags text written inline in each place a person can read or h
 
 const components = readdirSync(new URL('../src/', import.meta.url)).filter(name => name.endsWith('.tsx')).sort();
 test('every component reads its visible text from src/copy.ts', () => {
-  assert.deepEqual(components, ['file-row.tsx', 'main.tsx', 'recipe-editor.tsx', 'trim-fields.tsx']);
+  assert.deepEqual(components, ['file-row.tsx', 'main.tsx', 'recipe-editor.tsx', 'trim-fields.tsx', 'wave-player.tsx']);
   const inline = components.flatMap(name => inlineText(readFileSync(new URL(`../src/${name}`, import.meta.url), 'utf8'), name));
   assert.deepEqual(inline, [], 'inline user-facing text found; move it into src/copy.ts');
 });

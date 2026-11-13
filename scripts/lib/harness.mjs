@@ -95,3 +95,5 @@ export async function loadModule(path) {
   try { return await server.ssrLoadModule(path); } finally { await server.close(); }
 }
 export const loadCopy = async () => (await loadModule('/src/copy.ts')).copy;
+/** Players show a running time beside their label, so label checks compare the text without it. */
+export const withoutTimes = text => text.replace(/\s*\d+:\d\d(?::\d\d)?(?:\.\d+)? \/ \d+:\d\d(?::\d\d)?(?:\.\d+)?/g, '').replace(/\s+/g, ' ').trim();

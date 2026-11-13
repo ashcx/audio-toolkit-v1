@@ -1,6 +1,18 @@
 # Sprint 29. Add waveform playback and individual-track trimming
 
-Status is planned. Updated 2026-10-31. This file authorizes planning only. Do not start app implementation, install or run a candidate model, create an implementation PR, merge or deploy without a separate user instruction.
+Status is implemented and awaiting review and merge. Updated 2026-11-13. Evidence and the coverage table are in `docs/sprint-evidence/sprint-29/`. Scenarios 29-01 to 29-04 have evidence, 29-05 was not measured and 29-06 is out of scope. On 2026-11-13 the user authorized implementing this sprint, interactive UI/UX testing and one PR. Do not merge or deploy without a separate user instruction.
+
+## Decisions recorded 2026-11-13
+
+These come from the user and supersede conflicting text below. A design mockup (Option B, "Compact player, expands to trim") was reviewed and chosen.
+
+- **Layout (Option B).** Every player row stays compact: play/pause, file name, elapsed/total time, a short bar waveform and a Trim button. Pressing Trim grows only that row into a taller editor with draggable start and end handles that carry time tags, numeric Start and End fields, a Custom range badge and Reset to Trim all. Only one row is edited at a time. Done folds the row back and keeps the range. Handles exist only in edit mode, so a stray tap on a compact row never cuts audio.
+- **Start and end lines.** The trim start and trim end are drawn as full-height, high-contrast lines on the waveform (near-white in the dark theme, near-black in the light theme). They stay visible in compact and edit mode. Audio outside the range is dimmed. The lines must be visually distinct from the playhead. Trim lines are 2 px bracket-shaped marks with a small flag at the top, and the playhead is a thinner accent-coloured line with a round head. Colour and shape must differ so the two are never confused, including in both themes and with the played-bar accent underneath.
+- **Files that follow Trim all.** Their waveform shows the shared range with the same lines and dimming, read-only until the user drags a handle. Dragging a handle makes that file a Custom range. Trim all stays a separate numeric recipe control. Warn before replacing custom ranges with a newly applied shared range.
+- **Scrubbing and playback stay together.** Dragging or touch-dragging the playhead must keep audible playback in step with the pointer. No pause, restart, snap-back or stale position during or after a drag. The playhead follows `audio.currentTime` while playing. While dragging, seeks are coalesced to one per animation frame and the final pointer position is applied exactly on release. A playing file keeps playing after release.
+- **Every player gets the waveform.** The original, the before and after preview players and the exported result all use the waveform player. A processed or exported waveform is labelled as that output and is never the source waveform. Peaks for outputs are computed from the output itself.
+- **Stem audition is out of scope.** There are no stem rows because the stem-selection sprint was withdrawn. Scenario 29-06 is out of scope for this PR.
+- **Renderer.** Canvas, rendered from worker-supplied bounded peaks. The WaveSurfer comparison in scenario 29-01 is recorded as a short written decision, not a prototype.
 
 ## Goal
 

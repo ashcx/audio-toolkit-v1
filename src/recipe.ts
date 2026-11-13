@@ -309,9 +309,15 @@ export type EffectiveRecipe = Readonly<{
 export type SnapshotResult =
   | { kind: "ready"; snapshot: EffectiveRecipe }
   | ({ kind: "failed" } & Failure);
+/**
+ * `override` is one file's own range. It replaces the Trim all range, or adds a trim step when the
+ * recipe has none and the range cuts something. The added step takes the file's id, so the recipe is the same on every call and
+ * a finished export is not mistaken for one made with older settings.
+ */
 export function snapshotForFile(
   recipe: Recipe,
   entry: FileEntry,
+  override?: TrimRangeDraft,
 ): SnapshotResult {
   if (entry.inspection.kind !== "ready")
     return entry.inspection.kind === "failed"
@@ -319,25 +325,28 @@ export function snapshotForFile(
       : { kind: "failed", ...failure(GENERIC_ERROR) };
   const meta = entry.inspection.metadata;
   const trim = recipe.steps.find((step) => step.kind === "trim");
-  if (!trim)
-    return {
-      kind: "ready",
-      snapshot: Object.freeze({
-        fileId: entry.id,
-        recipe,
-        sourceStartTime: meta.startTime,
-        source: Object.freeze({ ...meta }),
-        trim: null,
-      }),
-    };
-  const resolved = resolveTrim(trim.range, meta.duration);
+  const range = override ?? trim?.range;
+  const untrimmed = (): SnapshotResult => ({
+    kind: "ready",
+    snapshot: Object.freeze({
+      fileId: entry.id,
+      recipe,
+      sourceStartTime: meta.startTime,
+      source: Object.freeze({ ...meta }),
+      trim: null,
+    }),
+  });
+  if (!range) return untrimmed();
+  const resolved = resolveTrim(range, meta.duration);
   if (resolved.kind === "failed") return resolved;
   const { start, end } = resolved.trim;
+  // A whole-file override on a recipe with no trim step would only add a step that cuts nothing, and make a finished export look older.
+  if (!trim && start === 0 && (end === null || end === meta.duration)) return untrimmed();
   const perFile = recipeSchema.parse({
     ...recipe,
-    steps: recipe.steps.map((step) =>
-      step.kind === "trim" ? { ...step, range: { start, end } } : step,
-    ),
+    steps: trim
+      ? recipe.steps.map((step) => (step.kind === "trim" ? { ...step, range: { start, end } } : step))
+      : [{ id: entry.id, kind: "trim", range: { start, end } }, ...recipe.steps],
   });
   return {
     kind: "ready",

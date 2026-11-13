@@ -1,5 +1,5 @@
 import {chromium} from 'playwright';
-import {loadCopy} from './lib/harness.mjs';
+import {loadCopy, withoutTimes} from './lib/harness.mjs';
 const copy=await loadCopy();
 import {createServer} from 'vite';
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
@@ -96,7 +96,7 @@ try{
     assert.equal(stats.isolationPasses,1);assert.equal(stats.isolationWindows,windows);assert.equal(stats.isolationLoads,1,'one model session per job');assert.equal(stats.maxIsolationFrames,SEGMENT);assert.deepEqual(stats.isolationBackends,['webgpu+wasm']);
     assert(done.length>=windows&&done.every(value=>value.stems===4&&value.gpuDispatches>0),'every window returns four stems and issued GPU work');
     assert(downloads.length>0&&downloads.at(-1).loaded===MODEL_BYTES&&downloads.every(event=>event.total===MODEL_BYTES),'model download progress reaches the verified size');
-    assert.equal((await page.locator('.file-result').innerText()).trim(),copy.result.label,'a finished split says nothing more than its label');
+    assert.equal(withoutTimes(await page.locator('.file-result').innerText()),copy.result.label,'a finished split says nothing more than its label');
     const shown=await page.evaluate(()=>[...window.__labels]);assert(!shown.some(text=>/GPU|CPU|\d+\s*\/\s*\d+/.test(text)),`no device word or window counter, saw ${JSON.stringify(shown.filter(text=>/GPU|CPU|\d+\s*\/\s*\d+/.test(text)))}`);
     assert.equal(await page.locator('.device-badge').count(),0,'no device badge');
     await page.evaluate(()=>window.__labels.clear());
@@ -145,7 +145,7 @@ try{
    const stats=await page.evaluate(()=>window.__stats.at(-1));assert.deepEqual(stats.isolationBackends,['wasm']);
    assert.equal(await page.locator('.device-badge').count(),0,'no device badge');
    assert(!(await page.evaluate(()=>[...window.__labels])).some(text=>/GPU|CPU/.test(text)),'no device word while the split runs on the CPU');
-   assert.equal((await page.locator('.file-result').innerText()).trim(),copy.result.label);await page.screenshot({path:`${evidence}/app-cpu-done.png`,fullPage:true});
+   assert.equal(withoutTimes(await page.locator('.file-result').innerText()),copy.result.label);await page.screenshot({path:`${evidence}/app-cpu-done.png`,fullPage:true});
    assert.deepEqual(errors,[]);record.runs.push({device:'cpu',keep:'music',input:'tone.wav',elapsedMs,output,stats});
    pass('without WebGPU the editor warns, isolation runs on CPU and is labelled CPU',{elapsedMs,note});
   }finally{await browser.close();}
