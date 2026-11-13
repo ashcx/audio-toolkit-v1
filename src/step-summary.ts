@@ -8,7 +8,7 @@ export function stepSummary(step: StepDraft): string {
     case "gain": return copy.gain.summary(step.db);
     case "normalize": return copy.normalize.summary(step);
     case "compress": return copy.compressor.summary(step);
-    case "channels": return copy.channels.summary[step.channels];
+    case "channels": return copy.channels.summary(step);
     case "resample": return copy.sampleRate.summary(step.rateHz);
     case "speech": return copy.noise.summary[step.model];
     case "isolation": return copy.splitter.summary[step.keep];

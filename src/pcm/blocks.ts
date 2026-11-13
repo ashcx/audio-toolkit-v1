@@ -1,6 +1,6 @@
 import { UserFacingError } from "../errors.ts";
 import { LoudnessMeter, type LoudnessMeasurement } from "./loudness.ts";
-import type { Recipe } from "../recipe";
+import type { ChannelSource, Recipe } from "../recipe";
 
 export const BLOCK_FRAMES = 4096;
 // The BS.1770 true-peak meter can differ from ffmpeg near Nyquist in either
@@ -73,25 +73,25 @@ export async function* trim(
       };
   }
 }
-export async function* channels(source: PcmStream, count: 1 | 2): PcmStream {
+type Planes = Float32Array[];
+const copyOf = (plane: Float32Array) => plane.slice();
+const STEREO_SOURCE_MAPS: Record<ChannelSource, Record<1 | 2, (left: Float32Array, right: Float32Array) => Planes>> = {
+  both: {
+    1: (left, right) => [left.map((value, index) => (value + right[index]) * 0.5)],
+    2: (left, right) => [left, right],
+  },
+  left: { 1: (left) => [copyOf(left)], 2: (left) => [copyOf(left), copyOf(left)] },
+  right: { 1: (_, right) => [copyOf(right)], 2: (_, right) => [copyOf(right), copyOf(right)] },
+};
+// A mono input ignores `pick`: it has only one channel to use.
+export async function* channels(source: PcmStream, count: 1 | 2, pick: ChannelSource = "both"): PcmStream {
   for await (const block of source) {
     if (block.planes.length > 2)
       throw new UserFacingError("file-unsupported-audio", "Processing supports mono and stereo audio.");
-    if (block.planes.length === count) yield block;
-    else if (count === 2)
-      yield {
-        ...block,
-        planes: [block.planes[0].slice(), block.planes[0].slice()],
-      };
-    else
-      yield {
-        ...block,
-        planes: [
-          block.planes[0].map(
-            (value, index) => (value + block.planes[1][index]) * 0.5,
-          ),
-        ],
-      };
+    if (block.planes.length === 1)
+      yield count === 1 ? block : { ...block, planes: [copyOf(block.planes[0]), copyOf(block.planes[0])] };
+    else if (pick === "both" && count === 2) yield block;
+    else yield { ...block, planes: STEREO_SOURCE_MAPS[pick][count](block.planes[0], block.planes[1]) };
   }
 }
 export async function* normalize(

@@ -2,6 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {gain,trim,channels,normalize,BLOCK_FRAMES} from '../src/pcm/blocks.ts';
 import {resample} from '../src/pcm/resample.ts';
+import {newRecipe,newExport,newStep,recipeSchema,snapshotForFile} from '../src/recipe.ts';
+import {createFileId} from '../src/media.ts';
+import {compilePlan} from '../src/planner.ts';
 async function* source(planes,rate=48000,chunk=4096,origin=0){for(let offset=0;offset<planes[0].length;offset+=chunk)yield{planes:planes.map(p=>p.slice(offset,offset+chunk)),rate,origin,offset};}
 async function collect(stream){const chunks=[];for await(const block of stream){assert(block.planes[0].length<=BLOCK_FRAMES);chunks.push(block);}const count=chunks.reduce((n,b)=>n+b.planes[0].length,0);const planes=chunks.length?chunks[0].planes.map(()=>new Float32Array(count)):[];let cursor=0;for(const b of chunks){b.planes.forEach((p,c)=>planes[c].set(p,cursor));cursor+=b.planes[0].length;}return{planes,chunks,count};}
 const tone=(frequency,frames=48000,rate=48000)=>Float32Array.from({length:frames},(_,i)=>.5*Math.sin(2*Math.PI*frequency*i/rate));
@@ -40,4 +43,23 @@ test('downsampling rejects out-of-band aliases and preserves the source clock th
  const rejected=await collect(resample(source([tone(12000)]),16000));const aliasDb=20*Math.log10(rms(rejected.planes[0].subarray(100,-100))/(.5/Math.sqrt(2)));assert(aliasDb< -60,`alias ${aliasDb}dB`);
  const stream=resample(resample(source([tone(1000)],48000,37),44100),48000);
  const kept=await collect(trim(stream,.25,.75));assert.equal(kept.count,24000);const first=kept.chunks[0];assert.equal(first.origin+first.offset/first.rate,.25);
+});
+test('channels picks one side of a mixed batch at full level and the planner sees that as a change',async()=>{
+ const live=Float32Array.from({length:6000},(_,i)=>Math.fround(Math.sin(i/7)*.5)),silent=new Float32Array(6000),other=live.map(x=>-x*.5);
+ const files={mono:[live],leftOnly:[live,silent],both:[live,other]};
+ const blend=live.map((x,i)=>(x+other[i])*.5);
+ const cases=[
+  ['mono',1,'left',[live]],['mono',2,'right',[live,live]],
+  ['leftOnly',1,'left',[live]],['leftOnly',2,'left',[live,live]],['leftOnly',1,'right',[silent]],['leftOnly',2,'both',[live,silent]],
+  ['both',1,'right',[other]],['both',2,'right',[other,other]],['both',1,'both',[blend]],['both',2,'both',[live,other]],
+ ];
+ for(const [name,count,pick,expected] of cases){
+  const {planes}=await collect(channels(source(files[name]),count,pick));
+  assert.equal(planes.length,count,`${name} ${count} ${pick}`);
+  planes.forEach((plane,i)=>assert.deepEqual(plane,expected[i],`${name} ${count} ${pick} plane ${i}`));
+ }
+ const metadata={container:'test',codec:'pcm-s16',duration:2,startTime:0,sampleRate:48000,channels:2,hasVideo:false};
+ const entry={id:createFileId(),file:new File(['data'],'source.wav'),inspection:{kind:'ready',metadata}};
+ const steps=pick=>{const recipe=recipeSchema.parse({...newRecipe(),steps:[{...newStep('channels'),channels:'stereo',source:pick}],export:newExport('wav')});const effective=snapshotForFile(recipe,entry);assert.equal(effective.kind,'ready');return compilePlan(effective.snapshot,metadata).steps;};
+ assert.equal(steps('left').length,1);assert.equal(steps('both').length,0);
 });

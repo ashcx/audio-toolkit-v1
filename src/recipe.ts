@@ -31,6 +31,8 @@ const rate = z.union([
   z.literal(44100),
   z.literal(48000),
 ]);
+export const CHANNEL_SOURCES = ["both", "left", "right"] as const;
+export type ChannelSource = (typeof CHANNEL_SOURCES)[number];
 export const stepSchema = z
   .discriminatedUnion("kind", [
     z.strictObject({
@@ -132,6 +134,7 @@ export const stepSchema = z
       id: stepId,
       kind: z.literal("channels"),
       channels: z.enum(["original", "mono", "stereo"]),
+      source: z.enum(CHANNEL_SOURCES).default("both"),
     }),
     z.strictObject({ id: stepId, kind: z.literal("resample"), rateHz: rate }),
     z.strictObject({ id: stepId, kind: z.literal("speech"), model: z.enum(["standard", "detailed"]) }),
@@ -261,7 +264,7 @@ export function newStep(kind: StepKind): StepDraft {
     case "compress":
       return { id, kind, enabled: true, amount: 50, preset: "speech" };
     case "channels":
-      return { id, kind, channels: "original" };
+      return { id, kind, channels: "original", source: "both" };
     case "resample":
       return { id, kind, rateHz: "original" };
     case "isolation":

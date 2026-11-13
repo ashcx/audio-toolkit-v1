@@ -51,7 +51,8 @@ function changesSignal(
     case "channels":
       return (
         step.channels !== "original" &&
-        (step.channels === "mono" ? 1 : 2) !== source.channels
+        ((step.channels === "mono" ? 1 : 2) !== source.channels ||
+          (source.channels === 2 && step.source !== "both"))
       );
     case "resample":
       return step.rateHz !== "original" && step.rateHz !== source.sampleRate;
