@@ -91,7 +91,7 @@ p { margin: 0; }
 .wave-play svg { width: 16px; height: 16px; fill: currentColor; }
 .wave-label { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; font: var(--type-status); color: var(--muted-strong); }
 .wave-time { font: var(--type-status); font-variant-numeric: tabular-nums; color: var(--muted-strong); white-space: nowrap; }
-.wave-trim { flex: none; }
+.wave-trim { flex: none; margin-left: auto; }
 .wave-track { position: relative; height: 44px; margin: 6px 22px; border-radius: 8px; touch-action: none; user-select: none; cursor: pointer; }
 .wave-track[aria-disabled="true"] { cursor: default; }
 .wave-track:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
