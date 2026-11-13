@@ -25,16 +25,21 @@ const files = [
   { name: 'room-tone-b.wav', mimeType: 'audio/wav', buffer: wav(14) },
 ];
 
+const lengths = [
+  { name: 'short-60.wav', mimeType: 'audio/wav', buffer: wav(60, 32000) },
+  { name: 'long-200.wav', mimeType: 'audio/wav', buffer: wav(200, 32000) },
+];
+
 const app = await startApp();
 const browser = await launchChrome(['--autoplay-policy=no-user-gesture-required']);
 const errors = [];
-const open = async (scheme, width, height = 900) => {
+const open = async (scheme, width, height = 900, upload = files) => {
   const context = await browser.newContext({ viewport: { width, height }, colorScheme: scheme });
   const page = await context.newPage();
   page.on('pageerror', error => errors.push(error.message));
   await page.goto(app.url);
   await page.getByRole('heading', { name: 'Audio Toolkit' }).waitFor();
-  await page.locator('input[type=file]').setInputFiles(files);
+  await page.locator('input[type=file]').setInputFiles(upload);
   await page.waitForFunction(() => [...document.querySelectorAll('li[data-inspection]')].length === 2 && [...document.querySelectorAll('li[data-inspection]')].every(li => li.dataset.inspection === 'ready'), null, { timeout: 30000 });
   return { context, page };
 };
@@ -297,6 +302,28 @@ const trackPoint = async (page, rowName, fraction, y = 0.5) => {
   const endValue = Number(await row(page, b).locator('.wave-handle[data-handle=end]').getAttribute('aria-valuenow'));
   check('29-03 the handle is never shown locked while a preview of another file releases', midLocked === 'false', midLocked);
   check('29-03 a drag that starts a preview release still ends where the pointer was released', Math.abs(endValue - 0.3 * 14) < 1, endValue);
+  await context.close();
+}
+
+{
+  const { context, page } = await open('light', 1280, 900, lengths);
+  const [short, long] = ['short-60.wav', 'long-200.wav'];
+  note('a Trim all start past the end of one file');
+  await page.getByLabel('Add step').selectOption('trim');
+  await page.waitForTimeout(200);
+  await page.getByLabel(copy.trim.startField(copy.trim.prefix), { exact: true }).fill('100');
+  await page.waitForTimeout(400);
+  check('29-03 a Trim all start past the end of the short file shows its error on that row only', await row(page, short).locator('.file-error').count() === 1 && await row(page, long).locator('.file-error').count() === 0);
+  await row(page, short).getByRole('button', { name: copy.wave.trimLabel(short) }).click();
+  await page.waitForTimeout(500);
+  check('29-03 the file the shared range does not fit still opens an editor with handles and fields', await row(page, short).locator('.wave-handle').count() === 2 && await row(page, short).locator('.wave-fields input').count() === 2);
+  const handle = await box(row(page, short).locator('.wave-handle[data-handle=start]'));
+  const target = await box(row(page, short).locator('.wave-track'));
+  await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2); await page.mouse.down();
+  await page.mouse.move(target.x + target.width * 0.3, handle.y + handle.height / 2, { steps: 10 }); await page.mouse.up();
+  await page.waitForTimeout(400);
+  check('29-03 the first drag gives that file its own range and clears its error', await row(page, short).getByText(copy.wave.custom).count() === 1 && await row(page, short).locator('.file-error').count() === 0);
+  check('29-03 the other file still follows Trim all', await row(page, long).getByText(copy.wave.follows).count() === 1);
   await context.close();
 }
 

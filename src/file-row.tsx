@@ -97,6 +97,8 @@ export function FileRow({
   const effective = result?.kind === "ready" ? result.trim : null;
   const duration = entry.inspection.kind === "ready" ? entry.inspection.metadata.duration : null;
   const metadata = entry.inspection.kind === "ready" ? fileMetadata(entry, effective) : null;
+  // The shared range does not fit this file, so the editor starts from the whole file and the first edit gives the file its own range.
+  const unfixable = trimFailed !== null && override === undefined;
   const currentExport = exported?.kind === "done" && !previousSettings;
   const previewVisible = showsPreview(hasRecipeSteps, currentExport);
   const cutSeconds = previewCutSeconds(effective, duration);
@@ -169,8 +171,8 @@ export function FileRow({
       </div>
       <span class="sr-only" role="status">{[spoken && copy.files.announce(entry.file.name, spoken), previewSpoken].filter(Boolean).join(" ")}</span>
       {entry.inspection.kind === "ready" && !preview && <SourcePlayer entry={entry} metadata={entry.inspection.metadata} collapsed={exported?.kind === "done"} paused={busy} trim={{
-        range: duration === null || trimFailed ? null : { start: effective?.start ?? 0, end: effective?.end ?? duration },
-        draft: draft ?? { start: null, end: null },
+        range: duration === null ? null : unfixable ? { start: 0, end: duration } : trimFailed ? null : { start: effective?.start ?? 0, end: effective?.end ?? duration },
+        draft: unfixable ? { start: null, end: null } : draft ?? { start: null, end: null },
         custom: override !== undefined,
         follows: trim !== undefined,
         editing, locked: trimLocked, onToggle: onEdit, onChange: onOverride,
