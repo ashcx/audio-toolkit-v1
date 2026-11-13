@@ -142,7 +142,7 @@ export function WavePlayer({ src, source, label, name, duration, preload, paused
     resize.observe(host);
     const theme = new MutationObserver(() => { palette.current = null; painter.current(); });
     theme.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-    const view = typeof IntersectionObserver === "undefined" ? null : new IntersectionObserver(entries => setVisible(entries.some(entry => entry.isIntersecting)));
+    const view = typeof IntersectionObserver === "undefined" ? null : new IntersectionObserver(entries => setVisible(entries[entries.length - 1].isIntersecting));
     if (view) view.observe(element); else setVisible(true);
     return () => { resize.disconnect(); theme.disconnect(); view?.disconnect(); seek.cancel(); reshape.cancel(); };
   }, []);
