@@ -227,7 +227,7 @@ export const copy = {
   channels: {
     options: { original: "Unchanged", mono: "Mono", stereo: "Stereo" },
     outputLabel: "Output",
-    useLabel: "Use",
+    useLabel: "Input",
     useOptions: { both: "Both sides", left: "Left only", right: "Right only" },
     summary: (step: { channels: "original" | "mono" | "stereo"; source?: "both" | "left" | "right" }) => {
       const base = { original: "Keep unchanged", mono: "Mono", stereo: "Stereo" }[step.channels];

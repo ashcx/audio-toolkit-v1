@@ -132,6 +132,7 @@ p { margin: 0; }
 .segmented label { min-height: 44px; flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px; font: var(--type-label); border: 1px solid var(--border); border-radius: 8px; }
 .segmented label:has(input:checked) { background: var(--surface-muted); border-color: var(--border-strong); }
 .segmented input { accent-color: var(--accent); }
+.segmented:disabled { opacity: .5; }
 input[type="range"] { appearance: none; width: 100%; min-width: 0; height: 44px; margin: 0; padding: 0; background: transparent; cursor: pointer; accent-color: var(--accent); }
 input[type="range"]::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: var(--surface-muted); }
 input[type="range"]::-moz-range-track { height: 4px; border-radius: 4px; background: var(--surface-muted); }
