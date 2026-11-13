@@ -104,7 +104,9 @@ function App() {
   const exportText = exportStatus([...exports.jobs.values()]);
   const changeRecipe = (next: RecipeDraft) => {
     if (locked) return false;
-    if (custom.overrides.size && sharedRangeChanged(draft, next)) setConflict(true);
+    // The prompt only shows inside the Trim all step, so a flag left from a deleted step would return with the next one.
+    if (!next.steps.some(step => step.kind === "trim")) setConflict(false);
+    else if (custom.overrides.size && sharedRangeChanged(draft, next)) setConflict(true);
     setDraft(next);
     return true;
   };

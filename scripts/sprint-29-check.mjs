@@ -327,6 +327,32 @@ const trackPoint = async (page, rowName, fraction, y = 0.5) => {
   await context.close();
 }
 
+{
+  const { context, page } = await open('light', 1280);
+  const a = 'interview-take-3.wav';
+  await row(page, a).getByRole('button', { name: copy.wave.trimLabel(a) }).click();
+  await page.waitForTimeout(500);
+  const handle = await box(row(page, a).locator('.wave-handle[data-handle=end]'));
+  const target = await trackPoint(page, a, 0.5);
+  await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2); await page.mouse.down();
+  await page.mouse.move(target.x, handle.y + handle.height / 2, { steps: 10 }); await page.mouse.up();
+  await row(page, a).getByRole('button', { name: copy.wave.doneLabel(a) }).click();
+  note('a deleted Trim all step and a stale warning');
+  await page.getByLabel('Add step').selectOption('trim');
+  await page.waitForTimeout(200);
+  await page.getByLabel(copy.trim.startField(copy.trim.prefix), { exact: true }).fill('2');
+  await page.waitForTimeout(300);
+  check('29-03 editing Trim all while a file is custom shows the replace prompt', await page.getByText(copy.wave.conflict(1), { exact: true }).count() === 1);
+  await page.getByRole('button', { name: /^More actions for/ }).click();
+  await page.locator('.step-actions button', { hasText: copy.steps.remove }).click();
+  await page.waitForTimeout(300);
+  await page.getByLabel('Add step').selectOption('trim');
+  await page.waitForTimeout(300);
+  check('29-03 removing Trim all and adding it again shows no replace prompt', await page.getByText(copy.wave.conflict(1), { exact: true }).count() === 0);
+  check('29-03 the custom range is still there', await row(page, a).getByText(copy.wave.custom).count() === 1);
+  await context.close();
+}
+
 for (const [scheme, width, name] of [['light', 1280, '06-desktop-light'], ['light', 320, '07-320-light'], ['dark', 320, '08-320-dark']]) {
   const { context, page } = await open(scheme, width);
   const a = 'interview-take-3.wav';
