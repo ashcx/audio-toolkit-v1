@@ -17,7 +17,7 @@ import { access } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { bannedIn } from '../tests/support/banned-terms.mjs';
-import { FIXTURES, ensureDirectory, launchChrome, loadCopy, makeAudio, probeAudio, reporter, startApp, writeJson } from './lib/harness.mjs';
+import {FIXTURES, ensureDirectory, launchChrome, loadCopy, makeAudio, probeAudio, reporter, startApp, writeJson, withoutTimes} from './lib/harness.mjs';
 
 const OUT = '.artifacts/ui-states';
 const INPUTS = `${OUT}/inputs`;
@@ -362,7 +362,7 @@ async function runConfig(browser, config) {
     await waitDone(page, 2);
     const text = await shoot('success-plain-mp3');
     const rows = await page.locator('.file-result').evaluateAll(nodes => nodes.map(node => node.innerText.replace(/\s+/g, ' ').trim()));
-    check(`${config.name}/success-plain-mp3 each result shows only its label and player`, rows.length === 2 && rows.every(row => row === copy.result.label), JSON.stringify(rows));
+    check(`${config.name}/success-plain-mp3 each result shows only its label and player`, rows.length === 2 && rows.every(row => withoutTimes(row) === copy.result.label), JSON.stringify(rows));
     check(`${config.name}/success-plain-mp3 shows no standing hint or counter`, !/\d+\s*\/\s*\d+\s*done|done/i.test(await page.locator('.export-panel').innerText())
       && !text.includes(copy.export.keepOpen) && !/Exported audio|Clear all removes/.test(text));
     check(`${config.name}/success-plain-mp3 status area is empty`, (await page.locator('.run-status').innerText()).trim() === '');
@@ -606,8 +606,8 @@ async function runConfig(browser, config) {
     const text = await shoot('preview-ready');
     check(`${config.name}/preview-ready heads the excerpt with its real length`, text.includes(copy.preview.heading(15)));
     check(`${config.name}/preview-ready shows Before and After players`,
-      await page.locator('.file-preview label', { hasText: copy.preview.before }).count() === 1
-      && await page.locator('.file-preview label', { hasText: copy.preview.after }).count() === 1);
+      await page.locator('.file-preview .wave-label', { hasText: copy.preview.before }).count() === 1
+      && await page.locator('.file-preview .wave-label', { hasText: copy.preview.after }).count() === 1);
     await page.getByRole('button', { name: copy.preview.close, exact: true }).click();
     await short.click();
     await page.locator('[data-preview-state=ready]').waitFor();
@@ -674,7 +674,7 @@ async function runConfig(browser, config) {
         check(`opus ${rate} Hz needs no Sample rate step`, await page.locator('[data-step-id]').count() === 0 && await exportButton(page).isEnabled());
         await exportButton(page).click();
         await waitDone(page, 1, 60000);
-        const row = (await page.locator('.file-result').innerText()).replace(/\s+/g, ' ').trim();
+        const row = withoutTimes(await page.locator('.file-result').innerText());
         check(`opus ${rate} Hz export succeeds with no message`, row === copy.result.label, row);
         if (rate === 44100) await shoot('opus-44100-done');
         const pending = page.waitForEvent('download');

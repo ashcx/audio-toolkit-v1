@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import {loadCopy} from './lib/harness.mjs';
+import {loadCopy, withoutTimes} from './lib/harness.mjs';
 const copy=await loadCopy();
 const url = process.env.APP_URL ?? 'http://127.0.0.1:5183/audio-toolkit-v1/';
 const root = process.env.SPRINT25_EVIDENCE_DIR ?? '.artifacts/evidence/sprint-25';
@@ -60,7 +60,7 @@ await page.getByLabel(copy.trim.endField(copy.trim.prefix),{exact:true}).fill('1
 await page.waitForTimeout(300);
 const trimmed = await row('tone.wav').innerText();
 if (!/00:01 · 00:00 to 00:01/.test(trimmed)) throw new Error('trim metadata mismatch: ' + trimmed);
-if (await page.getByLabel('Trim tone.wav').count()) throw new Error('per-file trim button still present');
+if (!(await page.getByLabel('Trim tone.wav').count())) throw new Error('per-file waveform trim button missing');
 await page.getByLabel('Add step').selectOption('gain');
 await page.waitForTimeout(300);
 if (!(await row('tone.wav').getByRole('button', { name: 'Preview tone.wav' }).count())) throw new Error('Preview missing after recipe step');
@@ -87,7 +87,7 @@ const download = row('tone.wav').locator('a[download]');
 await download.waitFor({ timeout: 60000 });
 await page.waitForTimeout(300);
 const result = await row('tone.wav').locator('.file-result').innerText();
-if (result.trim() !== copy.result.label) throw new Error('a finished export shows only its label and player: ' + JSON.stringify(result));
+if (withoutTimes(result) !== copy.result.label) throw new Error('a finished export shows only its label and player: ' + JSON.stringify(result));
 if (!(await row('tone.wav').locator('audio').count())) throw new Error('export player missing');
 const status = await page.locator('.run-status').innerText();
 if (status.trim() !== '') throw new Error('no standing export status after completion: ' + JSON.stringify(status));
@@ -115,8 +115,8 @@ await page.waitForTimeout(500);
 const previous = await row('tone.wav').innerText();
 if (!previous.includes(copy.result.olderLabel)) throw new Error('older-settings label missing: ' + previous);
 if (!(await page.getByRole('link', { name: copy.result.downloadOlder('tone.wav'), exact: true }).count())) throw new Error('older-settings download label missing');
-const previousPlay = await row('tone.wav').locator('.file-result audio').getAttribute('aria-label');
-if (previousPlay !== copy.result.playOlder('tone.wav')) throw new Error('older-settings player label: ' + previousPlay);
+const previousPlay = await row('tone.wav').locator('.file-result .wave-play').getAttribute('aria-label');
+if (previousPlay !== copy.wave.play(copy.result.olderLabel, 'tone.wav')) throw new Error('older-settings player label: ' + previousPlay);
 if (!(await row('tone.wav').getByRole('button', { name: 'Preview tone.wav' }).count())) throw new Error('Preview missing after recipe edit');
 await page.screenshot({ path: `${root}/captures/05-previous-export.png`, fullPage: true });
 // Clear all
@@ -230,7 +230,7 @@ await copyPage.waitForFunction(() => document.querySelector('li[data-inspection=
 await copyPage.getByRole('button', { name: 'Export', exact: true }).click();
 await copyPage.locator('li[data-job-state=done] a[download]').waitFor({ timeout: 60000 });
 const copyText = await copyPage.locator('.file-result').innerText();
-if (copyText.trim() !== copy.result.label) throw new Error('a kept original shows only its label and player: ' + JSON.stringify(copyText));
+if (withoutTimes(copyText) !== copy.result.label) throw new Error('a kept original shows only its label and player: ' + JSON.stringify(copyText));
 await copyPage.screenshot({ path: `${root}/captures/09-stream-copy.png`, fullPage: true });
 await copyPage.close();
 await writeFile(`${root}/result.json`, JSON.stringify({ errors, metaText, trimmed, previewText, result, status, actions, previous, storageAfterClear, copyText }, null, 2) + '\n');

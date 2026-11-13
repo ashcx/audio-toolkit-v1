@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { loadCopy } from './lib/harness.mjs';
+import {loadCopy, withoutTimes} from './lib/harness.mjs';
 const copy = await loadCopy();
 import { execFileSync } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -98,7 +98,7 @@ async function exportOne({ format, bitrate, mode, fixture = fixtures.tone, captu
   const playerSrc = await player.getAttribute('src');
   if (playerSrc !== href) throw new Error(`${format} ${mode ?? ''}: playback and download differ`);
   const resultText = await page.locator('.file-result').innerText();
-  if (resultText.trim() !== copy.result.label) throw new Error(`${format}: a finished export shows only its label and player, got ${JSON.stringify(resultText)}`);
+  if (withoutTimes(resultText) !== copy.result.label) throw new Error(`${format}: a finished export shows only its label and player, got ${JSON.stringify(resultText)}`);
   const base64 = await page.evaluate(async href => {
     const bytes = new Uint8Array(await (await fetch(href)).arrayBuffer());
     let text = '';
