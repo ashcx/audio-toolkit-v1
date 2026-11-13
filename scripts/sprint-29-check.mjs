@@ -269,6 +269,37 @@ const trackPoint = async (page, rowName, fraction, y = 0.5) => {
   await context.close();
 }
 
+{
+  const { context, page } = await open('light', 1280);
+  const a = 'interview-take-3.wav', b = 'room-tone-b.wav';
+  await drawn(page, a); await drawn(page, b);
+  await page.getByLabel('Add step').selectOption('gain');
+  await page.waitForTimeout(200);
+  await row(page, a).getByRole('button', { name: /^Preview/ }).click();
+  await page.waitForSelector('.file-preview[data-preview-state=ready]', { timeout: 60000 });
+  await page.evaluate(() => {
+    const remove = FileSystemDirectoryHandle.prototype.removeEntry;
+    FileSystemDirectoryHandle.prototype.removeEntry = async function (...args) { await new Promise(resolve => setTimeout(resolve, 1500)); return remove.apply(this, args); };
+  });
+  await row(page, b).getByRole('button', { name: copy.wave.trimLabel(b) }).click();
+  await page.waitForTimeout(500);
+  note('a drag while another file preview releases');
+  await row(page, b).locator('.wave-track').scrollIntoViewIfNeeded();
+  const handle = await box(row(page, b).locator('.wave-handle[data-handle=end]'));
+  const first = await trackPoint(page, b, 0.8), last = await trackPoint(page, b, 0.3);
+  await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2); await page.mouse.down();
+  await page.mouse.move(first.x, handle.y + handle.height / 2, { steps: 3 });
+  await page.waitForTimeout(100);
+  const midLocked = await row(page, b).locator('.wave-handle[data-handle=end]').getAttribute('aria-disabled');
+  await page.mouse.move(last.x, handle.y + handle.height / 2, { steps: 3 });
+  await page.mouse.up();
+  await page.waitForTimeout(2500);
+  const endValue = Number(await row(page, b).locator('.wave-handle[data-handle=end]').getAttribute('aria-valuenow'));
+  check('29-03 the handle is never shown locked while a preview of another file releases', midLocked === 'false', midLocked);
+  check('29-03 a drag that starts a preview release still ends where the pointer was released', Math.abs(endValue - 0.3 * 14) < 1, endValue);
+  await context.close();
+}
+
 for (const [scheme, width, name] of [['light', 1280, '06-desktop-light'], ['light', 320, '07-320-light'], ['dark', 320, '08-320-dark']]) {
   const { context, page } = await open(scheme, width);
   const a = 'interview-take-3.wav';

@@ -31,6 +31,7 @@ export function FileRow({
   plan,
   job,
   busy,
+  trimLocked,
   downloadBusy,
   onCancel,
   onRetry,
@@ -56,6 +57,8 @@ export function FileRow({
   plan: ExecutionPlan | null;
   job: BatchJob | undefined;
   busy: boolean;
+  /** Narrower than busy: a preview that is releasing already yields to the edit, so it must not block it. */
+  trimLocked: boolean;
   downloadBusy: boolean;
   onCancel: () => void;
   onRetry: () => void;
@@ -170,7 +173,7 @@ export function FileRow({
         draft: draft ?? { start: null, end: null },
         custom: override !== undefined,
         follows: trim !== undefined,
-        editing, locked: busy, onToggle: onEdit, onChange: onOverride,
+        editing, locked: trimLocked, onToggle: onEdit, onChange: onOverride,
       }} />}
       {preview && <div class="file-preview" data-preview-state={preview.kind}>
         {preview.kind === "ready" ? <>

@@ -262,7 +262,7 @@ function App() {
                     editing={editingId === entry.id}
                     onEdit={() => setEditingId(current => current === entry.id ? null : entry.id)}
                     onOverride={range => {
-                      if (workLocked || exports.cleanupCount > 0) return;
+                      if (locked || exports.cleanupCount > 0) return;
                       if (range) custom.set(entry.id, range); else custom.reset(entry.id);
                     }}
                     trimErrorId={trimErrorId}
@@ -278,6 +278,7 @@ function App() {
                     }}
                     onClearPreview={preview.clear}
                     busy={workLocked || exports.cleanupCount > 0}
+                    trimLocked={locked || exports.cleanupCount > 0}
                     downloadBusy={archive.busy || folder.busy}
                     onCancel={() => exports.cancel(entry.id)}
                     onRetry={() => { if (!preview.busy) exports.retry(entry.id); }}
