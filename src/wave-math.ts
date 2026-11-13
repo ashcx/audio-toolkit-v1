@@ -1,11 +1,11 @@
 import type { Peaks } from "./peaks.ts";
 import type { TrimRangeDraft } from "./recipe.ts";
 export type Handle = "start" | "end";
-/** What a pointer is doing on the wave. A drag keeps the range from pointer down (null when the file followed Trim all), so a cancelled drag can put it back. */
+/** What a pointer is doing on the wave. A drag keeps the range from pointer down (null when the file followed Trim all), so a cancelled drag can put it back, and how far from the handle's centre it was grabbed in pixels. */
 export type Gesture =
   | { kind: "idle" }
   | { kind: "seeking"; pointerId: number }
-  | { kind: "dragging-handle"; pointerId: number; handle: Handle; origin: TrimRangeDraft | null };
+  | { kind: "dragging-handle"; pointerId: number; handle: Handle; origin: TrimRangeDraft | null; grab: number };
 /** Where playback stands, read from the audio element's events and never guessed from a click. */
 export type Playback = "idle" | "playing" | "pending";
 export type PlaybackEvent = "play" | "playing" | "waiting" | "pause" | "ended" | "error";
@@ -22,6 +22,10 @@ export function playbackAfter(state: Playback, event: PlaybackEvent): Playback {
 export const clampTime = (time: number, duration: number) => Math.min(duration, Math.max(0, time));
 export const timeToX = (time: number, duration: number, width: number) => duration > 0 ? clampTime(time, duration) / duration * width : 0;
 export const xToTime = (x: number, duration: number, width: number) => width > 0 ? clampTime(x / width * duration, duration) : 0;
+/** How far from the handle's centre the pointer landed, so the handle keeps that spot under the pointer instead of jumping to centre on it. */
+export const grabOffset = (x: number, value: number, duration: number, width: number) => x - timeToX(value, duration, width);
+/** The time a dragged handle takes. The pointer is not clamped first, so the handle still reaches either end of the file. */
+export const draggedTime = (x: number, grab: number, duration: number, width: number) => xToTime(x - grab, duration, width);
 /** The time a key moves a slider to, or null for a key it ignores. Shift takes the larger step. */
 export function nudgeTime(key: string, current: number, duration: number, small: number, large: number, shift: boolean): number | null {
   const step = shift ? large : small;

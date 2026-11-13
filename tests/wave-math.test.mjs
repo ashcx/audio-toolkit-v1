@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {timeToX,xToTime,clampTime,nudgeTime,barExtents,trimGeometry,coalesced,playbackAfter,LINE_WIDTH} from '../src/wave-math.ts';
+import {timeToX,xToTime,clampTime,nudgeTime,barExtents,trimGeometry,coalesced,playbackAfter,grabOffset,draggedTime,LINE_WIDTH} from '../src/wave-math.ts';
 import {measurePeaks} from '../src/peaks.ts';
 import {changeTrimHandle} from '../src/trim-control.ts';
 test('time and x map to each other and stay inside the file',()=>{
@@ -72,4 +72,21 @@ test('playback state follows the element events',()=>{
  assert.equal(playbackAfter('playing','ended'),'idle');
  assert.equal(playbackAfter('pending','error'),'idle');
  assert.equal(playbackAfter('idle','waiting'),'idle');
+});
+test('a handle grabbed off its centre keeps that offset instead of jumping to the pointer',()=>{
+ const duration=20,width=400,value=10;
+ const grab=grabOffset(210,value,duration,width);
+ assert.equal(grab,10);
+ assert.equal(draggedTime(210,grab,duration,width),value);
+ assert.equal(draggedTime(250,grab,duration,width),12);
+ assert.equal(grabOffset(190,value,duration,width),-10);
+ assert.equal(draggedTime(150,-10,duration,width),8);
+});
+test('a grabbed handle still reaches both ends of the file',()=>{
+ const grab=grabOffset(422,20,20,400);
+ assert.equal(grab,22);
+ assert(Math.abs(draggedTime(400,grab,20,400)-18.9)<1e-9);
+ assert.equal(draggedTime(422,grab,20,400),20);
+ assert.equal(draggedTime(900,grab,20,400),20);
+ assert.equal(draggedTime(-300,grab,20,400),0);
 });

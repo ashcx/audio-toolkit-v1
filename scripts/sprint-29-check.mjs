@@ -237,6 +237,15 @@ const trackPoint = async (page, rowName, fraction, y = 0.5) => {
   await page.waitForTimeout(300);
   check('29-03 a handle drag cut short by Done does not leave the player rejecting later presses', (await field(0)) !== held, `${held} -> ${await field(0)}`);
 
+  note('a handle grabbed off its centre');
+  const valueOf = async which => Number(await row(page, a).locator(`.wave-handle[data-handle=${which}]`).getAttribute('aria-valuenow'));
+  const grabbed = await centre('start'), startValue = await valueOf('start');
+  await page.mouse.move(grabbed.x + 16, grabbed.y); await page.mouse.down();
+  await page.mouse.move(grabbed.x + 18, grabbed.y, { steps: 2 }); await page.mouse.up();
+  await page.waitForTimeout(300);
+  const trackWidth = (await box(row(page, a).locator('.wave-track'))).width;
+  check('29-03 grabbing a handle off its centre does not make it jump to the pointer', Math.abs((await valueOf('start')) - startValue) < 3 / trackWidth * 20 + 0.05, `${startValue} -> ${await valueOf('start')} on ${trackWidth}px`);
+
   await context.close();
 }
 

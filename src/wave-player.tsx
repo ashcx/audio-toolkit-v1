@@ -8,7 +8,7 @@ import { TimeField } from "./trim-fields";
 import { usePeaks, type PeakSource } from "./use-peaks";
 import type { Peaks } from "./peaks";
 import {
-  BAR_PITCH, LINE_WIDTH, barExtents, clampTime, coalesced, nudgeTime, playbackAfter, timeToX, trimGeometry, xToTime,
+  BAR_PITCH, LINE_WIDTH, barExtents, clampTime, coalesced, draggedTime, grabOffset, nudgeTime, playbackAfter, timeToX, trimGeometry, xToTime,
   type Gesture, type Handle, type Playback, type PlaybackEvent,
 } from "./wave-math";
 
@@ -166,6 +166,10 @@ export function WavePlayer({ src, source, label, name, duration, preload, paused
     const box = track.current?.getBoundingClientRect();
     return box ? xToTime(event.clientX - box.left, total ?? 0, box.width) : 0;
   };
+  const handleAt = (event: PointerEvent, grab: number) => {
+    const box = track.current?.getBoundingClientRect();
+    return box ? draggedTime(event.clientX - box.left, grab, total ?? 0, box.width) : 0;
+  };
   const endSeek = (pointerId: number, time: number) => {
     const current = gesture.current;
     if (current.kind !== "seeking" || current.pointerId !== pointerId) return;
@@ -196,13 +200,16 @@ export function WavePlayer({ src, source, label, name, duration, preload, paused
         event.preventDefault();
         event.stopPropagation();
         event.currentTarget.setPointerCapture(event.pointerId);
-        gesture.current = { kind: "dragging-handle", pointerId: event.pointerId, handle: which, origin: trim.custom ? trim.draft : null };
+        const box = track.current?.getBoundingClientRect();
+        const grab = box ? grabOffset(event.clientX - box.left, value, total, box.width) : 0;
+        gesture.current = { kind: "dragging-handle", pointerId: event.pointerId, handle: which, origin: trim.custom ? trim.draft : null, grab };
       }}
-      onPointerMove={event => { if (dragging(event)) reshape.push({ handle: which, value: timeAt(event) }); }}
+      onPointerMove={event => { const current = dragging(event); if (current) reshape.push({ handle: which, value: handleAt(event, current.grab) }); }}
       onPointerUp={event => {
-        if (!dragging(event)) return;
+        const current = dragging(event);
+        if (!current) return;
         gesture.current = { kind: "idle" };
-        reshape.finish({ handle: which, value: timeAt(event) });
+        reshape.finish({ handle: which, value: handleAt(event, current.grab) });
       }}
       onPointerCancel={event => {
         const current = dragging(event);
