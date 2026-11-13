@@ -8,6 +8,8 @@ import {
   moveStep,
   stepSchema,
   exportSchema,
+  CHANNEL_SOURCES,
+  type ChannelSource,
   type RecipeDraft,
   type StepDraft,
 } from "./recipe";
@@ -85,6 +87,13 @@ function Choices<T extends string>({ label, value, options, onChange }: {
   return <fieldset class="segmented"><legend>{label}</legend>{options.map(option =>
     <label><input type="radio" name={name} value={option.value} checked={value === option.value}
       onChange={() => onChange(option.value)} />{option.label}</label>)}</fieldset>;
+}
+function channelsResult(output: "original" | "mono" | "stereo", source: ChannelSource, allMono: boolean): string | undefined {
+  const text = copy.channels.result;
+  if (output === "original") return undefined;
+  if (allMono) return output === "mono" ? text.monoToMono : text.monoToStereo;
+  const key = { both: { mono: "blend", stereo: "keepStereo" }, left: { mono: "leftToMono", stereo: "leftToStereo" }, right: { mono: "rightToMono", stereo: "rightToStereo" } }[source][output] as keyof typeof text;
+  return text[key];
 }
 function CompressorAmount({ amount, onChange }: { amount: number; onChange: (amount: number) => void }) {
   const id = useId();
@@ -256,10 +265,22 @@ function StepFields({
         </label>
         <small class="panel-description">{copy.compressor.hint}</small>
       </>;
-    case "channels":
-      return <Choices label={copy.channels.label} value={step.channels} options={[
-        {value:"original",label:copy.channels.options.original}, {value:"mono",label:copy.channels.options.mono}, {value:"stereo",label:copy.channels.options.stereo}
-      ]} onChange={channels => onChange({...step,channels})} />;
+    case "channels": {
+      const source = step.source ?? "both";
+      const counts = files.flatMap(({ inspection }) => inspection.kind === "ready" ? [inspection.metadata.channels] : []);
+      const allMono = counts.length > 0 && counts.every(count => count === 1);
+      const someMono = counts.includes(1);
+      const result = channelsResult(step.channels, source, allMono);
+      return <>
+        {step.channels !== "original" && !allMono && <Choices label={copy.channels.useLabel} value={source} options={
+          CHANNEL_SOURCES.map(value => ({ value, label: copy.channels.useOptions[value] }))
+        } onChange={source => onChange({...step,source})} />}
+        <Choices label={copy.channels.outputLabel} value={step.channels} options={[
+          {value:"original",label:copy.channels.options.original}, {value:"mono",label:copy.channels.options.mono}, {value:"stereo",label:copy.channels.options.stereo}
+        ]} onChange={channels => onChange({...step,channels})} />
+        {result && <small class="panel-description">{[result, source !== "both" && someMono && !allMono ? copy.channels.result.monoFilesUsedAsIs : ""].filter(Boolean).join(" ")}</small>}
+      </>;
+    }
     case "resample":
       return (
         <label class="field">

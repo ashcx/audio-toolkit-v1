@@ -225,9 +225,26 @@ export const copy = {
       `${copy.compressor.presets[step.preset]} · ${step.amount}%`,
   },
   channels: {
-    label: "Channels",
     options: { original: "Unchanged", mono: "Mono", stereo: "Stereo" },
-    summary: { original: "Keep unchanged", mono: "Mono", stereo: "Stereo" },
+    outputLabel: "Output",
+    useLabel: "Use",
+    useOptions: { both: "Both sides", left: "Left only", right: "Right only" },
+    summary: (step: { channels: "original" | "mono" | "stereo"; source?: "both" | "left" | "right" }) => {
+      const base = { original: "Keep unchanged", mono: "Mono", stereo: "Stereo" }[step.channels];
+      const source = step.source ?? "both";
+      return step.channels === "original" || source === "both" ? base : `${base} · ${copy.channels.useOptions[source]}`;
+    },
+    result: {
+      monoToMono: "Your file is already mono, so it stays as it is.",
+      monoToStereo: "Your mono channel plays on both sides.",
+      blend: "Left and right are blended into one channel.",
+      keepStereo: "Left and right stay as they are.",
+      leftToMono: "Only the left channel is kept, at full volume, as a mono file.",
+      rightToMono: "Only the right channel is kept, at full volume, as a mono file.",
+      leftToStereo: "The left channel plays on both sides.",
+      rightToStereo: "The right channel plays on both sides.",
+      monoFilesUsedAsIs: "Mono files are used as they are.",
+    },
   },
   sampleRate: {
     label: "Sample rate",

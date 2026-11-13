@@ -91,7 +91,7 @@ async function execute({
         break;
       case "channels":
         if (step.channels !== "original")
-          stream = channels(stream, step.channels === "mono" ? 1 : 2);
+          stream = channels(stream, step.channels === "mono" ? 1 : 2, step.source);
         break;
       case "resample":
         if (step.rateHz !== "original") stream = resample(stream, step.rateHz);
