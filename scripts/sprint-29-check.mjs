@@ -353,6 +353,50 @@ const trackPoint = async (page, rowName, fraction, y = 0.5) => {
   await context.close();
 }
 
+{
+  const { context, page } = await open('light', 1280);
+  const a = 'interview-take-3.wav';
+  const ready = count => page.waitForFunction(count => [...document.querySelectorAll('li[data-inspection]')].length === count && [...document.querySelectorAll('li[data-inspection]')].every(li => li.dataset.inspection === 'ready'), count, { timeout: 30000 });
+  const makeCustom = async () => {
+    await row(page, a).getByRole('button', { name: copy.wave.trimLabel(a) }).click();
+    await page.waitForTimeout(500);
+    const handle = await box(row(page, a).locator('.wave-handle[data-handle=end]'));
+    const target = await trackPoint(page, a, 0.5);
+    await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2); await page.mouse.down();
+    await page.mouse.move(target.x, handle.y + handle.height / 2, { steps: 10 }); await page.mouse.up();
+    await row(page, a).getByRole('button', { name: copy.wave.doneLabel(a) }).click();
+    await page.waitForTimeout(300);
+  };
+  await page.getByLabel('Add step').selectOption('trim');
+  await page.waitForTimeout(200);
+  await page.getByLabel(copy.trim.startField(copy.trim.prefix), { exact: true }).fill('2');
+  await page.waitForTimeout(300);
+
+  note('removing a custom file');
+  await makeCustom();
+  check('29-03 the file is custom before it is removed', await row(page, a).getByText(copy.wave.custom).count() === 1);
+  await row(page, a).getByRole('button', { name: copy.files.removeLabel(a) }).click();
+  await page.waitForTimeout(300);
+  await page.locator('input[type=file]').setInputFiles([files[0]]);
+  await ready(2);
+  check('29-03 a file removed while custom and added again follows Trim all', await row(page, a).getByText(copy.wave.custom).count() === 0 && await row(page, a).getByText(copy.wave.follows).count() === 1);
+  const startField = page.getByLabel(copy.trim.startField(copy.trim.prefix), { exact: true });
+  await startField.fill('3'); await page.waitForTimeout(300);
+  check('29-03 a removed custom file leaves no range behind to ask about', await page.locator('.trim-conflict').count() === 0);
+
+  note('Clear all');
+  await makeCustom();
+  check('29-03 the file is custom before Clear all', await row(page, a).getByText(copy.wave.custom).count() === 1);
+  await page.getByRole('button', { name: copy.export.clearAll, exact: true }).click();
+  await page.waitForFunction(() => document.querySelectorAll('li[data-inspection]').length === 0, null, { timeout: 30000 });
+  await page.locator('input[type=file]').setInputFiles(files);
+  await ready(2);
+  check('29-03 files added after Clear all carry no custom range', await page.getByText(copy.wave.custom).count() === 0);
+  await startField.fill('4'); await page.waitForTimeout(300);
+  check('29-03 Clear all leaves no range behind to ask about', await page.locator('.trim-conflict').count() === 0);
+  await context.close();
+}
+
 for (const [scheme, width, name] of [['light', 1280, '06-desktop-light'], ['light', 320, '07-320-light'], ['dark', 320, '08-320-dark']]) {
   const { context, page } = await open(scheme, width);
   const a = 'interview-take-3.wav';
