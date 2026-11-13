@@ -325,7 +325,6 @@ export const copy = {
     cancelLabel: (name: string) => `Cancel ${name}`,
     retryLabel: (name: string) => `Retry ${name}`,
     original: "Original",
-    playOriginal: (name: string) => `Play original ${name}`,
     progressLabel: (name: string) => `Export ${name}`,
     sourceUnplayable: "This source cannot play in the browser. Export it to hear the result.",
     resultUnplayable: "This exported format cannot play here. Download it to listen.",
@@ -335,8 +334,6 @@ export const copy = {
     olderLabel: "Result (older settings)",
     download: (name: string) => `Download result for ${name}`,
     downloadOlder: (name: string) => `Download older result for ${name}`,
-    play: (name: string) => `Play result ${name}`,
-    playOlder: (name: string) => `Play older result ${name}`,
     peakLimited: (notes: LoudnessNotes) =>
       notes.achievedLufs === null
         ? "The peak ceiling kept this quieter than the target."
@@ -358,8 +355,24 @@ export const copy = {
     announceRunning: (name: string) => `Previewing ${name}`,
     announceReady: (name: string) => `Preview ready for ${name}`,
     buttonLabel: (name: string, seconds: number | null) => (seconds === null ? `Preview ${name}` : `Preview ${seconds} s of ${name}`),
-    beforeLabel: (name: string) => `Before preview ${name}`,
-    afterLabel: (name: string) => `After preview ${name}`,
+  },
+  wave: {
+    /** Spoken names start with the action, then the visible label and the file, so each player in a list stays distinct. */
+    play: (label: string, name: string) => `Play ${label} ${name}`,
+    pause: (label: string, name: string) => `Pause ${label} ${name}`,
+    seek: (label: string, name: string) => `Seek ${label} ${name}`,
+    position: (elapsed: string, total: string) => `${elapsed} of ${total}`,
+    trim: "Trim",
+    done: "Done",
+    trimLabel: (name: string) => `Trim ${name}`,
+    doneLabel: (name: string) => `Done trimming ${name}`,
+    custom: "Custom range",
+    follows: "Follows Trim all",
+    reset: "Reset to Trim all",
+    resetLabel: (name: string) => `Reset to Trim all, ${name}`,
+    conflict: (count: number) => `${count === 1 ? "1 file has a custom range" : `${count} files have custom ranges`}. Replace ${count === 1 ? "it" : "them"} with the new Trim all range?`,
+    replace: "Replace custom ranges",
+    keep: "Keep custom ranges",
   },
   banners: {
     firefox: "Firefox is unsupported. Use Chrome, Edge or Safari.",

@@ -351,6 +351,7 @@ export function RecipeEditor({
   duration,
   files,
   analysisEnabled,
+  trimConflict,
 }: {
   files: readonly FileEntry[];
   analysisEnabled: boolean;
@@ -358,6 +359,8 @@ export function RecipeEditor({
   value: RecipeDraft;
   onChange: (value: RecipeDraft) => boolean;
   error?: string;
+  /** Files with a custom range, offered a choice after the Trim all range moves. */
+  trimConflict?: { count: number; onReplace: () => void; onKeep: () => void };
 }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const panel = useRef<HTMLElement>(null);
@@ -576,6 +579,15 @@ export function RecipeEditor({
                 <p id={errorId} class="validation-error" role="alert">
                   {stepError}
                 </p>
+              )}
+              {step.kind === "trim" && trimConflict && (
+                <div class="trim-conflict" role="status">
+                  <p>{copy.wave.conflict(trimConflict.count)}</p>
+                  <div class="trim-conflict-actions">
+                    <button type="button" onClick={trimConflict.onReplace}>{copy.wave.replace}</button>
+                    <button type="button" onClick={trimConflict.onKeep}>{copy.wave.keep}</button>
+                  </div>
+                </div>
               )}
             </article>
           );

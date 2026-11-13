@@ -1,11 +1,11 @@
 import type { Peaks } from "./peaks.ts";
 import type { TrimRangeDraft } from "./recipe.ts";
 export type Handle = "start" | "end";
-/** What a pointer is doing on the wave. A drag keeps the range from pointer down, so a cancelled drag can put it back. */
+/** What a pointer is doing on the wave. A drag keeps the range from pointer down (null when the file followed Trim all), so a cancelled drag can put it back. */
 export type Gesture =
   | { kind: "idle" }
   | { kind: "seeking"; pointerId: number }
-  | { kind: "dragging-handle"; pointerId: number; handle: Handle; origin: TrimRangeDraft };
+  | { kind: "dragging-handle"; pointerId: number; handle: Handle; origin: TrimRangeDraft | null };
 /** Where playback stands, read from the audio element's events and never guessed from a click. */
 export type Playback = "idle" | "playing" | "pending";
 export type PlaybackEvent = "play" | "playing" | "waiting" | "pause" | "ended" | "error";
@@ -36,7 +36,6 @@ export function nudgeTime(key: string, current: number, duration: number, small:
   }
 }
 export const BAR_PITCH = 5;
-export const BAR_WIDTH = 3;
 /** Reduces peak bins to the bars a row of this width can show. Each bar keeps the extremes of its bins, so a short transient still shows. */
 export function barExtents(peaks: Peaks, count: number): { min: Float32Array; max: Float32Array } {
   const min = new Float32Array(count), max = new Float32Array(count);

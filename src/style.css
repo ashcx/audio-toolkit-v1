@@ -4,6 +4,7 @@
   --border: #e5e7eb; --border-strong: #d0d5dc; --text: #22262b; --muted: #626d7b;
   --muted-strong: #596371; --accent: #34785e; --accent-contrast: #fff; --success: #34785e;
   --bad: #b74343; --radius-sm: 10px; --radius: 16px;
+  --wave-idle: #8a94a1; --wave-out: #dfe3e8; --trim-line: #101215;
   --font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   /* One type scale. Each role is a font shorthand (weight size/line-height family).
      Readable text is never below 12px, so a long hint is cut or shortened, not shrunk. */
@@ -23,6 +24,7 @@
   --bg: #121316; --surface: #1d1f24; --surface-subtle: #25282f; --surface-muted: #2b2f36;
   --border: #30343c; --border-strong: #484f5c; --text: #edf0f4; --muted: #9099a7;
   --muted-strong: #b2bac6; --accent: #85bfa5; --accent-contrast: #15261e; --success: #85bfa5; --bad: #ed9691;
+  --wave-idle: #6f7886; --wave-out: #343942; --trim-line: #f7f8fa;
 }
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; background: var(--bg); color: var(--text); }
@@ -72,7 +74,6 @@ p { margin: 0; }
 .file-player { flex-basis: 100%; min-width: 0; display: grid; gap: 2px; }
 .file-player small { color: var(--muted-strong); }
 .file-player-toggle > summary { padding: 13px 0; font: var(--type-hint); color: var(--muted-strong); }
-.file-player audio, .file-result audio { display: block; width: 100%; min-width: 0; flex-basis: 100%; }
 .file-note { color: var(--muted-strong); }
 .file-result { flex-basis: 100%; display: flex; align-items: center; gap: 6px 8px; flex-wrap: wrap; font: var(--type-status); }
 .download-button svg { display: block; }
@@ -83,9 +84,35 @@ p { margin: 0; }
 .file-result .button { background: transparent; }
 .file-preview { flex-basis: 100%; min-width: 0; display: grid; gap: 8px; padding-top: 8px; font: var(--type-status); }
 .file-preview small { color: var(--muted-strong); }
-.file-preview label { display: grid; gap: 4px; min-width: 0; }
-.file-preview audio { display: block; width: 100%; min-width: 0; }
 .file-preview > button { justify-self: start; }
+.wave-player { flex-basis: 100%; min-width: 0; display: grid; gap: 4px; }
+.wave-head { display: flex; flex-wrap: wrap; align-items: center; gap: 0 10px; min-width: 0; }
+.wave-play { flex: none; width: 44px; height: 44px; min-height: 44px; padding: 0; display: grid; place-items: center; border-radius: 50%; background: var(--accent); border-color: var(--accent); color: var(--accent-contrast); }
+.wave-play svg { width: 16px; height: 16px; fill: currentColor; }
+.wave-label { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; font: var(--type-status); color: var(--muted-strong); }
+.wave-time { font: var(--type-status); font-variant-numeric: tabular-nums; color: var(--muted-strong); white-space: nowrap; }
+.wave-trim { flex: none; }
+.wave-track { position: relative; height: 44px; margin: 6px 22px; border-radius: 8px; touch-action: none; user-select: none; cursor: pointer; }
+.wave-track[aria-disabled="true"] { cursor: default; }
+.wave-track:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.wave-track canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.wave-player[data-editing] .wave-track { height: 130px; margin-top: 30px; }
+.wave-playhead { position: absolute; top: 0; bottom: 0; left: 0; width: 0; pointer-events: none; }
+.wave-playhead::before { content: ""; position: absolute; left: -.5px; top: 0; bottom: 0; width: 1px; background: var(--accent); box-shadow: 0 0 0 1px var(--surface); }
+.wave-playhead::after { content: ""; position: absolute; left: -6px; top: -6px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: 2px solid var(--surface); }
+.wave-handle { position: absolute; top: -6px; bottom: -6px; width: 44px; margin-left: -22px; z-index: 2; cursor: ew-resize; touch-action: none; outline: 0; }
+.wave-knob { position: absolute; left: 50%; top: 50%; width: 14px; height: 34px; transform: translate(-50%, -50%); border-radius: 7px; background: var(--trim-line) linear-gradient(var(--surface), var(--surface)) center / 2px 14px no-repeat; box-shadow: 0 0 0 1px var(--surface); }
+.wave-handle:focus-visible .wave-knob { box-shadow: 0 0 0 1px var(--surface), 0 0 0 4px var(--accent); }
+.wave-tag { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 4px; padding: 1px 7px; border-radius: 6px; background: var(--trim-line); color: var(--surface); font: var(--type-status); font-variant-numeric: tabular-nums; white-space: nowrap; pointer-events: none; }
+.wave-fields { display: flex; flex-wrap: wrap; align-items: end; gap: 8px 12px; }
+.wave-fields label { display: flex; flex-direction: column; gap: 4px; flex: 1 1 110px; min-width: 0; color: var(--muted-strong); font: var(--type-label); }
+.wave-fields input { width: 100%; min-width: 0; min-height: 44px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-subtle); color: var(--text); padding: 7px 10px; font: var(--type-value); font-variant-numeric: tabular-nums; }
+.wave-fields .validation-error { flex-basis: 100%; }
+.wave-status { display: flex; flex-wrap: wrap; align-items: center; gap: 0 10px; color: var(--muted-strong); font: var(--type-status); }
+.wave-badge { padding: 2px 9px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface-muted); color: var(--text); }
+.wave-status .text-button { min-height: 44px; }
+.trim-conflict { display: grid; gap: 8px; margin-top: 12px; padding: 12px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface-muted); font: var(--type-status); }
+.trim-conflict-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .file-error, .file-name .file-error, .file-result .file-error { color: var(--bad); }
 .playback { min-width: 0; }
 .playback summary { min-height: 44px; display: flex; align-items: center; padding: 8px 12px; cursor: pointer; border-radius: 8px; }
@@ -234,4 +261,5 @@ input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border: 3px s
 }
 @media (prefers-reduced-motion: no-preference) {
   button, a, select, summary { transition: background .12s, border-color .12s; }
+  .wave-track { transition: height .2s ease, margin-top .2s ease; }
 }

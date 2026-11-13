@@ -57,6 +57,8 @@ test('no copy string or formatter output contains a banned term', () => {
     copy.progress.stage({ kind: 'model-download', loaded: 1, total: 85_034_606 }), copy.progress.stage({ kind: 'isolation-progress', completed: 1, total: 4 }),
     copy.progress.stage({ kind: 'phase', phase: 'Encoding' }), copy.files.announce('a.wav', copy.files.done),
     copy.preview.announceRunning('a.wav'), copy.preview.announceReady('a.wav'),
+    copy.wave.play('Original', 'a.wav'), copy.wave.pause('Result', 'a.wav'), copy.wave.seek('Before', 'a.wav'), copy.wave.position('00:05', '01:30'),
+    copy.wave.trimLabel('a.wav'), copy.wave.doneLabel('a.wav'), copy.wave.resetLabel('a.wav'), copy.wave.conflict(1), copy.wave.conflict(3),
   ];
   for (const text of samples) {
     assert.notEqual(text.trim(), '', 'copy strings are never empty');
@@ -160,4 +162,14 @@ test('controls that name a step start with their visible label and stay distinct
   assert(names[1].startsWith(copy.trim.end) && names[3].startsWith(copy.trim.end));
   assert.equal(copy.compressor.amountLabel, 'Amount, Compressor');
   assert(copy.compressor.amountLabel.startsWith(copy.compressor.amount));
+});
+
+test('player controls start with their visible label and the conflict question counts files', () => {
+  assert(copy.wave.trimLabel('a.wav').startsWith(copy.wave.trim));
+  assert(copy.wave.doneLabel('a.wav').startsWith(copy.wave.done));
+  assert(copy.wave.resetLabel('a.wav').startsWith(copy.wave.reset));
+  assert.equal(copy.wave.play('Original', 'a.wav'), 'Play Original a.wav');
+  assert.notEqual(copy.wave.play('Result', 'a.wav'), copy.wave.pause('Result', 'a.wav'));
+  assert.equal(copy.wave.conflict(1), '1 file has a custom range. Replace it with the new Trim all range?');
+  assert.equal(copy.wave.conflict(2), '2 files have custom ranges. Replace them with the new Trim all range?');
 });
