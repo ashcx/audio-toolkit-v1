@@ -151,7 +151,11 @@ export function WavePlayer({ src, source, label, name, duration, preload, paused
     let frame = requestAnimationFrame(function tick() { painter.current(); frame = requestAnimationFrame(tick); });
     return () => cancelAnimationFrame(frame);
   }, [playback]);
-  useEffect(() => setFieldError(null), [trim?.editing]);
+  useEffect(() => {
+    setFieldError(null);
+    // Ending the edit unmounts a handle that may hold a drag, and nothing else would clear it.
+    if (!trim?.editing && gesture.current.kind === "dragging-handle") { gesture.current = { kind: "idle" }; reshape.cancel(); }
+  }, [trim?.editing]);
   const on = (event: PlaybackEvent) => setPlayback(state => playbackAfter(state, event));
   const toggle = () => {
     const element = audio.current;

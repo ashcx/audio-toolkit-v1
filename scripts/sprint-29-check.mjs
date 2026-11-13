@@ -203,6 +203,43 @@ const trackPoint = async (page, rowName, fraction, y = 0.5) => {
   await context.close();
 }
 
+{
+  const { context, page } = await open('light', 1280);
+  const cdp = await context.newCDPSession(page);
+  const a = 'interview-take-3.wav';
+  await drawn(page, a);
+  const trimButton = () => row(page, a).getByRole('button', { name: copy.wave.trimLabel(a) });
+  const doneButton = () => row(page, a).getByRole('button', { name: copy.wave.doneLabel(a) });
+  const field = index => row(page, a).locator('.wave-fields input').nth(index).inputValue();
+  const centre = async which => { const handle = await box(row(page, a).locator(`.wave-handle[data-handle=${which}]`)); return { x: handle.x + handle.width / 2, y: handle.y + handle.height / 2 }; };
+  const dragHandle = async (which, toFraction) => {
+    const from = await centre(which), target = await trackPoint(page, a, toFraction);
+    await page.mouse.move(from.x, from.y); await page.mouse.down();
+    await page.mouse.move(target.x, from.y, { steps: 12 }); await page.mouse.up();
+    await page.waitForTimeout(300);
+  };
+  await trimButton().click(); await page.waitForTimeout(500);
+
+  note('a drag cut short by Done while another pointer holds the handle');
+  const touch = async (type, x, y) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x, y, id: 7 }] });
+  const start = await centre('start');
+  await page.mouse.move(start.x, start.y); await page.mouse.down();
+  await page.mouse.move(start.x + 40, start.y, { steps: 4 });
+  await doneButton().evaluate(button => button.click());
+  await trimButton().evaluate(button => button.click());
+  await page.waitForTimeout(500);
+  const held = await field(0);
+  const fresh = await centre('start'), target = await trackPoint(page, a, 0.4);
+  await touch('touchStart', fresh.x, fresh.y);
+  for (let step = 1; step <= 8; step++) await touch('touchMove', fresh.x + (target.x - fresh.x) * step / 8, fresh.y);
+  await touch('touchEnd');
+  await page.mouse.up();
+  await page.waitForTimeout(300);
+  check('29-03 a handle drag cut short by Done does not leave the player rejecting later presses', (await field(0)) !== held, `${held} -> ${await field(0)}`);
+
+  await context.close();
+}
+
 for (const [scheme, width, name] of [['light', 1280, '06-desktop-light'], ['light', 320, '07-320-light'], ['dark', 320, '08-320-dark']]) {
   const { context, page } = await open(scheme, width);
   const a = 'interview-take-3.wav';
