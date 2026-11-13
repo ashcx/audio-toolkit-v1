@@ -80,11 +80,11 @@ function DbControl({ label, value, min, max, unit = copy.units.db, errorId, warn
     {warning && <small class="file-error">{warning}</small>}
   </div>;
 }
-function Choices<T extends string>({ label, value, options, onChange }: {
-  label: string; value: T; options: readonly {value: T; label: string}[]; onChange: (value: T) => void;
+function Choices<T extends string>({ label, value, options, onChange, disabled }: {
+  label: string; value: T; options: readonly {value: T; label: string}[]; onChange: (value: T) => void; disabled?: boolean;
 }) {
   const name = useId();
-  return <fieldset class="segmented"><legend>{label}</legend>{options.map(option =>
+  return <fieldset class="segmented" disabled={disabled}><legend>{label}</legend>{options.map(option =>
     <label><input type="radio" name={name} value={option.value} checked={value === option.value}
       onChange={() => onChange(option.value)} />{option.label}</label>)}</fieldset>;
 }
@@ -272,9 +272,9 @@ function StepFields({
       const someMono = counts.includes(1);
       const result = channelsResult(step.channels, source, allMono);
       return <>
-        {step.channels !== "original" && !allMono && <Choices label={copy.channels.useLabel} value={source} options={
+        <Choices label={copy.channels.useLabel} value={source} disabled={step.channels === "original" || allMono} options={
           CHANNEL_SOURCES.map(value => ({ value, label: copy.channels.useOptions[value] }))
-        } onChange={source => onChange({...step,source})} />}
+        } onChange={source => onChange({...step,source})} />
         <Choices label={copy.channels.outputLabel} value={step.channels} options={[
           {value:"original",label:copy.channels.options.original}, {value:"mono",label:copy.channels.options.mono}, {value:"stereo",label:copy.channels.options.stereo}
         ]} onChange={channels => onChange({...step,channels})} />
