@@ -1,8 +1,9 @@
 import { compilePlan } from "./planner.ts";
 import { newExport, recipeSchema, snapshotForFile, type ExportDraft, type RecipeDraft } from "./recipe.ts";
 import type { FileEntry } from "./media";
+import type { TrimOverrides } from "./trim-overrides.ts";
 
-export function automaticExport(draft: RecipeDraft, files: readonly FileEntry[]): ExportDraft {
+export function automaticExport(draft: RecipeDraft, files: readonly FileEntry[], overrides?: TrimOverrides): ExportDraft {
   const encoded = draft.export.format === "original" ? newExport("mp3") : draft.export;
   if (!files.length) return encoded;
   const candidate = recipeSchema.safeParse({...draft,export:newExport("original")});
@@ -10,7 +11,7 @@ export function automaticExport(draft: RecipeDraft, files: readonly FileEntry[])
   const recipe = candidate.data;
   const eligible = files.every(entry => {
     if (entry.inspection.kind !== "ready" || !entry.inspection.metadata.hasVideo) return false;
-    const snapshot = snapshotForFile(recipe,entry);
+    const snapshot = snapshotForFile(recipe,entry,overrides?.get(entry.id));
     return snapshot.kind === "ready" && compilePlan(snapshot.snapshot,entry.inspection.metadata).kind === "copy";
   });
   return eligible ? newExport("original") : encoded;

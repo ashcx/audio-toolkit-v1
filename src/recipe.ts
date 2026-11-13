@@ -309,9 +309,15 @@ export type EffectiveRecipe = Readonly<{
 export type SnapshotResult =
   | { kind: "ready"; snapshot: EffectiveRecipe }
   | ({ kind: "failed" } & Failure);
+/**
+ * `override` is one file's own range. It replaces the Trim all range, or adds a trim step when the
+ * recipe has none. The added step takes the file's id, so the recipe is the same on every call and
+ * a finished export is not mistaken for one made with older settings.
+ */
 export function snapshotForFile(
   recipe: Recipe,
   entry: FileEntry,
+  override?: TrimRangeDraft,
 ): SnapshotResult {
   if (entry.inspection.kind !== "ready")
     return entry.inspection.kind === "failed"
@@ -319,7 +325,8 @@ export function snapshotForFile(
       : { kind: "failed", ...failure(GENERIC_ERROR) };
   const meta = entry.inspection.metadata;
   const trim = recipe.steps.find((step) => step.kind === "trim");
-  if (!trim)
+  const range = override ?? trim?.range;
+  if (!range)
     return {
       kind: "ready",
       snapshot: Object.freeze({
@@ -330,14 +337,14 @@ export function snapshotForFile(
         trim: null,
       }),
     };
-  const resolved = resolveTrim(trim.range, meta.duration);
+  const resolved = resolveTrim(range, meta.duration);
   if (resolved.kind === "failed") return resolved;
   const { start, end } = resolved.trim;
   const perFile = recipeSchema.parse({
     ...recipe,
-    steps: recipe.steps.map((step) =>
-      step.kind === "trim" ? { ...step, range: { start, end } } : step,
-    ),
+    steps: trim
+      ? recipe.steps.map((step) => (step.kind === "trim" ? { ...step, range: { start, end } } : step))
+      : [{ id: entry.id, kind: "trim", range: { start, end } }, ...recipe.steps],
   });
   return {
     kind: "ready",
