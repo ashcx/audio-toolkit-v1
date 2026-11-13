@@ -1,6 +1,6 @@
 # Sprint 29 coverage
 
-Tested revision: the head of the Sprint 29 branch when this file was committed. Evidence was produced by `node scripts/sprint-29-check.mjs` (35 checks, exit 0, real Chrome, the Vite dev server) and by interactive driving of the same build in the in-app browser. Results and raw check list are in `sprint-29-check.json`. Screenshots are in `captures/`.
+Tested revision: the head of the Sprint 29 branch when this file was committed. Evidence was produced by `node scripts/sprint-29-check.mjs` (NN checks, exit 0, real Chrome). The check can run against the dev server or a preview build, and it was run against the dev server and by interactive driving of the same build in the in-app browser. Results and raw check list are in `sprint-29-check.json`. Screenshots are in `captures/`.
 
 ## Scenarios
 
@@ -31,6 +31,10 @@ Tested revision: the head of the Sprint 29 branch when this file was committed. 
 - Safari and Firefox were not tested. WebKit is not installed in this environment.
 - No memory, isolation-speed or first-play measurements were taken (scenario 29-05).
 - Waveform generation for before and after previews takes several seconds in the dev server, because each output is fetched, inspected and decoded one at a time. Until then the row shows a plain seek rail.
-- Stereo peaks are averaged across channels, so a hard-panned channel draws at half height.
+- Stereo peaks use the largest extreme of any channel per bin, so a hard-panned or out-of-phase channel draws at full height. A mono-compatible mix and a one-sided mix look alike.
 - Other browser scripts that need a WebKit install, a Demucs model download or a production build were not rerun. `sprint-24-check`, `sprint-25-check` and `sprint-26-check` pass against the new UI. `ui-states-check` was updated for the new player markup but not rerun to completion because its model-download scenarios time out here.
 - `scripts/sprint-25-check.mjs` asserted that no per-file trim button exists. Sprint 29 restores per-file trim on the waveform, so that assertion now expects the button.
+- Idle and played bar contrast in the light theme is 1.71:1, and the dark trim line against played bars is 1.98:1. The halo, the bracket shape and the playhead mitigate this, and the colours were left as they are.
+- Shift means a finer step in the Trim all fields but a coarser step on the waveform handles.
+- `peaks-client` and `peaks-worker` duplicate `levels-client` and `levels-worker`.
+- No screen reader (VoiceOver) pass was done.

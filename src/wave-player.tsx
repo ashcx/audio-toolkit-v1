@@ -12,7 +12,7 @@ import {
   type Gesture, type Handle, type Playback, type PlaybackEvent,
 } from "./wave-math";
 
-export const pauseOthers = (event: Event) => {
+const pauseOthers = (event: Event) => {
   const current = event.currentTarget;
   for (const audio of document.querySelectorAll("audio"))
     if (audio !== current) audio.pause();
