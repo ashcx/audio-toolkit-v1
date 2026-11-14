@@ -1,3 +1,4 @@
+import {installStorageFaults} from './lib/storage-faults.mjs';
 import {setSlider} from './browser-controls.mjs';
 import {engines,launchOptions} from './lib/engines.mjs';
 import assert from 'node:assert/strict';
@@ -17,7 +18,7 @@ const inputPcm=execFileSync('ffmpeg',['-v','error','-i',input,'-f','f32le','-'],
 const inputFloats=new Float32Array(inputPcm.buffer.slice(inputPcm.byteOffset,inputPcm.byteOffset+inputPcm.byteLength));let inputPeak=0;for(const value of inputFloats)inputPeak=Math.max(inputPeak,Math.abs(value));
 const records=[];
 for(const [engine,type] of engines()){
- const context=await type.launchPersistentContext(`.artifacts/batch-profiles/${randomUUID()}`,{...launchOptions(engine),headless:true,acceptDownloads:true,hasTouch:true,viewport:{width:1440,height:1000}});
+ const context=await type.launchPersistentContext(`.artifacts/batch-profiles/${randomUUID()}`,{...launchOptions(engine),headless:true,acceptDownloads:true,hasTouch:true,viewport:{width:1440,height:1000}});await installStorageFaults(context);
  try{
   await context.addInitScript(()=>{
    Object.defineProperty(navigator,'hardwareConcurrency',{value:8,configurable:true});Object.defineProperty(navigator,'deviceMemory',{value:8,configurable:true});

@@ -1,3 +1,4 @@
+import {installStorageFaults} from './lib/storage-faults.mjs';
 import {chromium,webkit} from 'playwright';
 import {engines,launchOptions} from './lib/engines.mjs';
 import {loadCopy} from './lib/harness.mjs';
@@ -8,7 +9,7 @@ import {mkdir,writeFile} from 'node:fs/promises';
 import assert from 'node:assert/strict';
 const root=process.env.CLEANUP_EVIDENCE_DIR??'.artifacts/cleanup-check';await mkdir(root,{recursive:true});const records=[];
 for(const [engine,type] of engines()){
- const context=await type.launchPersistentContext(`.artifacts/cleanup-profiles/${crypto.randomUUID()}`,{...launchOptions(engine),headless:true});
+ const context=await type.launchPersistentContext(`.artifacts/cleanup-profiles/${crypto.randomUUID()}`,{...launchOptions(engine),headless:true});await installStorageFaults(context);
  try{
   await context.addInitScript(()=>{
    window.__holdRemove=false;window.__heldRemove=false;window.__hold=false;window.__held=false;window.__failRemove=0;window.__removals=[];

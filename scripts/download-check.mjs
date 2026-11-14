@@ -1,3 +1,4 @@
+import {installStorageFaults} from './lib/storage-faults.mjs';
 import {saveAction} from './browser-controls.mjs';
 import {engines,launchOptions} from './lib/engines.mjs';
 import {loadCopy} from './lib/harness.mjs';
@@ -12,7 +13,7 @@ const tryAgain=copy.actions['try-again'];
 const root=process.env.DOWNLOAD_EVIDENCE_DIR??'.artifacts/download-check';await mkdir(root,{recursive:true});
 const results=[];
 for(const [engine,type] of engines().filter(([name])=>!process.env.TEST_ENGINE||name===process.env.TEST_ENGINE)){
- const before=await childProcesses();const context=await type.launchPersistentContext(`${root}/${engine}-profile`,{...launchOptions(engine),headless:true,acceptDownloads:true});
+ const before=await childProcesses();const context=await type.launchPersistentContext(`${root}/${engine}-profile`,{...launchOptions(engine),headless:true,acceptDownloads:true});await installStorageFaults(context);
  const memory=monitorBrowserMemory(new Set([...(await childProcesses())].filter(id=>!before.has(id))),()=>context.close());
  let page;
  try{
