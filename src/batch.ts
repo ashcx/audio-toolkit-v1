@@ -35,23 +35,32 @@ export function batchConcurrency(capabilities: {
   memory: unknown;
   workers: boolean;
   storage: boolean;
-}): 1 | 2 {
-  return capabilities.workers && capabilities.storage && capabilities.cores >= 8 &&
-    typeof capabilities.memory === "number" && capabilities.memory >= 8 ? 2 : 1;
+}): 1 | 2 | 3 {
+  if (!capabilities.workers || !capabilities.storage || capabilities.cores < 8 ||
+    typeof capabilities.memory !== "number" || capabilities.memory < 8) return 1;
+  return capabilities.cores >= 10 ? 3 : 2;
+}
+const isolates = (spec: JobSpec) => spec.plan.kind === "pcm" && spec.plan.steps.some(step => step.kind === "isolation");
+/** Rough relative cost, so the longest work starts first and a batch does not end on one long straggler. */
+function estimatedCost(spec: JobSpec) {
+  if (spec.plan.kind !== "pcm") return 0;
+  const { snapshot } = spec.plan;
+  const seconds = snapshot.trim?.duration ?? snapshot.source.duration ?? 0;
+  return seconds * (isolates(spec) ? 5 : spec.plan.steps.some(step => step.kind === "speech") ? 2 : 1);
 }
 
 export class Batch {
   private jobs = new Map<FileId, OwnedJob>();
   private listeners = new Set<(snapshot: BatchSnapshot) => void>();
   private occupied = 0;
-  private isolating = false;
+  private isolating = 0;
   private disposed = false;
   private cleaning = false;
   private releasing = 0;
   private pendingCleanup = new Map<FileId, { failure: CleanupFailure; cancelled: boolean; attempts: number }>();
   private runner: JobRunner;
-  private concurrency: 1 | 2;
-  constructor(runner: JobRunner, concurrency: 1 | 2) {
+  private concurrency: 1 | 2 | 3;
+  constructor(runner: JobRunner, concurrency: 1 | 2 | 3) {
     this.runner = runner;
     this.concurrency = concurrency;
   }
@@ -154,14 +163,22 @@ export class Batch {
     this.cancelAll();
     for (const id of this.jobs.keys()) this.remove(id);
   }
+  /** One isolation at a time because it holds the GPU and gigabytes of memory; everything else may overlap it. */
+  private next(): OwnedJob | undefined {
+    let best: OwnedJob | undefined, bestCost = -1;
+    for (const job of this.jobs.values()) {
+      if (job.state.kind !== "waiting" || (this.isolating && isolates(job.spec))) continue;
+      const cost = estimatedCost(job.spec);
+      if (cost > bestCost) { best = job; bestCost = cost; }
+    }
+    return best;
+  }
   private pump() {
     if (!this.disposed) {
-      for (const job of this.jobs.values()) {
-        if (this.occupied >= this.concurrency || this.isolating) break;
-        if (job.state.kind !== "waiting") continue;
-        const isolation = job.spec.plan.kind === "pcm" && job.spec.plan.steps.some(step => (step.kind === "isolation" || step.kind === "speech"));
-        if (isolation && this.occupied > 0) continue;
-        this.isolating = isolation;
+      while (this.occupied < this.concurrency) {
+        const job = this.next();
+        if (!job) break;
+        if (isolates(job.spec)) this.isolating++;
         const attempt = { controller: new AbortController() };
         job.state = { kind: "running", attempt, operation: { kind: "phase", phase: "Preparing" } };
         this.occupied++;
@@ -192,7 +209,7 @@ export class Batch {
       } else if (current()) job.state = signal.aborted ? { kind: "cancelled" } : { kind: "failed", ...failureOf(error) };
     } finally {
       if (current() && signal.aborted) job.state = { kind: "cancelled" };
-      if (job.spec.plan.kind === "pcm" && job.spec.plan.steps.some(step => (step.kind === "isolation" || step.kind === "speech"))) this.isolating = false;
+      if (isolates(job.spec)) this.isolating--;
       this.occupied--;
       this.pump();
     }

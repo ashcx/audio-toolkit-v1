@@ -5,8 +5,8 @@ import {newRecipe,newExport,newStep,recipeSchema,snapshotForFile} from '../src/r
 import {createFileId} from '../src/media.ts';
 import {compilePlan} from '../src/planner.ts';
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
-function spec(name='tone.wav',steps=[]){
- const metadata={container:'wav',codec:'pcm-s16',duration:2,startTime:0,sampleRate:48000,channels:2,hasVideo:false};
+function spec(name='tone.wav',steps=[],duration=2){
+ const metadata={container:'wav',codec:'pcm-s16',duration,startTime:0,sampleRate:48000,channels:2,hasVideo:false};
  const entry={id:createFileId(),file:new File(['data'],name),inspection:{kind:'ready',metadata}};
  const snapshot=snapshotForFile(recipeSchema.parse({...newRecipe(),steps,export:newExport('wav')}),entry);
  return {entry,plan:compilePlan(snapshot.snapshot,metadata)};
@@ -17,9 +17,11 @@ function harness(slots=1){
  function finish(index){const call=calls[index];call.resolve({report:{kind:'copy'},output:{name:call.job.name,mime:'audio/wav',file:new File(['bytes'],call.job.name),release:async()=>{released.push(index);}}});}
  return {batch,calls,released,finish};
 }
-test('capability policy never assumes memory and caps parallel work at two',()=>{
+test('capability policy never assumes memory and caps parallel work at three',()=>{
  for(const memory of [undefined,0,4,'8'])assert.equal(batchConcurrency({cores:16,memory,workers:true,storage:true}),1);
  assert.equal(batchConcurrency({cores:8,memory:8,workers:true,storage:true}),2);
+ assert.equal(batchConcurrency({cores:10,memory:8,workers:true,storage:true}),3);
+ assert.equal(batchConcurrency({cores:32,memory:16,workers:true,storage:true}),3);
  assert.equal(batchConcurrency({cores:4,memory:8,workers:true,storage:true}),1);
 });
 test('cancelled late success is released before dispatch; waiting cancel never starts',async()=>{
@@ -79,9 +81,20 @@ test('recovering old-output deletion clears its prerequisite before retry',async
  batch.start([item]);await tick();batch.start([item]);await tick();assert.equal(batch.snapshot.cleanupCount,1);assert.equal(runs,1);await batch.retryCleanup();assert.equal(batch.snapshot.cleanupCount,0);batch.retry(item.entry.id);await tick();assert.equal(runs,2);assert.equal(batch.snapshot.jobs.get(item.entry.id).state.kind,'done');batch.dispose();
 });
 
-for(const kind of ['isolation','speech'])test(`${kind} has an exclusive slot and queued inference never overlaps cleanup`,async()=>{
- const {batch,calls,finish}=harness(2);const a=spec('a.wav',[newStep(kind)]),b=spec('b.wav',[newStep(kind)]),c=spec('c.wav');
- batch.start([a,b,c]);await tick();assert.equal(calls.length,1);assert.equal(calls[0].job.entry.id,a.entry.id);batch.cancel(a.entry.id);assert.equal(calls.length,1);finish(0);await tick();assert.equal(calls.length,2);assert.equal(calls[1].job.entry.id,b.entry.id);finish(1);await tick();assert.equal(calls.length,3);assert.equal(calls[2].job.entry.id,c.entry.id);finish(2);await tick();batch.dispose();
+test('isolation runs one at a time, other work overlaps it, and a queued isolation never overlaps cleanup',async()=>{
+ const {batch,calls,finish}=harness(3);const a=spec('a.wav',[newStep('isolation')]),b=spec('b.wav',[newStep('isolation')]),c=spec('c.wav'),d=spec('d.wav');
+ batch.start([a,b,c,d]);await tick();assert.deepEqual(calls.map(call=>call.job.entry.id),[a.entry.id,c.entry.id,d.entry.id]);
+ batch.cancel(a.entry.id);assert.equal(calls.length,3);finish(1);await tick();assert.equal(calls.length,3);finish(0);await tick();
+ assert.equal(calls.length,4);assert.equal(calls[3].job.entry.id,b.entry.id);finish(2);finish(3);await tick();batch.dispose();
+});
+test('speech jobs are CPU work and run in parallel',async()=>{
+ const {batch,calls,finish}=harness(2);const a=spec('a.wav',[newStep('speech')]),b=spec('b.wav',[newStep('speech')]),c=spec('c.wav');
+ batch.start([a,b,c]);await tick();assert.deepEqual(calls.map(call=>call.job.entry.id),[a.entry.id,b.entry.id]);finish(0);await tick();assert.equal(calls[2].job.entry.id,c.entry.id);finish(1);finish(2);await tick();batch.dispose();
+});
+test('the costliest work starts first and equal work keeps its order',async()=>{
+ const {batch,calls,finish}=harness(1);const short=spec('s.wav',[],10),long=spec('l.wav',[],300),mid=spec('m.wav',[],60),tie=spec('t.wav',[],60),iso=spec('i.wav',[newStep('isolation')],30);
+ batch.start([short,long,mid,tie,iso]);await tick();const order=[];for(let i=0;i<5;i++){order.push(calls[i].job.entry.id);finish(i);await tick();}
+ assert.deepEqual(order,[long,iso,mid,tie,short].map(item=>item.entry.id));batch.dispose();
 });
 test('a running job shows its latest progress and ignores progress after cancel, and a retry starts clean',async()=>{
  const {batch,calls,finish}=harness();const item=spec('progress.wav',[newStep('isolation')]);batch.start([item]);await tick();const id=item.entry.id;
