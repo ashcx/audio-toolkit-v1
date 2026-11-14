@@ -235,18 +235,18 @@ async function execute({
       await client.truncate(outputId, page.length);
     }
     report({ kind: "phase", phase: "Saving" });
-    await client.finish(outputId);
+    const file = await client.finish(outputId);
     stats.decodePasses = decodeStats.passes;
     stats.maxDecodedFrames = decodeStats.maxDecodedFrames;
-    report({ kind: "done", outputId, stats });
+    client.handOver(outputId);
+    report({ kind: "done", outputId, file, stats });
   } catch (error) {
     await output.cancel().catch(() => undefined);
     throw error;
   }
 }
 self.onmessage = ({ data }: MessageEvent<WorkerInput>) => {
-  if (data.kind === "storage") client.receive(data.sequence, data.reply);
-  else if (data.kind === "inference") inference.receive(data.sequence, data.reply);
+  if (data.kind === "inference") inference.receive(data.sequence, data.reply);
   else
     void execute(data).catch((error) => report({ kind: "error", code: failureOf(error).code }));
 };

@@ -6,18 +6,34 @@ export type StoredOutput = Readonly<{
   mime: string;
   release: () => Promise<void>;
 }>;
-export async function createOutputStore(name: string, mime: string) {
+export async function openStoreDirectory(): Promise<FileSystemDirectoryHandle> {
   if (!navigator.storage?.getDirectory)
     throw new UserFacingError("storage-private-mode", "The origin private file system is unavailable.");
-  let directory: FileSystemDirectoryHandle;
   try {
     const root = await navigator.storage.getDirectory();
-    directory = await root.getDirectoryHandle("audio-toolkit-v1", {
+    return await root.getDirectoryHandle("audio-toolkit-v1", {
       create: true,
     });
   } catch (error) {
     throw new UserFacingError("storage-private-mode", `The origin private file system could not be opened. ${String(error)}`);
   }
+}
+/** A worker that was just terminated releases its file locks a moment later, so a busy entry is retried briefly. */
+export async function removeStoreEntry(key: string): Promise<void> {
+  const directory = await openStoreDirectory();
+  for (let attempt = 0; ; attempt++) {
+    try {
+      await directory.removeEntry(key);
+      return;
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "NotFoundError") return;
+      if (attempt >= 5) throw error;
+      await new Promise((resolve) => setTimeout(resolve, 20 * 2 ** attempt));
+    }
+  }
+}
+export async function createOutputStore(name: string, mime: string) {
+  const directory = await openStoreDirectory();
   const key = crypto.randomUUID();
   const handle = await directory.getFileHandle(key, { create: true });
   let removed = false;

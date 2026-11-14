@@ -3,24 +3,7 @@ import type { InferenceBackend, InferenceRequest, InferenceReply } from "../infe
 import type { JobOperation } from "../job-events";
 import type { ExecutionPlan } from "../planner";
 export type PcmPlan = Extract<ExecutionPlan, { kind: "pcm" }> & Readonly<{ previewRange?: import("../preview-plan").PreviewRange }>;
-export type StoreOperation =
-  | { op: "create"; name: string; mime: string }
-  | { op: "write"; id: string; position: number; data: Uint8Array<ArrayBuffer> }
-  | { op: "truncate"; id: string; length: number }
-  | { op: "finish"; id: string }
-  | { op: "discard"; id: string };
-export type StorageReply =
-  | { op: "create"; id: string }
-  | { op: "write" }
-  | { op: "truncate" }
-  | { op: "finish"; file: File }
-  | { op: "discard" }
-  | { op: "error"; code: ErrorCode };
-export type StorageRequest = {
-  kind: "storage";
-  sequence: number;
-  request: StoreOperation;
-};
+export type StoreNotice = { kind: "store"; op: "opened" | "removed"; id: string };
 export type DspStats = {
   encoder: "pcm" | "native" | "wasm";
   decodePasses: number;
@@ -45,12 +28,11 @@ export type DspStats = {
   clippedSamples: number;
 };
 export type WorkerResult =
-  | StorageRequest
+  | StoreNotice
   | InferenceRequest
   | JobOperation
-  | { kind: "done"; outputId: string; stats: DspStats }
+  | { kind: "done"; outputId: string; file: File; stats: DspStats }
   | { kind: "error"; code: ErrorCode };
 export type WorkerInput =
   | { kind: "start"; file: File; plan: PcmPlan; name: string }
-  | { kind: "storage"; sequence: number; reply: StorageReply }
   | { kind: "inference"; sequence: number; reply: InferenceReply };
