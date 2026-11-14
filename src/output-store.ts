@@ -27,7 +27,7 @@ export async function removeStoreEntry(key: string): Promise<void> {
       return;
     } catch (error) {
       if (error instanceof DOMException && error.name === "NotFoundError") return;
-      if (attempt >= 5) throw error;
+      if (!(error instanceof DOMException && error.name === "NoModificationAllowedError") || attempt >= 5) throw error;
       await new Promise((resolve) => setTimeout(resolve, 20 * 2 ** attempt));
     }
   }
