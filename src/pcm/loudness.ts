@@ -62,22 +62,6 @@ export function kWeightingCoefficients(rate: number): KWeighting {
 type FilterState = { shelf1: number; shelf2: number; highPass1: number; highPass2: number };
 const newFilterState = (): FilterState => ({ shelf1: 0, shelf2: 0, highPass1: 0, highPass2: 0 });
 
-function shelf(state: FilterState, coefficients: BiquadCoefficients, value: number) {
-  const [b0, b1, b2] = coefficients.b;
-  const [, a1, a2] = coefficients.a;
-  const output = b0 * value + state.shelf1;
-  state.shelf1 = b1 * value - a1 * output + state.shelf2;
-  state.shelf2 = b2 * value - a2 * output;
-  return output;
-}
-function highPass(state: FilterState, coefficients: BiquadCoefficients, value: number) {
-  const [b0, b1, b2] = coefficients.b;
-  const [, a1, a2] = coefficients.a;
-  const output = b0 * value + state.highPass1;
-  state.highPass1 = b1 * value - a1 * output + state.highPass2;
-  state.highPass2 = b2 * value - a2 * output;
-  return output;
-}
 // BS.1770-5 Annex 2 true-peak FIR: 4 phases, 12 taps per phase.
 // Phase-major coefficients operate on a 12-sample causal history with the
 // newest sample at index 11, so phase 0 is the sample-aligned phase.
@@ -89,13 +73,32 @@ const TRUE_PEAK_PHASES: readonly (readonly number[])[] = [
 ];
 const TRUE_PEAK_TAPS = 12;
 const TRUE_PEAK_FLUSH = TRUE_PEAK_TAPS - 1;
-function truePeakAt(history: readonly number[]) {
-  let peak = 0;
-  for (const phase of TRUE_PEAK_PHASES) {
-    let value = 0;
-    for (let tap = 0; tap < TRUE_PEAK_TAPS; tap++)
-      value += phase[tap] * history[TRUE_PEAK_TAPS - 1 - tap];
-    peak = Math.max(peak, Math.abs(value));
+const TRUE_PEAK_COEFFICIENTS = Float64Array.from(TRUE_PEAK_PHASES.flat());
+const TRUE_PEAK_CHUNK = 32;
+// No phase output can exceed the sum of its absolute coefficients times the largest input, so a chunk
+// whose bound cannot beat the running peak is skipped. The margin covers rounding in the sum.
+const TRUE_PEAK_GAIN_BOUND = Math.max(...TRUE_PEAK_PHASES.map((phase) => phase.reduce((total, tap) => total + Math.abs(tap), 0))) * 1.000001;
+/** `window` holds the 11 samples before the frames, then the frames. The newest sample of frame f is window[f + 11]. */
+function truePeakOver(window: Float64Array, frames: number, floor: number) {
+  let peak = floor;
+  for (let chunk = 0; chunk < frames; chunk += TRUE_PEAK_CHUNK) {
+    const end = Math.min(frames, chunk + TRUE_PEAK_CHUNK);
+    let largest = 0;
+    for (let index = chunk; index < end + TRUE_PEAK_FLUSH; index++) {
+      const magnitude = Math.abs(window[index]);
+      if (magnitude > largest) largest = magnitude;
+    }
+    if (largest * TRUE_PEAK_GAIN_BOUND <= peak) continue;
+    for (let frame = chunk; frame < end; frame++) {
+      for (let phase = 0; phase < TRUE_PEAK_PHASES.length; phase++) {
+        const offset = phase * TRUE_PEAK_TAPS, newest = frame + TRUE_PEAK_FLUSH;
+        let value = 0;
+        for (let tap = 0; tap < TRUE_PEAK_TAPS; tap++)
+          value += TRUE_PEAK_COEFFICIENTS[offset + tap] * window[newest - tap];
+        const magnitude = Math.abs(value);
+        if (magnitude > peak) peak = magnitude;
+      }
+    }
   }
   return peak;
 }
@@ -109,7 +112,8 @@ export class LoudnessMeter {
   private readonly subEnergy: Float64Array;
   private readonly recent: { energy: Float64Array; frames: number }[] = [];
   private readonly blockLoudness: number[] = [];
-  private readonly truePeakHistory: number[][];
+  private readonly tails: Float64Array[];
+  private window = new Float64Array(0);
   private subFrames = 0;
   private totalFrames = 0;
   private samplePeakValue = 0;
@@ -124,10 +128,7 @@ export class LoudnessMeter {
     this.coefficients = kWeightingCoefficients(rate);
     this.filterStates = Array.from({ length: channels }, newFilterState);
     this.subEnergy = new Float64Array(channels);
-    this.truePeakHistory = Array.from(
-      { length: channels },
-      () => new Array<number>(TRUE_PEAK_TAPS).fill(0),
-    );
+    this.tails = Array.from({ length: channels }, () => new Float64Array(TRUE_PEAK_FLUSH));
   }
 
   push(planes: readonly Float32Array[]): void {
@@ -136,43 +137,55 @@ export class LoudnessMeter {
     const frames = planes[0]?.length ?? 0;
     if (planes.some((plane) => plane.length !== frames))
       throw new Error("The audio channels have inconsistent lengths.");
-    for (let frame = 0; frame < frames; frame++) {
-      for (let channel = 0; channel < this.channels; channel++) {
-        const value = planes[channel][frame];
-        if (!Number.isFinite(value))
-          throw new Error("Loudness measurement received invalid samples.");
-        const magnitude = Math.abs(value);
-        if (magnitude > this.samplePeakValue) this.samplePeakValue = magnitude;
-        const state = this.filterStates[channel];
-        const weighted = highPass(
-          state,
-          this.coefficients.highPass,
-          shelf(state, this.coefficients.shelf, value),
-        );
-        this.subEnergy[channel] += weighted * weighted;
-        const history = this.truePeakHistory[channel];
-        history.shift();
-        history.push(value);
-        const peak = truePeakAt(history);
-        if (peak > this.truePeakValue) this.truePeakValue = peak;
-      }
-      this.subFrames++;
-      this.totalFrames++;
+    for (let start = 0; start < frames; ) {
+      const count = Math.min(frames - start, this.hopFrames - this.subFrames);
+      for (let channel = 0; channel < this.channels; channel++) this.measure(channel, planes[channel], start, count);
+      start += count;
+      this.subFrames += count;
+      this.totalFrames += count;
       if (this.subFrames === this.hopFrames) this.commitHop();
     }
+  }
+
+  private measure(channel: number, plane: Float32Array, start: number, count: number) {
+    const { shelf: shelfFilter, highPass: highPassFilter } = this.coefficients;
+    const [shelfB0, shelfB1, shelfB2] = shelfFilter.b, [, shelfA1, shelfA2] = shelfFilter.a;
+    const [highB0, highB1, highB2] = highPassFilter.b, [, highA1, highA2] = highPassFilter.a;
+    const state = this.filterStates[channel], tail = this.tails[channel];
+    if (this.window.length < count + TRUE_PEAK_FLUSH) this.window = new Float64Array(count + TRUE_PEAK_FLUSH);
+    const window = this.window;
+    window.set(tail);
+    let { shelf1, shelf2, highPass1, highPass2 } = state;
+    let energy = this.subEnergy[channel], samplePeak = this.samplePeakValue;
+    for (let index = 0; index < count; index++) {
+      const value = plane[start + index];
+      if (!Number.isFinite(value))
+        throw new Error("Loudness measurement received invalid samples.");
+      const magnitude = Math.abs(value);
+      if (magnitude > samplePeak) samplePeak = magnitude;
+      const shelved = shelfB0 * value + shelf1;
+      shelf1 = shelfB1 * value - shelfA1 * shelved + shelf2;
+      shelf2 = shelfB2 * value - shelfA2 * shelved;
+      const weighted = highB0 * shelved + highPass1;
+      highPass1 = highB1 * shelved - highA1 * weighted + highPass2;
+      highPass2 = highB2 * shelved - highA2 * weighted;
+      energy += weighted * weighted;
+      window[TRUE_PEAK_FLUSH + index] = value;
+    }
+    state.shelf1 = shelf1; state.shelf2 = shelf2; state.highPass1 = highPass1; state.highPass2 = highPass2;
+    this.subEnergy[channel] = energy;
+    this.samplePeakValue = samplePeak;
+    this.truePeakValue = truePeakOver(window, count, this.truePeakValue);
+    tail.set(window.subarray(count, count + TRUE_PEAK_FLUSH));
   }
 
   finish(): LoudnessMeasurement {
     if (this.totalFrames === 0)
       return { integratedLufs: null, samplePeak: 0, truePeak: 0, short: false };
-    for (let flush = 0; flush < TRUE_PEAK_FLUSH; flush++) {
-      for (let channel = 0; channel < this.channels; channel++) {
-        const history = this.truePeakHistory[channel];
-        history.shift();
-        history.push(0);
-        const peak = truePeakAt(history);
-        if (peak > this.truePeakValue) this.truePeakValue = peak;
-      }
+    for (const tail of this.tails) {
+      const window = new Float64Array(TRUE_PEAK_FLUSH * 2);
+      window.set(tail);
+      this.truePeakValue = truePeakOver(window, TRUE_PEAK_FLUSH, this.truePeakValue);
     }
     const short = this.totalFrames < this.blockFrames;
     let powers = this.blockLoudness.map(loudnessPower);

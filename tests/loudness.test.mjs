@@ -178,3 +178,11 @@ test('peak normalization still reaches its sample-peak target without a loudness
   assert.equal(run.report.limitedByCeiling, false);
   assert.equal(run.closed, 1);
 });
+
+test('true peak is identical however the audio is split into blocks, including a loud transient after quiet audio',()=>{
+ const rate=48000,length=rate*3,signal=Float32Array.from({length},(_,i)=>0.05*Math.sin(i/40)+(i===70001?0.9:0)+(i===70002?-0.9:0)+(i>130000&&i<130100?0.6*Math.sin(i):0));
+ const measure=sizes=>{const meter=new LoudnessMeter(rate,1);let at=0,k=0;while(at<length){const n=Math.min(sizes[k++%sizes.length],length-at);meter.push([signal.subarray(at,at+n)]);at+=n;}return meter.finish();};
+ const whole=measure([length]);
+ for(const sizes of [[1],[7],[31,33],[4096],[479,481,1]]){const split=measure(sizes);assert.equal(split.truePeak,whole.truePeak);assert.equal(split.samplePeak,whole.samplePeak);assert.equal(split.integratedLufs,whole.integratedLufs);}
+ assert(whole.truePeak>=0.9);
+});

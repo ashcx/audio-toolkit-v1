@@ -50,17 +50,24 @@ export async function* resample(source: PcmStream, target: number): PcmStream {
       const center = Math.floor(numerator / target);
       if (!eof && center + radius >= received) break;
       const weights = kernel(numerator % target);
+      const taps = weights.length, firstTap = center - radius + 1;
+      const interior = firstTap >= 0 && firstTap + taps <= received;
       for (let channel = 0; channel < buffer.length; channel++) {
         let value = 0;
-        for (let tap = 0; tap < weights.length; tap++) {
-          const index = center - radius + 1 + tap;
-          const sample =
-            index < 0
-              ? first[channel]
-              : index >= received
-                ? last[channel]
-                : buffer[channel][index - bufferStart];
-          value += sample * weights[tap];
+        if (interior) {
+          const plane = buffer[channel], base = firstTap - bufferStart;
+          for (let tap = 0; tap < taps; tap++) value += plane[base + tap] * weights[tap];
+        } else {
+          for (let tap = 0; tap < taps; tap++) {
+            const index = firstTap + tap;
+            const sample =
+              index < 0
+                ? first[channel]
+                : index >= received
+                  ? last[channel]
+                  : buffer[channel][index - bufferStart];
+            value += sample * weights[tap];
+          }
         }
         output[channel][used] = value;
       }
