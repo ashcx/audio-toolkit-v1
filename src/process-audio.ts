@@ -1,4 +1,5 @@
 import { InferenceRunner } from "./inference/runner";
+import type { ModelLease } from "./inference/pool";
 import { cleanupAll } from "./cleanup";
 import { UserFacingError, failureOf } from "./errors.ts";
 import { showsDuringSeparation, type JobOperation } from "./job-events";
@@ -16,13 +17,14 @@ export function processAudio(
   signal: AbortSignal,
   name: string,
   phase: (value: JobOperation) => void = () => undefined,
+  lease?: ModelLease,
 ): Promise<ProcessedOutput> {
   signal.throwIfAborted();
   return new Promise((resolve, reject) => {
     const worker = new Worker(new URL("./pcm-worker.ts", import.meta.url), {
       type: "module",
     });
-    const inference = new InferenceRunner();
+    const inference = lease?.models.take() ?? new InferenceRunner();
     let inferenceTask = Promise.resolve();
     let isolating = false;
     const stored = new Set<string>();
@@ -33,9 +35,9 @@ export function processAudio(
       stored.clear();
       await cleanupAll(keys.map(key => () => removeStoreEntry(key)));
     };
-    const stop = () => {
+    const stop = (keepModel = false) => {
       worker.terminate();
-      inference.stop(signal.reason);
+      if (!keepModel) inference.stop(signal.reason);
       signal.removeEventListener("abort", abort);
     };
     const fail = (error: unknown) => {
@@ -66,12 +68,17 @@ export function processAudio(
       } else if (data.kind === "error") fail(new UserFacingError(data.code));
       else {
         settled = true;
-        stop();
+        stop(true);
         const { outputId, file, stats } = data;
         const output: StoredOutput = Object.freeze({ file, name: file.name, mime: file.type, release: () => removeStoreEntry(outputId) });
+        const finished = () => {
+          if (lease && lease.keepModels()) lease.models.give(inference);
+          else inference.stop(signal.reason);
+        };
         void cleanup().then(
-          () => resolve({ output, stats }),
+          () => { finished(); resolve({ output, stats }); },
           async (error) => {
+            inference.stop(signal.reason);
             await cleanupAll([() => output.release()]);
             reject(error);
           },

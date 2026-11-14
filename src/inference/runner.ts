@@ -15,6 +15,8 @@ export class InferenceRunner {
   private stopped = false;
   private stopReason: unknown = new DOMException("Cancelled", "AbortError");
   private active: { reject: (reason: unknown) => void } | null = null;
+  /** True while the worker holds a model session that a later job can use as it is. */
+  get reusable() { return !this.stopped && !this.active && this.backend === "auto" && this.retained !== null; }
   stop(reason: unknown = new DOMException("Cancelled", "AbortError")) {
     this.stopped = true;this.stopReason = reason;
     this.retained?.worker.terminate();this.retained = null;

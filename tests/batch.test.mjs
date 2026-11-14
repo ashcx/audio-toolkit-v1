@@ -13,7 +13,7 @@ function spec(name='tone.wav',steps=[],duration=2){
 }
 function harness(slots=1){
  const calls=[],released=[];
- const batch=new Batch((job,signal,phase)=>{const deferred=Promise.withResolvers();calls.push({job,signal,phase,...deferred});return deferred.promise;},slots);
+ const batch=new Batch((job,signal,phase,lease)=>{const deferred=Promise.withResolvers();calls.push({job,signal,phase,lease,...deferred});return deferred.promise;},slots);
  function finish(index){const call=calls[index];call.resolve({report:{kind:'copy'},output:{name:call.job.name,mime:'audio/wav',file:new File(['bytes'],call.job.name),release:async()=>{released.push(index);}}});}
  return {batch,calls,released,finish};
 }
@@ -108,4 +108,14 @@ test('a running job shows its latest progress and ignores progress after cancel,
 });
 test('Export always processes requested current specs and releases the prior result',async()=>{
  const {batch,calls,released,finish}=harness();const item=spec();batch.start([item]);await tick();finish(0);await tick();batch.start([item]);await tick();assert.equal(calls.length,2);assert.equal(released.length,1);finish(1);await tick();batch.dispose();
+});
+
+test('a loaded model is kept only while isolation work is still queued',async()=>{
+ const {batch,calls,finish}=harness(1);const a=spec('a.wav',[newStep('isolation')]),b=spec('b.wav',[newStep('isolation')]),c=spec('c.wav');
+ batch.start([a,b,c]);await tick();assert.equal(calls[0].lease.keepModels(),true);finish(0);await tick();assert.equal(calls[1].job.entry.id,b.entry.id);assert.equal(calls[1].lease.keepModels(),false);
+ finish(1);await tick();batch.dispose();
+});
+test('cancelling the last queued isolation job stops keeping the model',async()=>{
+ const {batch,calls,finish}=harness(1);const a=spec('a.wav',[newStep('isolation')]),b=spec('b.wav',[newStep('isolation')]);
+ batch.start([a,b]);await tick();assert.equal(calls[0].lease.keepModels(),true);batch.cancel(b.entry.id);assert.equal(calls[0].lease.keepModels(),false);finish(0);await tick();batch.dispose();
 });

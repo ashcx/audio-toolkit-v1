@@ -6,6 +6,7 @@ import { outputName, type ExecutionPlan } from "./planner.ts";
 import { exportDescriptor } from "./export-format.ts";
 import type { StoredOutput } from "./output-store";
 import type { DspStats } from "./pcm/protocol";
+import { InferencePool, type ModelLease } from "./inference/pool.ts";
 
 export type JobSpec = Readonly<{
   entry: FileEntry;
@@ -28,7 +29,7 @@ type OwnedJob = { readonly spec: JobSpec; state: JobState; ready: Promise<void> 
 export type BatchJob = Readonly<Pick<OwnedJob, "spec" | "state">>;
 /** `cleanupStuck` is true once a retry has also failed, which is when the interface should say so. */
 export type BatchSnapshot = { jobs: ReadonlyMap<FileId, BatchJob>; busy: boolean; cleanupCount: number; cleanupStuck: boolean; cleaning: boolean };
-export type JobRunner = (spec: JobSpec, signal: AbortSignal, phase: (value: JobOperation) => void) => Promise<JobOutput>;
+export type JobRunner = (spec: JobSpec, signal: AbortSignal, phase: (value: JobOperation) => void, lease: ModelLease) => Promise<JobOutput>;
 
 export function batchConcurrency(capabilities: {
   cores: number;
@@ -54,6 +55,7 @@ export class Batch {
   private listeners = new Set<(snapshot: BatchSnapshot) => void>();
   private occupied = 0;
   private isolating = 0;
+  private models = new InferencePool();
   private disposed = false;
   private cleaning = false;
   private releasing = 0;
@@ -113,11 +115,13 @@ export class Batch {
       job.state = { kind: "cancelling", attempt };
       attempt.controller.abort();
     }
+    this.releaseModels();
     this.emit();
   }
   cancelAll() {
     for (const job of this.jobs.values()) if (job.state.kind === "waiting") job.state = { kind: "cancelled" };
     for (const id of this.jobs.keys()) this.cancel(id);
+    this.releaseModels();
     this.emit();
   }
   retry(id?: FileId) {
@@ -164,6 +168,13 @@ export class Batch {
     for (const id of this.jobs.keys()) this.remove(id);
   }
   /** One isolation at a time because it holds the GPU and gigabytes of memory; everything else may overlap it. */
+  private waitingIsolation() {
+    return [...this.jobs.values()].some(job => job.state.kind === "waiting" && isolates(job.spec));
+  }
+  /** A loaded model is kept only while isolation work is still queued, so its memory is returned once the queue has none. */
+  private releaseModels() {
+    if (!this.waitingIsolation()) this.models.dispose();
+  }
   private next(): OwnedJob | undefined {
     let best: OwnedJob | undefined, bestCost = -1;
     for (const job of this.jobs.values()) {
@@ -199,7 +210,7 @@ export class Batch {
           job.state = { kind: "running", attempt, operation };
           this.emit();
         }
-      });
+      }, { models: this.models, keepModels: () => this.waitingIsolation() });
       if (!current() || signal.aborted) await cleanupAll([() => completed.output.release()]);
       else job.state = { kind: "done", ...completed, url: URL.createObjectURL(completed.output.file) };
     } catch (error) {
@@ -211,6 +222,7 @@ export class Batch {
       if (current() && signal.aborted) job.state = { kind: "cancelled" };
       if (isolates(job.spec)) this.isolating--;
       this.occupied--;
+      this.releaseModels();
       this.pump();
     }
   }
