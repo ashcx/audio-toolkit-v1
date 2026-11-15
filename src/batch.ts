@@ -31,23 +31,27 @@ export type BatchJob = Readonly<Pick<OwnedJob, "spec" | "state">>;
 export type BatchSnapshot = { jobs: ReadonlyMap<FileId, BatchJob>; busy: boolean; cleanupCount: number; cleanupStuck: boolean; cleaning: boolean };
 export type JobRunner = (spec: JobSpec, signal: AbortSignal, phase: (value: JobOperation) => void, lease: ModelLease) => Promise<JobOutput>;
 
+/**
+ * Two jobs at once where the device reports enough memory and threads to take them, one everywhere else.
+ * Memory is never assumed: browsers that do not report it (Safari, Firefox) stay at one.
+ * Apple mobile devices stay at one however they report themselves, because the system ends tabs that grow.
+ */
 export function batchConcurrency(capabilities: {
-  cores: number;
+  threads: number;
   memory: unknown;
   workers: boolean;
   storage: boolean;
-}): 1 | 2 | 3 {
-  if (!capabilities.workers || !capabilities.storage || capabilities.cores < 8 ||
-    typeof capabilities.memory !== "number" || capabilities.memory < 8) return 1;
-  return capabilities.cores >= 10 ? 3 : 2;
+  appleMobile: boolean;
+}): 1 | 2 {
+  return capabilities.workers && capabilities.storage && !capabilities.appleMobile && capabilities.threads >= 4 &&
+    typeof capabilities.memory === "number" && capabilities.memory > 6 ? 2 : 1;
 }
+type Tier = 0 | 1 | 2;
 const isolates = (spec: JobSpec) => spec.plan.kind === "pcm" && spec.plan.steps.some(step => step.kind === "isolation");
-/** Rough relative cost, so the longest work starts first and a batch does not end on one long straggler. */
-function estimatedCost(spec: JobSpec) {
-  if (spec.plan.kind !== "pcm") return 0;
-  const { snapshot } = spec.plan;
-  const seconds = snapshot.trim?.duration ?? snapshot.source.duration ?? 0;
-  return seconds * (isolates(spec) ? 5 : spec.plan.steps.some(step => step.kind === "speech") ? 2 : 1);
+/** Tracks run in order of appearance, with the slow ones last: noise removal, then music splitting. */
+function tierOf(spec: JobSpec): Tier {
+  if (isolates(spec)) return 2;
+  return spec.plan.kind === "pcm" && spec.plan.steps.some(step => step.kind === "speech") ? 1 : 0;
 }
 
 export class Batch {
@@ -61,8 +65,8 @@ export class Batch {
   private releasing = 0;
   private pendingCleanup = new Map<FileId, { failure: CleanupFailure; cancelled: boolean; attempts: number }>();
   private runner: JobRunner;
-  private concurrency: 1 | 2 | 3;
-  constructor(runner: JobRunner, concurrency: 1 | 2 | 3) {
+  private concurrency: 1 | 2;
+  constructor(runner: JobRunner, concurrency: 1 | 2) {
     this.runner = runner;
     this.concurrency = concurrency;
   }
@@ -167,7 +171,6 @@ export class Batch {
     this.cancelAll();
     for (const id of this.jobs.keys()) this.remove(id);
   }
-  /** One isolation at a time because it holds the GPU and gigabytes of memory; everything else may overlap it. */
   private waitingIsolation() {
     return [...this.jobs.values()].some(job => job.state.kind === "waiting" && isolates(job.spec));
   }
@@ -175,12 +178,15 @@ export class Batch {
   private releaseModels() {
     if (!this.waitingIsolation()) this.models.dispose();
   }
+  /** Music splitting holds gigabytes of memory, so it starts only when nothing else is running and then runs alone. */
   private next(): OwnedJob | undefined {
-    let best: OwnedJob | undefined, bestCost = -1;
+    if (this.isolating) return undefined;
+    let best: OwnedJob | undefined, bestTier: Tier = 2;
     for (const job of this.jobs.values()) {
-      if (job.state.kind !== "waiting" || (this.isolating && isolates(job.spec))) continue;
-      const cost = estimatedCost(job.spec);
-      if (cost > bestCost) { best = job; bestCost = cost; }
+      if (job.state.kind !== "waiting") continue;
+      const tier = tierOf(job.spec);
+      if (tier === 2 && this.occupied > 0) continue;
+      if (!best || tier < bestTier) { best = job; bestTier = tier; }
     }
     return best;
   }

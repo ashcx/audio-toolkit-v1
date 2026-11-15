@@ -2,14 +2,16 @@ import { useLayoutEffect, useRef, useState } from "preact/hooks";
 import type { FileEntry, FileId } from "./media";
 import { Batch, batchConcurrency, type BatchSnapshot } from "./batch";
 import { runJob } from "./run-job";
+import { isAppleMobile } from "./platform";
 
 export function useExport(files: readonly FileEntry[]) {
   const owner = useRef<Batch | null>(null);
   if (!owner.current) owner.current = new Batch(runJob, batchConcurrency({
-    cores: navigator.hardwareConcurrency,
+    threads: navigator.hardwareConcurrency,
     memory: "deviceMemory" in navigator ? navigator.deviceMemory : undefined,
     workers: typeof Worker !== "undefined",
     storage: typeof navigator.storage?.getDirectory === "function",
+    appleMobile: isAppleMobile(navigator),
   }));
   const batch = owner.current;
   const [snapshot, setSnapshot] = useState<BatchSnapshot>(() => batch.snapshot);
