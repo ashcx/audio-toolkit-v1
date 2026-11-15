@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Batch,batchConcurrency} from '../src/batch.ts';
-import {isAppleMobile} from '../src/platform.ts';
+import {deviceClass} from '../src/platform.ts';
 import {newRecipe,newExport,newStep,recipeSchema,snapshotForFile} from '../src/recipe.ts';
 import {createFileId} from '../src/media.ts';
 import {compilePlan} from '../src/planner.ts';
@@ -18,19 +18,22 @@ function harness(slots=1){
  function finish(index){const call=calls[index];call.resolve({report:{kind:'copy'},output:{name:call.job.name,mime:'audio/wav',file:new File(['bytes'],call.job.name),release:async()=>{released.push(index);}}});}
  return {batch,calls,released,finish};
 }
-test('capability policy never assumes memory, keeps Apple mobile at one and caps parallel work at two',()=>{
- const base={threads:8,memory:8,workers:true,storage:true,appleMobile:false};
- for(const memory of [undefined,0,4,6,'8'])assert.equal(batchConcurrency({...base,memory}),1);
- assert.equal(batchConcurrency(base),2);assert.equal(batchConcurrency({...base,memory:16,threads:32}),2);
- assert.equal(batchConcurrency({...base,threads:4}),2);assert.equal(batchConcurrency({...base,threads:3}),1);
- assert.equal(batchConcurrency({...base,appleMobile:true}),1);assert.equal(batchConcurrency({...base,workers:false}),1);assert.equal(batchConcurrency({...base,storage:false}),1);
+test('desktops run two jobs, Android needs more than 6 GB, Apple mobile stays at one, and workers and storage are required',()=>{
+ const base={device:'desktop',memory:undefined,workers:true,storage:true};
+ for(const memory of [undefined,0,2,'16'])assert.equal(batchConcurrency({...base,memory}),2);
+ for(const memory of [undefined,0,4,6,'8'])assert.equal(batchConcurrency({...base,device:'android',memory}),1);
+ for(const memory of [8,12,16])assert.equal(batchConcurrency({...base,device:'android',memory}),2);
+ for(const memory of [undefined,8,16])assert.equal(batchConcurrency({...base,device:'apple-mobile',memory}),1);
+ assert.equal(batchConcurrency({...base,workers:false}),1);assert.equal(batchConcurrency({...base,storage:false}),1);
 });
-test('Apple mobile is recognised on iPhone, iPad and iPadOS reporting as a Mac, and not on a desktop Mac',()=>{
- assert.equal(isAppleMobile({userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)'}),true);
- assert.equal(isAppleMobile({userAgent:'Mozilla/5.0 (iPad; CPU OS 18_0 like Mac OS X)'}),true);
- assert.equal(isAppleMobile({userAgent:'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',platform:'MacIntel',maxTouchPoints:5}),true);
- assert.equal(isAppleMobile({userAgent:'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',platform:'MacIntel',maxTouchPoints:0}),false);
- assert.equal(isAppleMobile({userAgent:'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',platform:'Win32',maxTouchPoints:10}),false);
+test('device class tells iPhone, iPad, iPadOS reporting as a Mac, Android and desktops apart',()=>{
+ assert.equal(deviceClass({userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)'}),'apple-mobile');
+ assert.equal(deviceClass({userAgent:'Mozilla/5.0 (iPad; CPU OS 18_0 like Mac OS X)'}),'apple-mobile');
+ assert.equal(deviceClass({userAgent:'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',platform:'MacIntel',maxTouchPoints:5}),'apple-mobile');
+ assert.equal(deviceClass({userAgent:'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',platform:'MacIntel',maxTouchPoints:0}),'desktop');
+ assert.equal(deviceClass({userAgent:'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',platform:'Win32',maxTouchPoints:10}),'desktop');
+ assert.equal(deviceClass({userAgent:'Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 Chrome/130 Mobile Safari/537.36',platform:'Linux armv81',maxTouchPoints:5}),'android');
+ assert.equal(deviceClass({userAgent:'Mozilla/5.0 (X11; Linux x86_64; rv:130.0) Gecko/20100101 Firefox/130.0'}),'desktop');
 });
 test('cancelled late success is released before dispatch; waiting cancel never starts',async()=>{
  const {batch,calls,released,finish}=harness();const [a,b,c]=[spec(),spec(),spec()];batch.start([a,b,c]);await tick();

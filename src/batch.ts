@@ -7,6 +7,7 @@ import { exportDescriptor } from "./export-format.ts";
 import type { StoredOutput } from "./output-store";
 import type { DspStats } from "./pcm/protocol";
 import { InferencePool, type ModelLease } from "./inference/pool.ts";
+import type { DeviceClass } from "./platform.ts";
 
 export type JobSpec = Readonly<{
   entry: FileEntry;
@@ -32,19 +33,19 @@ export type BatchSnapshot = { jobs: ReadonlyMap<FileId, BatchJob>; busy: boolean
 export type JobRunner = (spec: JobSpec, signal: AbortSignal, phase: (value: JobOperation) => void, lease: ModelLease) => Promise<JobOutput>;
 
 /**
- * Two jobs at once where the device reports enough memory and threads to take them, one everywhere else.
- * Memory is never assumed: browsers that do not report it (Safari, Firefox) stay at one.
- * Apple mobile devices stay at one however they report themselves, because the system ends tabs that grow.
+ * Desktops run two jobs at once. Android runs two when it reports more than 6 GB and one otherwise, and a
+ * phone that does not report memory stays at one. iPhone and iPad stay at one because the system ends
+ * tabs that grow. Workers and file storage are required to process audio at all.
  */
 export function batchConcurrency(capabilities: {
-  threads: number;
+  device: DeviceClass;
   memory: unknown;
   workers: boolean;
   storage: boolean;
-  appleMobile: boolean;
 }): 1 | 2 {
-  return capabilities.workers && capabilities.storage && !capabilities.appleMobile && capabilities.threads >= 4 &&
-    typeof capabilities.memory === "number" && capabilities.memory > 6 ? 2 : 1;
+  if (!capabilities.workers || !capabilities.storage) return 1;
+  if (capabilities.device === "desktop") return 2;
+  return capabilities.device === "android" && typeof capabilities.memory === "number" && capabilities.memory > 6 ? 2 : 1;
 }
 type Tier = 0 | 1 | 2;
 const isolates = (spec: JobSpec) => spec.plan.kind === "pcm" && spec.plan.steps.some(step => step.kind === "isolation");
