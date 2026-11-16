@@ -335,6 +335,83 @@ const tasks = {
     }
     note('WebKit not run: not installed');
   },
+
+  async T4({ browser, app, check, note }) {
+    const POSITION = /^\d\d:\d\d \/ \d\d:\d\d$/;
+    for (const viewport of VIEWPORTS) {
+      const label = `T4 ${viewport.name}`;
+      {
+        const { context, page, errors } = await openApp(browser, app, viewport);
+        const long = { name: 'long-take.wav', mimeType: 'audio/wav', buffer: wav(195, 8000) };
+        await addFiles(page, [long]);
+        const row = page.locator('li[data-file-id]').first();
+        const text = await row.innerText();
+        check(`${label} 03:15 file: 03:15 appears once in the row text`, (text.match(/03:15/g) ?? []).length === 1, JSON.stringify(text));
+        check(`${label} 03:15 file: the file line reads 00:00 / 03:15`, await row.locator('.file-position').innerText() === '00:00 / 03:15');
+        check(`${label} 03:15 file: the live position is aria-hidden and the slider keeps its spoken position`, await row.locator('.file-position').getAttribute('aria-hidden') === 'true'
+          && await row.locator('.wave-track').getAttribute('aria-valuetext') === copy.wave.position('00:00', '03:15'));
+        await row.locator('.wave-play').click();
+        await page.waitForFunction(() => !document.querySelector('.file-position').textContent.startsWith('00:00 /'), null, { timeout: 8000 });
+        const playing = await row.locator('.file-position').innerText();
+        await row.locator('.wave-play').click();
+        check(`${label} 03:15 file: the position advances in the file line while it plays`, POSITION.test(playing) && !playing.startsWith('00:00 /') && playing.endsWith('/ 03:15'), playing);
+        check(`${label} 03:15 file: the player row has no readout`, await row.locator('.wave-player .wave-time, .wave-player .wave-label').count() === 0);
+        check(`${label} 03:15 file: no horizontal overflow, no page errors`, (await metrics(page)).overflow <= 0 && errors.length === 0, errors.join('; '));
+        await context.close();
+      }
+      {
+        const { context, page, errors } = await openApp(browser, app, viewport);
+        await addFiles(page, [fixture('tone-20.wav', 20)]);
+        await page.getByLabel('Add step').selectOption('trim');
+        await page.getByLabel(copy.trim.startField(copy.trim.prefix), { exact: true }).fill('2');
+        await page.getByLabel(copy.trim.endField(copy.trim.prefix), { exact: true }).fill('18');
+        await page.waitForTimeout(400);
+        const meta = await page.locator('li[data-file-id] .file-name small').first().innerText();
+        check(`${label} Trim all: the kept duration and the range follow the position`, meta === '00:00 / 00:20 · 00:16 · 00:02 to 00:18', meta);
+        if (viewport.name === '375') {
+          await page.getByLabel('Add step').selectOption('gain');
+          await page.getByRole('button', { name: /^Preview/ }).click();
+          await page.locator('[data-preview-state=ready]').waitFor({ timeout: 60000 });
+          await page.waitForTimeout(300);
+          const previewing = await page.evaluate(() => ({
+            position: document.querySelector('.file-position').textContent, hidden: document.querySelector('.file-position').getAttribute('aria-hidden'),
+            readouts: [...document.querySelectorAll('.file-preview .wave-time')].map(node => node.textContent),
+          }));
+          check(`${label} open preview: the file line shows the total only and the preview players keep their own readout`, previewing.position === '00:20' && previewing.hidden === null && previewing.readouts.length === 2 && previewing.readouts.every(value => POSITION.test(value)), JSON.stringify(previewing));
+        }
+        check(`${label} Trim all: no page errors`, errors.length === 0, errors.join('; '));
+        await context.close();
+      }
+      {
+        const { context, page, errors } = await openApp(browser, app, viewport);
+        await addFiles(page, [{ name: 'opaque.wav', mimeType: 'application/octet-stream', buffer: wav(12) }, fixture('tone-b.wav', 12)]);
+        await page.waitForTimeout(300);
+        const opaque = page.locator('li[data-file-id]').nth(0);
+        check(`${label} unplayable source with no result: the file line shows the total only`, await opaque.locator('.file-position').innerText() === '00:12' && await opaque.locator('.wave-player').count() === 0 && await opaque.locator('.file-position').getAttribute('aria-hidden') === null);
+        await exportAll(page, 2);
+        const finished = await page.locator('li[data-file-id] .file-position').allInnerTexts();
+        check(`${label} finished files: the position and total are read from .file-position`, finished.length === 2 && finished.every(value => POSITION.test(value)) && finished[1] === '00:00 / 00:12', JSON.stringify(finished));
+        const second = page.locator('li[data-file-id]').nth(1);
+        await second.locator('.file-result .wave-play').click();
+        await page.waitForFunction(() => !document.querySelectorAll('li[data-file-id] .file-position')[1].textContent.startsWith('00:00 /'), null, { timeout: 8000 });
+        const advanced = await second.locator('.file-position').innerText();
+        await second.locator('.file-result .wave-play').click();
+        check(`${label} finished file: playing the result advances the position in the file line`, POSITION.test(advanced) && !advanced.startsWith('00:00 /'), advanced);
+        check(`${label} finished file: the result row has no readout`, await second.locator('.file-result .wave-time').count() === 0);
+        if (viewport.name === '375') await shot(page, 't4-375');
+        check(`${label} finished files: no page errors`, errors.length === 0, errors.join('; '));
+        await context.close();
+      }
+      if (viewport.name === '375') {
+        const { context, page } = await openApp(browser, app, viewport);
+        await addFiles(page, ['tests/fixtures/tone.aac']);
+        const unknown = page.locator('li[data-file-id]').first();
+        check(`${label} unavailable duration stays a distinct message in the file line`, await unknown.locator('.file-position').innerText() === copy.trim.unknownDuration, await unknown.innerText());
+        await context.close();
+      }
+    }
+    note('WebKit not run: not installed');
+  },
 };
 
 const app = await startApp();

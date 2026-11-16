@@ -36,6 +36,7 @@ await page.waitForFunction(() => [...document.querySelectorAll('li[data-inspecti
 await page.waitForTimeout(300);
 const metaText = await row('tone.wav').innerText();
 if (!/tone\.wav/.test(metaText) || !/00:02/.test(metaText)) throw new Error('metadata missing duration: ' + metaText);
+if (await row('tone.wav').locator('.file-position').innerText() !== '00:00 / 00:02') throw new Error('live position missing from the file line: ' + metaText);
 if (/kept|Custom|Normalize|Preview ·/.test(metaText)) throw new Error('redundant metadata: ' + metaText);
 if (await row('tone.wav').getByRole('button', { name: /Preview/ }).count()) throw new Error('Preview shown with empty recipe');
 if (!(await row('tone.wav').locator('audio').count())) throw new Error('original player missing');

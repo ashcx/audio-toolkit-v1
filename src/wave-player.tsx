@@ -1,3 +1,4 @@
+import type { RefObject } from "preact";
 import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks";
 import { copy } from "./copy";
 import { messageFor } from "./errors";
@@ -71,10 +72,16 @@ function drawWave(g: CanvasRenderingContext2D, width: number, height: number, to
   }
   if (lines) { mark(g, lines.startX, height, 1, palette); mark(g, lines.endX, height, -1, palette); }
 }
+const writeText = (element: HTMLElement, text: string) => {
+  const node = element.firstChild;
+  if (node instanceof Text) { if (node.data !== text) node.data = text; }
+  else if (element.textContent !== text) element.textContent = text;
+};
 const wholeFile = (range: Readonly<{ start: number; end: number }>, total: number) => range.start < 1e-6 && range.end > total - 1e-6;
 let fieldCount = 0;
-export function WavePlayer({ layout, src, source, label, name, duration, preload, paused, trim }: {
+export function WavePlayer({ layout, src, source, label, name, duration, preload, paused, trim, readoutTarget }: {
   layout: "row" | "labelled";
+  readoutTarget?: RefObject<HTMLElement | null>;
   src: string; source: PeakSource; label: string; name: string;
   /** Known length in seconds, or null when only the file itself can tell. */
   duration: number | null; preload: "none" | "metadata";
@@ -126,7 +133,8 @@ export function WavePlayer({ layout, src, source, label, name, duration, preload
     marker.style.transform = `translateX(${timeToX(at, length, width)}px)`;
     const whole = length ? formatTime(length) : "--:--";
     const text = `${formatTime(at)} / ${whole}`;
-    if (readout.current && readout.current.textContent !== text) readout.current.textContent = text;
+    const target = readoutTarget?.current ?? readout.current;
+    if (target) writeText(target, text);
     const spoken = copy.wave.position(formatTime(at), length ? whole : copy.trim.unknownDuration);
     if (host.getAttribute("aria-valuetext") !== spoken) {
       host.setAttribute("aria-valuetext", spoken);
