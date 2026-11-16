@@ -9,17 +9,17 @@ import type { DspStats } from "./pcm/protocol";
 import { InferencePool, type ModelLease } from "./inference/pool.ts";
 import type { DeviceClass } from "./platform.ts";
 
-export type JobSpec = Readonly<{
+type JobSpec = Readonly<{
   entry: FileEntry;
   plan: Exclude<ExecutionPlan, { kind: "failed" }>;
   name: string;
 }>;
-export type JobOutput = {
+type JobOutput = {
   output: StoredOutput;
   report: { kind: "copy" } | { kind: "pcm"; stats: DspStats };
 };
 type Attempt = Readonly<{ controller: AbortController }>;
-export type JobState =
+type JobState =
   | { kind: "waiting" }
   | { kind: "running"; attempt: Attempt; operation: JobOperation }
   | { kind: "cancelling"; attempt: Attempt }

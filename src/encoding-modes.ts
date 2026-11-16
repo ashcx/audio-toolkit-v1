@@ -2,7 +2,7 @@ import { copy } from "./copy.ts";
 import type { ExportFormat } from "./recipe.ts";
 
 export type EncodingMode = "cbr" | "vbr";
-export type EncodingModeOption = Readonly<{
+type EncodingModeOption = Readonly<{
   value: EncodingMode;
   label: string;
 }>;

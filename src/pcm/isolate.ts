@@ -71,7 +71,7 @@ export async function* fitIsolationFrames(source: PcmStream, frames: number | ((
 }
 
 const DEMUCS_KEEP = { voice: ["vocals"], music: ["drums", "bass", "other"] } as const satisfies Record<string, readonly DemucsSource[]>;
-export type IsolationMode = keyof typeof DEMUCS_KEEP;
+type IsolationMode = keyof typeof DEMUCS_KEEP;
 
 export async function* isolate(source: PcmStream, keep: IsolationMode, context: {
   signal: AbortSignal;

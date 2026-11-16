@@ -1,9 +1,9 @@
 import type { Recipe } from "../recipe";
 import type { PcmStream } from "./blocks";
 
-export type CompressorStep = Extract<Recipe["steps"][number], { kind: "compress" }>;
-export type CompressorPreset = CompressorStep["preset"];
-export type CompressorSettings = Readonly<{
+type CompressorStep = Extract<Recipe["steps"][number], { kind: "compress" }>;
+type CompressorPreset = CompressorStep["preset"];
+type CompressorSettings = Readonly<{
   thresholdDb: number;
   ratio: number;
   attackSeconds: number;

@@ -10,7 +10,7 @@ import type {
   WorkerResult,
   WorkerInput,
 } from "./pcm/protocol";
-export type ProcessedOutput = { output: StoredOutput; stats: DspStats };
+type ProcessedOutput = { output: StoredOutput; stats: DspStats };
 export function processAudio(
   file: File,
   plan: PcmPlan,

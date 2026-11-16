@@ -5,7 +5,7 @@ import { formatTime } from "./format.ts";
 import type { FileEntry } from "./media.ts";
 import type { EffectiveRecipe } from "./recipe.ts";
 
-export type FileMetadata = Readonly<{ primary?: string; secondary?: string }>;
+type FileMetadata = Readonly<{ primary?: string; secondary?: string }>;
 
 function fullRange(trim: NonNullable<EffectiveRecipe["trim"]>, duration: number | null) {
   if (trim.start !== 0) return false;

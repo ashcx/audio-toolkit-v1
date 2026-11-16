@@ -306,7 +306,7 @@ export type EffectiveRecipe = Readonly<{
     duration: number | null;
   }> | null;
 }>;
-export type SnapshotResult =
+type SnapshotResult =
   | { kind: "ready"; snapshot: EffectiveRecipe }
   | ({ kind: "failed" } & Failure);
 /**
