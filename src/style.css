@@ -89,15 +89,16 @@ li[data-collapsed] .wave-play { order: -1; }
 .file-actions { display: flex; gap: 2px; align-items: center; }
 .icon-button { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 8px; border-color: transparent; background: transparent; color: var(--text); font-size: 20px; line-height: 1; text-decoration: none; }
 .file-actions > button:not(.icon-button) { border: 0; background: transparent; }
-.file-player { flex-basis: 100%; min-width: 0; display: grid; gap: 2px; }
+.file-player { flex-basis: 100%; min-width: 0; display: grid; gap: 10px; padding-bottom: 4px; }
 .file-player small { color: var(--muted-strong); }
-.view-switch { display: flex; justify-self: start; border: 1px solid var(--border); border-radius: 8px; }
-.view-switch label { position: relative; min-width: 88px; min-height: 44px; display: grid; place-items: center; padding: 0 16px; font: var(--type-label); color: var(--muted-strong); cursor: pointer; }
-.view-switch label:first-child { border-radius: 7px 0 0 7px; }
-.view-switch label:last-child { border-radius: 0 7px 7px 0; }
-.view-switch label + label { border-left: 1px solid var(--border); }
-.view-switch label:has(input:checked) { background: var(--accent); color: var(--accent-contrast); }
-.view-switch input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; appearance: none; border: 0; border-radius: inherit; background: transparent; cursor: pointer; }
+.view-switch { display: flex; justify-self: start; align-items: center; gap: 6px; }
+.view-switch label { position: relative; min-height: 44px; display: grid; place-items: center; padding: 0 4px; font: var(--type-label); color: var(--muted-strong); cursor: pointer; }
+.view-switch label:has(input:checked) { color: var(--text); }
+.view-switch input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; appearance: none; border: 0; border-radius: 8px; background: transparent; cursor: pointer; }
+.view-track { position: relative; flex: none; width: 48px; height: 44px; cursor: pointer; }
+.view-track::before { content: ""; position: absolute; left: 4px; top: 10px; width: 40px; height: 24px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--surface-muted); }
+.view-track i { position: absolute; left: 8px; top: 14px; width: 16px; height: 16px; border-radius: 50%; background: var(--accent); }
+.view-switch[data-view="result"] .view-track i { transform: translateX(16px); }
 .file-note { color: var(--muted-strong); }
 .file-result { flex-basis: 100%; display: flex; align-items: center; gap: 6px 8px; flex-wrap: wrap; font: var(--type-status); }
 .download-button svg { display: block; }
@@ -300,4 +301,5 @@ input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border: 3px s
 @media (prefers-reduced-motion: no-preference) {
   button, a, select, summary { transition: background .12s, border-color .12s; }
   .wave-track { transition: height .2s ease, margin-top .2s ease; }
+  .view-track i { transition: transform .15s ease; }
 }

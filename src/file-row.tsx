@@ -40,9 +40,8 @@ function useViewCarry(view: View | null, trimStart: number, onPick: (view: View)
   });
   return { audio, choose };
 }
-const choices: readonly (readonly [View, string])[] = [["original", copy.files.original], ["result", copy.result.label]];
-function FilePlayer({ entry, metadata, result, view, switchable, compact, audioRef, paused, trim, readoutTarget, onChoose }: {
-  entry: FileEntry; metadata: AudioMetadata; result: PlayableResult | null; view: View; switchable: boolean; compact: boolean;
+function FilePlayer({ entry, metadata, result, view, switchable, compact, older, audioRef, paused, trim, readoutTarget, onChoose }: {
+  entry: FileEntry; metadata: AudioMetadata; result: PlayableResult | null; view: View; switchable: boolean; compact: boolean; older: boolean;
   audioRef: RefObject<HTMLAudioElement | null>; paused: boolean; trim: TrimEdit; readoutTarget?: RefObject<HTMLElement | null>; onChoose: (view: View) => void;
 }) {
   const [sourceUrl] = useState(() => URL.createObjectURL(entry.file));
@@ -55,11 +54,16 @@ function FilePlayer({ entry, metadata, result, view, switchable, compact, audioR
       duration={showsResult ? result.duration : metadata.duration} preload={showsResult || result ? "metadata" : "none"} paused={paused}
       trim={showsResult ? { ...trim, range: null, custom: false, follows: false, onToggle: () => { onChoose("original"); trim.onToggle(); } } : trim}
       readoutTarget={readoutTarget} />
-    {switchable && !compact && !trim.editing && <div class="view-switch" role="radiogroup" aria-label={copy.files.viewLabel(entry.file.name)}>
-      {choices.map(([option, text]) => <label key={option}>
-        <input type="radio" name={`view-${entry.id}`} tabIndex={view === option ? 0 : -1} checked={view === option} onChange={() => onChoose(option)} />
-        <span>{text}</span>
-      </label>)}
+    {switchable && !compact && !trim.editing && <div class="view-switch" role="radiogroup" aria-label={copy.files.viewLabel(entry.file.name)} data-view={view}>
+      <label>
+        <input type="radio" name={`view-${entry.id}`} tabIndex={view === "original" ? 0 : -1} checked={view === "original"} onChange={() => onChoose("original")} />
+        <span>{copy.files.original}</span>
+      </label>
+      <span class="view-track" aria-hidden="true" onClick={() => onChoose(view === "original" ? "result" : "original")}><i /></span>
+      <label title={older ? copy.result.olderLabel : undefined}>
+        <input type="radio" name={`view-${entry.id}`} tabIndex={view === "result" ? 0 : -1} checked={view === "result"} aria-label={older ? copy.result.olderLabel : undefined} onChange={() => onChoose("result")} />
+        <span>{copy.result.label}</span>
+      </label>
     </div>}
   </div>;
 }
@@ -204,6 +208,8 @@ export function FileRow({
             {trimFailed.message}
           </small>
         )}
+        {exported?.kind === "done" && !exportedPlayable && <small class="file-note">{copy.files.resultUnplayable}</small>}
+        {exported?.kind === "done" && expanded && note && <small class="file-note">{note}</small>}
         {collapsible && <button type="button" class="file-toggle" aria-expanded={expanded} aria-label={copy.files.detailsLabel(entry.file.name)} onClick={toggleExpanded} />}
       </span>
       <div class="file-actions">
@@ -229,7 +235,7 @@ export function FileRow({
         </button>
       </div>
       <span class="sr-only" role="status">{[spoken && copy.files.announce(entry.file.name, spoken), previewSpoken].filter(Boolean).join(" ")}</span>
-      {entry.inspection.kind === "ready" && shown && <FilePlayer entry={entry} metadata={entry.inspection.metadata} view={shown} switchable={views.length > 1} compact={!expanded} audioRef={audio}
+      {entry.inspection.kind === "ready" && shown && <FilePlayer entry={entry} metadata={entry.inspection.metadata} view={shown} switchable={views.length > 1} compact={!expanded} older={previousSettings === true} audioRef={audio}
         result={exported?.kind === "done" && exportedPlayable ? { url: exported.url, file: exported.output.file, label: resultLabel, duration: resultDuration } : null}
         paused={busy} readoutTarget={positionLive ? position : undefined}
         onChoose={choose} trim={{
@@ -257,7 +263,7 @@ export function FileRow({
         </> : preview.kind === "failed" ? <span>{preview.message}</span>
           : preview.kind === "cancelling" ? <span>{copy.preview.cancelling}</span> : null}
       </div>}
-      {exported && (exported.kind !== "done" || !exportedPlayable || previousSettings || (expanded && note)) && (
+      {exported && exported.kind !== "done" && (
         <div class="file-result">
           {exported.kind === "waiting" || exported.kind === "running" || exported.kind === "cancelling" ? (
             <>
@@ -265,18 +271,12 @@ export function FileRow({
               <span>{operation ? copy.progress.label(operation) : exported.kind === "waiting" ? copy.files.waiting : copy.files.cancelling}</span>
               {exported.kind !== "cancelling" && <button type="button" aria-label={copy.files.cancelLabel(entry.file.name)} onClick={onCancel}>{copy.files.cancel}</button>}
             </>
-          ) : exported.kind === "failed" || exported.kind === "cancelled" ? (
+          ) : (
             <>
               <span>{exported.kind === "failed" ? exported.message : copy.files.cancelled}</span>
               {failedAction === "remove"
                 ? <button type="button" disabled={downloadBusy} aria-label={copy.files.removeLabel(entry.file.name)} onClick={onRemove}>{copy.actions.remove}</button>
                 : <button type="button" disabled={busy} aria-label={copy.files.retryLabel(entry.file.name)} onClick={onRetry}>{copy.actions.retry}</button>}
-            </>
-          ) : (
-            <>
-              {(previousSettings || !exportedPlayable) && <small>{resultLabel}</small>}
-              {!exportedPlayable && <small class="file-note">{copy.files.resultUnplayable}</small>}
-              {expanded && note && <small>{note}</small>}
             </>
           )}
         </div>

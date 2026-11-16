@@ -391,7 +391,7 @@ async function runConfig(browser, config) {
     await waitDone(page, 2);
     await shoot('success-several-steps');
     await toggleFinished(page, true);
-    const notes = await page.locator('li[data-job-state=done]').evaluateAll(nodes => nodes.map(node => node.querySelectorAll('.file-result small').length));
+    const notes = await page.locator('li[data-job-state=done]').evaluateAll(nodes => nodes.map(node => node.querySelectorAll('.file-name .file-note').length));
     check(`${config.name}/success-several-steps an expanded row shows at most one note per file`, notes.length === 2 && notes.every(count => count <= 1), JSON.stringify(notes));
     await toggleFinished(page, false);
   });
@@ -682,7 +682,7 @@ async function runConfig(browser, config) {
     check(`${config.name}/splitter-run ended with a plain collapsed result row: its player and no progress or result box`, ended.results === 0 && ended.collapsed && ended.audios === 1, JSON.stringify(ended));
     check(`${config.name}/splitter-run status area is empty afterwards`, (await page.locator('.run-status').innerText()).trim() === '');
     await toggleFinished(page, true);
-    check(`${config.name}/splitter-run an expanded result shows at most one note`, await page.locator('.file-result small').count() <= 1);
+    check(`${config.name}/splitter-run an expanded result shows at most one note`, await page.locator('li[data-job-state=done] .file-name .file-note').count() <= 1);
   }, { cold: true });
 
   if (config.full) {

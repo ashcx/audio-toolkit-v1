@@ -133,6 +133,22 @@ const open = async row => {
   if (await toggle.count() && await toggle.getAttribute('aria-expanded') === 'false') { await toggle.click(); await row.page().waitForTimeout(350); }
 };
 const rowAt = (page, index) => page.locator('li[data-file-id]').nth(index);
+const belowToggle = row => row.evaluate(li => {
+  const toggle = li.querySelector('.view-switch');
+  if (!toggle) return { toggle: false };
+  const bottom = toggle.getBoundingClientRect().bottom;
+  const stray = [...li.querySelectorAll('*')]
+    .filter(element => !toggle.contains(element) && !element.contains(toggle) && !element.closest('.sr-only') && element.tagName !== 'AUDIO'
+      && element.getClientRects().length && getComputedStyle(element).visibility !== 'hidden' && element.getBoundingClientRect().bottom > bottom + 0.5)
+    .map(element => `${element.tagName.toLowerCase()}.${element.className}`);
+  return { toggle: true, stray, gap: toggle.getBoundingClientRect().top - li.querySelector('.wave-player').getBoundingClientRect().bottom, bottomPad: li.getBoundingClientRect().bottom - bottom };
+});
+const olderOnlyForAssistiveTech = async (row, name) => {
+  const visible = await row.innerText();
+  return !visible.includes('older') && await row.locator('.file-result').count() === 0
+    && await row.getByRole('link', { name: copy.result.downloadOlder(name), exact: true }).count() === 1
+    && await row.getByRole('radio', { name: copy.result.olderLabel, exact: true }).count() === 1;
+};
 const audioState = (row) => row.locator('audio').evaluate(audio => ({ src: audio.src, time: audio.currentTime, paused: audio.paused, ready: audio.readyState }));
 const switchView = (row, optionLabel) => row.evaluate((li, wanted) => new Promise(resolve => {
   const audio = li.querySelector('audio'), before = { src: audio.src, time: audio.currentTime, paused: audio.paused };
@@ -650,7 +666,7 @@ const tasks = {
       if (viewport.name === '375' || viewport.name === '320') await shot(page, `t3-${viewport.name}`);
       await page.getByLabel('Add step').selectOption('gain');
       await page.waitForFunction(() => document.querySelector('.file-actions button:not(.icon-button)'), null, { timeout: 10000 });
-      check(`${label} an older result still says so in visible text and in the player label`, await page.locator('li[data-file-id]:nth-child(1) .file-result').innerText() === copy.result.olderLabel && (await band(page, 'li[data-file-id]:nth-child(1) .file-player .wave-player')).playLabel === copy.wave.play(copy.result.olderLabel, 'tone-20.wav'));
+      check(`${label} an older result says so only to assistive tech: no visible text or line, the Result option, the download link and the player keep the older name`, await olderOnlyForAssistiveTech(page.locator('li[data-file-id]:nth-child(1)'), 'tone-20.wav') && (await band(page, 'li[data-file-id]:nth-child(1) .file-player .wave-player')).playLabel === copy.wave.play(copy.result.olderLabel, 'tone-20.wav'));
       await page.locator('li[data-file-id]:nth-child(1)').getByRole('button', { name: /^Preview/ }).click();
       await page.locator('[data-preview-state=ready]').waitFor({ timeout: 60000 });
       await page.waitForTimeout(400);
@@ -729,7 +745,7 @@ const tasks = {
         await page.waitForFunction(() => document.querySelector('.file-position').textContent === '00:00 / 00:20');
         const original = await meta.innerText();
         check(`${label} trimmed finished row, Original view: position and whole-file total, then kept duration and range`, original === '00:00 / 00:20 · 00:08 · 00:02 to 00:10' && repeated(original) === 0, original);
-        await row.getByLabel('Result', { exact: true }).check();
+        await row.getByRole('radio', { name: /^Result/ }).check();
         await page.waitForFunction(() => document.querySelector('.file-position').textContent === '00:00 / 00:08');
         check(`${label} trimmed finished row: back in the Result view the kept duration is omitted again`, await meta.innerText() === '00:00 / 00:08 · 00:02 to 00:10');
         check(`${label} trimmed finished row: no page errors`, errors.length === 0, errors.join('; '));
@@ -795,6 +811,8 @@ const tasks = {
         }));
         check(`${label} finished file: one player and a two-option switch, Result chosen, no Original toggle`, shape.details === 0 && shape.players === 1 && shape.group === 'radiogroup' && shape.options.map(option => option.text).join('|') === 'Original|Result' && shape.options[1].checked && !shape.options[0].checked, JSON.stringify(shape));
         check(`${label} finished file: switch targets are at least 44x44`, shape.options.every(option => option.width >= 44 && option.height >= 44), JSON.stringify(shape.options));
+        const under = await belowToggle(first);
+        check(`${label} finished file: the toggle row is the last visible element, 10px under the player row, with bottom padding`, under.toggle && under.stray.length === 0 && Math.abs(under.gap - 10) < 0.5 && under.bottomPad >= 4, JSON.stringify(under));
         check(`${label} finished file: the Result view plays the download href and a plain result adds no extra line`, (await audioState(first)).src === href && shape.resultBox === 0);
         const row0 = await first.boundingBox();
         note(`${label} measured: finished row with player and switch ${Math.round(row0.height)}px (baseline ${JSON.stringify(baselineRow(viewport.name))})`);
@@ -813,9 +831,9 @@ const tasks = {
         await page.waitForTimeout(800);
         const original = await audioState(first);
         check(`${label} Original view: the audio plays the source object URL, not the download`, original.src.startsWith('blob:') && original.src !== href && await first.locator('audio').count() === 1, original.src);
-        await first.getByLabel('Result', { exact: true }).check();
+        await first.getByRole('radio', { name: /^Result/ }).check();
         await first.getByLabel('Original', { exact: true }).check();
-        await first.getByLabel('Result', { exact: true }).check();
+        await first.getByRole('radio', { name: /^Result/ }).check();
         await page.waitForTimeout(800);
         const peaksAfter = await page.evaluate(() => window.__peakWorkers);
         check(`${label} switching back and forth does not recompute peaks`, peaksAfter <= peaksResult + 1, `${peaksResult} then ${peaksAfter}`);
@@ -839,7 +857,7 @@ const tasks = {
         await first.getByLabel('Original', { exact: true }).focus();
         await page.keyboard.press('ArrowRight');
         await page.waitForTimeout(300);
-        check(`${label} the switch is a keyboard radio group: arrow key chooses Result`, await first.getByLabel('Result', { exact: true }).isChecked() && (await audioState(first)).src === href);
+        check(`${label} the switch is a keyboard radio group: arrow key chooses Result`, await first.getByRole('radio', { name: /^Result/ }).isChecked() && (await audioState(first)).src === href);
 
         await first.locator('.wave-play').click();
         await rowAt(page, 2).locator('.wave-play').click();
@@ -879,15 +897,14 @@ const tasks = {
         check(`${label} trimmed, paused at 12 s: Result stays paused at about 7 s`, pausedResult.after.paused && near(pausedResult.after.time, 7), JSON.stringify(pausedResult));
         const pausedOriginal = await move(label, row, 'Original');
         check(`${label} trimmed, paused at 7 s in Result: Original stays paused at about 12 s`, pausedOriginal.after.paused && near(pausedOriginal.after.time, 12), JSON.stringify(pausedOriginal));
-        await row.getByLabel('Result', { exact: true }).check();
+        await row.getByRole('radio', { name: /^Result/ }).check();
         await page.waitForTimeout(400);
         await setTrimAll(page, 9, 15);
         await seekAndPlay(row, 3);
-        const older = await row.locator('.file-result').innerText();
-        check(`${label} older settings: the visible Result (older settings) line stays`, older === copy.result.olderLabel, older);
+        check(`${label} older settings: nothing visible says so, and the Result option keeps the older name`, await olderOnlyForAssistiveTech(row, 'tone-20.wav'), await row.innerText());
         const olderBack = await move(label, row, 'Original');
         check(`${label} older settings: the job's start (5 s), not the current draft (9 s), maps the position`, near(olderBack.after.time, 8) && olderBack.after.paused, JSON.stringify(olderBack));
-        await row.getByLabel('Result', { exact: true }).check();
+        await row.getByRole('radio', { name: /^Result/ }).check();
         await page.waitForTimeout(400);
         await row.getByRole('button', { name: copy.wave.trimLabel('tone-20.wav') }).click();
         await page.waitForTimeout(400);
@@ -908,7 +925,7 @@ const tasks = {
         await page.getByRole('combobox', { name: 'Format', exact: true }).selectOption('mp3');
         await exportAll(page, 1);
         const row = rowAt(page, 0);
-        const unplayable = await row.evaluate(li => ({ switch: li.querySelectorAll('.view-switch').length, audios: li.querySelectorAll('audio').length, text: li.querySelector('.file-result')?.textContent ?? '', src: li.querySelector('audio')?.src ?? '' }));
+        const unplayable = await row.evaluate(li => ({ switch: li.querySelectorAll('.view-switch').length, audios: li.querySelectorAll('audio').length, text: li.querySelector('.file-name .file-note')?.textContent ?? '', src: li.querySelector('audio')?.src ?? '' }));
         check(`${label} unplayable result format: no switch, the Original plays alone and the download note shows`, unplayable.switch === 0 && unplayable.audios === 1 && unplayable.src.startsWith('blob:') && unplayable.text.includes(copy.files.resultUnplayable), JSON.stringify(unplayable));
         check(`${label} unplayable result: no page errors`, errors.length === 0, errors.join('; '));
         await context.close();
@@ -1041,7 +1058,7 @@ const tasks = {
         await page.getByLabel('Add step').selectOption('gain');
         const row = rowAt(page, 0);
         const before = await rowFacts(page);
-        check(`${label} an older-settings result collapses with Preview folded away and its older line kept`, before[0].collapsed && await row.locator('.file-actions button:not(.icon-button)').count() === 0 && await row.locator('.file-result').innerText() === copy.result.olderLabel, JSON.stringify(before[0]));
+        check(`${label} an older-settings result collapses with Preview folded away and no visible older line`, before[0].collapsed && await row.locator('.file-actions button:not(.icon-button)').count() === 0 && await row.locator('.file-result').count() === 0 && !(await row.innerText()).includes('older') && await row.getByRole('link', { name: copy.result.downloadOlder('tone-20.wav'), exact: true }).count() === 1, JSON.stringify(before[0]));
         await open(row);
         await row.getByRole('button', { name: /^Preview/ }).click();
         await page.locator('[data-preview-state=ready]').waitFor({ timeout: 60000 });
@@ -1204,6 +1221,42 @@ async function runShots(browser, app, which) {
   }
 }
 
+async function runFollowupShots(browser, app) {
+  const dir = process.env.SHOTS_DIR ?? `${root}/captures`;
+  await mkdir(dir, { recursive: true });
+  const pane = page => page.locator('.export-panel');
+  const take = async (page, name) => { await page.waitForTimeout(250); await pane(page).screenshot({ path: `${dir}/followup-export-${name}.png` }); };
+  const only = flagValue('--viewport');
+  for (const viewport of VIEWPORTS.filter(item => ['320', '375', '1440'].includes(item.name) && (!only || item.name === only))) {
+    for (const scheme of ['light', 'dark']) {
+      const stem = `${viewport.name}-${scheme}`;
+      const { context, page } = await openApp(browser, app, viewport, { scheme });
+      await addFiles(page, [fixture('long-a.wav', 60), fixture('long-b.wav', 60), fixture('long-c.wav', 60)]);
+      await take(page, `idle-${stem}`);
+      await page.getByRole('button', { name: 'Export', exact: true }).click();
+      await page.getByRole('button', { name: copy.export.cancelAll, exact: true }).waitFor();
+      await page.waitForSelector('li[data-job-state=running]');
+      await take(page, `processing-${stem}`);
+      await page.getByRole('button', { name: copy.export.clearAll, exact: true }).click();
+      await take(page, `clearing-${stem}`);
+      await page.waitForFunction(() => !document.querySelector('li[data-file-id]'), null, { timeout: 30000 });
+      await context.close();
+    }
+    for (const scheme of ['light', 'dark']) {
+      const stem = `${viewport.name}-${scheme}`;
+      const { context, page } = await openApp(browser, app, viewport, { scheme });
+      await page.route('**/htdemucs_fp16.onnx', route => route.abort('failed'));
+      await addFiles(page, [fixture('tone-20.wav', 20)]);
+      await page.getByLabel('Add step', { exact: true }).selectOption('isolation');
+      await page.getByRole('combobox', { name: 'Format', exact: true }).selectOption('wav');
+      await page.getByRole('button', { name: 'Export', exact: true }).click();
+      await page.locator('[data-job-state=failed]').waitFor({ timeout: 60000 });
+      await take(page, `failed-${stem}`);
+      await context.close();
+    }
+  }
+}
+
 async function writeTable() {
   const before = JSON.parse(await readFile(`${root}/three-baseline.json`, 'utf8')).viewports;
   const after = JSON.parse(await readFile(`${root}/measurements.json`, 'utf8')).viewports;
@@ -1242,7 +1295,8 @@ try {
     try {
       if (baseline) await runBaseline(app, browser);
       if (three) await runThree(browser, app);
-      if (shotsWhich) await runShots(browser, app, shotsWhich);
+      if (shotsWhich === 'followup') await runFollowupShots(browser, app);
+      else if (shotsWhich) await runShots(browser, app, shotsWhich);
       for (const id of selected) await tasks[id]({ browser, app, check, note, record });
     } finally { await browser.close(); }
   }
