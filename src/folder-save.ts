@@ -26,7 +26,6 @@ function blockedCode(error: unknown): "folder-blocked" | "folder-no-space" | nul
   if (namedError(error, "QuotaExceededError")) return "folder-no-space";
   return null;
 }
-/** The one sentence for a file that did not make it into the folder. */
 function itemFailure(error: unknown, name: string, cancelled: boolean, partial: boolean): FailedItem {
   const unfinished = { name, code: null, message: copy.delivery.folderUnfinished(name) };
   if (partial) return unfinished;

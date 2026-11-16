@@ -83,7 +83,6 @@ const STEREO_SOURCE_MAPS: Record<ChannelSource, Record<1 | 2, (left: Float32Arra
   left: { 1: (left) => [copyOf(left)], 2: (left) => [copyOf(left), copyOf(left)] },
   right: { 1: (_, right) => [copyOf(right)], 2: (_, right) => [copyOf(right), copyOf(right)] },
 };
-// A mono input ignores `pick`: it has only one channel to use.
 export async function* channels(source: PcmStream, count: 1 | 2, pick: ChannelSource = "both"): PcmStream {
   for await (const block of source) {
     if (block.planes.length > 2)
