@@ -96,8 +96,8 @@ Run in order. T1 and T2 are independent of T3–T6. T4 needs T3. T5 needs T3 and
 - [x] Real surface driven in a browser at 320, 375, 768, 1024 and 1440px in light and dark, in Chromium and WebKit (or Chromium with "WebKit not run" recorded), and captures saved. Real iOS Safari and Android are not claimed; the user does device acceptance.
 - [x] Contracts preserved: the sprint-29 trim contract (handles only in edit mode, one row edited at a time, a custom range never edits another file), scrubbing stays in step with playback, every target is at least 44px, and no recipe, export or pipeline file is changed. Verified by `node scripts/sprint-29-check.mjs` → `PASS` and `git diff --stat` showing only the Files named above.
 - [x] deslop and no-comments passed on the diff.
-- [ ] Interrogate completed, `docs/sprint-evidence/sprint-30/interrogate.md` saved with a verdict.
-- [ ] Swarm live lanes passed at the code-ready head, covering the A/B position carry, the collapse default per job state, and the drop target on touch and mouse.
+- [x] Interrogate completed, `docs/sprint-evidence/sprint-30/interrogate.md` saved with a verdict (gate incomplete: four low issues open and accepted by the user, regression lane not completed).
+- [ ] Swarm live lanes passed at the code-ready head (lanes A to D ran, lane E did not complete, so this stays open), covering the A/B position carry, the collapse default per job state, and the drop target on touch and mouse.
 - [ ] PR opened ready against `main`, CI observed at the head with `gh pr checks` (the `CI` workflow runs `npm test` and `npm run build`), and the URL recorded here and in `TODO.md`. Do not merge.
 
 ## Out of scope
@@ -277,3 +277,7 @@ Status: done, over `git diff 3c6ae13..HEAD -- src scripts tests` at the head tha
 - no-comments (`pstack:comment-sicko`, Sonnet, medium): the branch adds no comment in `src`, `tests` or the other changed drivers. Removed the two doc comments in `scripts/sprint-30-check.mjs` that narrated the code below them (the fixture tone description and the metrics description). Kept: none. No suppressions found, no constraint comments, no `HOLD`, no reruns.
 - Commands after the change: `node --check scripts/sprint-30-check.mjs` ok. `ENGINES=chromium node scripts/sprint-30-check.mjs` `PASS: 816 checks`, 0 FAIL (T1 125, T2 59, T3 65, T4 76, T5 139, T6 95, T7 257). `src` is unchanged by this pass, so `npm run typecheck`, `npm test` (238 pass), `npm run build`, `sprint-29-check` (59), `keyboard-check` (55 passed), `workspace-check`, `intake-check` and `sprint-25-check` from the fix entry above apply to this tree and were not repeated.
 - Still open for the coordinator: interrogate, swarm live lanes, PR and CI.
+
+### 2026-11-16 — Sprint gate
+
+Head `8242747`, base `3c6ae13`. Five Sonnet workers on the built app in Chromium (WebKit not run). Lane A passed with no issues. Lanes B, C and D found four low issues, all reproduced by the coordinator: no live position for a playable file of unknown duration, a lost position on a 1ms double switch, a brief `--:--` when collapsing from Original, and an invisible collapsed progress line in forced-colors mode. The user decided they are fine for this PR, so none is fixed. Lane E (regression against trunk) was stopped before it reported, so no trunk-versus-head comparison exists. The gate record, the process issues faced and the open gaps are in `docs/sprint-evidence/sprint-30/interrogate.md`. Verdict: gate incomplete, sprint stays `in-progress`.

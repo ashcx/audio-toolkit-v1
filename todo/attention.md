@@ -2,6 +2,15 @@
 
 What needs the user. Newest first.
 
+## 2026-11-16 — Sprint 30 open items
+
+Built and in a PR for your review. Not merged. The gate is incomplete.
+
+- Lane E, the regression comparison against the base build, did not finish, so exported file bytes and the recipe and Export panels were not compared trunk against head.
+- Four low issues are open and accepted: no live position for a playable file of unknown duration, a lost position on a 1ms double switch, a brief `--:--` when collapsing from Original, and an invisible collapsed progress line in forced-colors mode.
+- Not run: WebKit, iOS Safari, Android, `axe`, real OS drag and drop.
+- Details and the process issues faced: `docs/sprint-evidence/sprint-30/interrogate.md`.
+
 ## 2026-11-16 — Sprint 30 is planned and waiting for your go
 
 [Sprint 30](sprint-30-compact-track-list.md) is written and not started. It does not run until you say so.
