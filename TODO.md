@@ -35,6 +35,14 @@ Prepared 2026-10-29. Implementation resumed on 2026-10-29. Current user instruct
 
 The user confirmed the public repository `ashcx/audio-toolkit-v1`. Production path is `/audio-toolkit-v1/`; the current page returned HTTP 200 and deployment run40858999659 succeeded. This verifies hosting, not unfinished app functionality. Future sprints deliver working branches and PRs targeting main; historical deployment links remain evidence.
 
+## Planned: compact track list
+
+Planned 2026-11-16. The user gave the go the same day. See [attention](todo/attention.md) for the defaults applied.
+
+| Sprint | Outcome | Status |
+| --- | --- | --- |
+| 30 | [Compact the track list: Add files in the heading, play beside the waveform, one player with an Original and Result switch, finished tracks collapse](todo/sprint-30-compact-track-list.md), [PR #43](https://github.com/ashcx/audio-toolkit-v1/pull/43) | in-progress |
+
 ## Sprint sequence
 
 | Sprint | Observable outcome | Requirement sections | Status |

@@ -83,7 +83,7 @@ const focused = page => page.evaluate(() => {
   // A native audio player draws its own focus ring on each inner control, which computed styles cannot see.
   let indicator = element.tagName === 'AUDIO' || ring(style) || style.boxShadow !== 'none';
   if (!indicator && element.type === 'range') indicator = /\b3px\b/.test(getComputedStyle(element, '::-webkit-slider-thumb').boxShadow);
-  if (!indicator && element.closest('.dropzone')) indicator = ring(getComputedStyle(element.closest('.dropzone')));
+  if (!indicator && element.closest('.add-files')) indicator = ring(getComputedStyle(element.closest('.add-files')));
   if (!indicator && element.classList.contains('sr-only') && element.closest('label')) indicator = ring(getComputedStyle(element.closest('label'))) ;
   const labelledBy = element.labels?.[0]?.textContent?.trim();
   return {

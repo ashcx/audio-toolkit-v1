@@ -1,0 +1,77 @@
+ok   T4 320 03:15 file: 03:15 appears once in the row text
+ok   T4 320 03:15 file: the file line reads 00:00 / 03:15
+ok   T4 320 03:15 file: the live position is aria-hidden and the slider keeps its spoken position
+ok   T4 320 03:15 file: the position advances in the file line while it plays
+ok   T4 320 03:15 file: the player row has no readout
+ok   T4 320 03:15 file: no horizontal overflow, no page errors
+ok   T4 320 Trim all: the kept duration and the range follow the position
+ok   T4 320 Trim all: no page errors
+ok   T4 320 unplayable source with no result: the file line shows the total only
+ok   T4 320 finished files: the position and total are read from .file-position
+ok   T4 320 finished file: playing the result advances the position in the file line
+ok   T4 320 finished file: the result row has no readout
+ok   T4 320 finished files: no page errors
+ok   T4 375 03:15 file: 03:15 appears once in the row text
+ok   T4 375 03:15 file: the file line reads 00:00 / 03:15
+ok   T4 375 03:15 file: the live position is aria-hidden and the slider keeps its spoken position
+ok   T4 375 03:15 file: the position advances in the file line while it plays
+ok   T4 375 03:15 file: the player row has no readout
+ok   T4 375 03:15 file: no horizontal overflow, no page errors
+ok   T4 375 Trim all: the kept duration and the range follow the position
+ok   T4 375 open preview: the file line shows the total only and the preview players keep their own readout
+ok   T4 375 Trim all: no page errors
+ok   T4 375 trimmed finished row, Result view: the kept duration is not repeated, the line reads position, then range
+ok   T4 375 trimmed finished row, Result view: the meta line fits on one line
+ok   T4 375 trimmed finished row, Original view: position and whole-file total, then kept duration and range
+ok   T4 375 trimmed finished row: back in the Result view the kept duration is omitted again
+ok   T4 375 trimmed finished row: no page errors
+ok   T4 375 unplayable source with no result: the file line shows the total only
+ok   T4 375 finished files: the position and total are read from .file-position
+ok   T4 375 finished file: playing the result advances the position in the file line
+ok   T4 375 finished file: the result row has no readout
+ok   T4 375 finished files: no page errors
+ok   T4 375 unavailable duration stays a distinct message in the file line
+ok   T4 768 03:15 file: 03:15 appears once in the row text
+ok   T4 768 03:15 file: the file line reads 00:00 / 03:15
+ok   T4 768 03:15 file: the live position is aria-hidden and the slider keeps its spoken position
+ok   T4 768 03:15 file: the position advances in the file line while it plays
+ok   T4 768 03:15 file: the player row has no readout
+ok   T4 768 03:15 file: no horizontal overflow, no page errors
+ok   T4 768 Trim all: the kept duration and the range follow the position
+ok   T4 768 Trim all: no page errors
+ok   T4 768 unplayable source with no result: the file line shows the total only
+ok   T4 768 finished files: the position and total are read from .file-position
+ok   T4 768 finished file: playing the result advances the position in the file line
+ok   T4 768 finished file: the result row has no readout
+ok   T4 768 finished files: no page errors
+ok   T4 1024 03:15 file: 03:15 appears once in the row text
+ok   T4 1024 03:15 file: the file line reads 00:00 / 03:15
+ok   T4 1024 03:15 file: the live position is aria-hidden and the slider keeps its spoken position
+ok   T4 1024 03:15 file: the position advances in the file line while it plays
+ok   T4 1024 03:15 file: the player row has no readout
+ok   T4 1024 03:15 file: no horizontal overflow, no page errors
+ok   T4 1024 Trim all: the kept duration and the range follow the position
+ok   T4 1024 Trim all: no page errors
+ok   T4 1024 unplayable source with no result: the file line shows the total only
+ok   T4 1024 finished files: the position and total are read from .file-position
+ok   T4 1024 finished file: playing the result advances the position in the file line
+ok   T4 1024 finished file: the result row has no readout
+ok   T4 1024 finished files: no page errors
+ok   T4 1440 03:15 file: 03:15 appears once in the row text
+ok   T4 1440 03:15 file: the file line reads 00:00 / 03:15
+ok   T4 1440 03:15 file: the live position is aria-hidden and the slider keeps its spoken position
+ok   T4 1440 03:15 file: the position advances in the file line while it plays
+ok   T4 1440 03:15 file: the player row has no readout
+ok   T4 1440 03:15 file: no horizontal overflow, no page errors
+ok   T4 1440 Trim all: the kept duration and the range follow the position
+ok   T4 1440 Trim all: no page errors
+ok   T4 1440 trimmed finished row, Result view: the kept duration is not repeated, the line reads position, then range
+ok   T4 1440 trimmed finished row, Original view: position and whole-file total, then kept duration and range
+ok   T4 1440 trimmed finished row: back in the Result view the kept duration is omitted again
+ok   T4 1440 trimmed finished row: no page errors
+ok   T4 1440 unplayable source with no result: the file line shows the total only
+ok   T4 1440 finished files: the position and total are read from .file-position
+ok   T4 1440 finished file: playing the result advances the position in the file line
+ok   T4 1440 finished file: the result row has no readout
+ok   T4 1440 finished files: no page errors
+note WebKit not run: not installed

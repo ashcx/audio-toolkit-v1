@@ -1,0 +1,61 @@
+=== laneB/p2
+A touch drag playing=false {"s":[[6,6,"00:06 / 00:20"],[10,10,"00:10 / 00:20"],[16,16,"00:16 / 00:20"]],"after":{"t":15.999999,"p":true,"d":20,"e":false},"pos":"00:16 / 00:20"}
+A touch drag playing=true {"s":[[6,6.11,"00:06 / 00:20"],[10,10.11,"00:10 / 00:20"],[16,16.1,"00:16 / 00:20"]],"after":{"t":16.467477,"p":false,"d":20,"e":false},"pos":"00:16 / 00:20"}
+A errors []
+B ended {"tr":[79,282.234375],"tf":"translateX(203px)","pos":"00:03 / 00:03","btn":"Play Original a.wav","pb":"idle"}
+B replay after ended {"a":{"t":0.651631,"p":false,"d":3,"e":false},"pos":"00:01 / 00:03"}
+C tone.aac mime="audio/aac" {"meta":"Duration unknown","hasPlay":1,"note":[],"insp":"ready","trackDisabled":"false","afterPlay":{"a":{"t":0.927038,"p":false,"d":2.035142,"e":false},"pos":"00:01 / 00:02","ph":"transform: translateX(91.5727px);","ariaText":"00:01 of 00:02"},"afterPause":{"a":{"t":0.971201,"p":true,"d":2.035142,"e"
+C tone.aac mime="" {"meta":"Duration unknown","hasPlay":1,"note":[],"insp":"ready","trackDisabled":"false","afterPlay":{"a":{"t":0.926709,"p":false,"d":2.035142,"e":false},"pos":"00:01 / 00:02","ph":"transform: translateX(91.4363px);","ariaText":"00:01 of 00:02"},"afterPause":{"a":{"t":0.969454,"p":true,"d":2.035142,"e":false},"
+C tone.mp3 mime="audio/mpeg" {"meta":"00:00 / 00:02","hasPlay":1,"note":[],"insp":"ready","trackDisabled":"false","afterPlay":{"a":{"t":0.925548,"p":false,"d":2,"e":false},"pos":"00:01 / 00:02","ph":"transform: translateX(92.9776px);","ariaText":"00:01 of 00:02"},"afterPause":{"a":{"t":0.971823,"p":true,"d":2,"e":false},"pos":"0
+C tone.wav mime="application/octet-stream" {"meta":"00:02","hasPlay":0,"note":["This source cannot play in the browser. Export it to hear the result."],"insp":"ready","trackDisabled":null,"errors":[]}
+C tone.wav mime="" {"meta":"00:00 / 00:02","hasPlay":1,"note":[],"insp":"ready","trackDisabled":"false","afterPlay":{"a":{"t":0.935764,"p":false,"d":2,"e":false},"pos":"00:01 / 00:02","ph":"transform: translateX(95.3692px);","ariaText":"00:01 of 00:02"},"afterPause":{"a":{"t":0.975621,"p":true,"d":2,"e":false},"pos":"00:01 / 00:
+=== laneC/p2
+gap1 n2 paused expect 12 {"time":12,"paused":true,"dur":20,"view":"original"}
+gap1 n3 paused expect 7 {"time":7,"paused":true,"dur":10,"view":"result"}
+gap4 n2 paused expect 12 {"time":12,"paused":true,"dur":20,"view":"original"}
+gap4 n3 paused expect 7 {"time":7,"paused":true,"dur":10,"view":"result"}
+gap8 n2 paused expect 12 {"time":12,"paused":true,"dur":20,"view":"original"}
+gap8 n3 paused expect 7 {"time":7,"paused":true,"dur":10,"view":"result"}
+gap12 n2 paused expect 12 {"time":12,"paused":true,"dur":20,"view":"original"}
+gap12 n3 paused expect 7 {"time":7,"paused":true,"dur":10,"view":"result"}
+errors []
+=== laneC/p2b
+gap1 n2 paused expect 12 {"time":13.47418,"paused":false,"dur":20,"view":"original"}
+gap1 n3 paused expect 7 {"time":8.461446,"paused":false,"dur":10.004898,"view":"result"}
+gap1 n2 paused expect 12 {"time":13.451145,"paused":false,"dur":20,"view":"original"}
+gap1 n3 paused expect 7 {"time":8.478292,"paused":false,"dur":10.004898,"view":"result"}
+gap1 n2 paused expect 12 {"time":13.479027,"paused":false,"dur":20,"view":"original"}
+gap1 n3 paused expect 7 {"time":8.48204,"paused":false,"dur":10.004898,"view":"result"}
+errors []
+=== laneD/p5
+collapsed 00:00 / 00:40
+expanded 00:00 / 00:40
+editing 00:00 / 00:40
+done 00:00 / 00:40 original
+after 0 00:00 / 00:40
+after 100 00:00 / 00:40
+after 500 00:00 / 00:40
+after 1500 00:00 / 00:40
+collapse now 00:00 / 00:40 result
+after 100 00:00 / 00:40
+after 500 00:00 / 00:40
+after 1500 00:00 / 00:40
+meta 00:00 / 00:40
+=== laneD/p6
+touch375 dark tap expanded true
+touch375 dark tap collapsed false
+touch375 dark progress fill scaleX(0.138954)
+touch375 dark rows [{"state":"done","collapsed":true,"h":61,"name":"a-fairly-long-file-name-for-zoom-test-take-12.wav"},{"state":"done","collapsed":true,"h":56,"name":"b.wav"}]
+touch375 dark small []
+touch375 dark geo {"scrollW":375,"innerW":375,"clipped":[],"prog":{"h":2,"w":325,"bg":"rgb(48, 52, 60)","fill":"rgb(133, 191, 165)","bgp":"rgba(0, 0, 0, 0)","trans":"0s"}}
+touch375 dark after scheme->light ["rgb(229, 231, 235)","rgb(52, 120, 94)","rgba(0, 0, 0, 0)"]
+touch375 dark errors []
+320 zoom2 (dsf2 css zoom) rows [{"state":"done","collapsed":true,"h":122,"name":"a-fairly-long-file-name-for-zoom-test-take-12.wav"},{"state":"done","collapsed":true,"h":112,"name":"b.wav"}]
+320 zoom2 (dsf2 css zoom) small []
+320 zoom2 (dsf2 css zoom) geo {"scrollW":640,"innerW":320,"clipped":[],"prog":{"h":4,"w":540,"bg":"rgb(229, 231, 235)","fill":"rgb(52, 120, 94)","bgp":"rgba(0, 0, 0, 0)","trans":"0s"}}
+320 zoom2 (dsf2 css zoom) forced prog {"pbg":"rgb(96, 0, 0)","ibg":"rgba(5, 0, 73, 0.8)","ibr":"rgb(0, 0, 0)","chev":"rgb(0, 0, 0)"}
+320 zoom2 (dsf2 css zoom) errors []
+reduced320 rows [{"state":"done","collapsed":true,"h":61,"name":"a-fairly-long-file-name-for-zoom-test-take-12.wav"},{"state":"done","collapsed":true,"h":56,"name":"b.wav"}]
+reduced320 small []
+reduced320 geo {"scrollW":320,"innerW":320,"clipped":[],"prog":{"h":2,"w":270,"bg":"rgb(229, 231, 235)","fill":"rgb(52, 120, 94)","bgp":"rgba(0, 0, 0, 0)","trans":"0s"}}
+reduced320 errors []

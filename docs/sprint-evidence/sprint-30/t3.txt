@@ -1,0 +1,71 @@
+ok   T3 320 ready file: play, waveform and Trim share one 44px band
+ok   T3 320 ready file: player block at most 52px tall
+ok   T3 320 ready file: waveform at least 140px wide
+ok   T3 320 ready file: no visible label or readout, the label is spoken
+ok   T3 320 ready file: no horizontal overflow
+note T3 320 measured: player 44px tall, waveform 160.234375px wide beside Trim (baseline unprocessed waveform 218px)
+ok   T3 320 Trim grows only that row to the 130px editor
+ok   T3 320 editing: two handles, none clipped, head row stacked above the track
+ok   T3 320 editing: no horizontal overflow
+ok   T3 320 Done folds the row back to the one-row band
+ok   T3 320 finished file: the result player is one 44px row, waveform at least 140px, no visible label
+ok   T3 320 an older result still says so in visible text and in the player label
+ok   T3 320 preview players keep their label and a 00:00 / 00:10 style readout
+ok   T3 320 no page errors
+ok   T3 375 ready file: play, waveform and Trim share one 44px band
+ok   T3 375 ready file: player block at most 52px tall
+ok   T3 375 ready file: waveform at least 190px wide
+ok   T3 375 ready file: no visible label or readout, the label is spoken
+ok   T3 375 ready file: no horizontal overflow
+note T3 375 measured: player 44px tall, waveform 215.234375px wide beside Trim (baseline unprocessed waveform 273px)
+ok   T3 375 Trim grows only that row to the 130px editor
+ok   T3 375 editing: two handles, none clipped, head row stacked above the track
+ok   T3 375 editing: no horizontal overflow
+ok   T3 375 Done folds the row back to the one-row band
+ok   T3 375 finished file: the result player is one 44px row, waveform at least 190px, no visible label
+ok   T3 375 an older result still says so in visible text and in the player label
+ok   T3 375 preview players keep their label and a 00:00 / 00:10 style readout
+ok   T3 375 no page errors
+ok   T3 768 ready file: play, waveform and Trim share one 44px band
+ok   T3 768 ready file: player block at most 52px tall
+ok   T3 768 ready file: waveform at least 190px wide
+ok   T3 768 ready file: no visible label or readout, the label is spoken
+ok   T3 768 ready file: no horizontal overflow
+note T3 768 measured: player 44px tall, waveform 608.234375px wide beside Trim (baseline unprocessed waveform 666px)
+ok   T3 768 Trim grows only that row to the 130px editor
+ok   T3 768 editing: two handles, none clipped, head row stacked above the track
+ok   T3 768 editing: no horizontal overflow
+ok   T3 768 Done folds the row back to the one-row band
+ok   T3 768 finished file: the result player is one 44px row, waveform at least 190px, no visible label
+ok   T3 768 an older result still says so in visible text and in the player label
+ok   T3 768 preview players keep their label and a 00:00 / 00:10 style readout
+ok   T3 768 no page errors
+ok   T3 1024 ready file: play, waveform and Trim share one 44px band
+ok   T3 1024 ready file: player block at most 52px tall
+ok   T3 1024 ready file: waveform at least 190px wide
+ok   T3 1024 ready file: no visible label or readout, the label is spoken
+ok   T3 1024 ready file: no horizontal overflow
+note T3 1024 measured: player 44px tall, waveform 336.234375px wide beside Trim (baseline unprocessed waveform 402px)
+ok   T3 1024 Trim grows only that row to the 130px editor
+ok   T3 1024 editing: two handles, none clipped, head row stacked above the track
+ok   T3 1024 editing: no horizontal overflow
+ok   T3 1024 Done folds the row back to the one-row band
+ok   T3 1024 finished file: the result player is one 44px row, waveform at least 190px, no visible label
+ok   T3 1024 an older result still says so in visible text and in the player label
+ok   T3 1024 preview players keep their label and a 00:00 / 00:10 style readout
+ok   T3 1024 no page errors
+ok   T3 1440 ready file: play, waveform and Trim share one 44px band
+ok   T3 1440 ready file: player block at most 52px tall
+ok   T3 1440 ready file: waveform at least 190px wide
+ok   T3 1440 ready file: no visible label or readout, the label is spoken
+ok   T3 1440 ready file: no horizontal overflow
+note T3 1440 measured: player 44px tall, waveform 448.234375px wide beside Trim (baseline unprocessed waveform 514px)
+ok   T3 1440 Trim grows only that row to the 130px editor
+ok   T3 1440 editing: two handles, none clipped, head row stacked above the track
+ok   T3 1440 editing: no horizontal overflow
+ok   T3 1440 Done folds the row back to the one-row band
+ok   T3 1440 finished file: the result player is one 44px row, waveform at least 190px, no visible label
+ok   T3 1440 an older result still says so in visible text and in the player label
+ok   T3 1440 preview players keep their label and a 00:00 / 00:10 style readout
+ok   T3 1440 no page errors
+note WebKit not run: not installed

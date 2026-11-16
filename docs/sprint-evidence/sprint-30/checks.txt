@@ -1,0 +1,60 @@
+# Sprint 30 T7 checks at head b14d11b plus the T7 script changes, 2026-11-16. ENGINES=chromium. WebKit not run: not installed.
+## npm run typecheck: exit 0
+## npm test: tests 238 pass 238 fail 0
+## npm run build: exit 0
+## sprint-29-check (starts its own server)
+exit=0
+FAIL lines: 0
+PASS: 59 checks in Chrome, evidence in docs/sprint-evidence/sprint-29
+## keyboard-check (starts its own server)
+exit=0
+FAIL lines: 0
+55 assertions passed, 0 failed. Results in .artifacts/keyboard/results.json
+## workspace-check (starts its own server)
+exit=0
+FAIL lines: 0
+PASS: Chromium/WebKit desktop/mobile, all themes, live system changes, keyboard removal, long names, base path/reload, privacy/lazy assets and capability recovery notices.
+## intake-check (APP_URL=http://127.0.0.1:4173/audio-toolkit-v1/ against npx vite preview --host 127.0.0.1 --port 4173 --strictPort)
+exit=0
+FAIL lines: 0
+PASS: all required audio/video input targets inspected on Chromium/WebKit; corrupt/no-audio isolated; wrong extensions detected by content; append/drop/duplicates stable; no decoder/audio-context construction; mobile layout passed.
+## sprint-25-check (APP_URL=http://127.0.0.1:4173/audio-toolkit-v1/ against npx vite preview --host 127.0.0.1 --port 4173 --strictPort)
+exit=0
+FAIL lines: 0
+PASS: intake, Trim all metadata, Preview gating, one player, export/previous export, Clear all, unsupported playback, 320 dark.
+## node scripts/sprint-30-check.mjs (all tasks T1 to T7, ENGINES=chromium)
+PASS: 807 checks
+exit=0
+  per task: T1 125, T2 59, T3 65, T4 67, T5 139, T6 95, T7 257 checks = 807
+## node scripts/sprint-30-check.mjs --task T7 (after removing the viewport-scroll dependent visible-row count): PASS: 257 checks, see t7.txt
+## ui-states-check (own preview server of a copy of dist on port 4190, ENGINES=chromium, APP_URL=http://127.0.0.1:4190/audio-toolkit-v1/; axe skipped as at the base head, no file at the default AXE_PATH and no network)
+exit=1
+ok lines: 1493  FAIL lines: 11 (baseline at the base head: 16)
+FAIL desktop-light scenario failures-storage-full completes -- locator.waitFor: Timeout 60000ms exceeded. | last labels ["file-result|Preparing… Cancel","run-status|Exporting 1 of 1 Cancel all Keep this tab open until it finishes.","file-
+FAIL desktop-dark scenario delivery completes -- cdpSession.send: Protocol error (Accessibility.getPartialAXTree): Could not find node with given id | last labels ["file-result|Preparing… Cancel","run-status|Exporting 1 of 2 Cancel all Ke
+FAIL desktop-dark scenario failures-storage-full completes -- locator.waitFor: Timeout 60000ms exceeded. | last labels ["file-result|Preparing… Cancel","run-status|Exporting 1 of 1 Cancel all Keep this tab open until it finishes.","file-r
+FAIL phone390-light scenario failures-storage-full completes -- locator.waitFor: Timeout 60000ms exceeded. | last labels ["file-result|Preparing… Cancel","run-status|Exporting 1 of 1 Cancel all Keep this tab open until it finishes.","file
+FAIL phone390-dark scenario failures-storage-full completes -- locator.waitFor: Timeout 60000ms exceeded. | last labels ["file-result|Preparing… Cancel","run-status|Exporting 1 of 1 Cancel all Keep this tab open until it finishes.","file-
+FAIL phone320-light scenario failures-storage-full completes -- locator.waitFor: Timeout 60000ms exceeded. | last labels ["file-result|Preparing… Cancel","run-status|Exporting 1 of 1 Cancel all Keep this tab open until it finishes.","file
+FAIL console desktop-light had no page error, failed request or console error -- success-several-steps: request failed blob:http://127.0.0.1:4190/8bca3303-b69c-4f8e-b4a7-4c0f55936a92 net::ERR_ABORTED | success-several-steps: request failed 
+FAIL console desktop-dark had no page error, failed request or console error -- success-several-steps: request failed blob:http://127.0.0.1:4190/de04b58e-8c27-4bd4-8be2-5eb0fdc038f0 net::ERR_ABORTED | success-several-steps: request failed b
+FAIL console phone390-light had no page error, failed request or console error -- success-several-steps: request failed blob:http://127.0.0.1:4190/b3515ec1-9de0-4e26-836f-7443ef4669f7 net::ERR_ABORTED | success-several-steps: request failed
+FAIL console phone390-dark had no page error, failed request or console error -- success-several-steps: request failed blob:http://127.0.0.1:4190/6d64c97e-ad9d-42de-98ba-2cf24631d985 net::ERR_ABORTED | success-several-steps: request failed 
+FAIL console phone320-light had no page error, failed request or console error -- success-several-steps: request failed blob:http://127.0.0.1:4190/dcc2c044-e443-470a-ba7c-34a86ee67a3b net::ERR_ABORTED | success-several-steps: request failed
+## ui-states-check FAIL lines not in the baseline: one, desktop-dark scenario delivery (CDP Accessibility.getPartialAXTree 'Could not find node'), seen only while sprint-30-check ran in parallel. Re-run alone: UI_CONFIGS=desktop-dark UI_STATES='^delivery$' three times, delivery passed all three; full desktop-dark config re-run alone, delivery passed. Treated as a load flake.
+## ui-states-check baseline lines that did not recur in this run: the five splitter-run 'never showed a window counter, GPU or CPU' lines and 'cpu-fallback run showed no device words'. A separate phone320-light splitter-run run also passed those assertions. Likely cause (inferred, not re-run at the base head): those assertions match a digit slash digit pattern in the recorded .file-result text, and at the base head the finished result row carried the player readout (for example 00:00 / 00:10) inside .file-result. Sprint 30 moved the readout into the file line, so the recorded text no longer matches.
+## Resolved gate issues (T8), head 6dbd580 plus this docs commit, Chromium only (WebKit not run: not installed). Commits: e9b00b7 (issue 1), 4000f67 (issue 2), fba619c (issue 3), 6dbd580 (issue 4)
+npm run typecheck: exit 0
+npm test: exit 0, 242 pass (238 plus 4 new retarget tests in tests/view-position.test.mjs)
+npm run build: exit 0
+ENGINES=chromium node scripts/sprint-30-check.mjs (all tasks, T8 wired into the default run): PASS: 1228 checks, 0 FAIL (T1 125, T2 59, T3 65, T4 76, T5 139, T6 95, T7 257, T8 412). T8 is also saved as t8.txt (taken from this run).
+  T8 per issue: 1 unknown duration 72, 2 rapid switches 224, 3 no --:-- 80, 4 collapsed progress line 36. Issues 1 to 3 run at 375 and 1440 in light and dark, issue 4 at 320, 375 and 1440 in light and dark.
+node scripts/sprint-29-check.mjs: PASS: 59 checks (docs/sprint-evidence/sprint-29 captures restored with git checkout)
+node scripts/keyboard-check.mjs: 55 assertions passed, 0 failed
+APP_URL=http://127.0.0.1:4173/audio-toolkit-v1/ ENGINES=chromium against npx vite preview --host 127.0.0.1 --port 4173 --strictPort:
+  node scripts/intake-check.mjs: PASS (assertion migrated, see the sprint Log)
+  node scripts/sprint-25-check.mjs: PASS
+  node scripts/workspace-check.mjs: PASS (a first run without the preview server and ENGINES=chromium failed with ERR_CONNECTION_REFUSED, so it was rerun with the same server form as the two above)
+UI_STATES='^success' UI_CONFIGS=desktop-light,phone390-light,phone320-light ENGINES=chromium node scripts/ui-states-check.mjs: exit 1, 67 ok, 3 FAIL lines, all of them console ... blob: net::ERR_ABORTED (desktop-light, phone390-light, phone320-light), the baseline lines. No new FAIL line. axe skipped as before (no axe.min.js, no network).
+Reviewer repro scripts after the fixes (resolved/repro-after.txt): laneB/p2 tone.aac, both mime types, line reads 00:01 / 00:02 while playing (was Duration unknown). laneC/p2b 1ms gap, playing: 13.47 s and 8.46 s, which is the carried 12 s and 7 s plus the 1.5 s the script waits while playing (was 6.4 s and 1.3 s). laneC/p2 paused at gaps 1, 4, 8 and 12 ms: 12.0 s and 7.0 s. laneD/p5 collapse now: 00:00 / 00:40 (was 00:00 / --:--). laneD/p6 forced colors: track rgb(96, 0, 0), fill rgba(5, 0, 73, 0.8) (both were rgb(255, 255, 255)).
+Before and after output of each new check: resolved/issue1-before.txt, issue1-after.txt, issue2-before.txt (375 light only), issue2-after.txt, issue3-before-head.txt and issue3-before-base.txt (375 light only), issue3-after.txt, issue4-before.txt, issue4-after.txt.

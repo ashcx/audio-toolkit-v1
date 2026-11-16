@@ -1,0 +1,521 @@
+{
+  "engines": [
+    "chromium"
+  ],
+  "viewports": {
+    "320": {
+      "light": {
+        "empty": 160,
+        "unprocessed": [
+          109,
+          109,
+          104
+        ],
+        "unprocessedWithPreview": [
+          146,
+          146,
+          141
+        ],
+        "unprocessedFirstRowOffset": 69,
+        "finished": [
+          61,
+          61,
+          56
+        ],
+        "finishedFirstRowOffset": 69,
+        "finishedListHeight": 178,
+        "expanded": [
+          172,
+          172,
+          167
+        ],
+        "expandedListHeight": 511,
+        "waveWidth": 148.234375
+      },
+      "dark": {
+        "empty": 160,
+        "unprocessed": [
+          109,
+          109,
+          104
+        ],
+        "unprocessedWithPreview": [
+          146,
+          146,
+          141
+        ],
+        "unprocessedFirstRowOffset": 69,
+        "finished": [
+          61,
+          61,
+          56
+        ],
+        "finishedFirstRowOffset": 69,
+        "finishedListHeight": 178,
+        "expanded": [
+          172,
+          172,
+          167
+        ],
+        "expandedListHeight": 511,
+        "waveWidth": 148.234375
+      },
+      "light, reduced motion": {
+        "empty": 160,
+        "unprocessed": [
+          109,
+          109,
+          104
+        ],
+        "unprocessedWithPreview": [
+          146,
+          146,
+          141
+        ],
+        "unprocessedFirstRowOffset": 69,
+        "finished": [
+          61,
+          61,
+          56
+        ],
+        "finishedFirstRowOffset": 69,
+        "finishedListHeight": 178,
+        "expanded": [
+          172,
+          172,
+          167
+        ],
+        "expandedListHeight": 511,
+        "waveWidth": 148.234375
+      },
+      "light, touch": {
+        "empty": 112,
+        "unprocessed": [
+          109,
+          109,
+          104
+        ],
+        "unprocessedWithPreview": [
+          146,
+          146,
+          141
+        ],
+        "unprocessedFirstRowOffset": 69,
+        "finished": [
+          61,
+          61,
+          56
+        ],
+        "finishedFirstRowOffset": 69,
+        "finishedListHeight": 178,
+        "expanded": [
+          172,
+          172,
+          167
+        ],
+        "expandedListHeight": 511,
+        "waveWidth": 148.234375
+      }
+    },
+    "375": {
+      "light": {
+        "empty": 160,
+        "unprocessed": [
+          109,
+          109,
+          104
+        ],
+        "unprocessedWithPreview": [
+          146,
+          146,
+          141
+        ],
+        "unprocessedFirstRowOffset": 69,
+        "finished": [
+          61,
+          61,
+          56
+        ],
+        "finishedFirstRowOffset": 69,
+        "finishedListHeight": 178,
+        "expanded": [
+          172,
+          172,
+          167
+        ],
+        "expandedListHeight": 511,
+        "waveWidth": 203.234375
+      },
+      "dark": {
+        "empty": 160,
+        "unprocessed": [
+          109,
+          109,
+          104
+        ],
+        "unprocessedWithPreview": [
+          146,
+          146,
+          141
+        ],
+        "unprocessedFirstRowOffset": 69,
+        "finished": [
+          61,
+          61,
+          56
+        ],
+        "finishedFirstRowOffset": 69,
+        "finishedListHeight": 178,
+        "expanded": [
+          172,
+          172,
+          167
+        ],
+        "expandedListHeight": 511,
+        "waveWidth": 203.234375
+      },
+      "light, reduced motion": {
+        "empty": 160,
+        "unprocessed": [
+          109,
+          109,
+          104
+        ],
+        "unprocessedWithPreview": [
+          146,
+          146,
+          141
+        ],
+        "unprocessedFirstRowOffset": 69,
+        "finished": [
+          61,
+          61,
+          56
+        ],
+        "finishedFirstRowOffset": 69,
+        "finishedListHeight": 178,
+        "expanded": [
+          172,
+          172,
+          167
+        ],
+        "expandedListHeight": 511,
+        "waveWidth": 203.234375
+      },
+      "light, touch": {
+        "empty": 112,
+        "unprocessed": [
+          109,
+          109,
+          104
+        ],
+        "unprocessedWithPreview": [
+          146,
+          146,
+          141
+        ],
+        "unprocessedFirstRowOffset": 69,
+        "finished": [
+          61,
+          61,
+          56
+        ],
+        "finishedFirstRowOffset": 69,
+        "finishedListHeight": 178,
+        "expanded": [
+          172,
+          172,
+          167
+        ],
+        "expandedListHeight": 511,
+        "waveWidth": 203.234375
+      }
+    },
+    "768": {
+      "light": {
+        "empty": 160,
+        "unprocessed": [
+          109,
+          109,
+          104
+        ],
+        "unprocessedWithPreview": [
+          131,
+          131,
+          126
+        ],
+        "unprocessedFirstRowOffset": 69,
+        "finished": [
+          61,
+          61,
+          56
+        ],
+        "finishedFirstRowOffset": 69,
+        "finishedListHeight": 178,
+        "expanded": [
+          157,
+          157,
+          152
+        ],
+        "expandedListHeight": 466,
+        "waveWidth": 596.234375
+      },
+      "dark": {
+        "empty": 160,
+        "unprocessed": [
+          109,
+          109,
+          104
+        ],
+        "unprocessedWithPreview": [
+          131,
+          131,
+          126
+        ],
+        "unprocessedFirstRowOffset": 69,
+        "finished": [
+          61,
+          61,
+          56
+        ],
+        "finishedFirstRowOffset": 69,
+        "finishedListHeight": 178,
+        "expanded": [
+          157,
+          157,
+          152
+        ],
+        "expandedListHeight": 466,
+        "waveWidth": 596.234375
+      },
+      "light, reduced motion": {
+        "empty": 160,
+        "unprocessed": [
+          109,
+          109,
+          104
+        ],
+        "unprocessedWithPreview": [
+          131,
+          131,
+          126
+        ],
+        "unprocessedFirstRowOffset": 69,
+        "finished": [
+          61,
+          61,
+          56
+        ],
+        "finishedFirstRowOffset": 69,
+        "finishedListHeight": 178,
+        "expanded": [
+          157,
+          157,
+          152
+        ],
+        "expandedListHeight": 466,
+        "waveWidth": 596.234375
+      },
+      "light, touch": {
+        "empty": 112,
+        "unprocessed": [
+          109,
+          109,
+          104
+        ],
+        "unprocessedWithPreview": [
+          131,
+          131,
+          126
+        ],
+        "unprocessedFirstRowOffset": 69,
+        "finished": [
+          61,
+          61,
+          56
+        ],
+        "finishedFirstRowOffset": 69,
+        "finishedListHeight": 178,
+        "expanded": [
+          157,
+          157,
+          152
+        ],
+        "expandedListHeight": 466,
+        "waveWidth": 596.234375
+      }
+    },
+    "1024": {
+      "light": {
+        "empty": 160,
+        "unprocessed": [
+          109,
+          109,
+          104
+        ],
+        "unprocessedWithPreview": [
+          131,
+          131,
+          126
+        ],
+        "unprocessedFirstRowOffset": 73,
+        "finished": [
+          61,
+          61,
+          56
+        ],
+        "finishedFirstRowOffset": 73,
+        "finishedListHeight": 178,
+        "expanded": [
+          157,
+          157,
+          152
+        ],
+        "expandedListHeight": 466,
+        "waveWidth": 324.234375
+      },
+      "dark": {
+        "empty": 160,
+        "unprocessed": [
+          109,
+          109,
+          104
+        ],
+        "unprocessedWithPreview": [
+          131,
+          131,
+          126
+        ],
+        "unprocessedFirstRowOffset": 73,
+        "finished": [
+          61,
+          61,
+          56
+        ],
+        "finishedFirstRowOffset": 73,
+        "finishedListHeight": 178,
+        "expanded": [
+          157,
+          157,
+          152
+        ],
+        "expandedListHeight": 466,
+        "waveWidth": 324.234375
+      },
+      "light, reduced motion": {
+        "empty": 160,
+        "unprocessed": [
+          109,
+          109,
+          104
+        ],
+        "unprocessedWithPreview": [
+          131,
+          131,
+          126
+        ],
+        "unprocessedFirstRowOffset": 73,
+        "finished": [
+          61,
+          61,
+          56
+        ],
+        "finishedFirstRowOffset": 73,
+        "finishedListHeight": 178,
+        "expanded": [
+          157,
+          157,
+          152
+        ],
+        "expandedListHeight": 466,
+        "waveWidth": 324.234375
+      }
+    },
+    "1440": {
+      "light": {
+        "empty": 160,
+        "unprocessed": [
+          109,
+          109,
+          104
+        ],
+        "unprocessedWithPreview": [
+          131,
+          131,
+          126
+        ],
+        "unprocessedFirstRowOffset": 73,
+        "finished": [
+          61,
+          61,
+          56
+        ],
+        "finishedFirstRowOffset": 73,
+        "finishedListHeight": 178,
+        "expanded": [
+          157,
+          157,
+          152
+        ],
+        "expandedListHeight": 466,
+        "waveWidth": 436.234375
+      },
+      "dark": {
+        "empty": 160,
+        "unprocessed": [
+          109,
+          109,
+          104
+        ],
+        "unprocessedWithPreview": [
+          131,
+          131,
+          126
+        ],
+        "unprocessedFirstRowOffset": 73,
+        "finished": [
+          61,
+          61,
+          56
+        ],
+        "finishedFirstRowOffset": 73,
+        "finishedListHeight": 178,
+        "expanded": [
+          157,
+          157,
+          152
+        ],
+        "expandedListHeight": 466,
+        "waveWidth": 436.234375
+      },
+      "light, reduced motion": {
+        "empty": 160,
+        "unprocessed": [
+          109,
+          109,
+          104
+        ],
+        "unprocessedWithPreview": [
+          131,
+          131,
+          126
+        ],
+        "unprocessedFirstRowOffset": 73,
+        "finished": [
+          61,
+          61,
+          56
+        ],
+        "finishedFirstRowOffset": 73,
+        "finishedListHeight": 178,
+        "expanded": [
+          157,
+          157,
+          152
+        ],
+        "expandedListHeight": 466,
+        "waveWidth": 436.234375
+      }
+    }
+  }
+}

@@ -5,7 +5,7 @@ import { formatTime } from "./format.ts";
 import type { FileEntry } from "./media.ts";
 import type { EffectiveRecipe } from "./recipe.ts";
 
-export type FileMetadata = Readonly<{ primary: string; secondary?: string }>;
+export type FileMetadata = Readonly<{ primary?: string; secondary?: string }>;
 
 function fullRange(trim: NonNullable<EffectiveRecipe["trim"]>, duration: number | null) {
   if (trim.start !== 0) return false;
@@ -17,7 +17,7 @@ export function fileMetadata(
   trim: EffectiveRecipe["trim"] | null,
 ): FileMetadata {
   const duration = entry.inspection.kind === "ready" ? entry.inspection.metadata.duration : null;
-  if (!trim || fullRange(trim, duration)) return { primary: duration === null ? copy.trim.unknownDuration : formatTime(duration) };
+  if (!trim || fullRange(trim, duration)) return {};
   const primary = trim.duration === null ? copy.trim.unknownDuration : formatTime(trim.duration);
   const end = trim.end === null ? copy.trim.end : formatTime(trim.end);
   return { primary, secondary: `${formatTime(trim.start)} ${copy.trim.to} ${end}` };

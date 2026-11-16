@@ -202,46 +202,53 @@ function App() {
         {!capabilities.workers && <p class="notice" role="status">{copy.banners.workers}</p>}
         {!capabilities.storage && <p class="notice" role="status">{copy.banners.storage}</p>}
         <div class="workspace">
-          <section class="panel files-panel" aria-labelledby="files-title">
+          <section
+            class="panel files-panel"
+            aria-labelledby="files-title"
+            data-dragging={dragging ? "" : undefined}
+            onDragEnter={(event) => {
+              event.preventDefault();
+              dragDepth.current++;
+              setDragging(true);
+            }}
+            onDragOver={(event) => event.preventDefault()}
+            onDragLeave={() => {
+              dragDepth.current = Math.max(0, dragDepth.current - 1);
+              if (!dragDepth.current) setDragging(false);
+            }}
+            onDrop={(event) => {
+              event.preventDefault();
+              dragDepth.current = 0;
+              setDragging(false);
+              if (!archive.busy && !folder.busy) add(Array.from(event.dataTransfer?.files ?? []));
+            }}
+          >
             <div class="panel-heading">
               <h2 id="files-title">{copy.files.heading}</h2>
               {files.length > 0 && (
                 <span class="count">{files.length}</span>
               )}
+              <label class="button add-files">
+                <input
+                  ref={picker}
+                  disabled={archive.busy || folder.busy}
+                  type="file"
+                  multiple
+                  accept="audio/*,video/*,.mkv,.flac,.opus,.ogg,.m4a,.aac"
+                  onChange={(event) => {
+                    add(Array.from(event.currentTarget.files ?? []));
+                    event.currentTarget.value = "";
+                  }}
+                />
+                {copy.files.add}
+              </label>
             </div>
-            <label
-              class={`dropzone${files.length ? " has-files" : ""}${dragging ? " dropzone-active" : ""}`}
-              onDragEnter={(event) => {
-                event.preventDefault();
-                dragDepth.current++;
-                setDragging(true);
-              }}
-              onDragOver={(event) => event.preventDefault()}
-              onDragLeave={() => {
-                dragDepth.current = Math.max(0, dragDepth.current - 1);
-                if (!dragDepth.current) setDragging(false);
-              }}
-              onDrop={(event) => {
-                event.preventDefault();
-                dragDepth.current = 0;
-                setDragging(false);
-                if (!archive.busy && !folder.busy) add(Array.from(event.dataTransfer?.files ?? []));
-              }}
-            >
-              <input
-                ref={picker}
-                disabled={archive.busy || folder.busy}
-                type="file"
-                multiple
-                accept="audio/*,video/*,.mkv,.flac,.opus,.ogg,.m4a,.aac"
-                onChange={(event) => {
-                  add(Array.from(event.currentTarget.files ?? []));
-                  event.currentTarget.value = "";
-                }}
-              />
-              <span class="button primary">{files.length ? copy.files.add : copy.files.choose}</span>
-              <small>{copy.files.drop}</small>
-            </label>
+            {files.length === 0 && (
+              <button type="button" class="dropzone" disabled={archive.busy || folder.busy} onClick={() => picker.current?.click()}>
+                <span class="button primary">{copy.files.choose}</span>
+                <small>{copy.files.drop}</small>
+              </button>
+            )}
             {files.length > 0 && (
               <p class="sr-only" role="status">
                 {files.some(

@@ -1,3 +1,4 @@
+import type { RefObject } from "preact";
 import { useEffect, useLayoutEffect, useRef, useState } from "preact/hooks";
 import { copy } from "./copy";
 import { messageFor } from "./errors";
@@ -71,30 +72,42 @@ function drawWave(g: CanvasRenderingContext2D, width: number, height: number, to
   }
   if (lines) { mark(g, lines.startX, height, 1, palette); mark(g, lines.endX, height, -1, palette); }
 }
+const writeText = (element: HTMLElement, text: string) => {
+  const node = element.firstChild;
+  if (node instanceof Text) { if (node.data !== text) node.data = text; }
+  else if (element.textContent !== text) element.textContent = text;
+};
 const wholeFile = (range: Readonly<{ start: number; end: number }>, total: number) => range.start < 1e-6 && range.end > total - 1e-6;
 let fieldCount = 0;
-export function WavePlayer({ src, source, label, name, duration, preload, paused, trim }: {
+export function WavePlayer({ layout, compact = false, src, source, label, name, duration, preload, paused, trim, readoutTarget, audioRef }: {
+  layout: "row" | "labelled";
+  compact?: boolean;
+  readoutTarget?: RefObject<HTMLElement | null>;
+  audioRef?: RefObject<HTMLAudioElement | null>;
   src: string; source: PeakSource; label: string; name: string;
   /** Known length in seconds, or null when only the file itself can tell. */
   duration: number | null; preload: "none" | "metadata";
   /** True while an export or preview runs, so the waveform is not generated beside it. */
   paused: boolean; trim?: TrimEdit;
 }) {
-  const audio = useRef<HTMLAudioElement>(null);
+  const ownAudio = useRef<HTMLAudioElement>(null);
+  const audio = audioRef ?? ownAudio;
   const root = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const playhead = useRef<HTMLDivElement>(null);
+  const fill = useRef<HTMLElement>(null);
   const readout = useRef<HTMLSpanElement>(null);
   const palette = useRef<Palette | null>(null);
   const gesture = useRef<Gesture>({ kind: "idle" });
   const dragTime = useRef(0);
   const [playback, setPlayback] = useState<Playback>("idle");
-  const [mediaDuration, setMediaDuration] = useState<number | null>(null);
+  const [measuredLength, setMeasuredLength] = useState<{ src: string; seconds: number } | null>(null);
+  const mediaDuration = measuredLength?.src === src ? measuredLength.seconds : null;
   const [visible, setVisible] = useState(false);
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [fieldId] = useState(() => `wave-error-${++fieldCount}`);
-  const peaks = usePeaks(source, visible && !paused);
+  const peaks = usePeaks(source, visible && !paused && !compact);
   const ready = peaks.kind === "ready" ? peaks.peaks : null;
   const total = ready?.duration ?? duration ?? mediaDuration;
   const range = trim?.range && total && (trim.editing || !wholeFile(trim.range, total)) ? trim.range : null;
@@ -106,8 +119,16 @@ export function WavePlayer({ src, source, label, name, duration, preload, paused
     if (latest && length) latest.onChange(changeTrimHandle(latest.draft, length, handle, value));
   }, raf));
   const paint = () => {
-    const host = track.current, surface = canvas.current, element = audio.current, marker = playhead.current;
-    if (!host || !surface || !element || !marker) return;
+    const element = audio.current;
+    if (!element) return;
+    const length = total ?? 0;
+    const at = clampTime(gesture.current.kind === "seeking" ? dragTime.current : element.currentTime, length);
+    const whole = length ? formatTime(length) : "--:--";
+    const outside = readoutTarget?.current, target = outside ?? readout.current;
+    if (target) writeText(target, length || !outside ? `${formatTime(at)} / ${whole}` : copy.trim.unknownDuration);
+    if (fill.current) fill.current.style.transform = `scaleX(${length ? at / length : 0})`;
+    const host = track.current, surface = canvas.current, marker = playhead.current;
+    if (!host || !surface || !marker) return;
     const width = host.clientWidth, height = host.clientHeight, ratio = devicePixelRatio || 1;
     if (surface.width !== Math.round(width * ratio) || surface.height !== Math.round(height * ratio)) {
       surface.width = Math.round(width * ratio);
@@ -117,15 +138,10 @@ export function WavePlayer({ src, source, label, name, duration, preload, paused
     if (!g) return;
     g.setTransform(ratio, 0, 0, ratio, 0, 0);
     g.clearRect(0, 0, width, height);
-    const length = total ?? 0;
-    const at = clampTime(gesture.current.kind === "seeking" ? dragTime.current : element.currentTime, length);
     palette.current ??= readPalette();
     if (length && width) drawWave(g, width, height, length, at, ready, range, palette.current);
     marker.style.display = length ? "" : "none";
     marker.style.transform = `translateX(${timeToX(at, length, width)}px)`;
-    const whole = length ? formatTime(length) : "--:--";
-    const text = `${formatTime(at)} / ${whole}`;
-    if (readout.current && readout.current.textContent !== text) readout.current.textContent = text;
     const spoken = copy.wave.position(formatTime(at), length ? whole : copy.trim.unknownDuration);
     if (host.getAttribute("aria-valuetext") !== spoken) {
       host.setAttribute("aria-valuetext", spoken);
@@ -136,15 +152,20 @@ export function WavePlayer({ src, source, label, name, duration, preload, paused
   painter.current = paint;
   useLayoutEffect(paint);
   useEffect(() => {
-    const host = track.current, element = root.current;
-    if (!host || !element) return;
+    const host = track.current;
+    if (!host) return;
     const resize = new ResizeObserver(() => painter.current());
     resize.observe(host);
+    return () => resize.disconnect();
+  }, [compact]);
+  useEffect(() => {
+    const element = root.current;
+    if (!element) return;
     const theme = new MutationObserver(() => { palette.current = null; painter.current(); });
     theme.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
     const view = typeof IntersectionObserver === "undefined" ? null : new IntersectionObserver(entries => setVisible(entries[entries.length - 1].isIntersecting));
     if (view) view.observe(element); else setVisible(true);
-    return () => { resize.disconnect(); theme.disconnect(); view?.disconnect(); seek.cancel(); reshape.cancel(); };
+    return () => { theme.disconnect(); view?.disconnect(); seek.cancel(); reshape.cancel(); };
   }, []);
   useEffect(() => {
     if (playback === "idle") return;
@@ -240,17 +261,19 @@ export function WavePlayer({ src, source, label, name, duration, preload, paused
     trim.onChange(changeTrimHandle(trim.draft, total, which, next));
   };
   const playing = playback !== "idle";
-  return <div class="wave-player" ref={root} data-editing={trim?.editing ? "" : undefined} data-playback={playback}>
+  return <div class="wave-player" ref={root} data-layout={layout} data-compact={compact ? "" : undefined} data-editing={trim?.editing ? "" : undefined} data-playback={playback}>
     <div class="wave-head">
       <button type="button" class="wave-play" aria-label={(playing ? copy.wave.pause : copy.wave.play)(label, name)} onClick={toggle}>
         <svg viewBox="0 0 16 16" aria-hidden="true">{playing ? <path d="M3.5 2.5h3v11h-3zM9.5 2.5h3v11h-3z" /> : <path d="M4 2.5v11l9-5.5z" />}</svg>
       </button>
-      <span class="wave-label">{label}</span>
-      <span class="wave-time" ref={readout} aria-hidden="true" />
-      {trim && <button type="button" class="wave-trim" disabled={trim.locked && !trim.editing}
+      {layout === "labelled" && <>
+        <span class="wave-label">{label}</span>
+        <span class="wave-time" ref={readout} aria-hidden="true" />
+      </>}
+      {trim && !compact && <button type="button" class="wave-trim" disabled={trim.locked && !trim.editing}
         aria-label={trim.editing ? copy.wave.doneLabel(name) : copy.wave.trimLabel(name)} onClick={trim.onToggle}>{trim.editing ? copy.wave.done : copy.wave.trim}</button>}
     </div>
-    <div class="wave-track" ref={track} role="slider" tabIndex={total ? 0 : -1} aria-label={copy.wave.seek(label, name)}
+    {compact ? <div key="progress" class="wave-progress" aria-hidden="true"><i ref={fill} /></div> : <div key="track" class="wave-track" ref={track} role="slider" tabIndex={total ? 0 : -1} aria-label={copy.wave.seek(label, name)}
       aria-valuemin={0} aria-valuemax={total ?? 0} aria-disabled={!total}
       onPointerDown={event => {
         if (event.button !== 0 || gesture.current.kind !== "idle" || !total) return;
@@ -278,13 +301,13 @@ export function WavePlayer({ src, source, label, name, duration, preload, paused
       {trim?.editing && handle("start")}
       {trim?.editing && handle("end")}
       <div class="wave-playhead" ref={playhead} aria-hidden="true" />
-    </div>
+    </div>}
     {trim?.editing && trim.range && total && <div class="wave-fields">
       <label>{copy.trim.start}<TimeField value={trim.range.start} placeholder="00:00" label={copy.trim.startField(name)} errorId={fieldError ? fieldId : undefined} onChange={value => setField("start", value)} /></label>
       <label>{copy.trim.end}<TimeField value={trim.range.end} placeholder={formatTrimTime(total)} label={copy.trim.endField(name)} errorId={fieldError ? fieldId : undefined} onChange={value => setField("end", value)} /></label>
       {fieldError && <p id={fieldId} class="validation-error" role="alert">{fieldError}</p>}
     </div>}
-    {trim && (trim.custom || trim.follows) && <div class="wave-status">
+    {trim && !compact && (trim.custom || trim.follows) && <div class="wave-status">
       {trim.custom
         ? <><span class="wave-badge">{copy.wave.custom}</span>
           <button type="button" class="text-button" disabled={trim.locked} aria-label={copy.wave.resetLabel(name)} onClick={() => trim.onChange(null)}>{copy.wave.reset}</button></>
@@ -292,7 +315,7 @@ export function WavePlayer({ src, source, label, name, duration, preload, paused
     </div>}
     <audio ref={audio} preload={preload} src={src}
       onPlay={event => { pauseOthers(event); on("play"); }} onPlaying={() => on("playing")} onWaiting={() => on("waiting")}
-      onPause={() => on("pause")} onEnded={() => on("ended")} onError={() => on("error")} onSeeked={paint}
-      onLoadedMetadata={event => setMediaDuration(Number.isFinite(event.currentTarget.duration) && event.currentTarget.duration > 0 ? event.currentTarget.duration : null)} />
+      onPause={() => on("pause")} onEmptied={() => on("pause")} onEnded={() => on("ended")} onError={() => on("error")} onSeeked={paint}
+      onLoadedMetadata={event => { const { duration: seconds } = event.currentTarget; setMeasuredLength(Number.isFinite(seconds) && seconds > 0 ? { src, seconds } : null); }} />
   </div>;
 }

@@ -1,0 +1,190 @@
+ok   T5 320 finished files: exactly one audio per row
+ok   T5 320 finished file: one player and a two-option switch, Result chosen, no Original toggle
+ok   T5 320 finished file: switch targets are at least 44x44
+ok   T5 320 finished file: the Result view plays the download href and a plain result adds no extra line
+note T5 320 measured: finished row with player and switch 161px (baseline 235)
+ok   T5 320 finished file: the row with player and switch is at most 176px
+ok   T5 320 unplayable source with a playable result: the Result alone, no switch
+ok   T5 320 playhead at 00:00 keeps a gap to the play button and stays inside the track's height
+ok   T5 320 Original view: the audio plays the source object URL, not the download
+ok   T5 320 switching back and forth does not recompute peaks
+note T5 320 measured: to Result playing at 10.11 s, then playing at 10.11 s
+ok   T5 320 playing Original at 10 s: Result continues within 0.25 s of 10 s
+note T5 320 measured: to Original playing at 10.11 s, then playing at 10.11 s
+ok   T5 320 playing Result: Original continues within 0.25 s
+note T5 320 measured: to Result paused at 10.00 s, then paused at 10.00 s
+ok   T5 320 paused at 10 s: Result stays paused at the mapped time
+note T5 320 measured: to Original paused at 10.00 s, then paused at 10.00 s
+ok   T5 320 paused at 10 s: back to Original stays paused at 10 s
+ok   T5 320 the switch is a keyboard radio group: arrow key chooses Result
+ok   T5 320 playing another row pauses this one: exactly one audio is playing
+ok   T5 320 no horizontal overflow, no page errors
+ok   T5 320 trimmed 5 to 15 s export is about 10 s long
+ok   T5 320 trimmed result: the file line total is the result length
+note T5 320 measured: to Result playing at 12.11 s, then playing at 7.11 s
+ok   T5 320 trimmed, playing Original at 12 s: Result resumes at about 7 s
+note T5 320 measured: to Original playing at 7.12 s, then playing at 12.12 s
+ok   T5 320 trimmed, playing Result: Original resumes at the start plus 5 s
+note T5 320 measured: to Result paused at 12.00 s, then paused at 7.00 s
+ok   T5 320 trimmed, paused at 12 s: Result stays paused at about 7 s
+note T5 320 measured: to Original paused at 7.00 s, then paused at 12.00 s
+ok   T5 320 trimmed, paused at 7 s in Result: Original stays paused at about 12 s
+ok   T5 320 older settings: the visible Result (older settings) line stays
+note T5 320 measured: to Original paused at 3.00 s, then paused at 8.00 s
+ok   T5 320 older settings: the job's start (5 s), not the current draft (9 s), maps the position
+ok   T5 320 Trim in the Result view switches to Original and enters edit
+ok   T5 320 Done keeps the Original view and brings the switch back
+ok   T5 320 trimmed file: no horizontal overflow, no page errors
+ok   T5 375 finished files: exactly one audio per row
+ok   T5 375 finished file: one player and a two-option switch, Result chosen, no Original toggle
+ok   T5 375 finished file: switch targets are at least 44x44
+ok   T5 375 finished file: the Result view plays the download href and a plain result adds no extra line
+note T5 375 measured: finished row with player and switch 161px (baseline 235)
+ok   T5 375 finished file: the row with player and switch is at most 176px
+ok   T5 375 unplayable source with a playable result: the Result alone, no switch
+ok   T5 375 playhead at 00:00 keeps a gap to the play button and stays inside the track's height
+ok   T5 375 Original view: the audio plays the source object URL, not the download
+ok   T5 375 switching back and forth does not recompute peaks
+note T5 375 measured: to Result playing at 10.11 s, then playing at 10.11 s
+ok   T5 375 playing Original at 10 s: Result continues within 0.25 s of 10 s
+note T5 375 measured: to Original playing at 10.12 s, then playing at 10.12 s
+ok   T5 375 playing Result: Original continues within 0.25 s
+note T5 375 measured: to Result paused at 10.00 s, then paused at 10.00 s
+ok   T5 375 paused at 10 s: Result stays paused at the mapped time
+note T5 375 measured: to Original paused at 10.00 s, then paused at 10.00 s
+ok   T5 375 paused at 10 s: back to Original stays paused at 10 s
+ok   T5 375 the switch is a keyboard radio group: arrow key chooses Result
+ok   T5 375 playing another row pauses this one: exactly one audio is playing
+ok   T5 375 no horizontal overflow, no page errors
+ok   T5 375 trimmed 5 to 15 s export is about 10 s long
+ok   T5 375 trimmed result: the file line total is the result length
+note T5 375 measured: to Result playing at 12.11 s, then playing at 7.11 s
+ok   T5 375 trimmed, playing Original at 12 s: Result resumes at about 7 s
+note T5 375 measured: to Original playing at 7.12 s, then playing at 12.12 s
+ok   T5 375 trimmed, playing Result: Original resumes at the start plus 5 s
+note T5 375 measured: to Result paused at 12.00 s, then paused at 7.00 s
+ok   T5 375 trimmed, paused at 12 s: Result stays paused at about 7 s
+note T5 375 measured: to Original paused at 7.00 s, then paused at 12.00 s
+ok   T5 375 trimmed, paused at 7 s in Result: Original stays paused at about 12 s
+ok   T5 375 older settings: the visible Result (older settings) line stays
+note T5 375 measured: to Original paused at 3.00 s, then paused at 8.00 s
+ok   T5 375 older settings: the job's start (5 s), not the current draft (9 s), maps the position
+ok   T5 375 Trim in the Result view switches to Original and enters edit
+ok   T5 375 Done keeps the Original view and brings the switch back
+ok   T5 375 trimmed file: no horizontal overflow, no page errors
+ok   T5 375 unplayable result format: no switch, the Original plays alone and the download note shows
+ok   T5 375 unplayable result: no page errors
+ok   T5 768 finished files: exactly one audio per row
+ok   T5 768 finished file: one player and a two-option switch, Result chosen, no Original toggle
+ok   T5 768 finished file: switch targets are at least 44x44
+ok   T5 768 finished file: the Result view plays the download href and a plain result adds no extra line
+note T5 768 measured: finished row with player and switch 161px (baseline 235)
+ok   T5 768 finished file: the row with player and switch is at most 176px
+ok   T5 768 unplayable source with a playable result: the Result alone, no switch
+ok   T5 768 playhead at 00:00 keeps a gap to the play button and stays inside the track's height
+ok   T5 768 Original view: the audio plays the source object URL, not the download
+ok   T5 768 switching back and forth does not recompute peaks
+note T5 768 measured: to Result playing at 10.11 s, then playing at 10.11 s
+ok   T5 768 playing Original at 10 s: Result continues within 0.25 s of 10 s
+note T5 768 measured: to Original playing at 10.11 s, then playing at 10.11 s
+ok   T5 768 playing Result: Original continues within 0.25 s
+note T5 768 measured: to Result paused at 10.00 s, then paused at 10.00 s
+ok   T5 768 paused at 10 s: Result stays paused at the mapped time
+note T5 768 measured: to Original paused at 10.00 s, then paused at 10.00 s
+ok   T5 768 paused at 10 s: back to Original stays paused at 10 s
+ok   T5 768 the switch is a keyboard radio group: arrow key chooses Result
+ok   T5 768 playing another row pauses this one: exactly one audio is playing
+ok   T5 768 no horizontal overflow, no page errors
+ok   T5 768 trimmed 5 to 15 s export is about 10 s long
+ok   T5 768 trimmed result: the file line total is the result length
+note T5 768 measured: to Result playing at 12.12 s, then playing at 7.12 s
+ok   T5 768 trimmed, playing Original at 12 s: Result resumes at about 7 s
+note T5 768 measured: to Original playing at 7.13 s, then playing at 12.13 s
+ok   T5 768 trimmed, playing Result: Original resumes at the start plus 5 s
+note T5 768 measured: to Result paused at 12.00 s, then paused at 7.00 s
+ok   T5 768 trimmed, paused at 12 s: Result stays paused at about 7 s
+note T5 768 measured: to Original paused at 7.00 s, then paused at 12.00 s
+ok   T5 768 trimmed, paused at 7 s in Result: Original stays paused at about 12 s
+ok   T5 768 older settings: the visible Result (older settings) line stays
+note T5 768 measured: to Original paused at 3.00 s, then paused at 8.00 s
+ok   T5 768 older settings: the job's start (5 s), not the current draft (9 s), maps the position
+ok   T5 768 Trim in the Result view switches to Original and enters edit
+ok   T5 768 Done keeps the Original view and brings the switch back
+ok   T5 768 trimmed file: no horizontal overflow, no page errors
+ok   T5 1024 finished files: exactly one audio per row
+ok   T5 1024 finished file: one player and a two-option switch, Result chosen, no Original toggle
+ok   T5 1024 finished file: switch targets are at least 44x44
+ok   T5 1024 finished file: the Result view plays the download href and a plain result adds no extra line
+note T5 1024 measured: finished row with player and switch 161px (baseline 235)
+ok   T5 1024 finished file: the row with player and switch is at most 176px
+ok   T5 1024 unplayable source with a playable result: the Result alone, no switch
+ok   T5 1024 playhead at 00:00 keeps a gap to the play button and stays inside the track's height
+ok   T5 1024 Original view: the audio plays the source object URL, not the download
+ok   T5 1024 switching back and forth does not recompute peaks
+note T5 1024 measured: to Result playing at 10.11 s, then playing at 10.11 s
+ok   T5 1024 playing Original at 10 s: Result continues within 0.25 s of 10 s
+note T5 1024 measured: to Original playing at 10.12 s, then playing at 10.12 s
+ok   T5 1024 playing Result: Original continues within 0.25 s
+note T5 1024 measured: to Result paused at 10.00 s, then paused at 10.00 s
+ok   T5 1024 paused at 10 s: Result stays paused at the mapped time
+note T5 1024 measured: to Original paused at 10.00 s, then paused at 10.00 s
+ok   T5 1024 paused at 10 s: back to Original stays paused at 10 s
+ok   T5 1024 the switch is a keyboard radio group: arrow key chooses Result
+ok   T5 1024 playing another row pauses this one: exactly one audio is playing
+ok   T5 1024 no horizontal overflow, no page errors
+ok   T5 1024 trimmed 5 to 15 s export is about 10 s long
+ok   T5 1024 trimmed result: the file line total is the result length
+note T5 1024 measured: to Result playing at 12.11 s, then playing at 7.11 s
+ok   T5 1024 trimmed, playing Original at 12 s: Result resumes at about 7 s
+note T5 1024 measured: to Original playing at 7.12 s, then playing at 12.12 s
+ok   T5 1024 trimmed, playing Result: Original resumes at the start plus 5 s
+note T5 1024 measured: to Result paused at 12.00 s, then paused at 7.00 s
+ok   T5 1024 trimmed, paused at 12 s: Result stays paused at about 7 s
+note T5 1024 measured: to Original paused at 7.00 s, then paused at 12.00 s
+ok   T5 1024 trimmed, paused at 7 s in Result: Original stays paused at about 12 s
+ok   T5 1024 older settings: the visible Result (older settings) line stays
+note T5 1024 measured: to Original paused at 3.00 s, then paused at 8.00 s
+ok   T5 1024 older settings: the job's start (5 s), not the current draft (9 s), maps the position
+ok   T5 1024 Trim in the Result view switches to Original and enters edit
+ok   T5 1024 Done keeps the Original view and brings the switch back
+ok   T5 1024 trimmed file: no horizontal overflow, no page errors
+ok   T5 1024 unplayable result format: no switch, the Original plays alone and the download note shows
+ok   T5 1024 unplayable result: no page errors
+ok   T5 1440 finished files: exactly one audio per row
+ok   T5 1440 finished file: one player and a two-option switch, Result chosen, no Original toggle
+ok   T5 1440 finished file: switch targets are at least 44x44
+ok   T5 1440 finished file: the Result view plays the download href and a plain result adds no extra line
+note T5 1440 measured: finished row with player and switch 161px (baseline 235)
+ok   T5 1440 finished file: the row with player and switch is at most 176px
+ok   T5 1440 unplayable source with a playable result: the Result alone, no switch
+ok   T5 1440 playhead at 00:00 keeps a gap to the play button and stays inside the track's height
+ok   T5 1440 Original view: the audio plays the source object URL, not the download
+ok   T5 1440 switching back and forth does not recompute peaks
+note T5 1440 measured: to Result playing at 10.12 s, then playing at 10.12 s
+ok   T5 1440 playing Original at 10 s: Result continues within 0.25 s of 10 s
+note T5 1440 measured: to Original playing at 10.13 s, then playing at 10.13 s
+ok   T5 1440 playing Result: Original continues within 0.25 s
+note T5 1440 measured: to Result paused at 10.00 s, then paused at 10.00 s
+ok   T5 1440 paused at 10 s: Result stays paused at the mapped time
+note T5 1440 measured: to Original paused at 10.00 s, then paused at 10.00 s
+ok   T5 1440 paused at 10 s: back to Original stays paused at 10 s
+ok   T5 1440 the switch is a keyboard radio group: arrow key chooses Result
+ok   T5 1440 playing another row pauses this one: exactly one audio is playing
+ok   T5 1440 no horizontal overflow, no page errors
+ok   T5 1440 trimmed 5 to 15 s export is about 10 s long
+ok   T5 1440 trimmed result: the file line total is the result length
+note T5 1440 measured: to Result playing at 12.11 s, then playing at 7.11 s
+ok   T5 1440 trimmed, playing Original at 12 s: Result resumes at about 7 s
+note T5 1440 measured: to Original playing at 7.11 s, then playing at 12.11 s
+ok   T5 1440 trimmed, playing Result: Original resumes at the start plus 5 s
+note T5 1440 measured: to Result paused at 12.00 s, then paused at 7.00 s
+ok   T5 1440 trimmed, paused at 12 s: Result stays paused at about 7 s
+note T5 1440 measured: to Original paused at 7.00 s, then paused at 12.00 s
+ok   T5 1440 trimmed, paused at 7 s in Result: Original stays paused at about 12 s
+ok   T5 1440 older settings: the visible Result (older settings) line stays
+note T5 1440 measured: to Original paused at 3.00 s, then paused at 8.00 s
+ok   T5 1440 older settings: the job's start (5 s), not the current draft (9 s), maps the position
+ok   T5 1440 Trim in the Result view switches to Original and enters edit
+ok   T5 1440 Done keeps the Original view and brings the switch back
+ok   T5 1440 trimmed file: no horizontal overflow, no page errors
+note WebKit not run: not installed
