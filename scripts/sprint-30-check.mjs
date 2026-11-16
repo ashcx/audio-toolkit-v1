@@ -45,7 +45,7 @@ async function openApp(browser, app, viewport, { scheme = 'light', touch = false
     viewport: { width: viewport.width, height: viewport.height }, colorScheme: scheme, reducedMotion,
     ...(touch ? { hasTouch: true, isMobile: true } : {}),
   });
-  if (init) await context.addInitScript(init.script ?? init, init.arg);
+  for (const item of [].concat(init ?? [])) await context.addInitScript(item.script ?? item, item.arg);
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -361,6 +361,55 @@ const rapidSwitchCarry = async ({ browser, app, check, viewport, scheme }) => {
     }
     check(`${name}: no page errors`, run.errors.length === 0, run.errors.join('; '));
   });
+};
+
+const NO_PLACEHOLDER = '--:--';
+const noWaveform = () => { window.IntersectionObserver = class { observe() {} disconnect() {} }; };
+
+const noPlaceholderSwitches = async ({ browser, app, check, viewport, scheme }) => {
+  for (const trim of [false, true]) {
+    for (const widened of [false, true]) {
+      const label = `T8 ${viewport.name} ${scheme} no --:-- (${trim ? 'trim 5 to 15' : 'no trim'}${widened ? ', source load delayed 300ms, no waveform' : ''})`;
+      const { context, page, errors } = await openApp(browser, app, viewport, { scheme, init: widened ? [delayedSource(300), noWaveform] : null });
+      await addFiles(page, [fixture('tone-20.wav', 20)]);
+      if (trim) { await page.getByLabel('Add step').selectOption('trim'); await setTrimAll(page, 5, 15); }
+      await exportAll(page, 1);
+      const row = rowAt(page, 0);
+      const total = trim ? '00:10' : '00:20';
+      await page.evaluate(() => {
+        window.__samples = [];
+        const li = document.querySelector('li[data-file-id]');
+        const frame = () => { window.__samples.push({ mark: window.__mark ?? '', text: li.querySelector('.file-position')?.textContent ?? '' }); window.__sampler = requestAnimationFrame(frame); };
+        window.__sampler = requestAnimationFrame(frame);
+      });
+      const wait = widened ? 800 : 400;
+      const act = async (mark, target) => {
+        await row.evaluate((li, [name, how]) => {
+          window.__mark = name;
+          const control = how === 'toggle' ? li.querySelector('.file-toggle') : [...li.querySelectorAll('.view-switch input')].find(input => input.parentElement.textContent === how);
+          control.click();
+        }, [mark, target]);
+        await page.waitForTimeout(wait);
+      };
+      await act('expand', 'toggle');
+      await act('result to original', copy.files.original);
+      await act('collapse from original', 'toggle');
+      await act('expand again', 'toggle');
+      await act('result to original again', copy.files.original);
+      await act('original to result', copy.result.label);
+      await act('collapse from result', 'toggle');
+      const samples = await page.evaluate(() => { cancelAnimationFrame(window.__sampler); return window.__samples; });
+      check(`${label}: sampled every animation frame through 7 view changes (${samples.length} samples)`, samples.length > 7 * 5, samples.length);
+      const placeholder = samples.filter(sample => sample.text.includes(NO_PLACEHOLDER));
+      check(`${label}: no sample of .file-position contains ${NO_PLACEHOLDER}`, placeholder.length === 0, JSON.stringify([...new Set(placeholder.map(sample => `${sample.mark}: ${sample.text}`))]));
+      for (const mark of ['collapse from original', 'original to result']) {
+        const after = samples.filter(sample => sample.mark === mark);
+        check(`${label}: from the first frame of "${mark}" the line already shows the result total ${total}`, after.length > 0 && after.every(sample => sample.text.endsWith(`/ ${total}`)), JSON.stringify([...new Set(after.map(sample => sample.text))]));
+      }
+      check(`${label}: no page errors`, errors.length === 0, errors.join('; '));
+      await context.close();
+    }
+  }
 };
 
 const tasks = {
@@ -1047,6 +1096,7 @@ const tasks = {
         const context = { browser, app, check, note, viewport, scheme };
         if (issueRuns(1)) await unknownDurationLive(context);
         if (issueRuns(2)) await rapidSwitchCarry(context);
+        if (issueRuns(3)) await noPlaceholderSwitches(context);
       }
     }
     note('WebKit not run: not installed');

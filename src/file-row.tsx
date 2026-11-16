@@ -14,7 +14,7 @@ import { previewCutSeconds } from "./preview-plan";
 import { WavePlayer, type TrimEdit } from "./wave-player";
 import { retarget, shownView, viewsOf, type Carry, type View } from "./view-position";
 const canPlay = (mime: string) => mime !== "" && document.createElement("audio").canPlayType(mime) !== "";
-type PlayableResult = Readonly<{ url: string; file: File; label: string }>;
+type PlayableResult = Readonly<{ url: string; file: File; label: string; duration: number | null }>;
 function useViewCarry(view: View | null, trimStart: number, onPick: (view: View) => void) {
   const audio = useRef<HTMLAudioElement>(null);
   const pending = useRef<Carry | null>(null);
@@ -52,7 +52,7 @@ function FilePlayer({ entry, metadata, result, view, switchable, compact, audioR
     <WavePlayer layout="row" compact={compact} audioRef={audioRef} src={showsResult ? result.url : sourceUrl}
       source={showsResult ? { file: result.file } : { file: entry.file, metadata }}
       label={showsResult ? result.label : copy.files.original} name={entry.file.name}
-      duration={showsResult ? null : metadata.duration} preload={showsResult || result ? "metadata" : "none"} paused={paused}
+      duration={showsResult ? result.duration : metadata.duration} preload={showsResult || result ? "metadata" : "none"} paused={paused}
       trim={showsResult ? { ...trim, range: null, custom: false, follows: false, onToggle: () => { onChoose("original"); trim.onToggle(); } } : trim}
       readoutTarget={readoutTarget} />
     {switchable && !compact && !trim.editing && <div class="view-switch" role="radiogroup" aria-label={copy.files.viewLabel(entry.file.name)}>
@@ -154,7 +154,9 @@ export function FileRow({
   };
   const position = useRef<HTMLSpanElement>(null);
   const positionLive = shown !== null;
-  const totalText = duration === null ? copy.trim.unknownDuration : formatTime(duration);
+  const resultDuration = job?.spec.plan.snapshot.trim?.duration ?? job?.spec.plan.snapshot.source.duration ?? null;
+  const shownDuration = shown === "result" ? resultDuration : duration;
+  const totalText = shownDuration === null ? copy.trim.unknownDuration : formatTime(shownDuration);
   const resultLabel = previousSettings ? copy.result.olderLabel : copy.result.label;
   const downloadLabel = previousSettings
     ? copy.result.downloadOlder(entry.file.name)
@@ -180,7 +182,7 @@ export function FileRow({
           {entry.inspection.kind === "ready" && metadata
             ? <>
               <span class="file-position" ref={position} aria-hidden={positionLive ? "true" : undefined}>
-                {positionLive && duration !== null ? `${formatTime(0)} / ${totalText}` : totalText}
+                {positionLive && shownDuration !== null ? `${formatTime(0)} / ${totalText}` : totalText}
               </span>
               {expanded && metadata.primary && !(shown === "result" && !previousSettings) && ` · ${metadata.primary}`}{expanded && metadata.secondary && ` · ${metadata.secondary}`}
             </>
@@ -228,7 +230,7 @@ export function FileRow({
       </div>
       <span class="sr-only" role="status">{[spoken && copy.files.announce(entry.file.name, spoken), previewSpoken].filter(Boolean).join(" ")}</span>
       {entry.inspection.kind === "ready" && shown && <FilePlayer entry={entry} metadata={entry.inspection.metadata} view={shown} switchable={views.length > 1} compact={!expanded} audioRef={audio}
-        result={exported?.kind === "done" && exportedPlayable ? { url: exported.url, file: exported.output.file, label: resultLabel } : null}
+        result={exported?.kind === "done" && exportedPlayable ? { url: exported.url, file: exported.output.file, label: resultLabel, duration: resultDuration } : null}
         paused={busy} readoutTarget={positionLive ? position : undefined}
         onChoose={choose} trim={{
           range: duration === null ? null : unfixable ? { start: 0, end: duration } : trimFailed ? null : { start: effective?.start ?? 0, end: effective?.end ?? duration },
