@@ -5,7 +5,6 @@ import assert from 'node:assert/strict';
 import {mkdir,writeFile,readFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import {randomUUID} from 'node:crypto';
-import {chromium,webkit} from 'playwright';
 import {loadCopy} from './lib/harness.mjs';
 const copy=await loadCopy();
 const root=process.env.BATCH_EVIDENCE_DIR??'.artifacts/batch-check';

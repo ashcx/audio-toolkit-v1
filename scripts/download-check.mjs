@@ -4,7 +4,6 @@ import {engines,launchOptions} from './lib/engines.mjs';
 import {loadCopy} from './lib/harness.mjs';
 const copy=await loadCopy();
 import {setAppearance} from './browser-controls.mjs';
-import {chromium,webkit} from 'playwright';
 import {mkdir,writeFile,readFile,copyFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import assert from 'node:assert/strict';

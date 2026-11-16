@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readdir, readFile } from 'node:fs/promises';
-import { copy } from '../src/copy.ts';
 import {
   ERROR_CODES, UserFacingError, errorCode, failureOf, failure, messageFor, actionFor, validationMessage, isErrorCode,
 } from '../src/errors.ts';

@@ -452,7 +452,6 @@ const forcedColourProgress = async ({ browser, app, check, viewport, scheme }) =
   await until(page, () => document.querySelector('audio').currentTime > 1.5, null, 6000);
   const playing = await progressColours(page);
   await row.locator('.wave-play').click();
-  const later = await progressColours(page);
   check(`${label} (forced colors): the progress fill width follows playback`, playing.fillWidth > idle.fillWidth + 3 && Math.abs(playing.fillWidth / playing.lineWidth - Number(playing.transform.match(/scaleX\(([\d.]+)\)/)?.[1] ?? NaN)) < 0.02, JSON.stringify({ idle: idle.fillWidth, playing: playing.fillWidth, line: playing.lineWidth, transform: playing.transform }));
   await shot(page, `t8-forced-colors-${viewport.name}-${scheme}`);
   await page.emulateMedia({ forcedColors: 'none' });

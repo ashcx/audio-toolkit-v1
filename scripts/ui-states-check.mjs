@@ -403,7 +403,7 @@ async function runConfig(browser, config) {
     await page.getByRole('slider', { name: copy.slider(copy.gain.label) }).press('End');
     await exportButton(page).click();
     await waitDone(page, 1);
-    const text = await shoot('success-with-note');
+    await shoot('success-with-note');
     const folded = await shownTimes(page, copy.result.clipped);
     const spoken = await page.evaluate(needle => [...document.querySelectorAll('.sr-only')].filter(element => element.textContent.includes(needle)).length, copy.result.clipped);
     await toggleFinished(page, true);
@@ -459,7 +459,7 @@ async function runConfig(browser, config) {
     for (const [file, code] of [['corrupt.wav', 'file-unreadable'], ['no-audio.mp4', 'file-no-audio'], ['unsupported.mkv', 'file-unsupported-audio']]) {
       await picker(page).setInputFiles(fixture(file));
       await page.locator('li[data-inspection=failed]').waitFor();
-      const text = await shoot(`failure-${code}`);
+      await shoot(`failure-${code}`);
       const message = copy.errors[code].message;
       check(`${config.name}/failure-${code} shows its catalogue message once`, await shownTimes(page, message) === 1, `${await shownTimes(page, message)} times`);
       check(`${config.name}/failure-${code} offers Remove`, await page.getByRole('button', { name: copy.files.removeLabel(file), exact: true }).count() === 1);
@@ -497,7 +497,7 @@ async function runConfig(browser, config) {
     await page.getByRole('combobox', { name: copy.export.bitrateLabel, exact: true }).selectOption('320');
     const message = copy.errors['mp3-bitrate'].message;
     await page.getByText(message).first().waitFor();
-    const text = await shoot('failure-mp3-bitrate');
+    await shoot('failure-mp3-bitrate');
     check(`${config.name}/failure-mp3-bitrate shows the message once`, await shownTimes(page, message) === 1, `${await shownTimes(page, message)} times`);
     await format(page, 'm4a');
     await addStep(page, 'channels');
@@ -518,7 +518,7 @@ async function runConfig(browser, config) {
     await exportButton(page).click();
     await page.locator('[data-job-state=failed]').waitFor();
     const message = copy.errors['model-download-failed'].message;
-    const text = await shoot('failure-model-blocked');
+    await shoot('failure-model-blocked');
     check(`${config.name}/failure-model-blocked shows the catalogue message once`, await shownTimes(page, message) === 1, `${await shownTimes(page, message)} times`);
     check(`${config.name}/failure-model-blocked offers Retry`, await page.locator('.file-result').getByRole('button', { name: copy.files.retryLabel(NAME), exact: true }).count() === 1);
     await page.unroute('**/htdemucs_fp16.onnx');
@@ -537,7 +537,7 @@ async function runConfig(browser, config) {
     await exportButton(page).click();
     await page.locator('[data-job-state=failed]').waitFor();
     const message = copy.errors['model-damaged'].message;
-    const text = await shoot('failure-model-damaged');
+    await shoot('failure-model-damaged');
     check(`${config.name}/failure-model-damaged shows the catalogue message once`, await shownTimes(page, message) === 1, `${await shownTimes(page, message)} times`);
     check(`${config.name}/failure-model-damaged offers Retry`, await page.getByRole('button', { name: copy.files.retryLabel(NAME), exact: true }).count() === 1);
   }, { expectsConsoleErrors: true });
@@ -576,7 +576,7 @@ async function runConfig(browser, config) {
       await exportButton(page).click();
       await page.locator('[data-job-state=failed]').waitFor();
       const message = copy.errors[code].message;
-      const text = await shoot(`failure-${code}`);
+      await shoot(`failure-${code}`);
       check(`${config.name}/failure-${code} shows the catalogue message once`, await shownTimes(page, message) === 1, JSON.stringify(await page.locator('[data-job-state=failed]').innerText()));
       const button = action === 'remove' ? copy.files.removeLabel(NAME) : copy.files.retryLabel(NAME);
       check(`${config.name}/failure-${code} offers ${copy.actions[action]}`, await page.locator('.file-result').getByRole('button', { name: button, exact: true }).count() === 1);
@@ -605,7 +605,7 @@ async function runConfig(browser, config) {
     await exportButton(page).click();
     await page.locator('[data-job-state=failed]').waitFor();
     const message = copy.errors['storage-full'].message;
-    const text = await shoot('failure-storage-full');
+    await shoot('failure-storage-full');
     check(`${config.name}/failure-storage-full shows the catalogue message once`, await shownTimes(page, message) === 1, JSON.stringify(await page.locator('[data-job-state=failed]').innerText()));
     await page.getByRole('button', { name: copy.files.retryLabel(NAME), exact: true }).click();
     await waitDone(page, 1);

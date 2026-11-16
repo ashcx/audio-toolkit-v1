@@ -3,7 +3,7 @@ import {loadCopy, withoutTimes} from './lib/harness.mjs';
 const copy = await loadCopy();
 import { execFileSync } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { mkdirSync, writeFileSync, statSync, readFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync, statSync } from 'node:fs';
 const appUrl = process.env.APP_URL ?? 'http://127.0.0.1:5184/audio-toolkit-v1/';
 const root = process.env.SPRINT26_EVIDENCE_DIR ?? '.artifacts/evidence/sprint-26';
 const outputs = '.artifacts/sprint-26-outputs';

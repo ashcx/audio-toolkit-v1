@@ -3,10 +3,9 @@ import {setSlider} from './browser-controls.mjs';
 import {engines,launchOptions} from './lib/engines.mjs';
 import {setAppearance} from './browser-controls.mjs';
 import assert from 'node:assert/strict';
-import {mkdir, readFile, writeFile} from 'node:fs/promises';
+import {mkdir, writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import {randomUUID} from 'node:crypto';
-import {chromium, webkit} from 'playwright';
 import {loadCopy} from './lib/harness.mjs';
 const copy=await loadCopy();
 
