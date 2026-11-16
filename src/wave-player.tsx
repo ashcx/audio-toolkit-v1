@@ -79,16 +79,18 @@ const writeText = (element: HTMLElement, text: string) => {
 };
 const wholeFile = (range: Readonly<{ start: number; end: number }>, total: number) => range.start < 1e-6 && range.end > total - 1e-6;
 let fieldCount = 0;
-export function WavePlayer({ layout, src, source, label, name, duration, preload, paused, trim, readoutTarget }: {
+export function WavePlayer({ layout, src, source, label, name, duration, preload, paused, trim, readoutTarget, audioRef }: {
   layout: "row" | "labelled";
   readoutTarget?: RefObject<HTMLElement | null>;
+  audioRef?: RefObject<HTMLAudioElement | null>;
   src: string; source: PeakSource; label: string; name: string;
   /** Known length in seconds, or null when only the file itself can tell. */
   duration: number | null; preload: "none" | "metadata";
   /** True while an export or preview runs, so the waveform is not generated beside it. */
   paused: boolean; trim?: TrimEdit;
 }) {
-  const audio = useRef<HTMLAudioElement>(null);
+  const ownAudio = useRef<HTMLAudioElement>(null);
+  const audio = audioRef ?? ownAudio;
   const root = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -98,7 +100,8 @@ export function WavePlayer({ layout, src, source, label, name, duration, preload
   const gesture = useRef<Gesture>({ kind: "idle" });
   const dragTime = useRef(0);
   const [playback, setPlayback] = useState<Playback>("idle");
-  const [mediaDuration, setMediaDuration] = useState<number | null>(null);
+  const [measuredLength, setMeasuredLength] = useState<{ src: string; seconds: number } | null>(null);
+  const mediaDuration = measuredLength?.src === src ? measuredLength.seconds : null;
   const [visible, setVisible] = useState(false);
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [fieldId] = useState(() => `wave-error-${++fieldCount}`);
@@ -303,7 +306,7 @@ export function WavePlayer({ layout, src, source, label, name, duration, preload
     </div>}
     <audio ref={audio} preload={preload} src={src}
       onPlay={event => { pauseOthers(event); on("play"); }} onPlaying={() => on("playing")} onWaiting={() => on("waiting")}
-      onPause={() => on("pause")} onEnded={() => on("ended")} onError={() => on("error")} onSeeked={paint}
-      onLoadedMetadata={event => setMediaDuration(Number.isFinite(event.currentTarget.duration) && event.currentTarget.duration > 0 ? event.currentTarget.duration : null)} />
+      onPause={() => on("pause")} onEmptied={() => on("pause")} onEnded={() => on("ended")} onError={() => on("error")} onSeeked={paint}
+      onLoadedMetadata={event => { const { duration: seconds } = event.currentTarget; setMeasuredLength(Number.isFinite(seconds) && seconds > 0 ? { src, seconds } : null); }} />
   </div>;
 }
