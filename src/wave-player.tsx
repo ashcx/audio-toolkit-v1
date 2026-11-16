@@ -310,7 +310,7 @@ export function WavePlayer({ layout, compact = false, src, source, label, name, 
     {trim && !compact && (trim.custom || trim.follows) && <div class="wave-status">
       {trim.custom
         ? <><span class="wave-badge">{copy.wave.custom}</span>
-          <button type="button" class="text-button" disabled={trim.locked} aria-label={copy.wave.resetLabel(name)} onClick={() => trim.onChange(null)}>{copy.wave.reset}</button></>
+          <button type="button" disabled={trim.locked} aria-label={copy.wave.resetLabel(name)} onClick={() => trim.onChange(null)}>{copy.wave.reset}</button></>
         : <span>{copy.wave.follows}</span>}
     </div>}
     <audio ref={audio} preload={preload} src={src}
