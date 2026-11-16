@@ -1,3 +1,4 @@
+import {installStorageFaults} from './lib/storage-faults.mjs';
 import {setSlider} from './browser-controls.mjs';
 import {engines,launchOptions} from './lib/engines.mjs';
 import {setAppearance} from './browser-controls.mjs';
@@ -42,7 +43,7 @@ async function storeCount(page) {
 }
 const selected = new Set((process.env.DSP_CHECK_ENGINE ?? 'chromium,webkit').split(','));
 for(const [engine, browserType] of engines().filter(([name]) => selected.has(name))) {
-  const context = await browserType.launchPersistentContext(`.artifacts/dsp-profiles/${randomUUID()}/${engine}`, {...launchOptions(engine),headless:true, acceptDownloads:true, hasTouch:true, viewport:{width:1440,height:1000}, ...(engine === 'chromium' ? {channel:'chrome'} : {})});
+  const context = await browserType.launchPersistentContext(`.artifacts/dsp-profiles/${randomUUID()}/${engine}`, {...launchOptions(engine),headless:true, acceptDownloads:true, hasTouch:true, viewport:{width:1440,height:1000}, ...(engine === 'chromium' ? {channel:'chrome'} : {})});await installStorageFaults(context);
   try {
     const page = await context.newPage(), errors = [], requests = [];
     page.on('pageerror',error=>errors.push(error.message));

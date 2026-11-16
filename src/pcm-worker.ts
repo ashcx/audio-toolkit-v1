@@ -3,29 +3,55 @@ import { speech } from "./pcm/speech";
 import { createSpeechProcessor } from "./pcm/speech-runtime";
 import { isolate } from "./pcm/isolate";
 import { InferenceClient } from "./inference/client";
-import {
-  AudioSample,
-  AudioSampleSource,
-  Output,
-  StreamTarget,
-} from "mediabunny";
 import { decodePcm } from "./pcm/decode";
-import { gain, trim, channels, normalize, type NormalizationReport, type PcmStream } from "./pcm/blocks";
+import { gain, trim, channels, normalize, type NormalizationReport, type PcmBlock, type PcmStream } from "./pcm/blocks";
 import { compress } from "./pcm/compressor";
 import { resample } from "./pcm/resample";
 import { conformRate } from "./pcm/conform";
 import { checkpoint } from "./pcm/checkpoint";
 import { StorageClient } from "./pcm/storage-client";
-import type { DspStats, WorkerInput, WorkerResult } from "./pcm/protocol";
-import { encoderRate, exportDescriptor, wavSizeError } from "./export-format";
-import { encoderSettings, prepareEncoder } from "./pcm/encode";
-import { mp3GaplessHeader } from "./pcm/mp3-gapless";
-import { opusTail } from "./pcm/opus-tail";
+import type { DspStats, EncodeInput, EncodeResult, WorkerInput, WorkerResult } from "./pcm/protocol";
+import type { Recipe } from "./recipe";
+import { encoderRate } from "./export-format";
 import { UserFacingError, failureOf } from "./errors.ts";
 const report = (message: WorkerResult, transfer: Transferable[] = []) =>
   self.postMessage(message, { transfer });
 const client = new StorageClient(report);
 const inference = new InferenceClient(report);
+const SINK_BLOCKS_IN_FLIGHT = 8;
+/** Sends final blocks to the encoder worker, which hands back the finished file; at most a few blocks wait at once. */
+function encodeSink(settings: Recipe["export"], name: string) {
+  const worker = new Worker(new URL("./pcm/encode-worker.ts", import.meta.url), { type: "module" });
+  let inFlight = 0, failure: unknown = null, wake: (() => void) | null = null;
+  let finished!: (result: Extract<EncodeResult, { kind: "done" }>) => void, broken!: (error: unknown) => void;
+  const done = new Promise<Extract<EncodeResult, { kind: "done" }>>((resolve, reject) => { finished = resolve; broken = reject; });
+  done.catch(() => undefined);
+  const fail = (error: unknown) => { failure ??= error; broken(failure); wake?.(); };
+  worker.onmessage = ({ data }: MessageEvent<EncodeResult>) => {
+    if (data.kind === "consumed") { inFlight--; wake?.(); }
+    else if (data.kind === "done") finished(data);
+    else if (data.kind === "error") fail(new UserFacingError(data.code));
+    else report(data);
+  };
+  worker.onerror = (event) => { event.preventDefault(); fail(new Error(event.message || "The encoder worker failed.")); };
+  worker.postMessage({ kind: "start", settings, name } satisfies EncodeInput);
+  return {
+    async push(block: PcmBlock) {
+      while (inFlight >= SINK_BLOCKS_IN_FLIGHT && !failure) await new Promise<void>((resolve) => { wake = resolve; });
+      if (failure) throw failure;
+      inFlight++;
+      const planes = block.planes.map((plane) => new Float32Array(plane));
+      worker.postMessage({ kind: "block", origin: block.origin, offset: block.offset, rate: block.rate, planes } satisfies EncodeInput, planes.map((plane) => plane.buffer));
+    },
+    async finish() {
+      worker.postMessage({ kind: "end" } satisfies EncodeInput);
+      const result = await done;
+      worker.terminate();
+      return result;
+    },
+    abort() { worker.terminate(); },
+  };
+}
 async function execute({
   file,
   plan,
@@ -127,126 +153,21 @@ async function execute({
   }
   const settings = plan.snapshot.recipe.export;
   stream = conformRate(stream, rate => encoderRate(settings, rate));
-  const headers: { data: Uint8Array; position: number }[] = [];
-  const opus = opusTail();
-  const encoding = encoderSettings(settings, {
-    onXingFrame: (data, position) => headers.push({ data: new Uint8Array(data), position }),
-    onPage: opus.onPage,
-  });
-  const outputId = await client.create(name, exportDescriptor(settings).mime);
-  const output = new Output({
-    format: encoding.format,
-    target: new StreamTarget(
-      new WritableStream({
-        async write(chunk) {
-          await client.write(outputId, chunk.position, chunk.data);
-        },
-      }),
-      { chunked: true, chunkSize: 1024 * 1024 },
-    ),
-  });
-  const audio = new AudioSampleSource(encoding.config);
-  stats.terminalEncoders++;
-  output.addAudioTrack(audio);
-  let rate = 0,
-    count = 0,
-    lastSourceTime: number | null = null;
+  const sink = encodeSink(settings, name);
   try {
-    for await (const block of stream) {
-      const frames = block.planes[0].length;
-      const invalidSize = settings.format === "wav"
-        ? wavSizeError(stats.encodedFrames + frames, block.planes.length)
-        : null;
-      if (invalidSize) throw new UserFacingError(invalidSize);
-      stats.maxBlockFrames = Math.max(stats.maxBlockFrames, frames);
-      if (!rate) {
-        report({ kind: "phase", phase: "Processing" });
-        rate = block.rate;
-        count = block.planes.length;
-        stats.encoder = await prepareEncoder(settings, { rate, channels: count });
-        await output.start();
-        report({ kind: "phase", phase: "Processing / encoding" });
-      }
-      if (rate !== block.rate || count !== block.planes.length)
-        throw new Error("The processed audio format changes unexpectedly.");
-      const timestamp = block.origin + block.offset / block.rate;
-      if (
-        lastSourceTime !== null &&
-        Math.abs(timestamp - lastSourceTime) > 1.1 / rate
-      )
-        throw new UserFacingError("audio-unprocessable", "The audio timeline has a gap or overlap.");
-      lastSourceTime = timestamp + frames / rate;
-      const data = new Float32Array(frames * count);
-      block.planes.forEach((plane, channel) => {
-        for (let frame = 0; frame < frames; frame++) {
-          const value = plane[frame];
-          if (!Number.isFinite(value))
-            throw new UserFacingError("audio-damaged", "The processed audio has a sample outside the supported range.");
-          if (Math.abs(value) > 1) stats.clippedSamples++;
-          data[channel * frames + frame] = Math.max(-1, Math.min(1, value));
-        }
-      });
-      const quantum = settings.format === "m4a" ? 1024 : frames;
-      for (let offset = 0; offset < frames; offset += quantum) {
-        const length = Math.min(quantum, frames - offset);
-        const part = length === frames ? data : new Float32Array(length * count);
-        if (part !== data)
-          for (let channel = 0; channel < count; channel++)
-            part.set(data.subarray(channel * frames + offset, channel * frames + offset + length), channel * length);
-        const sample = new AudioSample({
-          data: part,
-          format: "f32-planar",
-          numberOfChannels: count,
-          sampleRate: rate,
-          timestamp: stats.encodedFrames / rate,
-        });
-        try {
-          await audio.add(sample);
-          stats.encodedFrames += length;
-        } finally {
-          sample.close();
-        }
-      }
-    }
-    if (!stats.encodedFrames)
-      throw new UserFacingError("range-no-audio");
-    if (settings.format === "opus") {
-      const padding = new AudioSample({
-        data: new Float32Array(Math.ceil(rate * .02) * count),
-        format: "f32-planar",
-        numberOfChannels: count,
-        sampleRate: rate,
-        timestamp: stats.encodedFrames / rate,
-      });
-      try { await audio.add(padding); } finally { padding.close(); }
-    }
-    report({ kind: "phase", phase: "Encoding" });
-    audio.close();
-    await output.finalize();
-    if (settings.format === "mp3") {
-      const header = headers[0];
-      if (!header) throw new UserFacingError("audio-unprocessable", "MP3 timing metadata is unavailable.");
-      await client.write(outputId, header.position, mp3GaplessHeader(header.data, stats.encodedFrames));
-    }
-    if (settings.format === "opus") {
-      const page = opus.finish(stats.encodedFrames, rate);
-      if (page.head) await client.write(outputId, page.head.position, page.head.data);
-      await client.write(outputId, page.position, page.data);
-      await client.truncate(outputId, page.length);
-    }
-    report({ kind: "phase", phase: "Saving" });
-    await client.finish(outputId);
+    for await (const block of stream) await sink.push(block);
+    const { outputId, file, stats: encoded } = await sink.finish();
+    Object.assign(stats, encoded);
     stats.decodePasses = decodeStats.passes;
     stats.maxDecodedFrames = decodeStats.maxDecodedFrames;
-    report({ kind: "done", outputId, stats });
+    report({ kind: "done", outputId, file, stats });
   } catch (error) {
-    await output.cancel().catch(() => undefined);
+    sink.abort();
     throw error;
   }
 }
 self.onmessage = ({ data }: MessageEvent<WorkerInput>) => {
-  if (data.kind === "storage") client.receive(data.sequence, data.reply);
-  else if (data.kind === "inference") inference.receive(data.sequence, data.reply);
+  if (data.kind === "inference") inference.receive(data.sequence, data.reply);
   else
     void execute(data).catch((error) => report({ kind: "error", code: failureOf(error).code }));
 };

@@ -1,20 +1,15 @@
 import { InferenceRunner } from "./inference/runner";
+import type { ModelLease } from "./inference/pool";
 import { cleanupAll } from "./cleanup";
 import { UserFacingError, failureOf } from "./errors.ts";
 import { showsDuringSeparation, type JobOperation } from "./job-events";
-import { createOutputStore, type StoredOutput } from "./output-store";
+import { removeStoreEntry, type StoredOutput } from "./output-store";
 import type {
   DspStats,
   PcmPlan,
-  StorageReply,
-  StoreOperation,
   WorkerResult,
   WorkerInput,
 } from "./pcm/protocol";
-type Store = Awaited<ReturnType<typeof createOutputStore>>;
-type Entry =
-  | { kind: "open"; store: Store }
-  | { kind: "closed"; store: Store; output: StoredOutput };
 export type ProcessedOutput = { output: StoredOutput; stats: DspStats };
 export function processAudio(
   file: File,
@@ -22,27 +17,27 @@ export function processAudio(
   signal: AbortSignal,
   name: string,
   phase: (value: JobOperation) => void = () => undefined,
+  lease?: ModelLease,
 ): Promise<ProcessedOutput> {
   signal.throwIfAborted();
   return new Promise((resolve, reject) => {
     const worker = new Worker(new URL("./pcm-worker.ts", import.meta.url), {
       type: "module",
     });
-    const inference = new InferenceRunner();
+    const inference = lease?.models.take() ?? new InferenceRunner();
     let inferenceTask = Promise.resolve();
     let isolating = false;
-    const stores = new Map<string, Entry>();
-    let serial = Promise.resolve(),
-      settled = false;
+    const stored = new Set<string>();
+    let settled = false;
     const cleanup = async () => {
-      await serial;
       await inferenceTask;
-      await cleanupAll([...stores.values()].map(entry => () => entry.store.discard()));
-      stores.clear();
+      const keys = [...stored];
+      stored.clear();
+      await cleanupAll(keys.map(key => () => removeStoreEntry(key)));
     };
-    const stop = () => {
+    const stop = (keepModel = false) => {
       worker.terminate();
-      inference.stop(signal.reason);
+      if (!keepModel) inference.stop(signal.reason);
       signal.removeEventListener("abort", abort);
     };
     const fail = (error: unknown) => {
@@ -52,34 +47,6 @@ export function processAudio(
       void cleanup().then(() => reject(error), reject);
     };
     const abort = () => fail(signal.reason);
-    const handle = async (request: StoreOperation): Promise<StorageReply> => {
-      if (request.op === "create") {
-        const store = await createOutputStore(request.name, request.mime),
-          id = crypto.randomUUID();
-        stores.set(id, { kind: "open", store });
-        return { op: "create", id };
-      }
-      const entry = stores.get(request.id);
-      if (!entry) throw new Error("The worker referred to an output that does not exist.");
-      if (request.op === "discard") {
-        await entry.store.discard();
-        stores.delete(request.id);
-        return { op: "discard" };
-      }
-      if (entry.kind !== "open")
-        throw new Error("The worker wrote to an output that was already closed.");
-      if (request.op === "write") {
-        await entry.store.write(request.position, request.data);
-        return { op: "write" };
-      }
-      if (request.op === "truncate") {
-        await entry.store.truncate(request.length);
-        return { op: "truncate" };
-      }
-      const output = await entry.store.finish();
-      stores.set(request.id, { kind: "closed", store: entry.store, output });
-      return { op: "finish", file: output.file };
-    };
     worker.onmessage = ({ data }: MessageEvent<WorkerResult>) => {
       if (settled) return;
       if (data.kind === "isolation-progress") {
@@ -95,35 +62,24 @@ export function processAudio(
           reply => { if (!settled) worker.postMessage({ kind: "inference", sequence: data.sequence, reply } satisfies WorkerInput, reply.stems.flat().map(plane => plane.buffer)); },
           error => { if (!settled) worker.postMessage({ kind: "inference", sequence: data.sequence, reply: { kind: "error", code: failureOf(error, "split-failed").code } } satisfies WorkerInput); },
         );
-      } else if (data.kind === "storage") {
-        serial = serial.then(async () => {
-          let reply: StorageReply;
-          try {
-            reply = await handle(data.request);
-          } catch (error) {
-            reply = { op: "error", code: failureOf(error).code };
-          }
-          if (!settled)
-            worker.postMessage({
-              kind: "storage",
-              sequence: data.sequence,
-              reply,
-            } satisfies WorkerInput);
-        });
+      } else if (data.kind === "store") {
+        if (data.op === "opened") stored.add(data.id);
+        else stored.delete(data.id);
       } else if (data.kind === "error") fail(new UserFacingError(data.code));
       else {
-        const entry = stores.get(data.outputId);
-        if (entry?.kind !== "closed") {
-          fail(new Error("The worker finished without a stored output."));
-          return;
-        }
         settled = true;
-        stop();
-        stores.delete(data.outputId);
+        stop(true);
+        const { outputId, file, stats } = data;
+        const output: StoredOutput = Object.freeze({ file, name: file.name, mime: file.type, release: () => removeStoreEntry(outputId) });
+        const finished = () => {
+          if (lease && lease.keepModels()) lease.models.give(inference);
+          else inference.stop(signal.reason);
+        };
         void cleanup().then(
-          () => resolve({ output: entry.output, stats: data.stats }),
+          () => { finished(); resolve({ output, stats }); },
           async (error) => {
-            await cleanupAll([() => entry.output.release()]);
+            inference.stop(signal.reason);
+            await cleanupAll([() => output.release()]);
             reject(error);
           },
         );

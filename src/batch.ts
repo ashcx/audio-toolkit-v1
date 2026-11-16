@@ -6,6 +6,8 @@ import { outputName, type ExecutionPlan } from "./planner.ts";
 import { exportDescriptor } from "./export-format.ts";
 import type { StoredOutput } from "./output-store";
 import type { DspStats } from "./pcm/protocol";
+import { InferencePool, type ModelLease } from "./inference/pool.ts";
+import type { DeviceClass } from "./platform.ts";
 
 export type JobSpec = Readonly<{
   entry: FileEntry;
@@ -28,23 +30,37 @@ type OwnedJob = { readonly spec: JobSpec; state: JobState; ready: Promise<void> 
 export type BatchJob = Readonly<Pick<OwnedJob, "spec" | "state">>;
 /** `cleanupStuck` is true once a retry has also failed, which is when the interface should say so. */
 export type BatchSnapshot = { jobs: ReadonlyMap<FileId, BatchJob>; busy: boolean; cleanupCount: number; cleanupStuck: boolean; cleaning: boolean };
-export type JobRunner = (spec: JobSpec, signal: AbortSignal, phase: (value: JobOperation) => void) => Promise<JobOutput>;
+export type JobRunner = (spec: JobSpec, signal: AbortSignal, phase: (value: JobOperation) => void, lease: ModelLease) => Promise<JobOutput>;
 
+/**
+ * Desktops run two jobs at once. Android runs two when it reports more than 6 GB and one otherwise, and a
+ * phone that does not report memory stays at one. iPhone and iPad stay at one because the system ends
+ * tabs that grow. Workers and file storage are required to process audio at all.
+ */
 export function batchConcurrency(capabilities: {
-  cores: number;
+  device: DeviceClass;
   memory: unknown;
   workers: boolean;
   storage: boolean;
 }): 1 | 2 {
-  return capabilities.workers && capabilities.storage && capabilities.cores >= 8 &&
-    typeof capabilities.memory === "number" && capabilities.memory >= 8 ? 2 : 1;
+  if (!capabilities.workers || !capabilities.storage) return 1;
+  if (capabilities.device === "desktop") return 2;
+  return capabilities.device === "android" && typeof capabilities.memory === "number" && capabilities.memory > 6 ? 2 : 1;
+}
+type Tier = 0 | 1 | 2;
+const isolates = (spec: JobSpec) => spec.plan.kind === "pcm" && spec.plan.steps.some(step => step.kind === "isolation");
+/** Tracks run in order of appearance, with the slow ones last: noise removal, then music splitting. */
+function tierOf(spec: JobSpec): Tier {
+  if (isolates(spec)) return 2;
+  return spec.plan.kind === "pcm" && spec.plan.steps.some(step => step.kind === "speech") ? 1 : 0;
 }
 
 export class Batch {
   private jobs = new Map<FileId, OwnedJob>();
   private listeners = new Set<(snapshot: BatchSnapshot) => void>();
   private occupied = 0;
-  private isolating = false;
+  private isolating = 0;
+  private models = new InferencePool();
   private disposed = false;
   private cleaning = false;
   private releasing = 0;
@@ -104,11 +120,13 @@ export class Batch {
       job.state = { kind: "cancelling", attempt };
       attempt.controller.abort();
     }
+    this.releaseModels();
     this.emit();
   }
   cancelAll() {
     for (const job of this.jobs.values()) if (job.state.kind === "waiting") job.state = { kind: "cancelled" };
     for (const id of this.jobs.keys()) this.cancel(id);
+    this.releaseModels();
     this.emit();
   }
   retry(id?: FileId) {
@@ -154,14 +172,31 @@ export class Batch {
     this.cancelAll();
     for (const id of this.jobs.keys()) this.remove(id);
   }
+  private waitingIsolation() {
+    return [...this.jobs.values()].some(job => job.state.kind === "waiting" && isolates(job.spec));
+  }
+  /** A loaded model is kept only while isolation work is still queued, so its memory is returned once the queue has none. */
+  private releaseModels() {
+    if (!this.waitingIsolation()) this.models.dispose();
+  }
+  /** Music splitting holds gigabytes of memory, so it starts only when nothing else is running and then runs alone. */
+  private next(): OwnedJob | undefined {
+    if (this.isolating) return undefined;
+    let best: OwnedJob | undefined, bestTier: Tier = 2;
+    for (const job of this.jobs.values()) {
+      if (job.state.kind !== "waiting") continue;
+      const tier = tierOf(job.spec);
+      if (tier === 2 && this.occupied > 0) continue;
+      if (!best || tier < bestTier) { best = job; bestTier = tier; }
+    }
+    return best;
+  }
   private pump() {
     if (!this.disposed) {
-      for (const job of this.jobs.values()) {
-        if (this.occupied >= this.concurrency || this.isolating) break;
-        if (job.state.kind !== "waiting") continue;
-        const isolation = job.spec.plan.kind === "pcm" && job.spec.plan.steps.some(step => (step.kind === "isolation" || step.kind === "speech"));
-        if (isolation && this.occupied > 0) continue;
-        this.isolating = isolation;
+      while (this.occupied < this.concurrency) {
+        const job = this.next();
+        if (!job) break;
+        if (isolates(job.spec)) this.isolating++;
         const attempt = { controller: new AbortController() };
         job.state = { kind: "running", attempt, operation: { kind: "phase", phase: "Preparing" } };
         this.occupied++;
@@ -182,7 +217,7 @@ export class Batch {
           job.state = { kind: "running", attempt, operation };
           this.emit();
         }
-      });
+      }, { models: this.models, keepModels: () => this.waitingIsolation() });
       if (!current() || signal.aborted) await cleanupAll([() => completed.output.release()]);
       else job.state = { kind: "done", ...completed, url: URL.createObjectURL(completed.output.file) };
     } catch (error) {
@@ -192,8 +227,9 @@ export class Batch {
       } else if (current()) job.state = signal.aborted ? { kind: "cancelled" } : { kind: "failed", ...failureOf(error) };
     } finally {
       if (current() && signal.aborted) job.state = { kind: "cancelled" };
-      if (job.spec.plan.kind === "pcm" && job.spec.plan.steps.some(step => (step.kind === "isolation" || step.kind === "speech"))) this.isolating = false;
+      if (isolates(job.spec)) this.isolating--;
       this.occupied--;
+      this.releaseModels();
       this.pump();
     }
   }

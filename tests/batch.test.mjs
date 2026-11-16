@@ -1,26 +1,39 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Batch,batchConcurrency} from '../src/batch.ts';
+import {deviceClass} from '../src/platform.ts';
 import {newRecipe,newExport,newStep,recipeSchema,snapshotForFile} from '../src/recipe.ts';
 import {createFileId} from '../src/media.ts';
 import {compilePlan} from '../src/planner.ts';
 const tick=()=>new Promise(resolve=>setImmediate(resolve));
-function spec(name='tone.wav',steps=[]){
- const metadata={container:'wav',codec:'pcm-s16',duration:2,startTime:0,sampleRate:48000,channels:2,hasVideo:false};
+function spec(name='tone.wav',steps=[],duration=2){
+ const metadata={container:'wav',codec:'pcm-s16',duration,startTime:0,sampleRate:48000,channels:2,hasVideo:false};
  const entry={id:createFileId(),file:new File(['data'],name),inspection:{kind:'ready',metadata}};
  const snapshot=snapshotForFile(recipeSchema.parse({...newRecipe(),steps,export:newExport('wav')}),entry);
  return {entry,plan:compilePlan(snapshot.snapshot,metadata)};
 }
 function harness(slots=1){
  const calls=[],released=[];
- const batch=new Batch((job,signal,phase)=>{const deferred=Promise.withResolvers();calls.push({job,signal,phase,...deferred});return deferred.promise;},slots);
+ const batch=new Batch((job,signal,phase,lease)=>{const deferred=Promise.withResolvers();calls.push({job,signal,phase,lease,...deferred});return deferred.promise;},slots);
  function finish(index){const call=calls[index];call.resolve({report:{kind:'copy'},output:{name:call.job.name,mime:'audio/wav',file:new File(['bytes'],call.job.name),release:async()=>{released.push(index);}}});}
  return {batch,calls,released,finish};
 }
-test('capability policy never assumes memory and caps parallel work at two',()=>{
- for(const memory of [undefined,0,4,'8'])assert.equal(batchConcurrency({cores:16,memory,workers:true,storage:true}),1);
- assert.equal(batchConcurrency({cores:8,memory:8,workers:true,storage:true}),2);
- assert.equal(batchConcurrency({cores:4,memory:8,workers:true,storage:true}),1);
+test('desktops run two jobs, Android needs more than 6 GB, Apple mobile stays at one, and workers and storage are required',()=>{
+ const base={device:'desktop',memory:undefined,workers:true,storage:true};
+ for(const memory of [undefined,0,2,'16'])assert.equal(batchConcurrency({...base,memory}),2);
+ for(const memory of [undefined,0,4,6,'8'])assert.equal(batchConcurrency({...base,device:'android',memory}),1);
+ for(const memory of [8,12,16])assert.equal(batchConcurrency({...base,device:'android',memory}),2);
+ for(const memory of [undefined,8,16])assert.equal(batchConcurrency({...base,device:'apple-mobile',memory}),1);
+ assert.equal(batchConcurrency({...base,workers:false}),1);assert.equal(batchConcurrency({...base,storage:false}),1);
+});
+test('device class tells iPhone, iPad, iPadOS reporting as a Mac, Android and desktops apart',()=>{
+ assert.equal(deviceClass({userAgent:'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)'}),'apple-mobile');
+ assert.equal(deviceClass({userAgent:'Mozilla/5.0 (iPad; CPU OS 18_0 like Mac OS X)'}),'apple-mobile');
+ assert.equal(deviceClass({userAgent:'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',platform:'MacIntel',maxTouchPoints:5}),'apple-mobile');
+ assert.equal(deviceClass({userAgent:'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',platform:'MacIntel',maxTouchPoints:0}),'desktop');
+ assert.equal(deviceClass({userAgent:'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',platform:'Win32',maxTouchPoints:10}),'desktop');
+ assert.equal(deviceClass({userAgent:'Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 Chrome/130 Mobile Safari/537.36',platform:'Linux armv81',maxTouchPoints:5}),'android');
+ assert.equal(deviceClass({userAgent:'Mozilla/5.0 (X11; Linux x86_64; rv:130.0) Gecko/20100101 Firefox/130.0'}),'desktop');
 });
 test('cancelled late success is released before dispatch; waiting cancel never starts',async()=>{
  const {batch,calls,released,finish}=harness();const [a,b,c]=[spec(),spec(),spec()];batch.start([a,b,c]);await tick();
@@ -79,9 +92,24 @@ test('recovering old-output deletion clears its prerequisite before retry',async
  batch.start([item]);await tick();batch.start([item]);await tick();assert.equal(batch.snapshot.cleanupCount,1);assert.equal(runs,1);await batch.retryCleanup();assert.equal(batch.snapshot.cleanupCount,0);batch.retry(item.entry.id);await tick();assert.equal(runs,2);assert.equal(batch.snapshot.jobs.get(item.entry.id).state.kind,'done');batch.dispose();
 });
 
-for(const kind of ['isolation','speech'])test(`${kind} has an exclusive slot and queued inference never overlaps cleanup`,async()=>{
- const {batch,calls,finish}=harness(2);const a=spec('a.wav',[newStep(kind)]),b=spec('b.wav',[newStep(kind)]),c=spec('c.wav');
- batch.start([a,b,c]);await tick();assert.equal(calls.length,1);assert.equal(calls[0].job.entry.id,a.entry.id);batch.cancel(a.entry.id);assert.equal(calls.length,1);finish(0);await tick();assert.equal(calls.length,2);assert.equal(calls[1].job.entry.id,b.entry.id);finish(1);await tick();assert.equal(calls.length,3);assert.equal(calls[2].job.entry.id,c.entry.id);finish(2);await tick();batch.dispose();
+test('tracks run in order of appearance, with noise removal after the rest and music splitting last',async()=>{
+ const {batch,calls,finish}=harness(1);
+ const iso=spec('iso.wav',[newStep('isolation')],10),speech1=spec('s1.wav',[newStep('speech')],10),plain1=spec('p1.wav',[],300),speech2=spec('s2.wav',[newStep('speech')],10),plain2=spec('p2.wav',[],5),iso2=spec('iso2.wav',[newStep('isolation')],10);
+ batch.start([iso,speech1,plain1,speech2,plain2,iso2]);await tick();const order=[];
+ for(let i=0;i<6;i++){order.push(calls[i].job.entry.id);finish(i);await tick();}
+ assert.deepEqual(order,[plain1,plain2,speech1,speech2,iso,iso2].map(item=>item.entry.id));batch.dispose();
+});
+test('music splitting waits for every other track to finish and then runs alone',async()=>{
+ const {batch,calls,finish}=harness(2);const a=spec('a.wav'),b=spec('b.wav'),c=spec('c.wav'),iso=spec('iso.wav',[newStep('isolation')]),iso2=spec('iso2.wav',[newStep('isolation')]);
+ batch.start([iso,a,b,c,iso2]);await tick();assert.deepEqual(calls.map(call=>call.job.entry.id),[a.entry.id,b.entry.id]);
+ finish(0);await tick();assert.deepEqual(calls.map(call=>call.job.entry.id),[a.entry.id,b.entry.id,c.entry.id]);
+ finish(1);await tick();assert.equal(calls.length,3);finish(2);await tick();assert.equal(calls.length,4);assert.equal(calls[3].job.entry.id,iso.entry.id);
+ batch.cancel(iso.entry.id);assert.equal(calls.length,4);finish(3);await tick();assert.equal(calls.length,5);assert.equal(calls[4].job.entry.id,iso2.entry.id);finish(4);await tick();batch.dispose();
+});
+test('noise removal runs two at a time, but other tracks go first and fill the slots',async()=>{
+ const {batch,calls,finish}=harness(2);const s1=spec('s1.wav',[newStep('speech')]),s2=spec('s2.wav',[newStep('speech')]),s3=spec('s3.wav',[newStep('speech')]),p=spec('p.wav');
+ batch.start([s1,s2,p,s3]);await tick();assert.deepEqual(calls.map(call=>call.job.entry.id),[p.entry.id,s1.entry.id]);
+ finish(0);await tick();assert.equal(calls[2].job.entry.id,s2.entry.id);finish(1);await tick();assert.equal(calls[3].job.entry.id,s3.entry.id);finish(2);finish(3);await tick();batch.dispose();
 });
 test('a running job shows its latest progress and ignores progress after cancel, and a retry starts clean',async()=>{
  const {batch,calls,finish}=harness();const item=spec('progress.wav',[newStep('isolation')]);batch.start([item]);await tick();const id=item.entry.id;
@@ -95,4 +123,14 @@ test('a running job shows its latest progress and ignores progress after cancel,
 });
 test('Export always processes requested current specs and releases the prior result',async()=>{
  const {batch,calls,released,finish}=harness();const item=spec();batch.start([item]);await tick();finish(0);await tick();batch.start([item]);await tick();assert.equal(calls.length,2);assert.equal(released.length,1);finish(1);await tick();batch.dispose();
+});
+
+test('a loaded model is kept only while isolation work is still queued',async()=>{
+ const {batch,calls,finish}=harness(1);const a=spec('a.wav',[newStep('isolation')]),b=spec('b.wav',[newStep('isolation')]),c=spec('c.wav');
+ batch.start([a,b,c]);await tick();assert.equal(calls[0].job.entry.id,c.entry.id);finish(0);await tick();assert.equal(calls[1].job.entry.id,a.entry.id);assert.equal(calls[1].lease.keepModels(),true);finish(1);await tick();assert.equal(calls[2].job.entry.id,b.entry.id);assert.equal(calls[2].lease.keepModels(),false);
+ finish(2);await tick();batch.dispose();
+});
+test('cancelling the last queued isolation job stops keeping the model',async()=>{
+ const {batch,calls,finish}=harness(1);const a=spec('a.wav',[newStep('isolation')]),b=spec('b.wav',[newStep('isolation')]);
+ batch.start([a,b]);await tick();assert.equal(calls[0].lease.keepModels(),true);batch.cancel(b.entry.id);assert.equal(calls[0].lease.keepModels(),false);finish(0);await tick();batch.dispose();
 });

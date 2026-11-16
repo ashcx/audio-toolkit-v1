@@ -1,20 +1,13 @@
 import { useLayoutEffect, useRef, useState } from "preact/hooks";
 import type { FileEntry, FileId } from "./media";
-import { Batch, batchConcurrency, type BatchSnapshot, type JobRunner } from "./batch";
+import { Batch, batchConcurrency, type BatchSnapshot } from "./batch";
+import { runJob } from "./run-job";
+import { deviceClass } from "./platform";
 
-const runJob: JobRunner = async (spec, signal, phase) => {
-  if (spec.plan.kind === "copy") {
-    const { copyAudio } = await import("./copy-audio");
-    return { output: await copyAudio(spec.entry.file, spec.plan, signal, spec.name, phase), report: { kind: "copy" } };
-  }
-  const { processAudio } = await import("./process-audio");
-  const result = await processAudio(spec.entry.file, spec.plan, signal, spec.name, phase);
-  return { output: result.output, report: { kind: "pcm", stats: result.stats } };
-};
 export function useExport(files: readonly FileEntry[]) {
   const owner = useRef<Batch | null>(null);
   if (!owner.current) owner.current = new Batch(runJob, batchConcurrency({
-    cores: navigator.hardwareConcurrency,
+    device: deviceClass(navigator),
     memory: "deviceMemory" in navigator ? navigator.deviceMemory : undefined,
     workers: typeof Worker !== "undefined",
     storage: typeof navigator.storage?.getDirectory === "function",

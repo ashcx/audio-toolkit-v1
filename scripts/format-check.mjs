@@ -1,3 +1,4 @@
+import {installStorageFaults} from './lib/storage-faults.mjs';
 import {setSlider} from './browser-controls.mjs';
 import {engines,launchOptions} from './lib/engines.mjs';
 import {setAppearance} from './browser-controls.mjs';
@@ -34,7 +35,7 @@ function decode(path,filter){
 const records=[];
 for(const [engine,type]of engines()){
  if(process.env.FORMAT_CHECK_ENGINE&&process.env.FORMAT_CHECK_ENGINE!==engine)continue;
- const context=await type.launchPersistentContext(`.artifacts/format-check-profiles/${randomUUID()}`,{channel:engine==='chromium'?'chrome':undefined,headless:true,acceptDownloads:true,hasTouch:true,viewport:{width:1440,height:1000}});
+ const context=await type.launchPersistentContext(`.artifacts/format-check-profiles/${randomUUID()}`,{channel:engine==='chromium'?'chrome':undefined,headless:true,acceptDownloads:true,hasTouch:true,viewport:{width:1440,height:1000}});await installStorageFaults(context);
  try{
   const page=await context.newPage(),errors=[],requests=[];page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>requests.push(r.url()));
   await page.addInitScript(()=>{
