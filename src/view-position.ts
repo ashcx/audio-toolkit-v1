@@ -17,3 +17,9 @@ export function carryPosition({ from, to, time, trimStart, resultDuration }: Rea
     ? Math.min(resultDuration, Math.max(0, time - trimStart))
     : time + trimStart;
 }
+
+export type Carry = Readonly<{ view: View; time: number; play: boolean }>;
+
+export function retarget(at: Carry, next: View, trimStart: number, resultDuration: number): Carry {
+  return next === at.view ? at : { view: next, time: carryPosition({ from: at.view, to: next, time: at.time, trimStart, resultDuration }), play: at.play };
+}

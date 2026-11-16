@@ -12,29 +12,32 @@ import { formatTime } from "./format";
 import { resultNote } from "./result-note";
 import { previewCutSeconds } from "./preview-plan";
 import { WavePlayer, type TrimEdit } from "./wave-player";
-import { carryPosition, shownView, viewsOf, type View } from "./view-position";
+import { retarget, shownView, viewsOf, type Carry, type View } from "./view-position";
 const canPlay = (mime: string) => mime !== "" && document.createElement("audio").canPlayType(mime) !== "";
 type PlayableResult = Readonly<{ url: string; file: File; label: string }>;
 function useViewCarry(view: View | null, trimStart: number, onPick: (view: View) => void) {
   const audio = useRef<HTMLAudioElement>(null);
-  const carried = useRef<{ time: number; play: boolean } | null>(null);
+  const pending = useRef<Carry | null>(null);
   const resultLength = useRef(Infinity);
   const choose = (next: View) => {
     const element = audio.current;
-    if (element && view && next !== view) {
+    if (element && view) {
       if (view === "result" && Number.isFinite(element.duration)) resultLength.current = element.duration;
-      carried.current = { time: carryPosition({ from: view, to: next, time: element.currentTime, trimStart, resultDuration: resultLength.current }), play: !element.paused };
+      const at = pending.current ?? { view, time: element.currentTime, play: !element.paused };
+      const target = retarget(at, next, trimStart, resultLength.current);
+      pending.current = target === at && !pending.current ? null : target;
     }
     onPick(next);
   };
   useLayoutEffect(() => {
-    const element = audio.current, moment = carried.current;
+    const element = audio.current, moment = pending.current;
     if (!element || !moment) return;
-    carried.current = null;
-    const resume = () => { element.currentTime = moment.time; if (moment.play) void element.play().catch(() => {}); };
-    if (element.readyState >= HTMLMediaElement.HAVE_METADATA) resume();
-    else element.addEventListener("loadedmetadata", resume, { once: true });
-  }, [view]);
+    if (moment.view !== view) { pending.current = null; return; }
+    const resume = () => { pending.current = null; element.currentTime = moment.time; if (moment.play) void element.play().catch(() => {}); };
+    if (element.readyState >= HTMLMediaElement.HAVE_METADATA) return resume();
+    element.addEventListener("loadedmetadata", resume, { once: true });
+    return () => element.removeEventListener("loadedmetadata", resume);
+  });
   return { audio, choose };
 }
 const choices: readonly (readonly [View, string])[] = [["original", copy.files.original], ["result", copy.result.label]];

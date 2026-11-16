@@ -13,6 +13,7 @@ const only = taskFlag >= 0 ? args[taskFlag + 1] : null;
 const issueFlag = args.indexOf('--issue');
 const onlyIssue = issueFlag >= 0 ? args[issueFlag + 1] : null;
 const issueRuns = number => onlyIssue === null || onlyIssue === String(number);
+const flagValue = name => { const at = args.indexOf(name); return at >= 0 ? args[at + 1] : null; };
 
 const VIEWPORTS = [
   { name: '320', width: 320, height: 700 },
@@ -281,6 +282,85 @@ const unknownDurationLive = async ({ browser, app, check, viewport, scheme }) =>
     check(`${label} (still being read): the file was seen unread and showed no position line`, unready.length > 0 && unready.every(entry => !entry.position), JSON.stringify([...new Set(states.map(entry => `${entry.state}:${entry.position}`))]));
     await context.close();
   }
+};
+
+const RAPID_GAPS = [0, 1, 4];
+const RAPID_SWITCHES = [2, 3, 4, 11];
+const RAPID_REPEATS = 5;
+const RAPID_START = 12;
+
+const rapidSwitchConfig = async ({ browser, app, viewport, scheme, trim, playing }) => {
+  const { context, page, errors } = await openApp(browser, app, viewport, { scheme, init: delayedSource(300) });
+  await addFiles(page, [fixture('tone-20.wav', 20)]);
+  if (trim) { await page.getByLabel('Add step').selectOption('trim'); await setTrimAll(page, 5, 15); }
+  await exportAll(page, 1);
+  const row = rowAt(page, 0);
+  await open(row);
+  const trimStart = trim ? 5 : 0;
+  const loaded = (view) => until(page, expected => {
+    const li = document.querySelector('li[data-file-id]'), audio = li.querySelector('audio');
+    const wanted = expected === 'result' ? li.querySelector('a.download-button').href : null;
+    return li.querySelector('.file-player').dataset.view === expected && audio.readyState >= 1 && (wanted ? audio.src === wanted : audio.src.startsWith('blob:') && audio.src !== li.querySelector('a.download-button').href);
+  }, view, 8000);
+  await loaded('result');
+  const windowOpen = await (async () => {
+    await row.locator('.view-switch').getByLabel(copy.files.original, { exact: true }).check();
+    await page.waitForTimeout(100);
+    const state = await row.locator('audio').evaluate(audio => ({ ready: audio.readyState, attribute: audio.getAttribute('src') }));
+    await loaded('original');
+    return state.ready === 0 && state.attribute === null;
+  })();
+  const outcomes = [];
+  for (const switches of RAPID_SWITCHES) {
+    for (const gap of RAPID_GAPS) {
+      const reps = [];
+      for (let rep = 0; rep < RAPID_REPEATS; rep++) {
+        if (await row.locator('.file-player').getAttribute('data-view') !== 'original') {
+          await row.locator('.view-switch').getByLabel(copy.files.original, { exact: true }).check();
+        }
+        await loaded('original');
+        await row.locator('audio').evaluate(audio => { audio.pause(); });
+        await seekAndPlay(row, RAPID_START);
+        if (playing) {
+          await row.locator('.wave-play').click();
+          await until(page, () => !document.querySelector('audio').paused && document.querySelector('audio').currentTime > 12, null, 4000);
+        }
+        await row.evaluate(async (li, [count, delay, resultLabel, originalLabel]) => {
+          const choose = text => [...li.querySelectorAll('.view-switch input')].find(input => input.parentElement.textContent === text).click();
+          for (let index = 0; index < count; index++) {
+            choose(index % 2 === 0 ? resultLabel : originalLabel);
+            if (delay > 0) await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        }, [switches, gap, copy.result.label, copy.files.original]);
+        const expectedView = switches % 2 === 1 ? 'result' : 'original';
+        const settled = await loaded(expectedView);
+        await page.waitForTimeout(playing ? 60 : 250);
+        const end = await row.locator('audio').evaluate(audio => ({ time: audio.currentTime, paused: audio.paused, view: audio.closest('.file-player').dataset.view }));
+        const wanted = expectedView === 'result' ? RAPID_START - trimStart : RAPID_START;
+        const timeOk = end.time >= wanted - 0.25 && end.time <= wanted + (playing ? 1.2 : 0.25);
+        reps.push({ ok: settled && end.view === expectedView && end.paused === !playing && timeOk, end, wanted });
+      }
+      outcomes.push({ switches, gap, reps });
+    }
+  }
+  await context.close();
+  return { outcomes, windowOpen, errors };
+};
+
+const rapidSwitchCarry = async ({ browser, app, check, viewport, scheme }) => {
+  const label = `T8 ${viewport.name} ${scheme} rapid switches`;
+  const configs = [{ trim: false, playing: false }, { trim: false, playing: true }, { trim: true, playing: false }, { trim: true, playing: true }];
+  const runs = await Promise.all(configs.map(config => rapidSwitchConfig({ browser, app, viewport, scheme, ...config })));
+  runs.forEach((run, index) => {
+    const { trim, playing } = configs[index];
+    const name = `${label} (${trim ? 'trim 5 to 15' : 'no trim'}, ${playing ? 'playing' : 'paused'})`;
+    check(`${name}: the source load is delayed 300ms, so the pending window is open`, run.windowOpen);
+    for (const { switches, gap, reps } of run.outcomes) {
+      const failed = reps.filter(rep => !rep.ok);
+      check(`${name}: ${switches} switches at ${gap}ms keep the position, view and play state in ${RAPID_REPEATS} of ${RAPID_REPEATS} repetitions`, failed.length === 0, JSON.stringify(failed.slice(0, 2)));
+    }
+    check(`${name}: no page errors`, run.errors.length === 0, run.errors.join('; '));
+  });
 };
 
 const tasks = {
@@ -962,10 +1042,11 @@ const tasks = {
     note('WebKit not run: not installed');
   },
   async T8({ browser, app, check, note }) {
-    for (const viewport of T8_VIEWPORTS) {
-      for (const scheme of T8_SCHEMES) {
+    for (const viewport of T8_VIEWPORTS.filter(item => !flagValue('--viewport') || item.name === flagValue('--viewport'))) {
+      for (const scheme of T8_SCHEMES.filter(item => !flagValue('--scheme') || item === flagValue('--scheme'))) {
         const context = { browser, app, check, note, viewport, scheme };
         if (issueRuns(1)) await unknownDurationLive(context);
+        if (issueRuns(2)) await rapidSwitchCarry(context);
       }
     }
     note('WebKit not run: not installed');

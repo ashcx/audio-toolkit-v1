@@ -1,0 +1,227 @@
+engines chromium
+ok   T8 375 light rapid switches (no trim, paused): the source load is delayed 300ms, so the pending window is open
+ok   T8 375 light rapid switches (no trim, paused): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): no page errors
+ok   T8 375 light rapid switches (no trim, playing): the source load is delayed 300ms, so the pending window is open
+ok   T8 375 light rapid switches (no trim, playing): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): no page errors
+ok   T8 375 light rapid switches (trim 5 to 15, paused): the source load is delayed 300ms, so the pending window is open
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): no page errors
+ok   T8 375 light rapid switches (trim 5 to 15, playing): the source load is delayed 300ms, so the pending window is open
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): no page errors
+ok   T8 375 dark rapid switches (no trim, paused): the source load is delayed 300ms, so the pending window is open
+ok   T8 375 dark rapid switches (no trim, paused): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): no page errors
+ok   T8 375 dark rapid switches (no trim, playing): the source load is delayed 300ms, so the pending window is open
+ok   T8 375 dark rapid switches (no trim, playing): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): no page errors
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): the source load is delayed 300ms, so the pending window is open
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): no page errors
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): the source load is delayed 300ms, so the pending window is open
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): no page errors
+ok   T8 1440 light rapid switches (no trim, paused): the source load is delayed 300ms, so the pending window is open
+ok   T8 1440 light rapid switches (no trim, paused): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): no page errors
+ok   T8 1440 light rapid switches (no trim, playing): the source load is delayed 300ms, so the pending window is open
+ok   T8 1440 light rapid switches (no trim, playing): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): no page errors
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): the source load is delayed 300ms, so the pending window is open
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): no page errors
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): the source load is delayed 300ms, so the pending window is open
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): no page errors
+ok   T8 1440 dark rapid switches (no trim, paused): the source load is delayed 300ms, so the pending window is open
+ok   T8 1440 dark rapid switches (no trim, paused): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): no page errors
+ok   T8 1440 dark rapid switches (no trim, playing): the source load is delayed 300ms, so the pending window is open
+ok   T8 1440 dark rapid switches (no trim, playing): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): no page errors
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): the source load is delayed 300ms, so the pending window is open
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): no page errors
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): the source load is delayed 300ms, so the pending window is open
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): no page errors
+note WebKit not run: not installed
+PASS: 224 checks

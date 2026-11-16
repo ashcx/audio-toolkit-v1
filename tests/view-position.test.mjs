@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {carryPosition,shownView,viewsOf} from '../src/view-position.ts';
+import {carryPosition,retarget,shownView,viewsOf} from '../src/view-position.ts';
 const carry=(from,to,time,trimStart=0,resultDuration=20)=>carryPosition({from,to,time,trimStart,resultDuration});
 test('with no trim both views share one timeline',()=>{
  assert.equal(carry('original','result',10),10);
@@ -40,4 +40,24 @@ test('a finished file opens on the result and editing needs the original',()=>{
  assert.equal(shownView(['original'],'result',false),'original');
  assert.equal(shownView(['result'],'original',true),'result');
  assert.equal(shownView([],'result',false),null);
+});
+const at=(view,time,play=true)=>({view,time,play});
+test('retargeting to the view already shown keeps the same moment',()=>{
+ const moment=at('original',12);
+ assert.equal(retarget(moment,'original',5,10),moment);
+});
+test('retargeting maps the pending moment through the trim and keeps the play state',()=>{
+ assert.deepEqual(retarget(at('original',12,true),'result',5,10),at('result',7,true));
+ assert.deepEqual(retarget(at('result',7,false),'original',5,10),at('original',12,false));
+});
+test('a chain of retargets before anything loads ends where a single switch would',()=>{
+ const chain=(count,start)=>{let moment=start,view=start.view;for(let index=0;index<count;index++){view=view==='original'?'result':'original';moment=retarget(moment,view,5,10);}return moment;};
+ assert.deepEqual(chain(2,at('original',12)),at('original',12));
+ assert.deepEqual(chain(3,at('original',12)),at('result',7));
+ assert.deepEqual(chain(11,at('original',12,false)),at('result',7,false));
+ assert.deepEqual(chain(4,at('original',12)),at('original',12));
+});
+test('retargeting clamps at the ends of the result like a single switch',()=>{
+ assert.deepEqual(retarget(at('original',40),'result',5,10),at('result',10,true));
+ assert.deepEqual(retarget(at('original',2),'result',5,10),at('result',0,true));
 });
