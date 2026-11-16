@@ -1,7 +1,6 @@
 import { copy } from "./copy.ts";
 import type { StepDraft } from "./recipe.ts";
 
-/** The one line shown under a step title, whether the step is open or not. */
 export function stepSummary(step: StepDraft): string {
   switch (step.kind) {
     case "trim": return copy.trim.summary(step.range);

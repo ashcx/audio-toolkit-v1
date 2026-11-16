@@ -412,7 +412,7 @@ export const copy = {
           return `Separating voice and music, ${percent(operation.completed, operation.total)}%`;
       }
     },
-    /** One line for a running preview. Separation shows a percent, other work shows its stage. */
+    /** One line for a running preview. Separation shows a percent and a model download shows its progress. Other work shows no stage. */
     preview(operation: JobOperation): string {
       switch (operation.kind) {
         case "phase":

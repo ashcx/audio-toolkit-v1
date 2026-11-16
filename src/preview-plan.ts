@@ -3,7 +3,6 @@ import type { PcmPlan } from "./pcm/protocol.ts";
 import { frameTime, trim, type PcmStream } from "./pcm/blocks.ts";
 export type PreviewRange = Readonly<{ start: number; end: number }>;
 type TrimBounds = Readonly<{ start: number; end: number | null }>;
-/** How much of a file a preview renders. */
 export const PREVIEW_SECONDS = 15;
 export function previewRange(trim: TrimBounds | null, duration: number | null): PreviewRange {
   const start = trim?.start ?? 0;
