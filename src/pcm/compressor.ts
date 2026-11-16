@@ -1,5 +1,5 @@
 import type { Recipe } from "../recipe";
-import type { PcmBlock, PcmStream } from "./blocks";
+import type { PcmStream } from "./blocks";
 
 export type CompressorStep = Extract<Recipe["steps"][number], { kind: "compress" }>;
 export type CompressorPreset = CompressorStep["preset"];
