@@ -197,6 +197,72 @@ const tasks = {
     }
     note('WebKit not run: not installed');
   },
+
+  async T2({ browser, app, check, note }) {
+    for (const viewport of VIEWPORTS) {
+      const label = `T2 ${viewport.name}`;
+      const wide = viewport.width > 800;
+      {
+        const { context, page, errors } = await openApp(browser, app, viewport);
+        await addFiles(page, Array.from({ length: 8 }, (_, index) => fixture(`take-${index + 1}.wav`, 5)));
+        await page.waitForTimeout(300);
+        const list = await page.evaluate(() => {
+          const list = document.querySelector('.file-list'), style = getComputedStyle(list), item = getComputedStyle(list.querySelector('li')), panel = getComputedStyle(document.querySelector('.files-panel'));
+          return {
+            overflowY: style.overflowY, gutter: style.scrollbarGutter, maxHeight: style.maxHeight, scrolls: list.scrollHeight > list.clientHeight + 1, listHeight: list.clientHeight,
+            documentScrolls: document.documentElement.scrollHeight > innerHeight + 1,
+            rowPadding: [item.paddingTop, item.paddingBottom], rowGap: [item.rowGap, item.columnGap], panelPadding: panel.paddingLeft,
+            overflow: document.documentElement.scrollWidth - innerWidth,
+          };
+        });
+        check(`${label} row padding is 8px with 4px gaps`, list.rowPadding.every(value => value === '8px') && list.rowGap.every(value => value === '4px'), JSON.stringify(list));
+        check(`${label} panel padding is ${wide ? 16 : 12}px`, list.panelPadding === `${wide ? 16 : 12}px`, list.panelPadding);
+        if (wide) {
+          check(`${label} the list keeps its inner scroll at its max height`, list.overflowY === 'auto' && list.maxHeight === '580px' && list.scrolls && list.listHeight <= 580, JSON.stringify(list));
+          check(`${label} the list reserves no scrollbar gutter`, list.gutter === 'auto', list.gutter);
+        } else {
+          check(`${label} 8 files: the page scrolls and .file-list is overflow-y visible`, list.overflowY === 'visible' && list.maxHeight === 'none' && !list.scrolls && list.documentScrolls, JSON.stringify(list));
+        }
+        check(`${label} 8 files: no horizontal overflow`, list.overflow <= 0, list.overflow);
+        check(`${label} 8 files: no page errors`, errors.length === 0, errors.join('; '));
+        await context.close();
+      }
+      {
+        const { context, page, errors } = await openApp(browser, app, viewport);
+        await addFiles(page, [fixture(LONG_NAME, 12)]);
+        await exportAll(page, 1);
+        await page.getByLabel('Add step').selectOption('gain');
+        await page.waitForFunction(() => document.querySelector('li[data-job-state=done] .file-actions button:not(.icon-button)'), null, { timeout: 10000 });
+        await page.waitForTimeout(300);
+        const row = await page.evaluate(() => {
+          const li = document.querySelector('li[data-job-state=done]');
+          const text = li.querySelector('.file-name-text');
+          const controls = [...li.querySelectorAll('button, a')].filter(element => element.getClientRects().length).map(element => {
+            const box = element.getBoundingClientRect();
+            return { name: element.getAttribute('aria-label') ?? element.textContent.trim(), width: Math.round(box.width * 10) / 10, height: Math.round(box.height * 10) / 10 };
+          });
+          return {
+            nameChars: text.textContent.length, textHeight: text.getBoundingClientRect().height, ellipsised: text.scrollWidth > text.clientWidth,
+            preview: !!li.querySelector('.file-actions button:not(.icon-button)'), download: !!li.querySelector('.download-button'), remove: !!li.querySelector('[data-remove-file]'),
+            small: controls.filter(control => control.width < 43.5 || control.height < 43.5),
+            rowHeight: li.getBoundingClientRect().height, overflow: document.documentElement.scrollWidth - innerWidth,
+            titled: li.querySelector('.file-name').title === text.textContent,
+          };
+        });
+        check(`${label} long name: Preview, download and Remove are all present`, row.preview && row.download && row.remove, JSON.stringify(row));
+        check(`${label} long name: ${row.nameChars} characters render on one line, at most 22px tall`, row.nameChars >= 60 && row.textHeight <= 22, row.textHeight);
+        check(`${label} long name: the full name is in title`, row.titled);
+        if (viewport.width <= 375) check(`${label} long name: the name is cut with an ellipsis`, row.ellipsised);
+        check(`${label} long name: every button and link is at least 44x44`, row.small.length === 0, JSON.stringify(row.small));
+        check(`${label} long name: no horizontal overflow`, row.overflow <= 0, row.overflow);
+        note(`${label} measured: finished row with a 60-character name and Preview ${row.rowHeight}px`);
+        if (viewport.name === '320') await shot(page, 't2-320');
+        check(`${label} long name: no page errors`, errors.length === 0, errors.join('; '));
+        await context.close();
+      }
+    }
+    note('WebKit not run: not installed');
+  },
 };
 
 const app = await startApp();

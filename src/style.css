@@ -67,10 +67,11 @@ p { margin: 0; }
 .dropzone:hover:not(:disabled), .files-panel[data-dragging] .dropzone { border-color: var(--accent); }
 .dropzone > span, .dropzone > small { pointer-events: none; }
 .dropzone small { color: var(--muted-strong); }
-.file-list { list-style: none; margin: 12px 0 0; padding: 0; max-height: 580px; overflow-y: auto; scrollbar-gutter: stable; overscroll-behavior: contain; }
-.file-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); padding: 10px 0; }
+.file-list { list-style: none; margin: 12px 0 0; padding: 0; }
+.file-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; border-bottom: 1px solid var(--border); padding: 8px 0; }
 .file-list li:last-child { border-bottom: 0; padding-bottom: 4px; }
 .file-name { min-width: 0; flex: 1; font: var(--type-value); overflow-wrap: anywhere; }
+.file-name-text { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .file-name small { display: block; margin-top: 2px; color: var(--muted-strong); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .file-actions { display: flex; gap: 2px; align-items: center; }
 .icon-button { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 8px; border-color: transparent; background: transparent; color: var(--text); font-size: 20px; text-decoration: none; }
@@ -248,7 +249,7 @@ input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border: 3px s
   .app { width: calc(100% - 24px); padding-top: 16px; }
   .header { margin-bottom: 16px; }
   .workspace { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-  .panel { padding: 16px; }
+  .files-panel { padding: 12px; }
   .run-actions { flex-direction: column; align-items: stretch; }
   .run-status { flex: 0 1 auto; }
   .run-actions-group { justify-content: flex-start; align-items: flex-start; margin-left: 0; }
@@ -257,8 +258,10 @@ input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border: 3px s
   .workspace:has(.file-list) { padding-bottom: 72px; }
   .workspace:has(.file-list) .run-actions-group .primary { position: fixed; z-index: 8; right: 12px; bottom: 12px; box-shadow: 0 6px 20px rgb(0 0 0 / .22); }
 }
+@media (min-width: 801px) {
+  .file-list { max-height: 580px; overflow-y: auto; overscroll-behavior: contain; }
+}
 @media (max-width: 360px) {
-  .panel { padding: 16px; }
   .trim-times { gap: 8px; }
   .trim-times input { font-size: 12px; padding-inline: 6px; }
 }

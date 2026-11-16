@@ -124,7 +124,7 @@ export function FileRow({
   return (
     <li data-file-id={entry.id} data-inspection={entry.inspection.kind} data-job-state={exported?.kind}>
       <span class="file-name" title={entry.file.name}>
-        {entry.file.name}
+        <span class="file-name-text">{entry.file.name}</span>
         <small>
           {entry.inspection.kind === "ready" && metadata
             ? `${metadata.primary}${metadata.secondary ? ` · ${metadata.secondary}` : ""}`
