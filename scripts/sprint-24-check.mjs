@@ -2,7 +2,7 @@ import { recipeAction } from './browser-controls.mjs';
 import {loadCopy, withoutTimes} from './lib/harness.mjs';
 const copy = await loadCopy();
 import assert from 'node:assert/strict';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
 
 const appUrl = process.env.APP_URL ?? 'http://127.0.0.1:5181/audio-toolkit-v1/';
