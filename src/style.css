@@ -80,6 +80,10 @@ li[data-collapsed] :is(.file-player, .wave-player, .wave-head) { display: conten
 li[data-collapsed] .wave-play { order: -1; }
 .wave-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--border); }
 .wave-progress i { display: block; height: 100%; background: var(--accent); transform: scaleX(0); transform-origin: left; }
+@media (forced-colors: active) {
+  .wave-progress { background: GrayText; }
+  .wave-progress i { background: Highlight; }
+}
 .file-name-text { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .file-name small { display: block; margin-top: 2px; color: var(--muted-strong); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .file-actions { display: flex; gap: 2px; align-items: center; }

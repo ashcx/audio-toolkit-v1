@@ -188,7 +188,7 @@ async function threeFinished(page, probe = async () => ({})) {
   return result;
 }
 
-const T8_VIEWPORTS = VIEWPORTS.filter(viewport => viewport.name === '375' || viewport.name === '1440');
+const T8_VIEWPORTS = VIEWPORTS.filter(viewport => ['320', '375', '1440'].includes(viewport.name));
 const T8_SCHEMES = ['light', 'dark'];
 const LIVE_POSITION = /^\d\d:\d\d \/ \d\d:\d\d$/;
 
@@ -410,6 +410,43 @@ const noPlaceholderSwitches = async ({ browser, app, check, viewport, scheme }) 
       await context.close();
     }
   }
+};
+
+const progressColours = page => page.evaluate(() => {
+  const line = document.querySelector('li[data-collapsed] .wave-progress'), fill = line.querySelector('i');
+  const canvas = getComputedStyle(document.body).backgroundColor;
+  const lineStyle = getComputedStyle(line), fillStyle = getComputedStyle(fill), rowStyle = getComputedStyle(line.closest('li'));
+  const box = line.getBoundingClientRect();
+  return { track: lineStyle.backgroundColor, trackBorder: lineStyle.borderTopColor, trackBorderWidth: lineStyle.borderTopWidth, fill: fillStyle.backgroundColor, row: rowStyle.backgroundColor, body: canvas, height: box.height, fillWidth: fill.getBoundingClientRect().width, lineWidth: box.width, transform: fill.style.transform };
+});
+
+const forcedColourProgress = async ({ browser, app, check, viewport, scheme }) => {
+  const label = `T8 ${viewport.name} ${scheme} collapsed progress line`;
+  const { context, page, errors } = await openApp(browser, app, viewport, { scheme });
+  await addFiles(page, [fixture('tone-20.wav', 20)]);
+  await exportAll(page, 1);
+  const row = rowAt(page, 0);
+  const normal = await progressColours(page);
+  await page.emulateMedia({ forcedColors: 'active' });
+  await page.waitForTimeout(150);
+  const idle = await progressColours(page);
+  check(`${label} (forced colors): the track and the fill compute to different colors`, idle.track !== idle.fill, JSON.stringify(idle));
+  check(`${label} (forced colors): the fill differs from Canvas`, idle.fill !== idle.body && idle.fill !== idle.row, JSON.stringify(idle));
+  await row.locator('.wave-play').click();
+  await until(page, () => document.querySelector('audio').currentTime > 1.5, null, 6000);
+  const playing = await progressColours(page);
+  await row.locator('.wave-play').click();
+  const later = await progressColours(page);
+  check(`${label} (forced colors): the progress fill width follows playback`, playing.fillWidth > idle.fillWidth + 3 && Math.abs(playing.fillWidth / playing.lineWidth - Number(playing.transform.match(/scaleX\(([\d.]+)\)/)?.[1] ?? NaN)) < 0.02, JSON.stringify({ idle: idle.fillWidth, playing: playing.fillWidth, line: playing.lineWidth, transform: playing.transform }));
+  await shot(page, `t8-forced-colors-${viewport.name}-${scheme}`);
+  await page.emulateMedia({ forcedColors: 'none' });
+  await page.waitForTimeout(150);
+  const after = await progressColours(page);
+  const unchanged = { light: { track: 'rgb(229, 231, 235)', fill: 'rgb(52, 120, 94)' }, dark: { track: 'rgb(48, 52, 60)', fill: 'rgb(133, 191, 165)' } }[scheme];
+  check(`${label} (normal mode): the track and fill colors are the ones from before the forced-colors rule, also after leaving forced colors`, normal.track === unchanged.track && normal.fill === unchanged.fill && after.track === unchanged.track && after.fill === unchanged.fill, JSON.stringify({ normal, after, unchanged }));
+  check(`${label} (normal mode): the line is still 2px`, after.height === 2 && normal.height === 2);
+  check(`${label}: no page errors`, errors.length === 0, errors.join('; '));
+  await context.close();
 };
 
 const tasks = {
@@ -1094,9 +1131,12 @@ const tasks = {
     for (const viewport of T8_VIEWPORTS.filter(item => !flagValue('--viewport') || item.name === flagValue('--viewport'))) {
       for (const scheme of T8_SCHEMES.filter(item => !flagValue('--scheme') || item === flagValue('--scheme'))) {
         const context = { browser, app, check, note, viewport, scheme };
-        if (issueRuns(1)) await unknownDurationLive(context);
-        if (issueRuns(2)) await rapidSwitchCarry(context);
-        if (issueRuns(3)) await noPlaceholderSwitches(context);
+        if (viewport.name !== '320') {
+          if (issueRuns(1)) await unknownDurationLive(context);
+          if (issueRuns(2)) await rapidSwitchCarry(context);
+          if (issueRuns(3)) await noPlaceholderSwitches(context);
+        }
+        if (issueRuns(4)) await forcedColourProgress(context);
       }
     }
     note('WebKit not run: not installed');
