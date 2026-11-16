@@ -30,6 +30,8 @@ import { usableGpu, type GpuSupport } from "./inference/gpu";
 import { validationMessage } from "./errors";
 import { copy } from "./copy";
 import { stepSummary } from "./step-summary";
+import { isStepOpen, type StepOpen } from "./step-open";
+import { useMobile } from "./use-mobile";
 
 /** The message and element id a step shows when its own settings are wrong, or undefined when they are fine. */
 export function stepProblem(step: StepDraft): { id: string; message: string } | undefined {
@@ -362,7 +364,8 @@ export function RecipeEditor({
   /** Files with a custom range, offered a choice after the Trim all range moves. */
   trimConflict?: { count: number; onReplace: () => void; onKeep: () => void };
 }) {
-  const [expanded, setExpanded] = useState<string | null>(null);
+  const mobile = useMobile();
+  const [opening, setOpening] = useState<StepOpen | null>(null);
   const panel = useRef<HTMLElement>(null);
   const moved = useRef<string | null>(null);
   useLayoutEffect(() => {
@@ -413,7 +416,7 @@ export function RecipeEditor({
             if (isStepKind(kind)) {
               const step = newStep(kind);
               onChange({ ...value, steps: [...value.steps, step] });
-              setExpanded(step.id);
+              if (!mobile) setOpening({ id: step.id, open: true, by: "added", problem: false });
             }
           }}
         >
@@ -443,6 +446,7 @@ export function RecipeEditor({
           const problem = stepProblem(step);
           const stepError = problem?.message;
           const errorId = problem?.id;
+          const open = isStepOpen(opening, step.id, problem !== undefined, mobile);
           const repeated =
             value.steps.filter((item) => item.kind === step.kind).length > 1;
           const ordinal = value.steps
@@ -501,13 +505,11 @@ export function RecipeEditor({
                     type="button"
                     aria-label={copy.steps.settings(copy.steps.names[step.kind], stepSummary(step), repeated ? ordinal : null)}
                     aria-describedby={errorId}
-                    aria-expanded={expanded === step.id}
+                    aria-expanded={open}
                     aria-controls={`settings-${step.id}`}
-                    onClick={() =>
-                      setExpanded(expanded === step.id ? null : step.id)
-                    }
+                    onClick={() => setOpening({ id: step.id, open: !open, by: "user", problem: problem !== undefined })}
                   >
-                    <span class="step-title">{copy.steps.names[step.kind]}<span class="expansion-indicator" aria-hidden="true">{expanded === step.id ? "⌃" : "⌄"}</span></span>
+                    <span class="step-title">{copy.steps.names[step.kind]}<span class="expansion-indicator" aria-hidden="true">{open ? "⌃" : "⌄"}</span></span>
                     <small>{stepSummary(step)}</small>
                   </button>
                 </h3>
@@ -555,9 +557,9 @@ export function RecipeEditor({
               <div
                 id={`settings-${step.id}`}
                 class="step-settings"
-                hidden={expanded !== step.id}
+                hidden={!open}
               >
-                {expanded === step.id && (
+                {open && (
                   <StepFields
                     files={files}
                     analysisEnabled={analysisEnabled}
