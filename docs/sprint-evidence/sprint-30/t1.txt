@@ -1,0 +1,134 @@
+ok   T1 320 fine empty: one file input
+ok   T1 320 fine empty: Add files button in the heading is 44px or taller
+ok   T1 320 fine empty: drop box at most 180px (was 220)
+ok   T1 320 fine empty: drop hint shown
+ok   T1 320 fine empty: dragging over the panel shows the active border
+note T1 320 fine measured: empty box 160px, Add files 44px, first row offset 73px
+ok   T1 320 fine listed: no dashed drop box
+ok   T1 320 fine listed: exactly one file input
+ok   T1 320 fine listed: Add files button is 44px or taller
+ok   T1 320 fine listed: Add files sits in the heading row beside the count
+ok   T1 320 fine listed: first file row starts within 80px of the panel top (was 135)
+ok   T1 320 fine listed: no horizontal overflow
+ok   T1 320 fine listed: clicking Add files opens the chooser and adds the file
+ok   T1 320 fine listed: dropping on the panel adds the file
+ok   T1 320 fine listed: drag state clears after the drop
+ok   T1 320 fine keyboard focus on the button shows a visible ring
+ok   T1 320 fine no page errors
+ok   T1 320 coarse empty: one file input
+ok   T1 320 coarse empty: Add files button in the heading is 44px or taller
+ok   T1 320 coarse empty: drop box at most 140px (was 220)
+ok   T1 320 coarse empty: drop hint hidden
+ok   T1 320 coarse empty: dragging over the panel shows the active border
+note T1 320 coarse measured: empty box 112px, Add files 44px, first row offset 73px
+ok   T1 320 coarse listed: no dashed drop box
+ok   T1 320 coarse listed: exactly one file input
+ok   T1 320 coarse listed: Add files button is 44px or taller
+ok   T1 320 coarse listed: Add files sits in the heading row beside the count
+ok   T1 320 coarse listed: first file row starts within 80px of the panel top (was 135)
+ok   T1 320 coarse listed: no horizontal overflow
+ok   T1 320 coarse listed: tapping Add files opens the chooser and adds the file
+ok   T1 320 coarse listed: dropping on the panel adds the file
+ok   T1 320 coarse listed: drag state clears after the drop
+ok   T1 320 coarse no page errors
+ok   T1 375 fine empty: one file input
+ok   T1 375 fine empty: Add files button in the heading is 44px or taller
+ok   T1 375 fine empty: drop box at most 180px (was 220)
+ok   T1 375 fine empty: drop hint shown
+ok   T1 375 fine empty: dragging over the panel shows the active border
+note T1 375 fine measured: empty box 160px, Add files 44px, first row offset 73px
+ok   T1 375 fine listed: no dashed drop box
+ok   T1 375 fine listed: exactly one file input
+ok   T1 375 fine listed: Add files button is 44px or taller
+ok   T1 375 fine listed: Add files sits in the heading row beside the count
+ok   T1 375 fine listed: first file row starts within 80px of the panel top (was 135)
+ok   T1 375 fine listed: no horizontal overflow
+ok   T1 375 fine listed: clicking Add files opens the chooser and adds the file
+ok   T1 375 fine listed: dropping on the panel adds the file
+ok   T1 375 fine listed: drag state clears after the drop
+ok   T1 375 fine keyboard focus on the button shows a visible ring
+ok   T1 375 fine no page errors
+ok   T1 375 coarse empty: one file input
+ok   T1 375 coarse empty: Add files button in the heading is 44px or taller
+ok   T1 375 coarse empty: drop box at most 140px (was 220)
+ok   T1 375 coarse empty: drop hint hidden
+ok   T1 375 coarse empty: dragging over the panel shows the active border
+note T1 375 coarse measured: empty box 112px, Add files 44px, first row offset 73px
+ok   T1 375 coarse listed: no dashed drop box
+ok   T1 375 coarse listed: exactly one file input
+ok   T1 375 coarse listed: Add files button is 44px or taller
+ok   T1 375 coarse listed: Add files sits in the heading row beside the count
+ok   T1 375 coarse listed: first file row starts within 80px of the panel top (was 135)
+ok   T1 375 coarse listed: no horizontal overflow
+ok   T1 375 coarse listed: tapping Add files opens the chooser and adds the file
+ok   T1 375 coarse listed: dropping on the panel adds the file
+ok   T1 375 coarse listed: drag state clears after the drop
+ok   T1 375 coarse no page errors
+ok   T1 768 fine empty: one file input
+ok   T1 768 fine empty: Add files button in the heading is 44px or taller
+ok   T1 768 fine empty: drop box at most 180px (was 220)
+ok   T1 768 fine empty: drop hint shown
+ok   T1 768 fine empty: dragging over the panel shows the active border
+note T1 768 fine measured: empty box 160px, Add files 44px, first row offset 73px
+ok   T1 768 fine listed: no dashed drop box
+ok   T1 768 fine listed: exactly one file input
+ok   T1 768 fine listed: Add files button is 44px or taller
+ok   T1 768 fine listed: Add files sits in the heading row beside the count
+ok   T1 768 fine listed: first file row starts within 80px of the panel top (was 135)
+ok   T1 768 fine listed: no horizontal overflow
+ok   T1 768 fine listed: clicking Add files opens the chooser and adds the file
+ok   T1 768 fine listed: dropping on the panel adds the file
+ok   T1 768 fine listed: drag state clears after the drop
+ok   T1 768 fine keyboard focus on the button shows a visible ring
+ok   T1 768 fine no page errors
+ok   T1 768 coarse empty: one file input
+ok   T1 768 coarse empty: Add files button in the heading is 44px or taller
+ok   T1 768 coarse empty: drop box at most 140px (was 220)
+ok   T1 768 coarse empty: drop hint hidden
+ok   T1 768 coarse empty: dragging over the panel shows the active border
+note T1 768 coarse measured: empty box 112px, Add files 44px, first row offset 73px
+ok   T1 768 coarse listed: no dashed drop box
+ok   T1 768 coarse listed: exactly one file input
+ok   T1 768 coarse listed: Add files button is 44px or taller
+ok   T1 768 coarse listed: Add files sits in the heading row beside the count
+ok   T1 768 coarse listed: first file row starts within 80px of the panel top (was 135)
+ok   T1 768 coarse listed: no horizontal overflow
+ok   T1 768 coarse listed: tapping Add files opens the chooser and adds the file
+ok   T1 768 coarse listed: dropping on the panel adds the file
+ok   T1 768 coarse listed: drag state clears after the drop
+ok   T1 768 coarse no page errors
+ok   T1 1024 fine empty: one file input
+ok   T1 1024 fine empty: Add files button in the heading is 44px or taller
+ok   T1 1024 fine empty: drop box at most 180px (was 240)
+ok   T1 1024 fine empty: drop hint shown
+ok   T1 1024 fine empty: dragging over the panel shows the active border
+note T1 1024 fine measured: empty box 160px, Add files 44px, first row offset 73px
+ok   T1 1024 fine listed: no dashed drop box
+ok   T1 1024 fine listed: exactly one file input
+ok   T1 1024 fine listed: Add files button is 44px or taller
+ok   T1 1024 fine listed: Add files sits in the heading row beside the count
+ok   T1 1024 fine listed: first file row starts within 80px of the panel top (was 135)
+ok   T1 1024 fine listed: no horizontal overflow
+ok   T1 1024 fine listed: clicking Add files opens the chooser and adds the file
+ok   T1 1024 fine listed: dropping on the panel adds the file
+ok   T1 1024 fine listed: drag state clears after the drop
+ok   T1 1024 fine keyboard focus on the button shows a visible ring
+ok   T1 1024 fine no page errors
+ok   T1 1440 fine empty: one file input
+ok   T1 1440 fine empty: Add files button in the heading is 44px or taller
+ok   T1 1440 fine empty: drop box at most 180px (was 240)
+ok   T1 1440 fine empty: drop hint shown
+ok   T1 1440 fine empty: dragging over the panel shows the active border
+note T1 1440 fine measured: empty box 160px, Add files 44px, first row offset 73px
+ok   T1 1440 fine listed: no dashed drop box
+ok   T1 1440 fine listed: exactly one file input
+ok   T1 1440 fine listed: Add files button is 44px or taller
+ok   T1 1440 fine listed: Add files sits in the heading row beside the count
+ok   T1 1440 fine listed: first file row starts within 80px of the panel top (was 135)
+ok   T1 1440 fine listed: no horizontal overflow
+ok   T1 1440 fine listed: clicking Add files opens the chooser and adds the file
+ok   T1 1440 fine listed: dropping on the panel adds the file
+ok   T1 1440 fine listed: drag state clears after the drop
+ok   T1 1440 fine keyboard focus on the button shows a visible ring
+ok   T1 1440 fine no page errors
+note WebKit not run: not installed

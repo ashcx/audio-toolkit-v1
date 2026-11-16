@@ -1,0 +1,39 @@
+engines chromium
+ok   T8 320 light collapsed progress line (forced colors): the track and the fill compute to different colors
+ok   T8 320 light collapsed progress line (forced colors): the fill differs from Canvas
+ok   T8 320 light collapsed progress line (forced colors): the progress fill width follows playback
+ok   T8 320 light collapsed progress line (normal mode): the track and fill colors are the ones from before the forced-colors rule, also after leaving forced colors
+ok   T8 320 light collapsed progress line (normal mode): the line is still 2px
+ok   T8 320 light collapsed progress line: no page errors
+ok   T8 320 dark collapsed progress line (forced colors): the track and the fill compute to different colors
+ok   T8 320 dark collapsed progress line (forced colors): the fill differs from Canvas
+ok   T8 320 dark collapsed progress line (forced colors): the progress fill width follows playback
+ok   T8 320 dark collapsed progress line (normal mode): the track and fill colors are the ones from before the forced-colors rule, also after leaving forced colors
+ok   T8 320 dark collapsed progress line (normal mode): the line is still 2px
+ok   T8 320 dark collapsed progress line: no page errors
+ok   T8 375 light collapsed progress line (forced colors): the track and the fill compute to different colors
+ok   T8 375 light collapsed progress line (forced colors): the fill differs from Canvas
+ok   T8 375 light collapsed progress line (forced colors): the progress fill width follows playback
+ok   T8 375 light collapsed progress line (normal mode): the track and fill colors are the ones from before the forced-colors rule, also after leaving forced colors
+ok   T8 375 light collapsed progress line (normal mode): the line is still 2px
+ok   T8 375 light collapsed progress line: no page errors
+ok   T8 375 dark collapsed progress line (forced colors): the track and the fill compute to different colors
+ok   T8 375 dark collapsed progress line (forced colors): the fill differs from Canvas
+ok   T8 375 dark collapsed progress line (forced colors): the progress fill width follows playback
+ok   T8 375 dark collapsed progress line (normal mode): the track and fill colors are the ones from before the forced-colors rule, also after leaving forced colors
+ok   T8 375 dark collapsed progress line (normal mode): the line is still 2px
+ok   T8 375 dark collapsed progress line: no page errors
+ok   T8 1440 light collapsed progress line (forced colors): the track and the fill compute to different colors
+ok   T8 1440 light collapsed progress line (forced colors): the fill differs from Canvas
+ok   T8 1440 light collapsed progress line (forced colors): the progress fill width follows playback
+ok   T8 1440 light collapsed progress line (normal mode): the track and fill colors are the ones from before the forced-colors rule, also after leaving forced colors
+ok   T8 1440 light collapsed progress line (normal mode): the line is still 2px
+ok   T8 1440 light collapsed progress line: no page errors
+ok   T8 1440 dark collapsed progress line (forced colors): the track and the fill compute to different colors
+ok   T8 1440 dark collapsed progress line (forced colors): the fill differs from Canvas
+ok   T8 1440 dark collapsed progress line (forced colors): the progress fill width follows playback
+ok   T8 1440 dark collapsed progress line (normal mode): the track and fill colors are the ones from before the forced-colors rule, also after leaving forced colors
+ok   T8 1440 dark collapsed progress line (normal mode): the line is still 2px
+ok   T8 1440 dark collapsed progress line: no page errors
+note WebKit not run: not installed
+PASS: 36 checks

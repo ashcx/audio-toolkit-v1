@@ -1,0 +1,23 @@
+engines chromium
+ok   T8 375 light no --:-- (no trim): sampled every animation frame through 7 view changes (173 samples)
+ok   T8 375 light no --:-- (no trim): no sample of .file-position contains --:--
+ok   T8 375 light no --:-- (no trim): from the first frame of "collapse from original" the line already shows the result total 00:20
+ok   T8 375 light no --:-- (no trim): from the first frame of "original to result" the line already shows the result total 00:20
+ok   T8 375 light no --:-- (no trim): no page errors
+ok   T8 375 light no --:-- (no trim, source load delayed 300ms, no waveform): sampled every animation frame through 7 view changes (340 samples)
+FAIL T8 375 light no --:-- (no trim, source load delayed 300ms, no waveform): no sample of .file-position contains --:-- -- ["collapse from original: 00:00 / --:--","original to result: 00:00 / --:--"]
+FAIL T8 375 light no --:-- (no trim, source load delayed 300ms, no waveform): from the first frame of "collapse from original" the line already shows the result total 00:20 -- ["00:00 / --:--","00:00 / 00:20"]
+FAIL T8 375 light no --:-- (no trim, source load delayed 300ms, no waveform): from the first frame of "original to result" the line already shows the result total 00:20 -- ["00:00 / --:--","00:00 / 00:20"]
+ok   T8 375 light no --:-- (no trim, source load delayed 300ms, no waveform): no page errors
+ok   T8 375 light no --:-- (trim 5 to 15): sampled every animation frame through 7 view changes (172 samples)
+ok   T8 375 light no --:-- (trim 5 to 15): no sample of .file-position contains --:--
+ok   T8 375 light no --:-- (trim 5 to 15): from the first frame of "collapse from original" the line already shows the result total 00:10
+ok   T8 375 light no --:-- (trim 5 to 15): from the first frame of "original to result" the line already shows the result total 00:10
+ok   T8 375 light no --:-- (trim 5 to 15): no page errors
+ok   T8 375 light no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): sampled every animation frame through 7 view changes (340 samples)
+FAIL T8 375 light no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): no sample of .file-position contains --:-- -- ["collapse from original: 00:00 / --:--","original to result: 00:00 / --:--"]
+FAIL T8 375 light no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): from the first frame of "collapse from original" the line already shows the result total 00:10 -- ["00:00 / --:--","00:00 / 00:10"]
+FAIL T8 375 light no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): from the first frame of "original to result" the line already shows the result total 00:10 -- ["00:00 / --:--","00:00 / 00:10"]
+ok   T8 375 light no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): no page errors
+note WebKit not run: not installed
+FAIL: 6 of 20

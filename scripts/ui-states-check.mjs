@@ -67,6 +67,10 @@ async function load(page, files) {
 }
 const waitDone = (page, count = 1, timeout = 120000) =>
   page.waitForFunction(n => document.querySelectorAll('[data-job-state=done]').length === n, count, { timeout });
+const toggleFinished = async (page, expand) => {
+  const toggles = page.locator(`li[data-job-state=done] .file-toggle[aria-expanded=${expand ? 'false' : 'true'}]`);
+  while (await toggles.count()) await toggles.first().click();
+};
 
 const readText = () => {
   const attributes = ['aria-label', 'title', 'aria-valuetext', 'placeholder', 'aria-description', 'alt'];
@@ -361,8 +365,18 @@ async function runConfig(browser, config) {
     await exportButton(page).click();
     await waitDone(page, 2);
     const text = await shoot('success-plain-mp3');
-    const rows = await page.locator('.file-result').evaluateAll(nodes => nodes.map(node => node.innerText.replace(/\s+/g, ' ').trim()));
-    check(`${config.name}/success-plain-mp3 each result shows only its label and player`, rows.length === 2 && rows.every(row => withoutTimes(row) === copy.result.label), JSON.stringify(rows));
+    const players = () => page.locator('li[data-job-state=done]').evaluateAll(nodes => nodes.map(node => ({
+      results: node.querySelectorAll('.file-result').length, collapsed: node.hasAttribute('data-collapsed'), audios: node.querySelectorAll('audio').length,
+      player: node.querySelector('.file-player').innerText.replace(/\s+/g, ' ').trim(),
+    })));
+    const closed = await players();
+    check(`${config.name}/success-plain-mp3 each finished row is collapsed to its play button alone, with one audio and no result box or label`,
+      closed.length === 2 && closed.every(row => row.collapsed && row.results === 0 && row.audios === 1 && withoutTimes(row.player) === ''), JSON.stringify(closed));
+    await toggleFinished(page, true);
+    const opened = await players();
+    check(`${config.name}/success-plain-mp3 an expanded finished row shows only its player, Trim and the Original and Result switch`,
+      opened.length === 2 && opened.every(row => !row.collapsed && row.results === 0 && row.audios === 1 && withoutTimes(row.player) === 'Trim Original Result'), JSON.stringify(opened));
+    await toggleFinished(page, false);
     check(`${config.name}/success-plain-mp3 shows no standing hint or counter`, !/\d+\s*\/\s*\d+\s*done|done/i.test(await page.locator('.export-panel').innerText())
       && !text.includes(copy.export.keepOpen) && !/Exported audio|Clear all removes/.test(text));
     check(`${config.name}/success-plain-mp3 status area is empty`, (await page.locator('.run-status').innerText()).trim() === '');
@@ -376,8 +390,10 @@ async function runConfig(browser, config) {
     await exportButton(page).click();
     await waitDone(page, 2);
     await shoot('success-several-steps');
-    const notes = await page.locator('.file-result').evaluateAll(nodes => nodes.map(node => node.querySelectorAll('small').length - 1));
-    check(`${config.name}/success-several-steps shows at most one note per file`, notes.length === 2 && notes.every(count => count <= 1), JSON.stringify(notes));
+    await toggleFinished(page, true);
+    const notes = await page.locator('li[data-job-state=done]').evaluateAll(nodes => nodes.map(node => node.querySelectorAll('.file-result small').length));
+    check(`${config.name}/success-several-steps an expanded row shows at most one note per file`, notes.length === 2 && notes.every(count => count <= 1), JSON.stringify(notes));
+    await toggleFinished(page, false);
   });
 
   await scenario('success-with-note', async ({ page, shoot }) => {
@@ -388,7 +404,11 @@ async function runConfig(browser, config) {
     await exportButton(page).click();
     await waitDone(page, 1);
     const text = await shoot('success-with-note');
-    check(`${config.name}/success-with-note shows exactly one clipping note`, await shownTimes(page, copy.result.clipped) === 1);
+    const folded = await shownTimes(page, copy.result.clipped);
+    const spoken = await page.evaluate(needle => [...document.querySelectorAll('.sr-only')].filter(element => element.textContent.includes(needle)).length, copy.result.clipped);
+    await toggleFinished(page, true);
+    const unfolded = await shownTimes(page, copy.result.clipped);
+    check(`${config.name}/success-with-note shows exactly one clipping note once the row is expanded, none on the collapsed line, and speaks it either way`, folded === 0 && unfolded === 1 && spoken === 1, JSON.stringify({ folded, unfolded, spoken }));
   });
 
   await scenario('delivery', async ({ page, shoot, floating }) => {
@@ -658,9 +678,11 @@ async function runConfig(browser, config) {
       const megabytes = [...new Set(seen.flatMap(label => label.match(/^Downloading model, (\d+) of 85 MB$/)?.[1] ?? []))].map(Number);
       check(`${config.name}/splitter-run showed the download advancing in MB`, megabytes.length >= 3 && megabytes.every((value, index) => index === 0 || value > megabytes[index - 1]), JSON.stringify(megabytes));
     }
-    check(`${config.name}/splitter-run ended with the plain result card`, seen.at(-1) === copy.result.label || /^Result/.test(seen.at(-1) ?? ''));
+    const ended = await page.locator('[data-job-state=done]').evaluate(row => ({ results: row.querySelectorAll('.file-result').length, collapsed: row.hasAttribute('data-collapsed'), audios: row.querySelectorAll('audio').length }));
+    check(`${config.name}/splitter-run ended with a plain collapsed result row: its player and no progress or result box`, ended.results === 0 && ended.collapsed && ended.audios === 1, JSON.stringify(ended));
     check(`${config.name}/splitter-run status area is empty afterwards`, (await page.locator('.run-status').innerText()).trim() === '');
-    check(`${config.name}/splitter-run result shows at most one note`, (await page.locator('.file-result small').count()) - 1 <= 1);
+    await toggleFinished(page, true);
+    check(`${config.name}/splitter-run an expanded result shows at most one note`, await page.locator('.file-result small').count() <= 1);
   }, { cold: true });
 
   if (config.full) {
@@ -674,8 +696,8 @@ async function runConfig(browser, config) {
         check(`opus ${rate} Hz needs no Sample rate step`, await page.locator('[data-step-id]').count() === 0 && await exportButton(page).isEnabled());
         await exportButton(page).click();
         await waitDone(page, 1, 60000);
-        const row = withoutTimes(await page.locator('.file-result').innerText());
-        check(`opus ${rate} Hz export succeeds with no message`, row === copy.result.label, row);
+        const row = await page.locator('[data-job-state=done]').evaluate(node => ({ results: node.querySelectorAll('.file-result').length, player: node.querySelector('.file-player').innerText }));
+        check(`opus ${rate} Hz export succeeds with no message: a collapsed row with its play button and no result box`, row.results === 0 && withoutTimes(row.player) === '', JSON.stringify(row));
         if (rate === 44100) await shoot('opus-44100-done');
         const pending = page.waitForEvent('download');
         await page.locator('[data-job-state=done] a[download]').click();

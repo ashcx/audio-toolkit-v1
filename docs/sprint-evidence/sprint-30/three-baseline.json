@@ -1,0 +1,115 @@
+{
+  "base": "3c6ae13",
+  "viewports": {
+    "320": {
+      "empty": 220,
+      "unprocessed": [
+        181,
+        216,
+        174
+      ],
+      "unprocessedWithPreview": [
+        203,
+        259,
+        196
+      ],
+      "unprocessedFirstRowOffset": 135,
+      "finished": [
+        235,
+        270,
+        228
+      ],
+      "finishedFirstRowOffset": 135,
+      "finishedListHeight": 580,
+      "waveWidth": 218
+    },
+    "375": {
+      "empty": 220,
+      "unprocessed": [
+        181,
+        195,
+        174
+      ],
+      "unprocessedWithPreview": [
+        203,
+        238,
+        196
+      ],
+      "unprocessedFirstRowOffset": 135,
+      "finished": [
+        235,
+        270,
+        228
+      ],
+      "finishedFirstRowOffset": 135,
+      "finishedListHeight": 580,
+      "waveWidth": 273
+    },
+    "768": {
+      "empty": 220,
+      "unprocessed": [
+        181,
+        181,
+        174
+      ],
+      "unprocessedWithPreview": [
+        203,
+        203,
+        196
+      ],
+      "unprocessedFirstRowOffset": 135,
+      "finished": [
+        235,
+        235,
+        228
+      ],
+      "finishedFirstRowOffset": 135,
+      "finishedListHeight": 580,
+      "waveWidth": 666
+    },
+    "1024": {
+      "empty": 240,
+      "unprocessed": [
+        181,
+        195,
+        174
+      ],
+      "unprocessedWithPreview": [
+        203,
+        217,
+        196
+      ],
+      "unprocessedFirstRowOffset": 135,
+      "finished": [
+        235,
+        249,
+        228
+      ],
+      "finishedFirstRowOffset": 135,
+      "finishedListHeight": 580,
+      "waveWidth": 402
+    },
+    "1440": {
+      "empty": 240,
+      "unprocessed": [
+        181,
+        181,
+        174
+      ],
+      "unprocessedWithPreview": [
+        203,
+        203,
+        196
+      ],
+      "unprocessedFirstRowOffset": 135,
+      "finished": [
+        235,
+        235,
+        228
+      ],
+      "finishedFirstRowOffset": 135,
+      "finishedListHeight": 580,
+      "waveWidth": 514
+    }
+  }
+}

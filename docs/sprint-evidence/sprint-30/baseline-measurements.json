@@ -1,0 +1,63 @@
+{
+  "base": "unmodified build",
+  "viewports": {
+    "320": {
+      "emptyFine": 220,
+      "firstRowOffset": 135,
+      "unprocessedRow": 174,
+      "waveWidthUnprocessed": 218,
+      "longNameRow": 209,
+      "finishedRow": 235,
+      "finishedLongNameRow": 263,
+      "waveWidthFinished": 218,
+      "overflow": 0,
+      "emptyCoarse": 220
+    },
+    "375": {
+      "emptyFine": 220,
+      "firstRowOffset": 135,
+      "unprocessedRow": 174,
+      "waveWidthUnprocessed": 273,
+      "longNameRow": 188,
+      "finishedRow": 235,
+      "finishedLongNameRow": 263,
+      "waveWidthFinished": 273,
+      "overflow": 0,
+      "emptyCoarse": 220
+    },
+    "768": {
+      "emptyFine": 220,
+      "firstRowOffset": 135,
+      "unprocessedRow": 174,
+      "waveWidthUnprocessed": 666,
+      "longNameRow": 174,
+      "finishedRow": 235,
+      "finishedLongNameRow": 228,
+      "waveWidthFinished": 666,
+      "overflow": 0,
+      "emptyCoarse": 220
+    },
+    "1024": {
+      "emptyFine": 240,
+      "firstRowOffset": 135,
+      "unprocessedRow": 174,
+      "waveWidthUnprocessed": 402,
+      "longNameRow": 188,
+      "finishedRow": 235,
+      "finishedLongNameRow": 242,
+      "waveWidthFinished": 402,
+      "overflow": 0
+    },
+    "1440": {
+      "emptyFine": 240,
+      "firstRowOffset": 135,
+      "unprocessedRow": 174,
+      "waveWidthUnprocessed": 514,
+      "longNameRow": 174,
+      "finishedRow": 235,
+      "finishedLongNameRow": 228,
+      "waveWidthFinished": 514,
+      "overflow": 0
+    }
+  }
+}

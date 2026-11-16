@@ -1,4 +1,5 @@
-import { useLayoutEffect, useState } from "preact/hooks";
+import type { RefObject } from "preact";
+import { useLayoutEffect, useRef, useState } from "preact/hooks";
 import type { AudioMetadata, FileEntry } from "./media";
 import { resolveTrim, type TrimRangeDraft } from "./recipe";
 import { fileMetadata, showsPreview, trimErrorOwner } from "./file-summary";
@@ -7,24 +8,60 @@ import type { BatchJob } from "./batch";
 import type { PreviewState } from "./preview";
 import { copy } from "./copy";
 import { actionFor } from "./errors";
+import { formatTime } from "./format";
 import { resultNote } from "./result-note";
 import { previewCutSeconds } from "./preview-plan";
 import { WavePlayer, type TrimEdit } from "./wave-player";
-/** The original sits behind a small toggle once a result exists, so a finished file shows one player. */
-function SourcePlayer({ entry, metadata, collapsed, paused, trim }: { entry: FileEntry; metadata: AudioMetadata; collapsed: boolean; paused: boolean; trim: TrimEdit }) {
-  const [url] = useState(() => URL.createObjectURL(entry.file));
-  const [playable] = useState(() => {
-    const audio = document.createElement("audio");
-    return entry.file.type !== "" && audio.canPlayType(entry.file.type) !== "";
+import { retarget, shownView, viewsOf, type Carry, type View } from "./view-position";
+const canPlay = (mime: string) => mime !== "" && document.createElement("audio").canPlayType(mime) !== "";
+type PlayableResult = Readonly<{ url: string; file: File; label: string; duration: number | null }>;
+function useViewCarry(view: View | null, trimStart: number, onPick: (view: View) => void) {
+  const audio = useRef<HTMLAudioElement>(null);
+  const pending = useRef<Carry | null>(null);
+  const resultLength = useRef(Infinity);
+  const choose = (next: View) => {
+    const element = audio.current;
+    if (element && view) {
+      if (view === "result" && Number.isFinite(element.duration)) resultLength.current = element.duration;
+      const at = pending.current ?? { view, time: element.currentTime, play: !element.paused };
+      const target = retarget(at, next, trimStart, resultLength.current);
+      pending.current = target === at && !pending.current ? null : target;
+    }
+    onPick(next);
+  };
+  useLayoutEffect(() => {
+    const element = audio.current, moment = pending.current;
+    if (!element || !moment) return;
+    if (moment.view !== view) { pending.current = null; return; }
+    const resume = () => { pending.current = null; element.currentTime = moment.time; if (moment.play) void element.play().catch(() => {}); };
+    if (element.readyState >= HTMLMediaElement.HAVE_METADATA) return resume();
+    element.addEventListener("loadedmetadata", resume, { once: true });
+    return () => element.removeEventListener("loadedmetadata", resume);
   });
-  useLayoutEffect(() => () => URL.revokeObjectURL(url), [url]);
-  const player = playable
-    ? <WavePlayer src={url} source={{ file: entry.file, metadata }} label={copy.files.original} name={entry.file.name}
-      duration={metadata.duration} preload="none" paused={paused} trim={trim} />
-    : <small class="file-note">{copy.files.sourceUnplayable}</small>;
-  return collapsed
-    ? <details class="file-player file-player-toggle"><summary>{copy.files.original}</summary>{player}</details>
-    : <div class="file-player">{player}</div>;
+  return { audio, choose };
+}
+const choices: readonly (readonly [View, string])[] = [["original", copy.files.original], ["result", copy.result.label]];
+function FilePlayer({ entry, metadata, result, view, switchable, compact, audioRef, paused, trim, readoutTarget, onChoose }: {
+  entry: FileEntry; metadata: AudioMetadata; result: PlayableResult | null; view: View; switchable: boolean; compact: boolean;
+  audioRef: RefObject<HTMLAudioElement | null>; paused: boolean; trim: TrimEdit; readoutTarget?: RefObject<HTMLElement | null>; onChoose: (view: View) => void;
+}) {
+  const [sourceUrl] = useState(() => URL.createObjectURL(entry.file));
+  useLayoutEffect(() => () => URL.revokeObjectURL(sourceUrl), [sourceUrl]);
+  const showsResult = view === "result" && result !== null;
+  return <div class="file-player" data-view={view}>
+    <WavePlayer layout="row" compact={compact} audioRef={audioRef} src={showsResult ? result.url : sourceUrl}
+      source={showsResult ? { file: result.file } : { file: entry.file, metadata }}
+      label={showsResult ? result.label : copy.files.original} name={entry.file.name}
+      duration={showsResult ? result.duration : metadata.duration} preload={showsResult || result ? "metadata" : "none"} paused={paused}
+      trim={showsResult ? { ...trim, range: null, custom: false, follows: false, onToggle: () => { onChoose("original"); trim.onToggle(); } } : trim}
+      readoutTarget={readoutTarget} />
+    {switchable && !compact && !trim.editing && <div class="view-switch" role="radiogroup" aria-label={copy.files.viewLabel(entry.file.name)}>
+      {choices.map(([option, text]) => <label key={option}>
+        <input type="radio" name={`view-${entry.id}`} tabIndex={view === option ? 0 : -1} checked={view === option} onChange={() => onChoose(option)} />
+        <span>{text}</span>
+      </label>)}
+    </div>}
+  </div>;
 }
 export function FileRow({
   entry,
@@ -102,8 +139,24 @@ export function FileRow({
   const currentExport = exported?.kind === "done" && !previousSettings;
   const previewVisible = showsPreview(hasRecipeSteps, currentExport);
   const cutSeconds = previewCutSeconds(effective, duration);
-  const exportedPlayable = exported?.kind === "done" &&
-    document.createElement("audio").canPlayType(exported.output.mime) !== "";
+  const exportedPlayable = exported?.kind === "done" && canPlay(exported.output.mime);
+  const resultUrl = exported?.kind === "done" ? exported.url : null;
+  const [picked, setPicked] = useState<{ result: string | null; view: View } | null>(null);
+  const [opened, setOpened] = useState<string | null>(null);
+  const views = viewsOf({ original: entry.inspection.kind === "ready" && !preview && canPlay(entry.file.type), result: exportedPlayable });
+  const shown = shownView(views, picked?.result === resultUrl ? picked.view : null, editing);
+  const { audio, choose } = useViewCarry(shown, job?.spec.plan.snapshot.trim?.start ?? 0, view => setPicked({ result: resultUrl, view }));
+  const collapsible = exported?.kind === "done" && !preview && !editing;
+  const expanded = !collapsible || opened === resultUrl;
+  const toggleExpanded = () => {
+    if (expanded && shown === "original" && views.includes("result")) choose("result");
+    setOpened(expanded ? null : resultUrl);
+  };
+  const position = useRef<HTMLSpanElement>(null);
+  const positionLive = shown !== null;
+  const resultDuration = job?.spec.plan.snapshot.trim?.duration ?? job?.spec.plan.snapshot.source.duration ?? null;
+  const shownDuration = shown === "result" ? resultDuration : duration;
+  const totalText = shownDuration === null ? copy.trim.unknownDuration : formatTime(shownDuration);
   const resultLabel = previousSettings ? copy.result.olderLabel : copy.result.label;
   const downloadLabel = previousSettings
     ? copy.result.downloadOlder(entry.file.name)
@@ -122,12 +175,17 @@ export function FileRow({
     : preview.kind === "cancelling" ? copy.preview.cancelling
     : preview.kind === "failed" || (preview.kind === "cleanup" && preview.attempts >= 2) ? preview.message : "";
   return (
-    <li data-file-id={entry.id} data-inspection={entry.inspection.kind} data-job-state={exported?.kind}>
+    <li data-file-id={entry.id} data-inspection={entry.inspection.kind} data-job-state={exported?.kind} data-collapsed={expanded ? undefined : ""}>
       <span class="file-name" title={entry.file.name}>
-        {entry.file.name}
-        <small>
+        <span class="file-name-text">{entry.file.name}</span>
+        <small class="file-meta">
           {entry.inspection.kind === "ready" && metadata
-            ? `${metadata.primary}${metadata.secondary ? ` · ${metadata.secondary}` : ""}`
+            ? <>
+              <span class="file-position" ref={position} aria-hidden={positionLive ? "true" : undefined}>
+                {positionLive && shownDuration !== null ? `${formatTime(0)} / ${totalText}` : totalText}
+              </span>
+              {expanded && metadata.primary && !(shown === "result" && !previousSettings) && ` · ${metadata.primary}`}{expanded && metadata.secondary && ` · ${metadata.secondary}`}
+            </>
             : entry.inspection.kind === "reading" ? copy.files.reading
               : entry.inspection.kind === "waiting" ? copy.files.waiting : ""}
         </small>
@@ -146,9 +204,10 @@ export function FileRow({
             {trimFailed.message}
           </small>
         )}
+        {collapsible && <button type="button" class="file-toggle" aria-expanded={expanded} aria-label={copy.files.detailsLabel(entry.file.name)} onClick={toggleExpanded} />}
       </span>
       <div class="file-actions">
-        {previewVisible && entry.inspection.kind === "ready" &&
+        {expanded && previewVisible && entry.inspection.kind === "ready" &&
           <button type="button" disabled={previewDisabled || trimFailed !== null}
             aria-label={copy.preview.buttonLabel(entry.file.name, cutSeconds)} aria-describedby={errorId} onClick={onPreview}>{copy.preview.button(cutSeconds)}</button>}
         {exported?.kind === "done" &&
@@ -170,20 +229,24 @@ export function FileRow({
         </button>
       </div>
       <span class="sr-only" role="status">{[spoken && copy.files.announce(entry.file.name, spoken), previewSpoken].filter(Boolean).join(" ")}</span>
-      {entry.inspection.kind === "ready" && !preview && <SourcePlayer entry={entry} metadata={entry.inspection.metadata} collapsed={exported?.kind === "done"} paused={busy} trim={{
-        range: duration === null ? null : unfixable ? { start: 0, end: duration } : trimFailed ? null : { start: effective?.start ?? 0, end: effective?.end ?? duration },
-        draft: unfixable ? { start: null, end: null } : draft ?? { start: null, end: null },
-        custom: override !== undefined,
-        follows: trim !== undefined,
-        editing, locked: trimLocked, onToggle: onEdit, onChange: onOverride,
-      }} />}
+      {entry.inspection.kind === "ready" && shown && <FilePlayer entry={entry} metadata={entry.inspection.metadata} view={shown} switchable={views.length > 1} compact={!expanded} audioRef={audio}
+        result={exported?.kind === "done" && exportedPlayable ? { url: exported.url, file: exported.output.file, label: resultLabel, duration: resultDuration } : null}
+        paused={busy} readoutTarget={positionLive ? position : undefined}
+        onChoose={choose} trim={{
+          range: duration === null ? null : unfixable ? { start: 0, end: duration } : trimFailed ? null : { start: effective?.start ?? 0, end: effective?.end ?? duration },
+          draft: unfixable ? { start: null, end: null } : draft ?? { start: null, end: null },
+          custom: override !== undefined,
+          follows: trim !== undefined,
+          editing, locked: trimLocked, onToggle: () => { setOpened(resultUrl); onEdit(); }, onChange: onOverride,
+        }} />}
+      {entry.inspection.kind === "ready" && !preview && !shown && <div class="file-player"><small class="file-note">{copy.files.sourceUnplayable}</small></div>}
       {preview && <div class="file-preview" data-preview-state={preview.kind}>
         {preview.kind === "ready" ? <>
           <small>{copy.preview.heading(cutSeconds)}</small>
           {preview.estimate && <small>{copy.preview.estimate}</small>}
-          <WavePlayer src={preview.original} source={{ url: preview.original }} label={copy.preview.before} name={entry.file.name}
+          <WavePlayer layout="labelled" src={preview.original} source={{ url: preview.original }} label={copy.preview.before} name={entry.file.name}
             duration={preview.range.end - preview.range.start} preload="metadata" paused={busy} />
-          <WavePlayer src={preview.processed} source={{ url: preview.processed }} label={copy.preview.after} name={entry.file.name}
+          <WavePlayer layout="labelled" src={preview.processed} source={{ url: preview.processed }} label={copy.preview.after} name={entry.file.name}
             duration={preview.range.end - preview.range.start} preload="metadata" paused={busy} />
           <button type="button" onClick={onClearPreview}>{copy.preview.close}</button>
         </> : preview.kind === "running" ? <>
@@ -194,7 +257,7 @@ export function FileRow({
         </> : preview.kind === "failed" ? <span>{preview.message}</span>
           : preview.kind === "cancelling" ? <span>{copy.preview.cancelling}</span> : null}
       </div>}
-      {exported && (
+      {exported && (exported.kind !== "done" || !exportedPlayable || previousSettings || (expanded && note)) && (
         <div class="file-result">
           {exported.kind === "waiting" || exported.kind === "running" || exported.kind === "cancelling" ? (
             <>
@@ -211,11 +274,9 @@ export function FileRow({
             </>
           ) : (
             <>
-              {exportedPlayable
-                ? <WavePlayer src={exported.url} source={{ file: exported.output.file }} label={resultLabel} name={entry.file.name}
-                  duration={null} preload="metadata" paused={busy} />
-                : <><small>{resultLabel}</small><small class="file-note">{copy.files.resultUnplayable}</small></>}
-              {note && <small>{note}</small>}
+              {(previousSettings || !exportedPlayable) && <small>{resultLabel}</small>}
+              {!exportedPlayable && <small class="file-note">{copy.files.resultUnplayable}</small>}
+              {expanded && note && <small>{note}</small>}
             </>
           )}
         </div>
