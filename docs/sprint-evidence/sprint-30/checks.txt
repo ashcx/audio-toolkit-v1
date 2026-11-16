@@ -1,0 +1,45 @@
+# Sprint 30 T7 checks at head b14d11b plus the T7 script changes, 2026-11-16. ENGINES=chromium. WebKit not run: not installed.
+## npm run typecheck: exit 0
+## npm test: tests 238 pass 238 fail 0
+## npm run build: exit 0
+## sprint-29-check (starts its own server)
+exit=0
+FAIL lines: 0
+PASS: 59 checks in Chrome, evidence in docs/sprint-evidence/sprint-29
+## keyboard-check (starts its own server)
+exit=0
+FAIL lines: 0
+55 assertions passed, 0 failed. Results in .artifacts/keyboard/results.json
+## workspace-check (starts its own server)
+exit=0
+FAIL lines: 0
+PASS: Chromium/WebKit desktop/mobile, all themes, live system changes, keyboard removal, long names, base path/reload, privacy/lazy assets and capability recovery notices.
+## intake-check (APP_URL=http://127.0.0.1:4173/audio-toolkit-v1/ against npx vite preview --host 127.0.0.1 --port 4173 --strictPort)
+exit=0
+FAIL lines: 0
+PASS: all required audio/video input targets inspected on Chromium/WebKit; corrupt/no-audio isolated; wrong extensions detected by content; append/drop/duplicates stable; no decoder/audio-context construction; mobile layout passed.
+## sprint-25-check (APP_URL=http://127.0.0.1:4173/audio-toolkit-v1/ against npx vite preview --host 127.0.0.1 --port 4173 --strictPort)
+exit=0
+FAIL lines: 0
+PASS: intake, Trim all metadata, Preview gating, one player, export/previous export, Clear all, unsupported playback, 320 dark.
+## node scripts/sprint-30-check.mjs (all tasks T1 to T7, ENGINES=chromium)
+PASS: 807 checks
+exit=0
+  per task: T1 125, T2 59, T3 65, T4 67, T5 139, T6 95, T7 257 checks = 807
+## node scripts/sprint-30-check.mjs --task T7 (after removing the viewport-scroll dependent visible-row count): PASS: 257 checks, see t7.txt
+## ui-states-check (own preview server of a copy of dist on port 4190, ENGINES=chromium, APP_URL=http://127.0.0.1:4190/audio-toolkit-v1/; axe skipped as at the base head, no file at the default AXE_PATH and no network)
+exit=1
+ok lines: 1493  FAIL lines: 11 (baseline at the base head: 16)
+FAIL desktop-light scenario failures-storage-full completes -- locator.waitFor: Timeout 60000ms exceeded. | last labels ["file-result|Preparing… Cancel","run-status|Exporting 1 of 1 Cancel all Keep this tab open until it finishes.","file-
+FAIL desktop-dark scenario delivery completes -- cdpSession.send: Protocol error (Accessibility.getPartialAXTree): Could not find node with given id | last labels ["file-result|Preparing… Cancel","run-status|Exporting 1 of 2 Cancel all Ke
+FAIL desktop-dark scenario failures-storage-full completes -- locator.waitFor: Timeout 60000ms exceeded. | last labels ["file-result|Preparing… Cancel","run-status|Exporting 1 of 1 Cancel all Keep this tab open until it finishes.","file-r
+FAIL phone390-light scenario failures-storage-full completes -- locator.waitFor: Timeout 60000ms exceeded. | last labels ["file-result|Preparing… Cancel","run-status|Exporting 1 of 1 Cancel all Keep this tab open until it finishes.","file
+FAIL phone390-dark scenario failures-storage-full completes -- locator.waitFor: Timeout 60000ms exceeded. | last labels ["file-result|Preparing… Cancel","run-status|Exporting 1 of 1 Cancel all Keep this tab open until it finishes.","file-
+FAIL phone320-light scenario failures-storage-full completes -- locator.waitFor: Timeout 60000ms exceeded. | last labels ["file-result|Preparing… Cancel","run-status|Exporting 1 of 1 Cancel all Keep this tab open until it finishes.","file
+FAIL console desktop-light had no page error, failed request or console error -- success-several-steps: request failed blob:http://127.0.0.1:4190/8bca3303-b69c-4f8e-b4a7-4c0f55936a92 net::ERR_ABORTED | success-several-steps: request failed 
+FAIL console desktop-dark had no page error, failed request or console error -- success-several-steps: request failed blob:http://127.0.0.1:4190/de04b58e-8c27-4bd4-8be2-5eb0fdc038f0 net::ERR_ABORTED | success-several-steps: request failed b
+FAIL console phone390-light had no page error, failed request or console error -- success-several-steps: request failed blob:http://127.0.0.1:4190/b3515ec1-9de0-4e26-836f-7443ef4669f7 net::ERR_ABORTED | success-several-steps: request failed
+FAIL console phone390-dark had no page error, failed request or console error -- success-several-steps: request failed blob:http://127.0.0.1:4190/6d64c97e-ad9d-42de-98ba-2cf24631d985 net::ERR_ABORTED | success-several-steps: request failed 
+FAIL console phone320-light had no page error, failed request or console error -- success-several-steps: request failed blob:http://127.0.0.1:4190/dcc2c044-e443-470a-ba7c-34a86ee67a3b net::ERR_ABORTED | success-several-steps: request failed
+## ui-states-check FAIL lines not in the baseline: one, desktop-dark scenario delivery (CDP Accessibility.getPartialAXTree 'Could not find node'), seen only while sprint-30-check ran in parallel. Re-run alone: UI_CONFIGS=desktop-dark UI_STATES='^delivery$' three times, delivery passed all three; full desktop-dark config re-run alone, delivery passed. Treated as a load flake.
+## ui-states-check baseline lines that did not recur in this run: the five splitter-run 'never showed a window counter, GPU or CPU' lines and 'cpu-fallback run showed no device words'. A separate phone320-light splitter-run run also passed those assertions. Likely cause (inferred, not re-run at the base head): those assertions match a digit slash digit pattern in the recorded .file-result text, and at the base head the finished result row carried the player readout (for example 00:00 / 00:10) inside .file-result. Sprint 30 moved the readout into the file line, so the recorded text no longer matches.

@@ -151,6 +151,40 @@ const seekAndPlay = async (row, seconds) => {
   await row.locator('audio').evaluate(audio => new Promise(resolve => { if (audio.seeking) audio.addEventListener('seeked', resolve, { once: true }); else resolve(); }));
 };
 
+const THREE = () => [fixture('tone-20.wav', 20), fixture(LONG_NAME, 12), fixture('tone-15.wav', 15)];
+
+const smallTargets = page => page.evaluate(() => {
+  const selector = 'button, a[href], select, summary, input:not([type=file]), [role=slider], label';
+  return [...document.querySelector('.files-panel').querySelectorAll(selector)]
+    .filter(element => (element.tagName !== 'LABEL' || element.querySelector('input')) && element.getClientRects().length && getComputedStyle(element).visibility !== 'hidden')
+    .map(element => { const box = element.getBoundingClientRect(); return { target: `${element.tagName.toLowerCase()}.${element.className.toString().split(' ')[0]} ${(element.getAttribute('aria-label') ?? element.textContent).trim().slice(0, 24)}`, width: Math.round(box.width * 10) / 10, height: Math.round(box.height * 10) / 10 }; })
+    .filter(target => target.width < 43.5 || target.height < 43.5);
+});
+
+const listFacts = page => page.evaluate(() => {
+  const panel = document.querySelector('.files-panel').getBoundingClientRect();
+  const rows = [...document.querySelectorAll('.file-list li')].map(li => {
+    const box = li.getBoundingClientRect(), result = li.querySelector('.file-result');
+    return { height: box.height, resultHeight: result ? result.getBoundingClientRect().height : 0, top: box.top - panel.top, bottom: box.bottom, state: li.dataset.jobState ?? 'none' };
+  });
+  const list = document.querySelector('.file-list').getBoundingClientRect();
+  const wave = document.querySelector('.wave-track');
+  return { rows, listHeight: list.height, firstRowOffset: rows[0]?.top ?? null, waveWidth: wave ? wave.getBoundingClientRect().width : null, overflow: document.documentElement.scrollWidth - innerWidth };
+});
+
+async function threeFinished(page, probe = async () => ({})) {
+  const result = { empty: (await metrics(page)).emptyBoxHeight };
+  await addFiles(page, THREE());
+  await page.waitForTimeout(400);
+  result.unprocessed = { ...await listFacts(page), ...await probe('unprocessed') };
+  await page.getByLabel('Add step').selectOption('trim');
+  await setTrimAll(page, 2, 10);
+  result.unprocessedWithPreview = await listFacts(page);
+  await exportAll(page, 3);
+  result.finished = { ...await listFacts(page), ...await probe('finished') };
+  return result;
+}
+
 const tasks = {
   async T1({ browser, app, check, note }) {
     for (const viewport of VIEWPORTS) {
@@ -747,21 +781,171 @@ const tasks = {
     }
     note('WebKit not run: not installed');
   },
+
+  async T7({ browser, app, check, note, record }) {
+    const passes = [
+      { name: 'light', scheme: 'light' },
+      { name: 'dark', scheme: 'dark' },
+      { name: 'light, reduced motion', scheme: 'light', reducedMotion: 'reduce' },
+      { name: 'light, touch', scheme: 'light', touch: true, maxWidth: 768 },
+    ];
+    for (const viewport of VIEWPORTS) {
+      for (const pass of passes) {
+        if (pass.maxWidth && viewport.width > pass.maxWidth) continue;
+        const label = `T7 ${viewport.name} ${pass.name}`;
+        const { context, page, errors } = await openApp(browser, app, viewport, pass);
+        const settle = () => page.waitForTimeout(pass.reducedMotion ? 120 : 450);
+        const result = await threeFinished(page, async stage => ({ small: await smallTargets(page), stage }));
+        const { unprocessed, finished } = result;
+        check(`${label} unprocessed: every row at most 120px without Preview`, unprocessed.rows.length === 3 && unprocessed.rows.every(row => row.height <= 120), JSON.stringify(unprocessed.rows.map(row => row.height)));
+        note(`${label} measured: unprocessed rows ${unprocessed.rows.map(row => `${Math.round(row.height)}px`).join(', ')}, with a Trim all step and Preview ${result.unprocessedWithPreview.rows.map(row => `${Math.round(row.height)}px`).join(', ')}, first-row offset ${Math.round(unprocessed.firstRowOffset)}px, empty box ${result.empty}px`);
+        check(`${label} unprocessed: first row starts within 80px of the panel top`, unprocessed.firstRowOffset <= 80, unprocessed.firstRowOffset);
+        check(`${label} unprocessed: every interactive target is at least 44x44`, unprocessed.small.length === 0, JSON.stringify(unprocessed.small));
+        check(`${label} unprocessed: no horizontal overflow`, unprocessed.overflow <= 0, unprocessed.overflow);
+        check(`${label} finished: each collapsed row is at most 64px`, finished.rows.length === 3 && finished.rows.every(row => row.height <= 64), JSON.stringify(finished.rows.map(row => row.height)));
+        check(`${label} finished: first row starts within 80px of the panel top`, finished.firstRowOffset <= 80, finished.firstRowOffset);
+        check(`${label} finished: every interactive target is at least 44x44`, finished.small.length === 0, JSON.stringify(finished.small));
+        check(`${label} finished: no horizontal overflow`, finished.overflow <= 0, finished.overflow);
+        note(`${label} measured: collapsed rows ${finished.rows.map(row => `${Math.round(row.height)}px`).join(', ')}, list ${Math.round(finished.listHeight)}px`);
+
+        const toggles = page.locator('li[data-file-id] .file-toggle');
+        for (let index = 0; index < 3; index++) { await toggles.nth(index).click(); await settle(); }
+        const expanded = { ...await listFacts(page), small: await smallTargets(page) };
+        check(`${label} expanded: each finished row is at most 176px, not counting a result note`, expanded.rows.every(row => row.height - row.resultHeight <= 176), JSON.stringify(expanded.rows.map(row => [row.height, row.resultHeight])));
+        check(`${label} expanded: every interactive target is at least 44x44`, expanded.small.length === 0, JSON.stringify(expanded.small));
+        check(`${label} expanded: no horizontal overflow`, expanded.overflow <= 0, expanded.overflow);
+        note(`${label} measured: expanded rows ${expanded.rows.map(row => `${Math.round(row.height)}px`).join(', ')}, list ${Math.round(expanded.listHeight)}px, waveform ${Math.round(expanded.waveWidth)}px`);
+
+        const first = rowAt(page, 0);
+        await first.getByRole('button', { name: copy.wave.trimLabel('tone-20.wav') }).click();
+        await settle();
+        const editing = { ...await listFacts(page), handles: await first.locator('.wave-handle').count(), small: await smallTargets(page) };
+        check(`${label} trim editing: two handles, every target at least 44x44, no horizontal overflow`, editing.handles === 2 && editing.small.length === 0 && editing.overflow <= 0, JSON.stringify({ handles: editing.handles, small: editing.small, overflow: editing.overflow }));
+        note(`${label} measured: row in trim editing ${Math.round(editing.rows[0].height)}px`);
+        await first.getByRole('button', { name: copy.wave.doneLabel('tone-20.wav') }).click();
+        await settle();
+
+        if (pass.reducedMotion) {
+          const motion = await page.evaluate(() => ({ animations: document.getAnimations().length, trackTransition: getComputedStyle(document.querySelector('.wave-track')).transitionDuration, buttonTransition: getComputedStyle(document.querySelector('button')).transitionDuration }));
+          check(`${label} reduced motion: no running animation and no transition`, motion.animations === 0 && /^0s(, 0s)*$/.test(motion.trackTransition) && /^0s(, 0s)*$/.test(motion.buttonTransition), JSON.stringify(motion));
+        }
+        for (let index = 0; index < 3; index++) { await toggles.nth(index).click(); await settle(); }
+        const folded = await listFacts(page);
+        check(`${label} collapsing every row returns each to at most 64px`, folded.rows.every(row => row.height <= 64), JSON.stringify(folded.rows.map(row => row.height)));
+        check(`${label} no page errors`, errors.length === 0, errors.join('; '));
+        record(viewport.name, pass.name, { empty: result.empty, unprocessed: unprocessed.rows.map(row => row.height), unprocessedWithPreview: result.unprocessedWithPreview.rows.map(row => row.height), unprocessedFirstRowOffset: unprocessed.firstRowOffset, finished: finished.rows.map(row => row.height), finishedFirstRowOffset: finished.firstRowOffset, finishedListHeight: finished.listHeight, expanded: expanded.rows.map(row => row.height), expandedListHeight: expanded.listHeight, waveWidth: expanded.waveWidth });
+        await context.close();
+      }
+    }
+    note('WebKit not run: not installed');
+  },
 };
 
+const measured = {};
+const record = (viewport, pass, data) => { (measured[viewport] ??= {})[pass] = data; };
+
+async function runThree(browser, app) {
+  const out = { base: process.env.SPRINT30_BASE ?? 'unmodified build', viewports: {} };
+  for (const viewport of VIEWPORTS) {
+    const { context, page } = await openApp(browser, app, viewport, { scheme: 'light' });
+    const { empty, unprocessed, unprocessedWithPreview, finished } = await threeFinished(page);
+    out.viewports[viewport.name] = {
+      empty, unprocessed: unprocessed.rows.map(row => row.height), unprocessedWithPreview: unprocessedWithPreview.rows.map(row => row.height), unprocessedFirstRowOffset: unprocessed.firstRowOffset,
+      finished: finished.rows.map(row => row.height), finishedFirstRowOffset: finished.firstRowOffset, finishedListHeight: finished.listHeight, waveWidth: finished.waveWidth,
+    };
+    await context.close();
+  }
+  await writeFile(`${root}/three-${process.env.SPRINT30_BASE ? 'baseline' : 'now'}.json`, `${JSON.stringify(out, null, 2)}\n`);
+  console.log(JSON.stringify(out, null, 2));
+}
+
+async function runShots(browser, app, which) {
+  const viewportOf = name => VIEWPORTS.find(viewport => viewport.name === name);
+  const finished = async (name, scheme, file, { expand = false, expandedFile } = {}) => {
+    const { context, page } = await openApp(browser, app, viewportOf(name), { scheme });
+    await threeFinished(page);
+    await page.waitForTimeout(400);
+    if (file) await shot(page, file);
+    if (expand) {
+      await rowAt(page, 1).locator('.file-toggle').click();
+      await page.waitForTimeout(500);
+      if (expandedFile) await shot(page, expandedFile);
+    }
+    return { context, page };
+  };
+  if (which === 'before') {
+    await (await finished('375', 'dark', 'before-375-dark')).context.close();
+    return;
+  }
+  await (await finished('375', 'dark', 'final-375-dark', { expand: true, expandedFile: 'final-375-expanded-dark' })).context.close();
+  await (await finished('375', 'light', 'final-375-light')).context.close();
+  await (await finished('320', 'dark', 'final-320-dark')).context.close();
+  for (const [name, scheme] of [['768', 'light'], ['1024', 'dark'], ['1440', 'light']]) {
+    await (await finished(name, scheme, `final-${name}-${scheme}-collapsed`, { expand: true, expandedFile: `final-${name}-${scheme}` })).context.close();
+  }
+  {
+    const { context, page } = await finished('375', 'light', null);
+    await rowAt(page, 0).locator('.file-toggle').click();
+    await page.waitForTimeout(450);
+    await rowAt(page, 0).getByRole('button', { name: copy.wave.trimLabel('tone-20.wav') }).click();
+    await page.waitForTimeout(450);
+    await shot(page, 'edit-mode-375');
+    await context.close();
+  }
+  {
+    const { context, page } = await openApp(browser, app, viewportOf('375'), { scheme: 'light' });
+    await shot(page, 'empty-375');
+    await addFiles(page, THREE());
+    await page.waitForTimeout(500);
+    await shot(page, 'unprocessed-375-light');
+    await context.close();
+  }
+}
+
+async function writeTable() {
+  const before = JSON.parse(await readFile(`${root}/three-baseline.json`, 'utf8')).viewports;
+  const after = JSON.parse(await readFile(`${root}/measurements.json`, 'utf8')).viewports;
+  const sum = list => list.reduce((total, value) => total + value, 0), tallest = list => Math.max(...list);
+  const measures = [
+    ['Finished row as first shown (tallest of 3)', was => tallest(was.finished), now => tallest(now.finished)],
+    ['Collapsed finished row (tallest of 3)', () => null, now => tallest(now.finished)],
+    ['Expanded finished row (tallest of 3)', was => tallest(was.finished), now => tallest(now.expanded)],
+    ['Unprocessed row, no steps and no Preview (tallest of 3)', was => tallest(was.unprocessed), now => tallest(now.unprocessed)],
+    ['Unprocessed row with a Trim all step and Preview (tallest of 3)', was => tallest(was.unprocessedWithPreview), now => tallest(now.unprocessedWithPreview)],
+    ['First-row offset from the panel top', was => was.finishedFirstRowOffset, now => now.finishedFirstRowOffset],
+    ['Empty-state box, fine pointer', was => was.empty, now => now.empty],
+    ['Waveform width in an expanded finished row', was => was.waveWidth, now => now.waveWidth],
+    ['Rows that fit in 812px of list (812 divided by the tallest finished row, rounded down)', was => Math.floor(812 / tallest(was.finished)), now => Math.floor(812 / tallest(now.finished))],
+    ['Total height of 3 finished tracks', was => sum(was.finished), now => sum(now.finished)],
+  ];
+  const names = VIEWPORTS.map(viewport => viewport.name);
+  const show = value => value === null ? 'none' : String(Math.round(value));
+  const head = `| Measure in px, baseline to now | ${VIEWPORTS.map(viewport => `${viewport.width}x${viewport.height}`).join(' | ')} |\n| --- | ${names.map(() => '---').join(' | ')} |`;
+  const rows = measures.map(([title, was, now]) => `| ${title} | ${names.map(name => `${show(was(before[name]))} to ${show(now(after[name].light))}`).join(' | ')} |`);
+  await writeFile(`${root}/measurements.md`, `${[head, ...rows].join('\n')}\n`);
+  console.log([head, ...rows].join('\n'));
+}
+
+const shotsFlag = args.indexOf('--shots');
+const shotsWhich = shotsFlag >= 0 ? args[shotsFlag + 1] : null;
+const three = args.includes('--three');
+if (args.includes('--table')) { await writeTable(); process.exit(0); }
 const app = await startApp();
 const { check, note, lines, failures } = reporter();
 const wanted = engines();
-const selected = baseline ? [] : only ? [only] : Object.keys(tasks);
+const selected = baseline || three || shotsWhich ? [] : only ? [only] : Object.keys(tasks);
 try {
   for (const [name, type] of wanted) {
     const browser = await type.launch({ ...launchOptions(name), args: ['--autoplay-policy=no-user-gesture-required'] });
     try {
       if (baseline) await runBaseline(app, browser);
-      for (const id of selected) await tasks[id]({ browser, app, check, note });
+      if (three) await runThree(browser, app);
+      if (shotsWhich) await runShots(browser, app, shotsWhich);
+      for (const id of selected) await tasks[id]({ browser, app, check, note, record });
     } finally { await browser.close(); }
   }
 } finally { await app.close(); }
+if (selected.includes('T7')) await writeFile(`${root}/measurements.json`, `${JSON.stringify({ engines: wanted.map(([name]) => name), viewports: measured }, null, 2)}\n`);
 if (only) await writeFile(`${root}/${only.toLowerCase()}.txt`, `${lines.map(line => `${line.note ? 'note' : line.ok ? 'ok  ' : 'FAIL'} ${line.name}${line.detail ? ` -- ${line.detail}` : ''}`).join('\n')}\n`);
-if (!baseline) console.log(failures.length ? `FAIL: ${failures.length} of ${lines.filter(line => !line.note).length}` : `PASS: ${lines.filter(line => !line.note).length} checks`);
+if (!baseline && !three && !shotsWhich) console.log(failures.length ? `FAIL: ${failures.length} of ${lines.filter(line => !line.note).length}` : `PASS: ${lines.filter(line => !line.note).length} checks`);
 process.exit(failures.length ? 1 : 0);
