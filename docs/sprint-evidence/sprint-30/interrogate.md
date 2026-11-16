@@ -73,3 +73,17 @@ Details that matter:
 - Issue 3 also changes what shows while the length is unknown: the line reads `Duration unknown`, never `--:--`.
 - Issue 4 in the Chromium forced-colors emulation: light track `rgb(96, 0, 0)` with fill `rgba(5, 0, 73, 0.8)`, dark track `rgb(63, 242, 63)` with fill `rgba(26, 235, 255, 0.8)`. In the light emulation the two are both dark and differ mainly in hue, so they read as distinct but not high contrast.
 - Still open and unchanged: lane E (regression against trunk) did not run, and the not-run list above (WebKit, iOS Safari, Android, `axe`, real OS drag and drop, a result with a genuinely different duration, Retry from a failed export).
+
+## Follow-up round
+
+After the user reviewed the UI, a fresh owner made four approved changes, one commit each, on head `acd671e`. The gate verdict above is unchanged: lane E still did not run, and no new independent review was done for this round. Chromium only, WebKit not run.
+
+Decisions:
+
+- **Toggle B.** The Original and Result switch is an on/off toggle, `Original [toggle] Result`. The track is 40x24 and the knob sits left for Original and right for Result. The selected label uses the normal text color and the other is muted. Clicking either label or the track switches the view. The radio group, arrow keys, roving tabindex and the file name in the group name are kept, and every hit target is 44px high. The player row and the toggle row are 10px apart.
+- **Notes above the player.** The loudness, clipping and "cannot play here" notes sit directly under the meta line, only when present. A collapsed row still hides the loudness and clipping notes. Nothing renders under the toggle.
+- **Older settings only for assistive tech.** `Result (older settings)` is no longer shown. The Result option, the download link and the player keep the older-settings name and title. There is no visible dot or marker.
+- **Links converted to buttons.** Every `.text-button` is a normal button (Reset to Trim all, Cancel all, Retry failed, Try again in three places, the folder and zip Cancel buttons, Use true peak). The CSS is deleted. Cancel all and Retry failed sit in the run-actions row beside Clear all, Save to device and Export. A disabled Clear all keeps a border and a fill. The settings notices link is an `a.button`. The brand link in the header stays a plain title link.
+- **Meta line wording.** `00:02 / 03:02 · Trimmed to 02:10` in the Original view and for unexported files. `00:02 / 03:02` with no trim. `00:00 / 02:10 · Trimmed` in the Result view. The Result view reads the trim from the job's frozen plan.
+
+The checks are section T9 of `scripts/sprint-30-check.mjs`. `t9-before.txt` is the run against the code before this round (217 of 329 lines fail). The details are in the sprint Log.

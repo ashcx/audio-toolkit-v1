@@ -59,9 +59,9 @@ test('a bad trim range is owned by the step, except one that only fails against 
   assert.equal(owner({ start: 9, end: null }, 2), 'file');
 });
 
-test('file metadata names the kept range from a trim that has no end', () => {
+test('file metadata says trimmed without a kept length when the duration is unknown', () => {
   const entry = { id: createFileId(), file: new File(['x'], 'a.wav'), inspection: { kind: 'ready', metadata: { duration: null, startTime: 0 } } };
-  assert.deepEqual(fileMetadata(entry, { start: 10, end: null, duration: null }), { primary: 'Duration unknown', secondary: '00:10 to End' });
+  assert.deepEqual(fileMetadata(entry, { start: 10, end: null, duration: null }), { trimmed: true });
 });
 
 test('the spoken name of a step button contains the title and summary a person sees', () => {

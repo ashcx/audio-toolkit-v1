@@ -60,7 +60,7 @@ await page.getByLabel(copy.trim.startField(copy.trim.prefix),{exact:true}).fill(
 await page.getByLabel(copy.trim.endField(copy.trim.prefix),{exact:true}).fill('1');
 await page.waitForTimeout(300);
 const trimmed = await row('tone.wav').innerText();
-if (!/00:01 · 00:00 to 00:01/.test(trimmed)) throw new Error('trim metadata mismatch: ' + trimmed);
+if (!/ \/ 00:02 · Trimmed to 00:01/.test(trimmed)) throw new Error('trim metadata mismatch: ' + trimmed);
 if (!(await page.getByLabel('Trim tone.wav').count())) throw new Error('per-file waveform trim button missing');
 await page.getByLabel('Add step').selectOption('gain');
 await page.waitForTimeout(300);
@@ -125,10 +125,12 @@ await page.setViewportSize({ width: 1440, height: 1200 });
 await page.getByRole('slider', { name: 'Gain (dB) slider' }).evaluate(el => { el.value = '-3'; el.dispatchEvent(new Event('input', { bubbles: true })); });
 await page.waitForTimeout(500);
 const previous = await row('tone.wav').innerText();
-if (!previous.includes(copy.result.olderLabel)) throw new Error('older-settings label missing: ' + previous);
+if (previous.includes(copy.result.olderLabel)) throw new Error('older-settings text must not be visible: ' + previous);
+if (await row('tone.wav').locator('.file-result').count()) throw new Error('an older result adds no visible line');
 if (!(await page.getByRole('link', { name: copy.result.downloadOlder('tone.wav'), exact: true }).count())) throw new Error('older-settings download label missing');
 const previousPlay = await row('tone.wav').locator('.file-player .wave-play').getAttribute('aria-label');
 if (previousPlay !== copy.wave.play(copy.result.olderLabel, 'tone.wav')) throw new Error('older-settings player label: ' + previousPlay);
+if (await row('tone.wav').getByRole('radio', { name: copy.result.olderLabel, exact: true }).count() !== 1) throw new Error('the Result option lost its older-settings name');
 if (!(await row('tone.wav').getByRole('button', { name: 'Preview tone.wav' }).count())) throw new Error('Preview missing after recipe edit');
 await page.screenshot({ path: `${root}/captures/05-previous-export.png`, fullPage: true });
 // Clear all

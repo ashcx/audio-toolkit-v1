@@ -97,7 +97,7 @@ const trackPoint = async (page, rowName, fraction, y = 0.5) => {
   check('the dragged file shows Custom range and Reset', await row(page, a).getByText(copy.wave.custom).count() === 1 && await row(page, a).getByRole('button', { name: copy.wave.resetLabel(a) }).count() === 1);
   check('the other file is untouched', await row(page, b).getByText(copy.wave.custom).count() === 0);
   const summary = await row(page, a).locator('.file-name small').first().innerText();
-  check('the file summary follows the range', /00:05 to 00:15/.test(summary), summary);
+  check('the file summary follows the range as the kept length', /Trimmed to 00:10$/.test(summary), summary);
 
   const lineColour = await page.evaluate(() => {
     const probe = document.createElement('i'); probe.style.color = getComputedStyle(document.documentElement).getPropertyValue('--trim-line'); document.body.append(probe);

@@ -241,7 +241,7 @@ function StepFields({
         </> : legacyDbfs !== undefined ? <>
           <DbControl label={copy.normalize.legacyPeakTarget} value={legacyDbfs} min={-60} max={0} unit={copy.units.dbfs} errorId={errorId}
             onChange={targetDbfs => onChange({ id: step.id, kind: "normalize", mode: "peak", targetDbfs })} />
-          <button type="button" class="text-button"
+          <button type="button"
             onClick={() => onChange({ id: step.id, kind: "normalize", mode: "peak", targetDbtp })}>{copy.normalize.useTruePeak}</button>
         </> : <>
           <DbControl label={copy.normalize.peakTarget} value={targetDbtp} min={-6} max={0} unit={copy.units.dbtp} errorId={errorId}

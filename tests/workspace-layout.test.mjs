@@ -8,9 +8,9 @@ test('an untrimmed file has no metadata beyond the live position',()=>{
  assert.deepEqual(fileMetadata(entry(),{start:0,end:167,duration:167}),{});
  assert.deepEqual(fileMetadata(entry(),{start:0,end:null,duration:null}),{});
 });
-test('a changed Trim all range shows kept duration and source range in one line',()=>{
- assert.deepEqual(fileMetadata(entry(),{start:0,end:120,duration:120}),{primary:'02:00',secondary:'00:00 to 02:00'});
- assert.deepEqual(fileMetadata(entry(),{start:10,end:130,duration:120}),{primary:'02:00',secondary:'00:10 to 02:10'});
+test('a changed Trim all range reports that the file is trimmed and the kept length, not the range',()=>{
+ assert.deepEqual(fileMetadata(entry(),{start:0,end:120,duration:120}),{trimmed:true,kept:'02:00'});
+ assert.deepEqual(fileMetadata(entry(),{start:10,end:130,duration:120}),{trimmed:true,kept:'02:00'});
  assert.deepEqual(fileMetadata(entry(),{start:0,end:null,duration:null}),{});
 });
 test('Preview is shown only for a non-empty recipe without a current export',()=>{

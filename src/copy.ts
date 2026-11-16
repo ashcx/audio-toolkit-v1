@@ -326,6 +326,8 @@ export const copy = {
     retryLabel: (name: string) => `Retry ${name}`,
     original: "Original",
     detailsLabel: (name: string) => `Details for ${name}`,
+    trimmed: "Trimmed",
+    trimmedTo: (kept: string) => `Trimmed to ${kept}`,
     viewLabel: (name: string) => `Listen to ${name}`,
     progressLabel: (name: string) => `Export ${name}`,
     sourceUnplayable: "This source cannot play in the browser. Export it to hear the result.",

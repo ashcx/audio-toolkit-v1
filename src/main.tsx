@@ -334,11 +334,11 @@ function App() {
           <div class="run-status" aria-live="polite">
             {clearing && <span>{copy.export.clearing}</span>}
             {previewCleanup && !files.some(entry => entry.id === previewCleanup.fileId) && <>
-              <span>{previewCleanup.message}</span><button type="button" class="text-button" onClick={preview.clear}>{copy.actions["try-again"]}</button>
+              <span>{previewCleanup.message}</span><button type="button" onClick={preview.clear}>{copy.actions["try-again"]}</button>
             </>}
             {folder.state.kind === "choosing" && <span>{copy.delivery.chooseFolder}</span>}
             {folder.state.kind === "saving" && <span>{copy.delivery.savingProgress(folder.state.completed, folder.state.total)}</span>}
-            {(folder.state.kind === "choosing" || folder.state.kind === "saving") && <button type="button" class="text-button" onClick={folder.cancel}>{copy.delivery.cancel}</button>}
+            {(folder.state.kind === "choosing" || folder.state.kind === "saving") && <button type="button" onClick={folder.cancel}>{copy.delivery.cancel}</button>}
             {folder.state.kind === "cancelling" && <span>{copy.delivery.finishing}</span>}
             {folder.state.kind === "failed" && <span>{folder.state.message}</span>}
             {folder.state.kind === "result" && <div class="folder-report">
@@ -348,19 +348,16 @@ function App() {
             {archive.state.kind === "building" && <>
               <progress aria-label={copy.delivery.zipProgress} value={archive.state.progress.loaded} max={archive.state.progress.total || 1} />
               <span>{copy.delivery.creatingZip}</span>
-              <button type="button" class="text-button" onClick={archive.cancel}>{copy.delivery.cancel}</button>
+              <button type="button" onClick={archive.cancel}>{copy.delivery.cancel}</button>
             </>}
             {(archive.state.kind === "cancelling" || archive.state.kind === "releasing") && <span>{copy.delivery.finishing}</span>}
             {zipProblem && <span>{zipProblem.message}</span>}
-            {zipStuck && <button ref={zipCleanupButton} type="button" class="text-button" onClick={() => {pendingResultFocus.current=true;void archive.clear();}}>{copy.actions["try-again"]}</button>}
+            {zipStuck && <button ref={zipCleanupButton} type="button" onClick={() => {pendingResultFocus.current=true;void archive.clear();}}>{copy.actions["try-again"]}</button>}
             {exports.cleanupStuck && <>
               <span>{messageFor("storage-stuck")}</span>
-              <button ref={cleanupButton} type="button" class="text-button" disabled={locked} onClick={() => {pendingResultFocus.current=true;void exports.retryCleanup();}}>{copy.actions["try-again"]}</button>
+              <button ref={cleanupButton} type="button" disabled={locked} onClick={() => {pendingResultFocus.current=true;void exports.retryCleanup();}}>{copy.actions["try-again"]}</button>
             </>}
             {exportText && <span class="run-count" aria-hidden="true">{exportText}</span>}
-            {exports.busy && <button type="button" class="text-button" onClick={exports.cancelAll}>{copy.export.cancelAll}</button>}
-            {!workLocked && exports.cleanupCount === 0 && [...exports.jobs.values()].some(job => job.state.kind === "failed") &&
-              <button type="button" class="text-button" onClick={() => exports.retry()}>{copy.export.retryFailed}</button>}
             {exportText && <small>{copy.export.keepOpen}</small>}
           </div>
           <div class="run-actions-group">
@@ -370,6 +367,9 @@ function App() {
               title={copy.export.clearAllTooltip}
               onClick={clearAll}
             >{copy.export.clearAll}</button>}
+            {exports.busy && <button type="button" onClick={exports.cancelAll}>{copy.export.cancelAll}</button>}
+            {!workLocked && exports.cleanupCount === 0 && [...exports.jobs.values()].some(job => job.state.kind === "failed") &&
+              <button type="button" onClick={() => exports.retry()}>{copy.export.retryFailed}</button>}
             {completed.length > 0 && <details class="delivery-menu" onToggle={event => { if (event.currentTarget.open) event.currentTarget.scrollIntoView({ block: "nearest" }); }} onKeyDown={event=>{
               if(event.key === "Escape") {event.currentTarget.open=false;event.currentTarget.querySelector<HTMLElement>("summary")?.focus();}
             }}>
@@ -410,7 +410,7 @@ function App() {
             <input class="sr-only" type="radio" name="appearance" checked={theme === value} onChange={() => setTheme(value)} />{copy.settings.themes[value]}
           </label>)}
         </div></fieldset>
-        <a href={`${import.meta.env.BASE_URL}third-party/`} target="_blank" rel="noopener">{copy.settings.licenses}</a>
+        <a class="button" href={`${import.meta.env.BASE_URL}third-party/`} target="_blank" rel="noopener">{copy.settings.licenses}</a>
       </dialog>
     </div>
   );

@@ -2,6 +2,15 @@
 
 What needs the user. Newest first.
 
+## 2026-11-16 — Sprint 30 follow-up round
+
+Four approved changes are in, one commit each on the PR branch, not pushed. Toggle B for Original and Result, notes above the player, the meta line `00:02 / 03:02 · Trimmed to 02:10` (Result view `00:00 / 02:10 · Trimmed`), and no control styled as a link. Details: `docs/sprint-evidence/sprint-30/interrogate.md` (Follow-up round) and the sprint Log.
+
+- The user's "Clear all appears as a link" report: reproduced. `Cancel all` and `Retry failed` were underlined green link text beside the buttons, and a disabled Clear all lost its border. Both are fixed: every action in the Export pane is a bordered 44px button in one row.
+- Decided without asking: the Result view reads its trim from the job's frozen plan, the header brand stays a plain title link, a result that cannot play no longer shows a visible `Result` label beside its note, the older-settings name is spoken and in a tooltip only.
+- Seven older drivers (`batch-check`, `copy-check`, `dsp-check`, `format-check`, `isolation-check`, `sprint-24-check`, `sprint-26-check`) still assert the old visible text or `.file-result`. They are outside the required list and were not run or migrated.
+- Not run: WebKit, iOS Safari, Android, a screen reader, `axe`.
+
 ## 2026-11-16 — Sprint 30 open items
 
 Built and in a PR for your review. Not merged. The gate is incomplete.
