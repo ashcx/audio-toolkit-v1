@@ -1,0 +1,54 @@
+# Sprint 30 baseline at base head da85986 (origin/main 3c6ae13 + plan commit), 2026-11-16T05:12:44Z
+ENGINES=chromium; WebKit not installed, not run.
+## npm run typecheck: exit 0
+## npm test: tests 231 pass 231 fail 0
+## npm run build: exit 0
+## node scripts/sprint-29-check.mjs
+exit 0
+FAIL lines: 0
+ok   no page errors during the run
+PASS: 57 checks in Chrome, evidence in /private/tmp/claude-501/-Users-macbook--claude-spares-spare-uaIZtX/60d8fb84-a3f2-4ad6-9410-d53cf398f052/scratchpad/s29
+## node scripts/keyboard-check.mjs
+exit 0
+FAIL lines: 0
+
+55 assertions passed, 0 failed. Results in .artifacts/keyboard/results.json
+## node scripts/intake-check.mjs
+exit 0
+FAIL lines: 0
+engines chromium
+PASS: all required audio/video input targets inspected on Chromium/WebKit; corrupt/no-audio isolated; wrong extensions detected by content; append/drop/duplicates stable; no decoder/audio-context construction; mobile layout passed.
+## node scripts/sprint-25-check.mjs
+exit 0
+FAIL lines: 0
+PASS: intake, Trim all metadata, Preview gating, one player, export/previous export, Clear all, unsupported playback, 320 dark.
+## node scripts/ui-states-check.mjs
+exit 1
+FAIL lines: 16
+  console phone390-dark had no page error, failed request or console error
+  console phone320-light had no page error, failed request or console error
+## node scripts/workspace-check.mjs
+exit 0
+FAIL lines: 0
+engines chromium
+PASS: Chromium/WebKit desktop/mobile, all themes, live system changes, keyboard removal, long names, base path/reload, privacy/lazy assets and capability recovery notices.
+
+## ui-states-check failures at the base head (16 FAIL lines, exit 1, ran at APP_URL, ENGINES=chromium; recorded as the baseline, not caused by sprint 30)
+FAIL desktop-light scenario failures-storage-full completes -- locator.waitFor: Timeout 60000ms exceeded. | last labels ["file-result|Preparing… Cancel","run-status|Exp
+FAIL desktop-light/splitter-run never showed a window counter, GPU or CPU
+FAIL desktop-dark scenario failures-storage-full completes -- locator.waitFor: Timeout 60000ms exceeded. | last labels ["file-result|Preparing… Cancel","run-status|Expo
+FAIL desktop-dark/splitter-run never showed a window counter, GPU or CPU
+FAIL phone390-light scenario failures-storage-full completes -- locator.waitFor: Timeout 60000ms exceeded. | last labels ["file-result|Preparing… Cancel","run-status|Ex
+FAIL phone390-light/splitter-run never showed a window counter, GPU or CPU
+FAIL phone390-dark scenario failures-storage-full completes -- locator.waitFor: Timeout 60000ms exceeded. | last labels ["file-result|Preparing… Cancel","run-status|Exp
+FAIL phone390-dark/splitter-run never showed a window counter, GPU or CPU
+FAIL phone320-light scenario failures-storage-full completes -- locator.waitFor: Timeout 60000ms exceeded. | last labels ["file-result|Preparing… Cancel","run-status|Ex
+FAIL phone320-light/splitter-run never showed a window counter, GPU or CPU
+FAIL cpu-fallback run showed no device words -- ["Preparing… Cancel","Downloading model, 1 of 85 MB Cancel","Downloading model, 2 of 85 MB Cancel","Downloading model, 3
+FAIL console desktop-light had no page error, failed request or console error -- success-several-steps: request failed blob:http://127.0.0.1:4173/c4b4ae36-841f-4747-80ec-
+FAIL console desktop-dark had no page error, failed request or console error -- success-several-steps: request failed blob:http://127.0.0.1:4173/ae78ad83-42ee-4f39-a7aa-0
+FAIL console phone390-light had no page error, failed request or console error -- success-several-steps: request failed blob:http://127.0.0.1:4173/481189a0-e60a-49e3-a351
+FAIL console phone390-dark had no page error, failed request or console error -- success-several-steps: request failed blob:http://127.0.0.1:4173/f550fe97-c71a-4e15-9179-
+FAIL console phone320-light had no page error, failed request or console error -- success-several-steps: request failed blob:http://127.0.0.1:4173/b8614f85-9984-41e4-9058
+
+## Real-app layout baseline: see baseline-measurements.json (320, 375, 768, 1024, 1440; finished row 235px at every width, unprocessed 174px, first-row offset 135px, empty box 220px up to 768px and 240px at 1024px and 1440px, waveform 218/273/666/402/514px)

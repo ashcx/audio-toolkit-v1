@@ -43,7 +43,7 @@ for(const [name,type] of engines()){
   const originalIds=new Set(rows.map(row=>row.id));
   const base64=(await readFile('tests/fixtures/tone.wav')).toString('base64');
   const transfer=await page.evaluateHandle(base64=>{const data=new DataTransfer();const bytes=Uint8Array.from(atob(base64),c=>c.charCodeAt(0));data.items.add(new File([bytes],'duplicate.wav',{type:'audio/wav'}));data.items.add(new File([bytes],'duplicate.wav',{type:'audio/wav'}));return data;},base64);
-  await page.locator('.dropzone').dispatchEvent('drop',{dataTransfer:transfer});
+  await page.locator('.files-panel').dispatchEvent('drop',{dataTransfer:transfer});
   await transfer.dispose();
   await page.waitForFunction(count=>document.querySelectorAll('.file-list li').length===count,names.length+2);
   const withDuplicates=await page.locator('.file-list li').evaluateAll(elements=>elements.map(row=>row.dataset.fileId));

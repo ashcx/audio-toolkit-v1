@@ -33,7 +33,7 @@ small { font: var(--type-hint); }
 button, a, select, input { touch-action: manipulation; }
 button, summary, select { cursor: pointer; }
 a { color: inherit; }
-button:focus-visible, a:focus-visible, summary:focus-visible, select:focus-visible, input:focus-visible, .dropzone:focus-within {
+button:focus-visible, a:focus-visible, summary:focus-visible, select:focus-visible, input:focus-visible {
   outline: 2px solid var(--accent); outline-offset: 3px;
 }
 button, .button, select {
@@ -55,14 +55,18 @@ p { margin: 0; }
 .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; min-width: 0; }
 .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .count { color: var(--muted-strong); font: var(--type-status); font-variant-numeric: tabular-nums; }
-.dropzone { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
-  border: 1px dashed var(--border-strong); border-radius: 12px; background: var(--surface-subtle); min-height: 240px; margin-top: 16px; padding: 16px; cursor: pointer; }
-.dropzone:hover, .dropzone-active { border-color: var(--accent); }
-.dropzone input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+.add-files { position: relative; margin-left: auto; cursor: pointer; }
+.add-files input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+.add-files:focus-within { outline: 2px solid var(--accent); outline-offset: 3px; }
+.add-files:hover { border-color: var(--border-strong); }
+.add-files:has(input:disabled) { opacity: .4; cursor: default; }
+.add-files input:disabled { cursor: default; }
+.files-panel[data-dragging] { border-color: var(--accent); }
+.dropzone { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; width: 100%;
+  border: 1px dashed var(--border-strong); border-radius: 12px; background: var(--surface-subtle); min-height: 160px; margin-top: 12px; padding: 16px; }
+.dropzone:hover:not(:disabled), .files-panel[data-dragging] .dropzone { border-color: var(--accent); }
 .dropzone > span, .dropzone > small { pointer-events: none; }
 .dropzone small { color: var(--muted-strong); }
-.dropzone.has-files { min-height: 64px; flex-direction: row; margin-top: 12px; padding: 12px; gap: 12px; }
-.dropzone.has-files .button { background: transparent; border: 0; color: var(--text); padding: 8px; }
 .file-list { list-style: none; margin: 12px 0 0; padding: 0; max-height: 580px; overflow-y: auto; scrollbar-gutter: stable; overscroll-behavior: contain; }
 .file-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); padding: 10px 0; }
 .file-list li:last-child { border-bottom: 0; padding-bottom: 4px; }
@@ -245,8 +249,6 @@ input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border: 3px s
   .header { margin-bottom: 16px; }
   .workspace { grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .panel { padding: 16px; }
-  .dropzone { min-height: 220px; }
-  .dropzone.has-files { min-height: 64px; }
   .run-actions { flex-direction: column; align-items: stretch; }
   .run-status { flex: 0 1 auto; }
   .run-actions-group { justify-content: flex-start; align-items: flex-start; margin-left: 0; }
@@ -257,9 +259,12 @@ input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border: 3px s
 }
 @media (max-width: 360px) {
   .panel { padding: 16px; }
-  .dropzone.has-files small { display: none; }
   .trim-times { gap: 8px; }
   .trim-times input { font-size: 12px; padding-inline: 6px; }
+}
+@media (pointer: coarse) {
+  .dropzone { min-height: 112px; }
+  .dropzone small { display: none; }
 }
 @media (prefers-reduced-motion: no-preference) {
   button, a, select, summary { transition: background .12s, border-color .12s; }

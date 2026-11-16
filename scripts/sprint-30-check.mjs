@@ -116,19 +116,102 @@ async function runBaseline(app, browser) {
   console.log(JSON.stringify(out, null, 2));
 }
 
+const shot = (page, name) => page.screenshot({ path: `${root}/captures/${name}.png`, fullPage: true });
+const dragFile = (page, selector, type) => page.evaluateHandle(() => {
+  const data = new DataTransfer();
+  data.items.add(new File([new Uint8Array(8)], 'dropped.wav', { type: 'audio/wav' }));
+  return data;
+}).then(async data => { await page.locator(selector).dispatchEvent(type, { dataTransfer: data }); await data.dispose(); });
+
+const tasks = {
+  async T1({ browser, app, check, note }) {
+    for (const viewport of VIEWPORTS) {
+      const label = `T1 ${viewport.name}`;
+      const touchViewport = viewport.width <= 768;
+      for (const touch of touchViewport ? [false, true] : [false]) {
+        const mode = touch ? 'coarse' : 'fine';
+        const { context, page, errors } = await openApp(browser, app, viewport, { touch });
+        const empty = await metrics(page);
+        check(`${label} ${mode} empty: one file input`, await page.locator('input[type=file]').count() === 1);
+        check(`${label} ${mode} empty: Add files button in the heading is 44px or taller`, empty.addHeight >= 44, empty.addHeight);
+        const limit = touch ? 140 : 180;
+        check(`${label} ${mode} empty: drop box at most ${limit}px (was ${viewport.width <= 800 ? 220 : 240})`, empty.emptyBoxHeight <= limit, empty.emptyBoxHeight);
+        const hint = await page.locator('.dropzone small').isVisible();
+        check(`${label} ${mode} empty: drop hint ${touch ? 'hidden' : 'shown'}`, hint === !touch);
+        check(`${label} ${mode} empty: dragging over the panel shows the active border`, await (async () => {
+          await dragFile(page, '.files-panel', 'dragenter');
+          const on = await page.locator('.files-panel[data-dragging]').count() === 1
+            && await page.locator('.files-panel').evaluate(el => getComputedStyle(el).borderTopColor) === await page.evaluate(() => { const probe = document.createElement('i'); probe.style.color = getComputedStyle(document.documentElement).getPropertyValue('--accent'); document.body.append(probe); const colour = getComputedStyle(probe).color; probe.remove(); return colour; });
+          await dragFile(page, '.files-panel', 'dragleave');
+          return on && await page.locator('.files-panel[data-dragging]').count() === 0;
+        })());
+        if (!touch) {
+          if (viewport.name === '375') await shot(page, 't1-375-before');
+          await page.locator('input[type=file]').setInputFiles(['tests/fixtures/tone.wav']);
+        } else {
+          const chooser = page.waitForEvent('filechooser');
+          await page.locator('.dropzone').tap();
+          await (await chooser).setFiles('tests/fixtures/tone.wav');
+        }
+        await page.waitForFunction(() => document.querySelector('li[data-inspection=ready]'));
+        await page.waitForTimeout(250);
+        const listed = await metrics(page);
+        note(`${label} ${mode} measured: empty box ${empty.emptyBoxHeight}px, Add files ${listed.addHeight}px, first row offset ${listed.firstRowOffset}px`);
+        check(`${label} ${mode} listed: no dashed drop box`, await page.locator('.dropzone').count() === 0);
+        check(`${label} ${mode} listed: exactly one file input`, await page.locator('input[type=file]').count() === 1);
+        check(`${label} ${mode} listed: Add files button is 44px or taller`, listed.addHeight >= 44, listed.addHeight);
+        const heading = await page.evaluate(() => {
+          const add = document.querySelector('.add-files').getBoundingClientRect(), count = document.querySelector('.count').getBoundingClientRect(), title = document.querySelector('#files-title').getBoundingClientRect();
+          return { sameRow: Math.abs((add.top + add.height / 2) - (count.top + count.height / 2)) < 2 && Math.abs((add.top + add.height / 2) - (title.top + title.height / 2)) < 2, countLeftOfAdd: count.right <= add.left };
+        });
+        check(`${label} ${mode} listed: Add files sits in the heading row beside the count`, heading.sameRow && heading.countLeftOfAdd, JSON.stringify(heading));
+        check(`${label} ${mode} listed: first file row starts within 80px of the panel top (was 135)`, listed.firstRowOffset <= 80, listed.firstRowOffset);
+        check(`${label} ${mode} listed: no horizontal overflow`, listed.overflow <= 0, listed.overflow);
+        if (viewport.name === '375' && touch) await shot(page, 't1-375');
+        const chooser = page.waitForEvent('filechooser');
+        await (touch ? page.locator('.add-files').tap() : page.locator('.add-files').click());
+        await (await chooser).setFiles('tests/fixtures/tone.mp3');
+        await page.waitForFunction(() => document.querySelectorAll('li[data-inspection=ready]').length === 2);
+        check(`${label} ${mode} listed: ${touch ? 'tapping' : 'clicking'} Add files opens the chooser and adds the file`, await page.locator('li[data-file-id]').count() === 2);
+        const before = await page.locator('li[data-file-id]').count();
+        await dragFile(page, '.files-panel', 'dragenter');
+        await dragFile(page, '.files-panel', 'drop');
+        await page.waitForFunction(count => document.querySelectorAll('li[data-file-id]').length > count, before, { timeout: 10000 }).catch(() => {});
+        check(`${label} ${mode} listed: dropping on the panel adds the file`, await page.locator('li[data-file-id]').count() === before + 1);
+        check(`${label} ${mode} listed: drag state clears after the drop`, await page.locator('.files-panel[data-dragging]').count() === 0);
+        if (!touch) {
+          await page.keyboard.press('Tab');
+          await page.evaluate(() => document.querySelector('input[type=file]').focus());
+          await page.keyboard.press('Shift+Tab');
+          await page.keyboard.press('Tab');
+          const ring = await page.evaluate(() => {
+            const input = document.querySelector('input[type=file]');
+            const style = getComputedStyle(input.closest('.add-files'));
+            return { focused: document.activeElement === input, width: parseFloat(style.outlineWidth), kind: style.outlineStyle };
+          });
+          check(`${label} ${mode} keyboard focus on the button shows a visible ring`, ring.focused && ring.width >= 2 && ring.kind !== 'none', JSON.stringify(ring));
+        }
+        check(`${label} ${mode} no page errors`, errors.length === 0, errors.join('; '));
+        await context.close();
+      }
+    }
+    note('WebKit not run: not installed');
+  },
+};
+
 const app = await startApp();
 const { check, note, lines, failures } = reporter();
 const wanted = engines();
-let failed = false;
+const selected = baseline ? [] : only ? [only] : Object.keys(tasks);
 try {
   for (const [name, type] of wanted) {
     const browser = await type.launch({ ...launchOptions(name), args: ['--autoplay-policy=no-user-gesture-required'] });
     try {
       if (baseline) await runBaseline(app, browser);
-      else note('no tasks registered yet');
+      for (const id of selected) await tasks[id]({ browser, app, check, note });
     } finally { await browser.close(); }
   }
 } finally { await app.close(); }
-if (failures.length) failed = true;
-if (!baseline) console.log(failed ? `FAIL: ${failures.length}` : `PASS: ${lines.filter(line => !line.note).length} checks`);
-process.exit(failed ? 1 : 0);
+if (only) await writeFile(`${root}/${only.toLowerCase()}.txt`, `${lines.map(line => `${line.note ? 'note' : line.ok ? 'ok  ' : 'FAIL'} ${line.name}${line.detail ? ` -- ${line.detail}` : ''}`).join('\n')}\n`);
+if (!baseline) console.log(failures.length ? `FAIL: ${failures.length} of ${lines.filter(line => !line.note).length}` : `PASS: ${lines.filter(line => !line.note).length} checks`);
+process.exit(failures.length ? 1 : 0);
