@@ -1,0 +1,75 @@
+engines chromium
+ok   T8 375 light unknown duration (audio/aac): before it plays the line is Duration unknown until the length is known, then the live total
+ok   T8 375 light unknown duration (audio/aac): once the player measures the length the line shows the live position and total
+ok   T8 375 light unknown duration (audio/aac): while playing the line equals the slider position and total
+ok   T8 375 light unknown duration (audio/aac): after pause the line holds the paused position
+ok   T8 375 light unknown duration (audio/aac): after a seek the line shows the new position
+ok   T8 375 light unknown duration (audio/aac): after the end the line shows the end position
+ok   T8 375 light unknown duration (audio/aac): no page errors
+ok   T8 375 light unknown duration (empty mime): before it plays the line is Duration unknown until the length is known, then the live total
+ok   T8 375 light unknown duration (empty mime): once the player measures the length the line shows the live position and total
+ok   T8 375 light unknown duration (empty mime): while playing the line equals the slider position and total
+ok   T8 375 light unknown duration (empty mime): after pause the line holds the paused position
+ok   T8 375 light unknown duration (empty mime): after a seek the line shows the new position
+ok   T8 375 light unknown duration (empty mime): after the end the line shows the end position
+ok   T8 375 light unknown duration (empty mime): no page errors
+ok   T8 375 light unknown duration (metadata not loaded yet): the line is exactly Duration unknown
+ok   T8 375 light unknown duration (metadata not loaded yet): loadedmetadata turns the line into the live position and total
+ok   T8 375 light unknown duration (unplayable source): the line stays the static total with no player
+ok   T8 375 light unknown duration (still being read): the file was seen unread and showed no position line
+ok   T8 375 dark unknown duration (audio/aac): before it plays the line is Duration unknown until the length is known, then the live total
+ok   T8 375 dark unknown duration (audio/aac): once the player measures the length the line shows the live position and total
+ok   T8 375 dark unknown duration (audio/aac): while playing the line equals the slider position and total
+ok   T8 375 dark unknown duration (audio/aac): after pause the line holds the paused position
+ok   T8 375 dark unknown duration (audio/aac): after a seek the line shows the new position
+ok   T8 375 dark unknown duration (audio/aac): after the end the line shows the end position
+ok   T8 375 dark unknown duration (audio/aac): no page errors
+ok   T8 375 dark unknown duration (empty mime): before it plays the line is Duration unknown until the length is known, then the live total
+ok   T8 375 dark unknown duration (empty mime): once the player measures the length the line shows the live position and total
+ok   T8 375 dark unknown duration (empty mime): while playing the line equals the slider position and total
+ok   T8 375 dark unknown duration (empty mime): after pause the line holds the paused position
+ok   T8 375 dark unknown duration (empty mime): after a seek the line shows the new position
+ok   T8 375 dark unknown duration (empty mime): after the end the line shows the end position
+ok   T8 375 dark unknown duration (empty mime): no page errors
+ok   T8 375 dark unknown duration (metadata not loaded yet): the line is exactly Duration unknown
+ok   T8 375 dark unknown duration (metadata not loaded yet): loadedmetadata turns the line into the live position and total
+ok   T8 375 dark unknown duration (unplayable source): the line stays the static total with no player
+ok   T8 375 dark unknown duration (still being read): the file was seen unread and showed no position line
+ok   T8 1440 light unknown duration (audio/aac): before it plays the line is Duration unknown until the length is known, then the live total
+ok   T8 1440 light unknown duration (audio/aac): once the player measures the length the line shows the live position and total
+ok   T8 1440 light unknown duration (audio/aac): while playing the line equals the slider position and total
+ok   T8 1440 light unknown duration (audio/aac): after pause the line holds the paused position
+ok   T8 1440 light unknown duration (audio/aac): after a seek the line shows the new position
+ok   T8 1440 light unknown duration (audio/aac): after the end the line shows the end position
+ok   T8 1440 light unknown duration (audio/aac): no page errors
+ok   T8 1440 light unknown duration (empty mime): before it plays the line is Duration unknown until the length is known, then the live total
+ok   T8 1440 light unknown duration (empty mime): once the player measures the length the line shows the live position and total
+ok   T8 1440 light unknown duration (empty mime): while playing the line equals the slider position and total
+ok   T8 1440 light unknown duration (empty mime): after pause the line holds the paused position
+ok   T8 1440 light unknown duration (empty mime): after a seek the line shows the new position
+ok   T8 1440 light unknown duration (empty mime): after the end the line shows the end position
+ok   T8 1440 light unknown duration (empty mime): no page errors
+ok   T8 1440 light unknown duration (metadata not loaded yet): the line is exactly Duration unknown
+ok   T8 1440 light unknown duration (metadata not loaded yet): loadedmetadata turns the line into the live position and total
+ok   T8 1440 light unknown duration (unplayable source): the line stays the static total with no player
+ok   T8 1440 light unknown duration (still being read): the file was seen unread and showed no position line
+ok   T8 1440 dark unknown duration (audio/aac): before it plays the line is Duration unknown until the length is known, then the live total
+ok   T8 1440 dark unknown duration (audio/aac): once the player measures the length the line shows the live position and total
+ok   T8 1440 dark unknown duration (audio/aac): while playing the line equals the slider position and total
+ok   T8 1440 dark unknown duration (audio/aac): after pause the line holds the paused position
+ok   T8 1440 dark unknown duration (audio/aac): after a seek the line shows the new position
+ok   T8 1440 dark unknown duration (audio/aac): after the end the line shows the end position
+ok   T8 1440 dark unknown duration (audio/aac): no page errors
+ok   T8 1440 dark unknown duration (empty mime): before it plays the line is Duration unknown until the length is known, then the live total
+ok   T8 1440 dark unknown duration (empty mime): once the player measures the length the line shows the live position and total
+ok   T8 1440 dark unknown duration (empty mime): while playing the line equals the slider position and total
+ok   T8 1440 dark unknown duration (empty mime): after pause the line holds the paused position
+ok   T8 1440 dark unknown duration (empty mime): after a seek the line shows the new position
+ok   T8 1440 dark unknown duration (empty mime): after the end the line shows the end position
+ok   T8 1440 dark unknown duration (empty mime): no page errors
+ok   T8 1440 dark unknown duration (metadata not loaded yet): the line is exactly Duration unknown
+ok   T8 1440 dark unknown duration (metadata not loaded yet): loadedmetadata turns the line into the live position and total
+ok   T8 1440 dark unknown duration (unplayable source): the line stays the static total with no player
+ok   T8 1440 dark unknown duration (still being read): the file was seen unread and showed no position line
+note WebKit not run: not installed
+PASS: 72 checks

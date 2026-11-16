@@ -124,8 +124,8 @@ export function WavePlayer({ layout, compact = false, src, source, label, name, 
     const length = total ?? 0;
     const at = clampTime(gesture.current.kind === "seeking" ? dragTime.current : element.currentTime, length);
     const whole = length ? formatTime(length) : "--:--";
-    const target = readoutTarget?.current ?? readout.current;
-    if (target) writeText(target, `${formatTime(at)} / ${whole}`);
+    const outside = readoutTarget?.current, target = outside ?? readout.current;
+    if (target) writeText(target, length || !outside ? `${formatTime(at)} / ${whole}` : copy.trim.unknownDuration);
     if (fill.current) fill.current.style.transform = `scaleX(${length ? at / length : 0})`;
     const host = track.current, surface = canvas.current, marker = playhead.current;
     if (!host || !surface || !marker) return;

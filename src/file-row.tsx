@@ -150,7 +150,7 @@ export function FileRow({
     setOpened(expanded ? null : resultUrl);
   };
   const position = useRef<HTMLSpanElement>(null);
-  const positionLive = shown === "result" || (shown === "original" && duration !== null);
+  const positionLive = shown !== null;
   const totalText = duration === null ? copy.trim.unknownDuration : formatTime(duration);
   const resultLabel = previousSettings ? copy.result.olderLabel : copy.result.label;
   const downloadLabel = previousSettings
@@ -177,7 +177,7 @@ export function FileRow({
           {entry.inspection.kind === "ready" && metadata
             ? <>
               <span class="file-position" ref={position} aria-hidden={positionLive ? "true" : undefined}>
-                {positionLive ? `${formatTime(0)} / ${totalText}` : totalText}
+                {positionLive && duration !== null ? `${formatTime(0)} / ${totalText}` : totalText}
               </span>
               {expanded && metadata.primary && !(shown === "result" && !previousSettings) && ` · ${metadata.primary}`}{expanded && metadata.secondary && ` · ${metadata.secondary}`}
             </>

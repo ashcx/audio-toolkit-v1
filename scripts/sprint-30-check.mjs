@@ -10,6 +10,9 @@ const baselineJson = await readFile(`${root}/baseline-measurements.json`, 'utf8'
 const baseline = args.includes('--baseline');
 const taskFlag = args.indexOf('--task');
 const only = taskFlag >= 0 ? args[taskFlag + 1] : null;
+const issueFlag = args.indexOf('--issue');
+const onlyIssue = issueFlag >= 0 ? args[issueFlag + 1] : null;
+const issueRuns = number => onlyIssue === null || onlyIssue === String(number);
 
 const VIEWPORTS = [
   { name: '320', width: 320, height: 700 },
@@ -36,11 +39,12 @@ function wav(seconds, rate = 44100) {
 const fixture = (name, seconds) => ({ name, mimeType: 'audio/wav', buffer: wav(seconds) });
 const FIXTURE_PATHS = ['tests/fixtures/tone.wav', 'tests/fixtures/tone.mp3', 'tests/fixtures/tone.flac'];
 
-async function openApp(browser, app, viewport, { scheme = 'light', touch = false, reducedMotion = 'no-preference' } = {}) {
+async function openApp(browser, app, viewport, { scheme = 'light', touch = false, reducedMotion = 'no-preference', init = null } = {}) {
   const context = await browser.newContext({
     viewport: { width: viewport.width, height: viewport.height }, colorScheme: scheme, reducedMotion,
     ...(touch ? { hasTouch: true, isMobile: true } : {}),
   });
+  if (init) await context.addInitScript(init.script ?? init, init.arg);
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -182,6 +186,102 @@ async function threeFinished(page, probe = async () => ({})) {
   result.finished = { ...await listFacts(page), ...await probe('finished') };
   return result;
 }
+
+const T8_VIEWPORTS = VIEWPORTS.filter(viewport => viewport.name === '375' || viewport.name === '1440');
+const T8_SCHEMES = ['light', 'dark'];
+const LIVE_POSITION = /^\d\d:\d\d \/ \d\d:\d\d$/;
+
+const slowSource = delay => {
+  const real = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'src');
+  Object.defineProperty(HTMLMediaElement.prototype, 'src', {
+    configurable: true,
+    get() { return this.__pendingSrc ?? real.get.call(this); },
+    set(value) {
+      this.__pendingSrc = value;
+      this.removeAttribute('src');
+      this.load();
+      clearTimeout(this.__loadTimer);
+      this.__loadTimer = setTimeout(() => { this.__pendingSrc = undefined; real.set.call(this, value); }, delay);
+    },
+  });
+};
+const delayedSource = delay => ({ script: slowSource, arg: delay });
+const until = async (page, predicate, argument, timeout = 5000) => page.waitForFunction(predicate, argument, { timeout }).then(() => true, () => false);
+
+const unknownDurationLive = async ({ browser, app, check, viewport, scheme }) => {
+  const label = `T8 ${viewport.name} ${scheme} unknown duration`;
+  const read = row => row.evaluate(li => {
+    const audio = li.querySelector('audio'), text = li.querySelector('.file-position').textContent;
+    return { text, valuetext: li.querySelector('.wave-track').getAttribute('aria-valuetext'), time: audio.currentTime, paused: audio.paused, duration: audio.duration };
+  });
+  const agrees = state => LIVE_POSITION.test(state.text) && state.text === state.valuetext.replace(' of ', ' / ');
+  for (const mimeType of ['audio/aac', '']) {
+    const kind = mimeType || 'empty mime';
+    const { context, page, errors } = await openApp(browser, app, viewport, { scheme });
+    await addFiles(page, [{ name: 'tone.aac', mimeType, buffer: await readFile('tests/fixtures/tone.aac') }]);
+    const row = rowAt(page, 0);
+    const first = await read(row);
+    const lengthKnown = !first.valuetext.endsWith(copy.trim.unknownDuration);
+    check(`${label} (${kind}): before it plays the line is ${copy.trim.unknownDuration} until the length is known, then the live total`, lengthKnown ? agrees(first) : first.text === copy.trim.unknownDuration, JSON.stringify(first));
+    await row.locator('.wave-play').click();
+    check(`${label} (${kind}): once the player measures the length the line shows the live position and total`, await until(page, () => /^\d\d:\d\d \/ \d\d:\d\d$/.test(document.querySelector('.file-position').textContent)), await row.locator('.file-position').innerText());
+    await row.locator('audio').evaluate(audio => new Promise(resolve => { const poll = () => audio.currentTime > 0.5 || audio.paused ? requestAnimationFrame(() => requestAnimationFrame(resolve)) : requestAnimationFrame(poll); poll(); }));
+    const playing = await read(row);
+    check(`${label} (${kind}): while playing the line equals the slider position and total`, !playing.paused && agrees(playing) && !playing.text.startsWith('00:00'), JSON.stringify(playing));
+    await row.locator('.wave-play').click();
+    await page.waitForTimeout(200);
+    const paused = await read(row);
+    await page.waitForTimeout(300);
+    const still = await read(row);
+    check(`${label} (${kind}): after pause the line holds the paused position`, paused.paused && agrees(paused) && still.text === paused.text && still.time === paused.time, JSON.stringify({ paused, still }));
+    await row.locator('audio').evaluate(audio => new Promise(resolve => { audio.addEventListener('seeked', resolve, { once: true }); audio.currentTime = 1.2; }));
+    await page.waitForTimeout(150);
+    const sought = await read(row);
+    check(`${label} (${kind}): after a seek the line shows the new position`, agrees(sought) && sought.text.startsWith('00:01 /'), JSON.stringify(sought));
+    await row.locator('.wave-play').click();
+    await row.locator('audio').evaluate(audio => audio.ended || new Promise(resolve => { audio.addEventListener('ended', resolve, { once: true }); setTimeout(resolve, 4000); }));
+    await page.waitForTimeout(250);
+    const ended = await read(row);
+    check(`${label} (${kind}): after the end the line shows the end position`, ended.paused && agrees(ended) && ended.text.startsWith('00:02 /'), JSON.stringify(ended));
+    check(`${label} (${kind}): no page errors`, errors.length === 0, errors.join('; '));
+    await context.close();
+  }
+  {
+    const { context, page } = await openApp(browser, app, viewport, { scheme, init: delayedSource(1500) });
+    await addFiles(page, [{ name: 'tone.aac', mimeType: 'audio/aac', buffer: await readFile('tests/fixtures/tone.aac') }]);
+    const row = rowAt(page, 0);
+    await page.waitForTimeout(400);
+    const idle = await read(row);
+    check(`${label} (metadata not loaded yet): the line is exactly ${copy.trim.unknownDuration}`, idle.text === copy.trim.unknownDuration && idle.valuetext.endsWith(copy.trim.unknownDuration) && Number.isNaN(idle.duration), JSON.stringify(idle));
+    check(`${label} (metadata not loaded yet): loadedmetadata turns the line into the live position and total`, await until(page, () => /^00:00 \/ 00:02$/.test(document.querySelector('.file-position').textContent), null, 8000), await row.locator('.file-position').innerText());
+    await context.close();
+  }
+  {
+    const { context, page } = await openApp(browser, app, viewport, { scheme });
+    await addFiles(page, [{ name: 'tone.wav', mimeType: 'application/octet-stream', buffer: await readFile('tests/fixtures/tone.wav') }]);
+    const row = rowAt(page, 0);
+    await page.waitForTimeout(300);
+    check(`${label} (unplayable source): the line stays the static total with no player`, await row.locator('.file-position').innerText() === '00:02' && await row.locator('.wave-play').count() === 0, await row.innerText());
+    await context.close();
+  }
+  {
+    const probe = () => {
+      const original = Blob.prototype.arrayBuffer;
+      Blob.prototype.arrayBuffer = function (...inputs) { return new Promise(resolve => setTimeout(resolve, 500)).then(() => original.apply(this, inputs)); };
+      window.__rowStates = [];
+      new MutationObserver(() => {
+        for (const li of document.querySelectorAll('li[data-inspection]')) window.__rowStates.push({ state: li.dataset.inspection, position: li.querySelector('.file-position') !== null });
+      }).observe(document, { subtree: true, childList: true, attributes: true });
+    };
+    const { context, page } = await openApp(browser, app, viewport, { scheme, init: probe });
+    await page.locator('input[type=file]').setInputFiles([{ name: 'tone.aac', mimeType: 'audio/aac', buffer: await readFile('tests/fixtures/tone.aac') }]);
+    await until(page, () => document.querySelector('li[data-inspection]')?.dataset.inspection === 'ready', null, 15000);
+    const states = await page.evaluate(() => window.__rowStates);
+    const unready = states.filter(entry => entry.state !== 'ready');
+    check(`${label} (still being read): the file was seen unread and showed no position line`, unready.length > 0 && unready.every(entry => !entry.position), JSON.stringify([...new Set(states.map(entry => `${entry.state}:${entry.position}`))]));
+    await context.close();
+  }
+};
 
 const tasks = {
   async T1({ browser, app, check, note }) {
@@ -857,6 +957,15 @@ const tasks = {
         check(`${label} no page errors`, errors.length === 0, errors.join('; '));
         record(viewport.name, pass.name, { empty: result.empty, unprocessed: unprocessed.rows.map(row => row.height), unprocessedWithPreview: result.unprocessedWithPreview.rows.map(row => row.height), unprocessedFirstRowOffset: unprocessed.firstRowOffset, finished: finished.rows.map(row => row.height), finishedFirstRowOffset: finished.firstRowOffset, finishedListHeight: finished.listHeight, expanded: expanded.rows.map(row => row.height), expandedListHeight: expanded.listHeight, waveWidth: expanded.waveWidth });
         await context.close();
+      }
+    }
+    note('WebKit not run: not installed');
+  },
+  async T8({ browser, app, check, note }) {
+    for (const viewport of T8_VIEWPORTS) {
+      for (const scheme of T8_SCHEMES) {
+        const context = { browser, app, check, note, viewport, scheme };
+        if (issueRuns(1)) await unknownDurationLive(context);
       }
     }
     note('WebKit not run: not installed');

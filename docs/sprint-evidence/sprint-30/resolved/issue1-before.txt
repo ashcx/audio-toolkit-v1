@@ -1,0 +1,75 @@
+engines chromium
+FAIL T8 375 light unknown duration (audio/aac): before it plays the line is Duration unknown until the length is known, then the live total -- {"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0,"paused":true,"duration":2.035142}
+FAIL T8 375 light unknown duration (audio/aac): once the player measures the length the line shows the live position and total -- Duration unknown
+FAIL T8 375 light unknown duration (audio/aac): while playing the line equals the slider position and total -- {"text":"Duration unknown","valuetext":"00:02 of 00:02","time":2.035142,"paused":true,"duration":2.035142}
+FAIL T8 375 light unknown duration (audio/aac): after pause the line holds the paused position -- {"paused":{"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0.148901,"paused":false,"duration":2.035142},"still":{"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0.457739,"paused":false,"duration":2.035142}}
+FAIL T8 375 light unknown duration (audio/aac): after a seek the line shows the new position -- {"text":"Duration unknown","valuetext":"00:01 of 00:02","time":1.311717,"paused":false,"duration":2.035142}
+FAIL T8 375 light unknown duration (audio/aac): after the end the line shows the end position -- {"text":"Duration unknown","valuetext":"00:01 of 00:02","time":1.343913,"paused":true,"duration":2.035142}
+ok   T8 375 light unknown duration (audio/aac): no page errors
+FAIL T8 375 light unknown duration (empty mime): before it plays the line is Duration unknown until the length is known, then the live total -- {"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0,"paused":true,"duration":2.035142}
+FAIL T8 375 light unknown duration (empty mime): once the player measures the length the line shows the live position and total -- Duration unknown
+FAIL T8 375 light unknown duration (empty mime): while playing the line equals the slider position and total -- {"text":"Duration unknown","valuetext":"00:02 of 00:02","time":2.035142,"paused":true,"duration":2.035142}
+FAIL T8 375 light unknown duration (empty mime): after pause the line holds the paused position -- {"paused":{"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0.154763,"paused":false,"duration":2.035142},"still":{"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0.463015,"paused":false,"duration":2.035142}}
+FAIL T8 375 light unknown duration (empty mime): after a seek the line shows the new position -- {"text":"Duration unknown","valuetext":"00:01 of 00:02","time":1.31519,"paused":false,"duration":2.035142}
+FAIL T8 375 light unknown duration (empty mime): after the end the line shows the end position -- {"text":"Duration unknown","valuetext":"00:01 of 00:02","time":1.350225,"paused":true,"duration":2.035142}
+ok   T8 375 light unknown duration (empty mime): no page errors
+ok   T8 375 light unknown duration (metadata not loaded yet): the line is exactly Duration unknown
+FAIL T8 375 light unknown duration (metadata not loaded yet): loadedmetadata turns the line into the live position and total -- Duration unknown
+ok   T8 375 light unknown duration (unplayable source): the line stays the static total with no player
+ok   T8 375 light unknown duration (still being read): the file was seen unread and showed no position line
+FAIL T8 375 dark unknown duration (audio/aac): before it plays the line is Duration unknown until the length is known, then the live total -- {"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0,"paused":true,"duration":2.035142}
+FAIL T8 375 dark unknown duration (audio/aac): once the player measures the length the line shows the live position and total -- Duration unknown
+FAIL T8 375 dark unknown duration (audio/aac): while playing the line equals the slider position and total -- {"text":"Duration unknown","valuetext":"00:02 of 00:02","time":2.035142,"paused":true,"duration":2.035142}
+FAIL T8 375 dark unknown duration (audio/aac): after pause the line holds the paused position -- {"paused":{"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0.145539,"paused":false,"duration":2.035142},"still":{"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0.452773,"paused":false,"duration":2.035142}}
+FAIL T8 375 dark unknown duration (audio/aac): after a seek the line shows the new position -- {"text":"Duration unknown","valuetext":"00:01 of 00:02","time":1.305079,"paused":false,"duration":2.035142}
+FAIL T8 375 dark unknown duration (audio/aac): after the end the line shows the end position -- {"text":"Duration unknown","valuetext":"00:01 of 00:02","time":1.340565,"paused":true,"duration":2.035142}
+ok   T8 375 dark unknown duration (audio/aac): no page errors
+FAIL T8 375 dark unknown duration (empty mime): before it plays the line is Duration unknown until the length is known, then the live total -- {"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0,"paused":true,"duration":2.035142}
+FAIL T8 375 dark unknown duration (empty mime): once the player measures the length the line shows the live position and total -- Duration unknown
+FAIL T8 375 dark unknown duration (empty mime): while playing the line equals the slider position and total -- {"text":"Duration unknown","valuetext":"00:02 of 00:02","time":2.035142,"paused":true,"duration":2.035142}
+FAIL T8 375 dark unknown duration (empty mime): after pause the line holds the paused position -- {"paused":{"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0.143635,"paused":false,"duration":2.035142},"still":{"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0.453487,"paused":false,"duration":2.035142}}
+FAIL T8 375 dark unknown duration (empty mime): after a seek the line shows the new position -- {"text":"Duration unknown","valuetext":"00:01 of 00:02","time":1.304822,"paused":false,"duration":2.035142}
+FAIL T8 375 dark unknown duration (empty mime): after the end the line shows the end position -- {"text":"Duration unknown","valuetext":"00:01 of 00:02","time":1.339391,"paused":true,"duration":2.035142}
+ok   T8 375 dark unknown duration (empty mime): no page errors
+ok   T8 375 dark unknown duration (metadata not loaded yet): the line is exactly Duration unknown
+FAIL T8 375 dark unknown duration (metadata not loaded yet): loadedmetadata turns the line into the live position and total -- Duration unknown
+ok   T8 375 dark unknown duration (unplayable source): the line stays the static total with no player
+ok   T8 375 dark unknown duration (still being read): the file was seen unread and showed no position line
+FAIL T8 1440 light unknown duration (audio/aac): before it plays the line is Duration unknown until the length is known, then the live total -- {"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0,"paused":true,"duration":2.035142}
+FAIL T8 1440 light unknown duration (audio/aac): once the player measures the length the line shows the live position and total -- Duration unknown
+FAIL T8 1440 light unknown duration (audio/aac): while playing the line equals the slider position and total -- {"text":"Duration unknown","valuetext":"00:02 of 00:02","time":2.035142,"paused":true,"duration":2.035142}
+FAIL T8 1440 light unknown duration (audio/aac): after pause the line holds the paused position -- {"paused":{"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0.160687,"paused":false,"duration":2.035142},"still":{"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0.469704,"paused":false,"duration":2.035142}}
+FAIL T8 1440 light unknown duration (audio/aac): after a seek the line shows the new position -- {"text":"Duration unknown","valuetext":"00:01 of 00:02","time":1.298869,"paused":false,"duration":2.035142}
+FAIL T8 1440 light unknown duration (audio/aac): after the end the line shows the end position -- {"text":"Duration unknown","valuetext":"00:01 of 00:02","time":1.337425,"paused":true,"duration":2.035142}
+ok   T8 1440 light unknown duration (audio/aac): no page errors
+FAIL T8 1440 light unknown duration (empty mime): before it plays the line is Duration unknown until the length is known, then the live total -- {"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0,"paused":true,"duration":2.035142}
+FAIL T8 1440 light unknown duration (empty mime): once the player measures the length the line shows the live position and total -- Duration unknown
+FAIL T8 1440 light unknown duration (empty mime): while playing the line equals the slider position and total -- {"text":"Duration unknown","valuetext":"00:02 of 00:02","time":2.035142,"paused":true,"duration":2.035142}
+FAIL T8 1440 light unknown duration (empty mime): after pause the line holds the paused position -- {"paused":{"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0.149952,"paused":false,"duration":2.035142},"still":{"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0.45814,"paused":false,"duration":2.035142}}
+FAIL T8 1440 light unknown duration (empty mime): after a seek the line shows the new position -- {"text":"Duration unknown","valuetext":"00:01 of 00:02","time":1.30743,"paused":false,"duration":2.035142}
+FAIL T8 1440 light unknown duration (empty mime): after the end the line shows the end position -- {"text":"Duration unknown","valuetext":"00:01 of 00:02","time":1.346916,"paused":true,"duration":2.035142}
+ok   T8 1440 light unknown duration (empty mime): no page errors
+ok   T8 1440 light unknown duration (metadata not loaded yet): the line is exactly Duration unknown
+FAIL T8 1440 light unknown duration (metadata not loaded yet): loadedmetadata turns the line into the live position and total -- Duration unknown
+ok   T8 1440 light unknown duration (unplayable source): the line stays the static total with no player
+ok   T8 1440 light unknown duration (still being read): the file was seen unread and showed no position line
+FAIL T8 1440 dark unknown duration (audio/aac): before it plays the line is Duration unknown until the length is known, then the live total -- {"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0,"paused":true,"duration":2.035142}
+FAIL T8 1440 dark unknown duration (audio/aac): once the player measures the length the line shows the live position and total -- Duration unknown
+FAIL T8 1440 dark unknown duration (audio/aac): while playing the line equals the slider position and total -- {"text":"Duration unknown","valuetext":"00:02 of 00:02","time":2.035142,"paused":true,"duration":2.035142}
+FAIL T8 1440 dark unknown duration (audio/aac): after pause the line holds the paused position -- {"paused":{"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0.150627,"paused":false,"duration":2.035142},"still":{"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0.458573,"paused":false,"duration":2.035142}}
+FAIL T8 1440 dark unknown duration (audio/aac): after a seek the line shows the new position -- {"text":"Duration unknown","valuetext":"00:01 of 00:02","time":1.31001,"paused":false,"duration":2.035142}
+FAIL T8 1440 dark unknown duration (audio/aac): after the end the line shows the end position -- {"text":"Duration unknown","valuetext":"00:01 of 00:02","time":1.345394,"paused":true,"duration":2.035142}
+ok   T8 1440 dark unknown duration (audio/aac): no page errors
+FAIL T8 1440 dark unknown duration (empty mime): before it plays the line is Duration unknown until the length is known, then the live total -- {"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0,"paused":true,"duration":2.035142}
+FAIL T8 1440 dark unknown duration (empty mime): once the player measures the length the line shows the live position and total -- Duration unknown
+FAIL T8 1440 dark unknown duration (empty mime): while playing the line equals the slider position and total -- {"text":"Duration unknown","valuetext":"00:02 of 00:02","time":2.035142,"paused":true,"duration":2.035142}
+FAIL T8 1440 dark unknown duration (empty mime): after pause the line holds the paused position -- {"paused":{"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0.142617,"paused":false,"duration":2.035142},"still":{"text":"Duration unknown","valuetext":"00:00 of 00:02","time":0.451426,"paused":false,"duration":2.035142}}
+FAIL T8 1440 dark unknown duration (empty mime): after a seek the line shows the new position -- {"text":"Duration unknown","valuetext":"00:01 of 00:02","time":1.30132,"paused":false,"duration":2.035142}
+FAIL T8 1440 dark unknown duration (empty mime): after the end the line shows the end position -- {"text":"Duration unknown","valuetext":"00:01 of 00:02","time":1.338424,"paused":true,"duration":2.035142}
+ok   T8 1440 dark unknown duration (empty mime): no page errors
+ok   T8 1440 dark unknown duration (metadata not loaded yet): the line is exactly Duration unknown
+FAIL T8 1440 dark unknown duration (metadata not loaded yet): loadedmetadata turns the line into the live position and total -- Duration unknown
+ok   T8 1440 dark unknown duration (unplayable source): the line stays the static total with no player
+ok   T8 1440 dark unknown duration (still being read): the file was seen unread and showed no position line
+note WebKit not run: not installed
+FAIL: 52 of 72

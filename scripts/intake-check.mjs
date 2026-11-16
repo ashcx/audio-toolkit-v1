@@ -39,7 +39,7 @@ for(const [name,type] of engines()){
   assert.match(rows.find(row=>row.name==='long-video.webm').text,/0:02/,'Video length does not replace primary audio duration');
   assert.match(rows.find(row=>row.name==='offset.mp4').text,/0:02/,'Positive media timestamps are not mistaken for duration');
   assert.match(rows.find(row=>row.name==='tone.m4a').text,/0:02/,'Duration display avoids floating-point truncation');
-  assert(rows.find(row=>row.name==='tone.aac').text.includes(copy.trim.unknownDuration),'Unavailable metadata is distinct from invalid media');
+  {const unknown=rows.find(row=>row.name==='tone.aac');assert(unknown.status==='ready'&&(unknown.text.includes(copy.trim.unknownDuration)||/\d\d:\d\d \/ \d\d:\d\d/.test(unknown.text)),'Unavailable metadata is distinct from invalid media: ready, with the unknown text or the live total once the player has measured it');}
   const originalIds=new Set(rows.map(row=>row.id));
   const base64=(await readFile('tests/fixtures/tone.wav')).toString('base64');
   const transfer=await page.evaluateHandle(base64=>{const data=new DataTransfer();const bytes=Uint8Array.from(atob(base64),c=>c.charCodeAt(0));data.items.add(new File([bytes],'duplicate.wav',{type:'audio/wav'}));data.items.add(new File([bytes],'duplicate.wav',{type:'audio/wav'}));return data;},base64);
