@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {isolate,fitIsolationFrames} from '../src/pcm/isolate.ts';
-import {resample} from '../src/pcm/resample.ts';
 function source(frames,rate,channels=1,frequency=440){return(async function*(){for(let offset=0;offset<frames;offset+=127){const length=Math.min(127,frames-offset);yield{origin:.625,offset,rate,planes:Array.from({length:channels},(_,c)=>Float32Array.from({length},(_,i)=>.1*Math.sin((offset+i)*2*Math.PI*(frequency+c*200)/rate)+.003))};}})();}
 async function collect(stream){const samples=[];let frames=0;for await(const block of stream){assert.equal(block.origin,.625);assert.equal(block.offset,frames);assert(block.planes[0].length<=4096);samples.push(...block.planes[0]);frames+=block.planes[0].length;}return Float32Array.from(samples);}
 const COEFFICIENTS=[.1,.2,.3,.4];

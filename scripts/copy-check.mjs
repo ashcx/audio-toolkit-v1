@@ -5,7 +5,6 @@ import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import {createHash,randomUUID} from 'node:crypto';
-import {chromium,webkit} from 'playwright';
 import {Input,FilePathSource,ALL_FORMATS,EncodedPacketSink} from 'mediabunny';
 import {loadCopy} from './lib/harness.mjs';
 const copy=await loadCopy();

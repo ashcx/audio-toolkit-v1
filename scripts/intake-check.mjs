@@ -3,7 +3,6 @@ import {engines,launchOptions} from './lib/engines.mjs';
 import {loadCopy} from './lib/harness.mjs';
 import assert from 'node:assert/strict';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
-import {chromium,webkit} from 'playwright';
 const copy=await loadCopy();
 const appUrl=process.env.APP_URL??'http://127.0.0.1:4173/audio-toolkit-v1/';
 const root=process.env.INTAKE_EVIDENCE_DIR??'.artifacts/intake-check';await mkdir(`${root}/captures`,{recursive:true});
