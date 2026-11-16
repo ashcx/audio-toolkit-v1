@@ -206,10 +206,13 @@ const trackPoint = async (page, rowName, fraction, y = 0.5) => {
   const resultPlays = await Promise.all([a, b].map(name => row(page, name).locator('.file-player .wave-play').getAttribute('aria-label')));
   check('the exported waveform is labelled as the result, not the original', resultPlays.every((label, index) => label === copy.wave.play(copy.result.label, [a, b][index])), JSON.stringify(resultPlays));
   await drawn(page, a, 0).catch(() => {});
-  check('29 finished rows start collapsed, with the audio and no waveform', (await Promise.all([a, b].map(async name => await row(page, name).locator('.file-toggle').getAttribute('aria-expanded') === 'false' && await row(page, name).locator('audio').count() === 1 && await row(page, name).locator('.wave-track').count() === 0))).every(Boolean));
+  const toggleOf = name => row(page, name).locator('.file-toggle');
+  check('29 finished rows start expanded on a 1280px screen, with the audio and the waveform', (await Promise.all([a, b].map(async name => await toggleOf(name).getAttribute('aria-expanded') === 'true' && await row(page, name).locator('audio').count() === 1 && await row(page, name).locator('.wave-track').count() >= 1))).every(Boolean));
+  for (const name of [a, b]) await toggleOf(name).click();
+  await page.waitForTimeout(300);
+  check('29 a finished row folded by its name button is collapsed, with the audio and no waveform', (await Promise.all([a, b].map(async name => await toggleOf(name).getAttribute('aria-expanded') === 'false' && await row(page, name).locator('audio').count() === 1 && await row(page, name).locator('.wave-track').count() === 0))).every(Boolean));
   for (const name of [a, b]) {
-    const toggle = row(page, name).locator('.file-toggle');
-    if (await toggle.getAttribute('aria-expanded') === 'false') await toggle.click();
+    if (await toggleOf(name).getAttribute('aria-expanded') === 'false') await toggleOf(name).click();
   }
   await page.waitForTimeout(300);
   check('plain result rows show only the player, Trim and the Original or Result switch, with no visible label or time', withoutTimes(await page.locator('.file-player').first().innerText()) === `${copy.wave.trim} ${copy.files.original} ${copy.result.label}` && await page.locator('.file-result').count() === 0 && await page.locator('.file-player .wave-label, .file-player .wave-time').count() === 0);

@@ -1,10 +1,12 @@
+note T6 320 measured: rows as first shown 61px, 61px, 56px, collapsed by default
+ok   T6 320 finished rows are collapsed by default at most 64px
 note T6 320 measured: collapsed rows 61px, 61px, 56px (baseline finished row 235px)
 ok   T6 320 3 finished files, one with Trim all and a 60-character name: each row is at most 64px
 ok   T6 320 collapsed rows show play, name, position, download and remove on one line
 ok   T6 320 collapsed rows keep the audio and a 2px progress line, with no waveform, switch or Trim
 ok   T6 320 collapsed rows start no peak analysis after the export
 ok   T6 320 the name area is at least 44px in both directions
-note T6 320 measured: expanded row 172px
+note T6 320 measured: expanded row 167px
 ok   T6 320 tapping one name grows only that row to the waveform, switch and Trim, aria-expanded true
 ok   T6 320 an expanded finished row is at most 176px
 ok   T6 320 tapping again collapses it
@@ -18,15 +20,17 @@ ok   T6 320 Done leaves the row expanded
 ok   T6 320 no horizontal overflow, no page errors
 note T6 320 measured: the three tests/fixtures audio files export to collapsed rows of 61px, 61px, 56px
 ok   T6 320 the three fixture files export to collapsed rows of at most 64px
-note T6 320 measured: with the second fixture expanded the rows are 61px, 157px, 56px
+note T6 320 measured: with the second fixture expanded the rows are 61px, 167px, 56px
 ok   T6 320 fixtures: no page errors
+note T6 375 measured: rows as first shown 61px, 61px, 56px, collapsed by default
+ok   T6 375 finished rows are collapsed by default at most 64px
 note T6 375 measured: collapsed rows 61px, 61px, 56px (baseline finished row 235px)
 ok   T6 375 3 finished files, one with Trim all and a 60-character name: each row is at most 64px
 ok   T6 375 collapsed rows show play, name, position, download and remove on one line
 ok   T6 375 collapsed rows keep the audio and a 2px progress line, with no waveform, switch or Trim
 ok   T6 375 collapsed rows start no peak analysis after the export
 ok   T6 375 the name area is at least 44px in both directions
-note T6 375 measured: expanded row 172px
+note T6 375 measured: expanded row 167px
 ok   T6 375 tapping one name grows only that row to the waveform, switch and Trim, aria-expanded true
 ok   T6 375 an expanded finished row is at most 176px
 ok   T6 375 tapping again collapses it
@@ -42,20 +46,22 @@ ok   T6 375 waiting and running rows stay expanded with their status
 ok   T6 375 a cancelled row stays expanded with its status and Retry
 ok   T6 375 the two finished rows collapse once done
 ok   T6 375 running and cancelled rows: no page errors
-ok   T6 375 an older-settings result collapses with Preview folded away and its older line kept
+ok   T6 375 an older-settings result collapses with Preview folded away and no visible older line
 ok   T6 375 an open preview keeps the row expanded
 ok   T6 375 older-settings preview: no page errors
 note T6 375 measured: the three tests/fixtures audio files export to collapsed rows of 61px, 61px, 56px
 ok   T6 375 the three fixture files export to collapsed rows of at most 64px
-note T6 375 measured: with the second fixture expanded the rows are 61px, 157px, 56px
+note T6 375 measured: with the second fixture expanded the rows are 61px, 167px, 56px
 ok   T6 375 fixtures: no page errors
+note T6 768 measured: rows as first shown 167px, 167px, 162px, expanded by default
+ok   T6 768 finished rows are expanded by default at most 176px, with the waveform, switch and Trim
 note T6 768 measured: collapsed rows 61px, 61px, 56px (baseline finished row 235px)
 ok   T6 768 3 finished files, one with Trim all and a 60-character name: each row is at most 64px
 ok   T6 768 collapsed rows show play, name, position, download and remove on one line
 ok   T6 768 collapsed rows keep the audio and a 2px progress line, with no waveform, switch or Trim
 ok   T6 768 collapsed rows start no peak analysis after the export
 ok   T6 768 the name area is at least 44px in both directions
-note T6 768 measured: expanded row 157px
+note T6 768 measured: expanded row 167px
 ok   T6 768 tapping one name grows only that row to the waveform, switch and Trim, aria-expanded true
 ok   T6 768 an expanded finished row is at most 176px
 ok   T6 768 tapping again collapses it
@@ -67,13 +73,15 @@ ok   T6 768 collapsed play pauses the other rows
 ok   T6 768 starting Trim expands the row
 ok   T6 768 Done leaves the row expanded
 ok   T6 768 no horizontal overflow, no page errors
+note T6 1024 measured: rows as first shown 167px, 167px, 162px, expanded by default
+ok   T6 1024 finished rows are expanded by default at most 176px, with the waveform, switch and Trim
 note T6 1024 measured: collapsed rows 61px, 61px, 56px (baseline finished row 235px)
 ok   T6 1024 3 finished files, one with Trim all and a 60-character name: each row is at most 64px
 ok   T6 1024 collapsed rows show play, name, position, download and remove on one line
 ok   T6 1024 collapsed rows keep the audio and a 2px progress line, with no waveform, switch or Trim
 ok   T6 1024 collapsed rows start no peak analysis after the export
 ok   T6 1024 the name area is at least 44px in both directions
-note T6 1024 measured: expanded row 157px
+note T6 1024 measured: expanded row 167px
 ok   T6 1024 tapping one name grows only that row to the waveform, switch and Trim, aria-expanded true
 ok   T6 1024 an expanded finished row is at most 176px
 ok   T6 1024 tapping again collapses it
@@ -85,13 +93,15 @@ ok   T6 1024 collapsed play pauses the other rows
 ok   T6 1024 starting Trim expands the row
 ok   T6 1024 Done leaves the row expanded
 ok   T6 1024 no horizontal overflow, no page errors
+note T6 1440 measured: rows as first shown 167px, 167px, 162px, expanded by default
+ok   T6 1440 finished rows are expanded by default at most 176px, with the waveform, switch and Trim
 note T6 1440 measured: collapsed rows 61px, 61px, 56px (baseline finished row 235px)
 ok   T6 1440 3 finished files, one with Trim all and a 60-character name: each row is at most 64px
 ok   T6 1440 collapsed rows show play, name, position, download and remove on one line
 ok   T6 1440 collapsed rows keep the audio and a 2px progress line, with no waveform, switch or Trim
 ok   T6 1440 collapsed rows start no peak analysis after the export
 ok   T6 1440 the name area is at least 44px in both directions
-note T6 1440 measured: expanded row 157px
+note T6 1440 measured: expanded row 167px
 ok   T6 1440 tapping one name grows only that row to the waveform, switch and Trim, aria-expanded true
 ok   T6 1440 an expanded finished row is at most 176px
 ok   T6 1440 tapping again collapses it
@@ -105,6 +115,6 @@ ok   T6 1440 Done leaves the row expanded
 ok   T6 1440 no horizontal overflow, no page errors
 ok   T6 1440 waiting and running rows stay expanded with their status
 ok   T6 1440 a cancelled row stays expanded with its status and Retry
-ok   T6 1440 the two finished rows collapse once done
+ok   T6 1440 the two finished rows expand once done
 ok   T6 1440 running and cancelled rows: no page errors
 note WebKit not run: not installed

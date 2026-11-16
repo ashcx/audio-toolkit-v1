@@ -52,7 +52,11 @@ const NAME = 'tone.wav';
 const fixture = name => `${FIXTURES}/${name}`;
 
 const picker = page => page.locator('input[type=file]');
-const addStep = (page, kind) => page.getByLabel('Add step', { exact: true }).selectOption(kind);
+const addStep = async (page, kind) => {
+  await page.getByLabel('Add step', { exact: true }).selectOption(kind);
+  const toggle = page.locator(`[data-step-kind=${kind}] .step-toggle`).last();
+  if (await toggle.getAttribute('aria-expanded') === 'false') await toggle.click();
+};
 const format = (page, value) => page.getByRole('combobox', { name: 'Format', exact: true }).selectOption(value);
 const exportButton = page => page.getByRole('button', { name: 'Export', exact: true });
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -369,6 +373,11 @@ async function runConfig(browser, config) {
       results: node.querySelectorAll('.file-result').length, collapsed: node.hasAttribute('data-collapsed'), audios: node.querySelectorAll('audio').length,
       player: node.querySelector('.file-player').innerText.replace(/\s+/g, ' ').trim(),
     })));
+    const byDefault = await players();
+    const phoneWidth = config.width <= 600;
+    check(`${config.name}/success-plain-mp3 finished rows follow the viewport by default: ${phoneWidth ? 'collapsed' : 'expanded'}, with one audio and no result box`,
+      byDefault.length === 2 && byDefault.every(row => row.collapsed === phoneWidth && row.results === 0 && row.audios === 1), JSON.stringify(byDefault));
+    await toggleFinished(page, false);
     const closed = await players();
     check(`${config.name}/success-plain-mp3 each finished row is collapsed to its play button alone, with one audio and no result box or label`,
       closed.length === 2 && closed.every(row => row.collapsed && row.results === 0 && row.audios === 1 && withoutTimes(row.player) === ''), JSON.stringify(closed));
@@ -376,7 +385,7 @@ async function runConfig(browser, config) {
     const opened = await players();
     check(`${config.name}/success-plain-mp3 an expanded finished row shows only its player, Trim and the Original and Result switch`,
       opened.length === 2 && opened.every(row => !row.collapsed && row.results === 0 && row.audios === 1 && withoutTimes(row.player) === 'Trim Original Result'), JSON.stringify(opened));
-    await toggleFinished(page, false);
+    await toggleFinished(page, !phoneWidth);
     check(`${config.name}/success-plain-mp3 shows no standing hint or counter`, !/\d+\s*\/\s*\d+\s*done|done/i.test(await page.locator('.export-panel').innerText())
       && !text.includes(copy.export.keepOpen) && !/Exported audio|Clear all removes/.test(text));
     check(`${config.name}/success-plain-mp3 status area is empty`, (await page.locator('.run-status').innerText()).trim() === '');
@@ -404,6 +413,7 @@ async function runConfig(browser, config) {
     await exportButton(page).click();
     await waitDone(page, 1);
     const text = await shoot('success-with-note');
+    await toggleFinished(page, false);
     const folded = await shownTimes(page, copy.result.clipped);
     const spoken = await page.evaluate(needle => [...document.querySelectorAll('.sr-only')].filter(element => element.textContent.includes(needle)).length, copy.result.clipped);
     await toggleFinished(page, true);
@@ -679,7 +689,7 @@ async function runConfig(browser, config) {
       check(`${config.name}/splitter-run showed the download advancing in MB`, megabytes.length >= 3 && megabytes.every((value, index) => index === 0 || value > megabytes[index - 1]), JSON.stringify(megabytes));
     }
     const ended = await page.locator('[data-job-state=done]').evaluate(row => ({ results: row.querySelectorAll('.file-result').length, collapsed: row.hasAttribute('data-collapsed'), audios: row.querySelectorAll('audio').length }));
-    check(`${config.name}/splitter-run ended with a plain collapsed result row: its player and no progress or result box`, ended.results === 0 && ended.collapsed && ended.audios === 1, JSON.stringify(ended));
+    check(`${config.name}/splitter-run ended with a plain result row, collapsed only on a phone-width screen: its player and no progress or result box`, ended.results === 0 && ended.collapsed === (config.width <= 600) && ended.audios === 1, JSON.stringify(ended));
     check(`${config.name}/splitter-run status area is empty afterwards`, (await page.locator('.run-status').innerText()).trim() === '');
     await toggleFinished(page, true);
     check(`${config.name}/splitter-run an expanded result shows at most one note`, await page.locator('li[data-job-state=done] .file-name .file-note').count() <= 1);
@@ -696,6 +706,7 @@ async function runConfig(browser, config) {
         check(`opus ${rate} Hz needs no Sample rate step`, await page.locator('[data-step-id]').count() === 0 && await exportButton(page).isEnabled());
         await exportButton(page).click();
         await waitDone(page, 1, 60000);
+        await toggleFinished(page, false);
         const row = await page.locator('[data-job-state=done]').evaluate(node => ({ results: node.querySelectorAll('.file-result').length, player: node.querySelector('.file-player').innerText }));
         check(`opus ${rate} Hz export succeeds with no message: a collapsed row with its play button and no result box`, row.results === 0 && withoutTimes(row.player) === '', JSON.stringify(row));
         if (rate === 44100) await shoot('opus-44100-done');

@@ -1,0 +1,78 @@
+ok   T7 768 light unprocessed: every row at most 120px without Preview
+note T7 768 light measured: unprocessed rows 113px, 113px, 108px, with a Trim all step and Preview 135px, 135px, 130px, first-row offset 69px, empty box 160px
+ok   T7 768 light unprocessed: first row starts within 80px of the panel top
+ok   T7 768 light unprocessed: every interactive target is at least 44x44
+ok   T7 768 light unprocessed: no horizontal overflow
+FAIL T7 768 light finished: every row starts expanded (aria-expanded true) -- ["false","false","false"]
+ok   T7 768 light finished: each row starts expanded at most 176px, not counting a result note
+ok   T7 768 light finished: first row starts within 80px of the panel top
+ok   T7 768 light finished: every interactive target is at least 44x44
+ok   T7 768 light finished: no horizontal overflow
+note T7 768 light measured: rows as first shown (expanded) 61px, 61px, 56px, list 178px
+ok   T7 768 light expanded: each finished row is at most 176px, not counting a result note
+ok   T7 768 light expanded: every interactive target is at least 44x44
+ok   T7 768 light expanded: no horizontal overflow
+note T7 768 light measured: expanded rows 167px, 167px, 162px, list 496px, waveform 596px
+ok   T7 768 light trim editing: two handles, every target at least 44x44, no horizontal overflow
+note T7 768 light measured: row in trim editing 377px
+ok   T7 768 light collapsing every row returns each to at most 64px
+ok   T7 768 light no page errors
+ok   T7 768 dark unprocessed: every row at most 120px without Preview
+note T7 768 dark measured: unprocessed rows 113px, 113px, 108px, with a Trim all step and Preview 135px, 135px, 130px, first-row offset 69px, empty box 160px
+ok   T7 768 dark unprocessed: first row starts within 80px of the panel top
+ok   T7 768 dark unprocessed: every interactive target is at least 44x44
+ok   T7 768 dark unprocessed: no horizontal overflow
+FAIL T7 768 dark finished: every row starts expanded (aria-expanded true) -- ["false","false","false"]
+ok   T7 768 dark finished: each row starts expanded at most 176px, not counting a result note
+ok   T7 768 dark finished: first row starts within 80px of the panel top
+ok   T7 768 dark finished: every interactive target is at least 44x44
+ok   T7 768 dark finished: no horizontal overflow
+note T7 768 dark measured: rows as first shown (expanded) 61px, 61px, 56px, list 178px
+ok   T7 768 dark expanded: each finished row is at most 176px, not counting a result note
+ok   T7 768 dark expanded: every interactive target is at least 44x44
+ok   T7 768 dark expanded: no horizontal overflow
+note T7 768 dark measured: expanded rows 167px, 167px, 162px, list 496px, waveform 596px
+ok   T7 768 dark trim editing: two handles, every target at least 44x44, no horizontal overflow
+note T7 768 dark measured: row in trim editing 377px
+ok   T7 768 dark collapsing every row returns each to at most 64px
+ok   T7 768 dark no page errors
+ok   T7 768 light, reduced motion unprocessed: every row at most 120px without Preview
+note T7 768 light, reduced motion measured: unprocessed rows 113px, 113px, 108px, with a Trim all step and Preview 135px, 135px, 130px, first-row offset 69px, empty box 160px
+ok   T7 768 light, reduced motion unprocessed: first row starts within 80px of the panel top
+ok   T7 768 light, reduced motion unprocessed: every interactive target is at least 44x44
+ok   T7 768 light, reduced motion unprocessed: no horizontal overflow
+FAIL T7 768 light, reduced motion finished: every row starts expanded (aria-expanded true) -- ["false","false","false"]
+ok   T7 768 light, reduced motion finished: each row starts expanded at most 176px, not counting a result note
+ok   T7 768 light, reduced motion finished: first row starts within 80px of the panel top
+ok   T7 768 light, reduced motion finished: every interactive target is at least 44x44
+ok   T7 768 light, reduced motion finished: no horizontal overflow
+note T7 768 light, reduced motion measured: rows as first shown (expanded) 61px, 61px, 56px, list 178px
+ok   T7 768 light, reduced motion expanded: each finished row is at most 176px, not counting a result note
+ok   T7 768 light, reduced motion expanded: every interactive target is at least 44x44
+ok   T7 768 light, reduced motion expanded: no horizontal overflow
+note T7 768 light, reduced motion measured: expanded rows 167px, 167px, 162px, list 496px, waveform 596px
+ok   T7 768 light, reduced motion trim editing: two handles, every target at least 44x44, no horizontal overflow
+note T7 768 light, reduced motion measured: row in trim editing 377px
+ok   T7 768 light, reduced motion reduced motion: no running animation and no transition
+ok   T7 768 light, reduced motion collapsing every row returns each to at most 64px
+ok   T7 768 light, reduced motion no page errors
+ok   T7 768 light, touch unprocessed: every row at most 120px without Preview
+note T7 768 light, touch measured: unprocessed rows 113px, 113px, 108px, with a Trim all step and Preview 135px, 135px, 130px, first-row offset 69px, empty box 112px
+ok   T7 768 light, touch unprocessed: first row starts within 80px of the panel top
+ok   T7 768 light, touch unprocessed: every interactive target is at least 44x44
+ok   T7 768 light, touch unprocessed: no horizontal overflow
+FAIL T7 768 light, touch finished: every row starts expanded (aria-expanded true) -- ["false","false","false"]
+ok   T7 768 light, touch finished: each row starts expanded at most 176px, not counting a result note
+ok   T7 768 light, touch finished: first row starts within 80px of the panel top
+ok   T7 768 light, touch finished: every interactive target is at least 44x44
+ok   T7 768 light, touch finished: no horizontal overflow
+note T7 768 light, touch measured: rows as first shown (expanded) 61px, 61px, 56px, list 178px
+ok   T7 768 light, touch expanded: each finished row is at most 176px, not counting a result note
+ok   T7 768 light, touch expanded: every interactive target is at least 44x44
+ok   T7 768 light, touch expanded: no horizontal overflow
+note T7 768 light, touch measured: expanded rows 167px, 167px, 162px, list 496px, waveform 596px
+ok   T7 768 light, touch trim editing: two handles, every target at least 44x44, no horizontal overflow
+note T7 768 light, touch measured: row in trim editing 377px
+ok   T7 768 light, touch collapsing every row returns each to at most 64px
+ok   T7 768 light, touch no page errors
+note WebKit not run: not installed

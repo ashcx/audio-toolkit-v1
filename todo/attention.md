@@ -2,6 +2,15 @@
 
 What needs the user. Newest first.
 
+## 2026-11-16 — Responsive defaults for the file list and the steps
+
+Two changes on `feat/responsive-default-expansion`, one commit each plus a checks commit, not pushed. Finished rows now start expanded above 600px and collapsed at or below it, and recipe steps start closed on mobile (600px or less). Tablet and desktop steps behave as before.
+
+- Decided without asking: on mobile a step with a validation error opens so its fields stay reachable, but if the user closes it the error text stays shown and the step stays closed. A step you opened by hand stays open after the error clears. A row you toggled by hand keeps its state across a resize, and untouched rows follow the viewport.
+- Measured: Steps panel with Trim all and Gain at 375px, 517px to 274px. Three finished tracks on a tablet or desktop are now 578 to 586px tall (260 to 268px before), by design.
+- A viewport change that collapses a row showing the Original switches it to the Result, as collapsing by hand does.
+- Not run: WebKit, real devices and rotation, `axe`, and the seven older drivers already known stale. Port 4173 was held by another session, so a preview ran on 4183.
+
 ## 2026-11-16 — Sprint 30 follow-up round
 
 Four approved changes are in, one commit each on the PR branch, not pushed. Toggle B for Original and Result, notes above the player, the meta line `00:02 / 03:02 · Trimmed to 02:10` (Result view `00:00 / 02:10 · Trimmed`), and no control styled as a link. Details: `docs/sprint-evidence/sprint-30/interrogate.md` (Follow-up round) and the sprint Log.

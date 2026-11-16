@@ -1,0 +1,351 @@
+ok   T10 320 light files finished rows are collapsed by default (320px is at most 600px)
+ok   T10 320 light files collapsed rows are at most 64px
+ok   T10 320 light files files: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 320 light files a manual toggle on one row leaves the other rows alone
+ok   T10 320 light files after resizing to 768px the toggled row keeps its choice and the untouched rows follow the viewport
+ok   T10 320 light files after resizing to 768px the finished rows fit (expanded at most 176px) with no horizontal overflow
+ok   T10 320 light files back at 320px the toggled row still keeps its choice and the untouched rows follow again
+ok   T10 320 light files files: no page errors
+ok   T10 320 light steps a newly added Trim all step is closed, its summary shows and no field is shown
+ok   T10 320 light steps a newly added Gain step is closed too, and both summaries show their values
+ok   T10 320 light steps steps: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 320 light steps tapping Trim all opens it with its fields and keeps its summary
+ok   T10 320 light steps tapping it again closes it
+ok   T10 320 light steps steps: no page errors
+ok   T10 320 light stepsAcrossResize resizing to 768px keeps every step's values (summaries unchanged)
+ok   T10 320 light stepsAcrossResize a step the user opened stays open after resizing to 768px, with its values
+ok   T10 320 light stepsAcrossResize the choice made by hand at 768px (closing Trim all) holds back at 320px, with every summary unchanged
+ok   T10 320 light stepsAcrossResize across resizes: no horizontal overflow and no page errors
+ok   T10 320 light stepError a step with a shown validation error is open, its error is announced and its invalid fields point at it
+ok   T10 320 light stepError fixing the error does not close the step the user is editing
+ok   T10 320 light stepError a step the user closes with an error showing stays closed, the error and its description stay
+ok   T10 320 light stepError and one tap brings the fields back
+ok   T10 320 light stepError a step added beside an erroring open step is still closed on mobile
+ok   T10 320 light stepError the erroring step stays reachable after resizing to 768px
+ok   T10 320 light stepError step error: no horizontal overflow, every target at least 44x44, no page errors
+ok   T10 320 dark files finished rows are collapsed by default (320px is at most 600px)
+ok   T10 320 dark files collapsed rows are at most 64px
+ok   T10 320 dark files files: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 320 dark files a manual toggle on one row leaves the other rows alone
+ok   T10 320 dark files after resizing to 768px the toggled row keeps its choice and the untouched rows follow the viewport
+ok   T10 320 dark files after resizing to 768px the finished rows fit (expanded at most 176px) with no horizontal overflow
+ok   T10 320 dark files back at 320px the toggled row still keeps its choice and the untouched rows follow again
+ok   T10 320 dark files files: no page errors
+ok   T10 320 dark steps a newly added Trim all step is closed, its summary shows and no field is shown
+ok   T10 320 dark steps a newly added Gain step is closed too, and both summaries show their values
+ok   T10 320 dark steps steps: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 320 dark steps tapping Trim all opens it with its fields and keeps its summary
+ok   T10 320 dark steps tapping it again closes it
+ok   T10 320 dark steps steps: no page errors
+ok   T10 320 dark stepsAcrossResize resizing to 768px keeps every step's values (summaries unchanged)
+ok   T10 320 dark stepsAcrossResize a step the user opened stays open after resizing to 768px, with its values
+ok   T10 320 dark stepsAcrossResize the choice made by hand at 768px (closing Trim all) holds back at 320px, with every summary unchanged
+ok   T10 320 dark stepsAcrossResize across resizes: no horizontal overflow and no page errors
+ok   T10 320 dark stepError a step with a shown validation error is open, its error is announced and its invalid fields point at it
+ok   T10 320 dark stepError fixing the error does not close the step the user is editing
+ok   T10 320 dark stepError a step the user closes with an error showing stays closed, the error and its description stay
+ok   T10 320 dark stepError and one tap brings the fields back
+ok   T10 320 dark stepError a step added beside an erroring open step is still closed on mobile
+ok   T10 320 dark stepError the erroring step stays reachable after resizing to 768px
+ok   T10 320 dark stepError step error: no horizontal overflow, every target at least 44x44, no page errors
+ok   T10 375 light files finished rows are collapsed by default (375px is at most 600px)
+ok   T10 375 light files collapsed rows are at most 64px
+ok   T10 375 light files files: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 375 light files a manual toggle on one row leaves the other rows alone
+ok   T10 375 light files after resizing to 768px the toggled row keeps its choice and the untouched rows follow the viewport
+ok   T10 375 light files after resizing to 768px the finished rows fit (expanded at most 176px) with no horizontal overflow
+ok   T10 375 light files back at 375px the toggled row still keeps its choice and the untouched rows follow again
+ok   T10 375 light files files: no page errors
+ok   T10 375 light steps a newly added Trim all step is closed, its summary shows and no field is shown
+ok   T10 375 light steps a newly added Gain step is closed too, and both summaries show their values
+ok   T10 375 light steps steps: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 375 light steps tapping Trim all opens it with its fields and keeps its summary
+ok   T10 375 light steps tapping it again closes it
+ok   T10 375 light steps steps: no page errors
+ok   T10 375 light stepsAcrossResize resizing to 768px keeps every step's values (summaries unchanged)
+ok   T10 375 light stepsAcrossResize a step the user opened stays open after resizing to 768px, with its values
+ok   T10 375 light stepsAcrossResize the choice made by hand at 768px (closing Trim all) holds back at 375px, with every summary unchanged
+ok   T10 375 light stepsAcrossResize across resizes: no horizontal overflow and no page errors
+ok   T10 375 light stepError a step with a shown validation error is open, its error is announced and its invalid fields point at it
+ok   T10 375 light stepError fixing the error does not close the step the user is editing
+ok   T10 375 light stepError a step the user closes with an error showing stays closed, the error and its description stay
+ok   T10 375 light stepError and one tap brings the fields back
+ok   T10 375 light stepError a step added beside an erroring open step is still closed on mobile
+ok   T10 375 light stepError the erroring step stays reachable after resizing to 768px
+ok   T10 375 light stepError step error: no horizontal overflow, every target at least 44x44, no page errors
+ok   T10 375 dark files finished rows are collapsed by default (375px is at most 600px)
+ok   T10 375 dark files collapsed rows are at most 64px
+ok   T10 375 dark files files: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 375 dark files a manual toggle on one row leaves the other rows alone
+ok   T10 375 dark files after resizing to 768px the toggled row keeps its choice and the untouched rows follow the viewport
+ok   T10 375 dark files after resizing to 768px the finished rows fit (expanded at most 176px) with no horizontal overflow
+ok   T10 375 dark files back at 375px the toggled row still keeps its choice and the untouched rows follow again
+ok   T10 375 dark files files: no page errors
+ok   T10 375 dark steps a newly added Trim all step is closed, its summary shows and no field is shown
+ok   T10 375 dark steps a newly added Gain step is closed too, and both summaries show their values
+ok   T10 375 dark steps steps: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 375 dark steps tapping Trim all opens it with its fields and keeps its summary
+ok   T10 375 dark steps tapping it again closes it
+ok   T10 375 dark steps steps: no page errors
+ok   T10 375 dark stepsAcrossResize resizing to 768px keeps every step's values (summaries unchanged)
+ok   T10 375 dark stepsAcrossResize a step the user opened stays open after resizing to 768px, with its values
+ok   T10 375 dark stepsAcrossResize the choice made by hand at 768px (closing Trim all) holds back at 375px, with every summary unchanged
+ok   T10 375 dark stepsAcrossResize across resizes: no horizontal overflow and no page errors
+ok   T10 375 dark stepError a step with a shown validation error is open, its error is announced and its invalid fields point at it
+ok   T10 375 dark stepError fixing the error does not close the step the user is editing
+ok   T10 375 dark stepError a step the user closes with an error showing stays closed, the error and its description stay
+ok   T10 375 dark stepError and one tap brings the fields back
+ok   T10 375 dark stepError a step added beside an erroring open step is still closed on mobile
+ok   T10 375 dark stepError the erroring step stays reachable after resizing to 768px
+ok   T10 375 dark stepError step error: no horizontal overflow, every target at least 44x44, no page errors
+ok   T10 600 light files finished rows are collapsed by default (600px is at most 600px)
+ok   T10 600 light files collapsed rows are at most 64px
+ok   T10 600 light files files: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 600 light files a manual toggle on one row leaves the other rows alone
+ok   T10 600 light files after resizing to 601px the toggled row keeps its choice and the untouched rows follow the viewport
+ok   T10 600 light files after resizing to 601px the finished rows fit (expanded at most 176px) with no horizontal overflow
+ok   T10 600 light files back at 600px the toggled row still keeps its choice and the untouched rows follow again
+ok   T10 600 light files files: no page errors
+ok   T10 600 light steps a newly added Trim all step is closed, its summary shows and no field is shown
+ok   T10 600 light steps a newly added Gain step is closed too, and both summaries show their values
+ok   T10 600 light steps steps: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 600 light steps tapping Trim all opens it with its fields and keeps its summary
+ok   T10 600 light steps tapping it again closes it
+ok   T10 600 light steps steps: no page errors
+ok   T10 600 light stepsAcrossResize resizing to 601px keeps every step's values (summaries unchanged)
+ok   T10 600 light stepsAcrossResize a step the user opened stays open after resizing to 601px, with its values
+ok   T10 600 light stepsAcrossResize the choice made by hand at 601px (closing Trim all) holds back at 600px, with every summary unchanged
+ok   T10 600 light stepsAcrossResize across resizes: no horizontal overflow and no page errors
+ok   T10 600 light stepError a step with a shown validation error is open, its error is announced and its invalid fields point at it
+ok   T10 600 light stepError fixing the error does not close the step the user is editing
+ok   T10 600 light stepError a step the user closes with an error showing stays closed, the error and its description stay
+ok   T10 600 light stepError and one tap brings the fields back
+ok   T10 600 light stepError a step added beside an erroring open step is still closed on mobile
+ok   T10 600 light stepError the erroring step stays reachable after resizing to 601px
+ok   T10 600 light stepError step error: no horizontal overflow, every target at least 44x44, no page errors
+ok   T10 600 dark files finished rows are collapsed by default (600px is at most 600px)
+ok   T10 600 dark files collapsed rows are at most 64px
+ok   T10 600 dark files files: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 600 dark files a manual toggle on one row leaves the other rows alone
+ok   T10 600 dark files after resizing to 601px the toggled row keeps its choice and the untouched rows follow the viewport
+ok   T10 600 dark files after resizing to 601px the finished rows fit (expanded at most 176px) with no horizontal overflow
+ok   T10 600 dark files back at 600px the toggled row still keeps its choice and the untouched rows follow again
+ok   T10 600 dark files files: no page errors
+ok   T10 600 dark steps a newly added Trim all step is closed, its summary shows and no field is shown
+ok   T10 600 dark steps a newly added Gain step is closed too, and both summaries show their values
+ok   T10 600 dark steps steps: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 600 dark steps tapping Trim all opens it with its fields and keeps its summary
+ok   T10 600 dark steps tapping it again closes it
+ok   T10 600 dark steps steps: no page errors
+ok   T10 600 dark stepsAcrossResize resizing to 601px keeps every step's values (summaries unchanged)
+ok   T10 600 dark stepsAcrossResize a step the user opened stays open after resizing to 601px, with its values
+ok   T10 600 dark stepsAcrossResize the choice made by hand at 601px (closing Trim all) holds back at 600px, with every summary unchanged
+ok   T10 600 dark stepsAcrossResize across resizes: no horizontal overflow and no page errors
+ok   T10 600 dark stepError a step with a shown validation error is open, its error is announced and its invalid fields point at it
+ok   T10 600 dark stepError fixing the error does not close the step the user is editing
+ok   T10 600 dark stepError a step the user closes with an error showing stays closed, the error and its description stay
+ok   T10 600 dark stepError and one tap brings the fields back
+ok   T10 600 dark stepError a step added beside an erroring open step is still closed on mobile
+ok   T10 600 dark stepError the erroring step stays reachable after resizing to 601px
+ok   T10 600 dark stepError step error: no horizontal overflow, every target at least 44x44, no page errors
+ok   T10 601 light files finished rows are expanded by default (601px is over 600px)
+ok   T10 601 light files expanded rows are at most 176px, not counting a result note, and show the waveform and the switch
+ok   T10 601 light files files: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 601 light files a manual toggle on one row leaves the other rows alone
+ok   T10 601 light files after resizing to 600px the toggled row keeps its choice and the untouched rows follow the viewport
+ok   T10 601 light files after resizing to 600px the finished rows fit (collapsed at most 64px) with no horizontal overflow
+ok   T10 601 light files a row collapsed by the viewport while showing the Original switches to the Result
+ok   T10 601 light files back at 601px the toggled row still keeps its choice and the untouched rows follow again
+ok   T10 601 light files files: no page errors
+ok   T10 601 light steps a newly added Trim all step opens, as before
+ok   T10 601 light steps a newly added Gain step opens and closes the Trim all step, as before
+ok   T10 601 light steps steps: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 601 light steps tapping Trim all opens it with its fields and keeps its summary
+ok   T10 601 light steps tapping it again closes it
+ok   T10 601 light steps steps: no page errors
+ok   T10 601 light stepsAcrossResize resizing to 600px keeps every step's values (summaries unchanged)
+ok   T10 601 light stepsAcrossResize resizing to 600px closes the step that was only open because it was just added
+ok   T10 601 light stepsAcrossResize the choice made by hand at 600px (opening Trim all) holds back at 601px, with every summary unchanged
+ok   T10 601 light stepsAcrossResize across resizes: no horizontal overflow and no page errors
+ok   T10 601 light stepError a step with a shown validation error is open, its error is announced and its invalid fields point at it
+ok   T10 601 light stepError fixing the error does not close the step the user is editing
+ok   T10 601 light stepError a step the user closes with an error showing stays closed, the error and its description stay
+ok   T10 601 light stepError and one tap brings the fields back
+ok   T10 601 light stepError the erroring step stays reachable after resizing to 600px
+ok   T10 601 light stepError step error: no horizontal overflow, every target at least 44x44, no page errors
+ok   T10 601 dark files finished rows are expanded by default (601px is over 600px)
+ok   T10 601 dark files expanded rows are at most 176px, not counting a result note, and show the waveform and the switch
+ok   T10 601 dark files files: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 601 dark files a manual toggle on one row leaves the other rows alone
+ok   T10 601 dark files after resizing to 600px the toggled row keeps its choice and the untouched rows follow the viewport
+ok   T10 601 dark files after resizing to 600px the finished rows fit (collapsed at most 64px) with no horizontal overflow
+ok   T10 601 dark files a row collapsed by the viewport while showing the Original switches to the Result
+ok   T10 601 dark files back at 601px the toggled row still keeps its choice and the untouched rows follow again
+ok   T10 601 dark files files: no page errors
+ok   T10 601 dark steps a newly added Trim all step opens, as before
+ok   T10 601 dark steps a newly added Gain step opens and closes the Trim all step, as before
+ok   T10 601 dark steps steps: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 601 dark steps tapping Trim all opens it with its fields and keeps its summary
+ok   T10 601 dark steps tapping it again closes it
+ok   T10 601 dark steps steps: no page errors
+ok   T10 601 dark stepsAcrossResize resizing to 600px keeps every step's values (summaries unchanged)
+ok   T10 601 dark stepsAcrossResize resizing to 600px closes the step that was only open because it was just added
+ok   T10 601 dark stepsAcrossResize the choice made by hand at 600px (opening Trim all) holds back at 601px, with every summary unchanged
+ok   T10 601 dark stepsAcrossResize across resizes: no horizontal overflow and no page errors
+ok   T10 601 dark stepError a step with a shown validation error is open, its error is announced and its invalid fields point at it
+ok   T10 601 dark stepError fixing the error does not close the step the user is editing
+ok   T10 601 dark stepError a step the user closes with an error showing stays closed, the error and its description stay
+ok   T10 601 dark stepError and one tap brings the fields back
+ok   T10 601 dark stepError the erroring step stays reachable after resizing to 600px
+ok   T10 601 dark stepError step error: no horizontal overflow, every target at least 44x44, no page errors
+ok   T10 768 light files finished rows are expanded by default (768px is over 600px)
+ok   T10 768 light files expanded rows are at most 176px, not counting a result note, and show the waveform and the switch
+ok   T10 768 light files files: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 768 light files a manual toggle on one row leaves the other rows alone
+ok   T10 768 light files after resizing to 375px the toggled row keeps its choice and the untouched rows follow the viewport
+ok   T10 768 light files after resizing to 375px the finished rows fit (collapsed at most 64px) with no horizontal overflow
+ok   T10 768 light files a row collapsed by the viewport while showing the Original switches to the Result
+ok   T10 768 light files back at 768px the toggled row still keeps its choice and the untouched rows follow again
+ok   T10 768 light files files: no page errors
+ok   T10 768 light steps a newly added Trim all step opens, as before
+ok   T10 768 light steps a newly added Gain step opens and closes the Trim all step, as before
+ok   T10 768 light steps steps: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 768 light steps tapping Trim all opens it with its fields and keeps its summary
+ok   T10 768 light steps tapping it again closes it
+ok   T10 768 light steps steps: no page errors
+ok   T10 768 light stepsAcrossResize resizing to 375px keeps every step's values (summaries unchanged)
+ok   T10 768 light stepsAcrossResize resizing to 375px closes the step that was only open because it was just added
+ok   T10 768 light stepsAcrossResize the choice made by hand at 375px (opening Trim all) holds back at 768px, with every summary unchanged
+ok   T10 768 light stepsAcrossResize across resizes: no horizontal overflow and no page errors
+ok   T10 768 light stepError a step with a shown validation error is open, its error is announced and its invalid fields point at it
+ok   T10 768 light stepError fixing the error does not close the step the user is editing
+ok   T10 768 light stepError a step the user closes with an error showing stays closed, the error and its description stay
+ok   T10 768 light stepError and one tap brings the fields back
+ok   T10 768 light stepError the erroring step stays reachable after resizing to 375px
+ok   T10 768 light stepError step error: no horizontal overflow, every target at least 44x44, no page errors
+ok   T10 768 dark files finished rows are expanded by default (768px is over 600px)
+ok   T10 768 dark files expanded rows are at most 176px, not counting a result note, and show the waveform and the switch
+ok   T10 768 dark files files: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 768 dark files a manual toggle on one row leaves the other rows alone
+ok   T10 768 dark files after resizing to 375px the toggled row keeps its choice and the untouched rows follow the viewport
+ok   T10 768 dark files after resizing to 375px the finished rows fit (collapsed at most 64px) with no horizontal overflow
+ok   T10 768 dark files a row collapsed by the viewport while showing the Original switches to the Result
+ok   T10 768 dark files back at 768px the toggled row still keeps its choice and the untouched rows follow again
+ok   T10 768 dark files files: no page errors
+ok   T10 768 dark steps a newly added Trim all step opens, as before
+ok   T10 768 dark steps a newly added Gain step opens and closes the Trim all step, as before
+ok   T10 768 dark steps steps: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 768 dark steps tapping Trim all opens it with its fields and keeps its summary
+ok   T10 768 dark steps tapping it again closes it
+ok   T10 768 dark steps steps: no page errors
+ok   T10 768 dark stepsAcrossResize resizing to 375px keeps every step's values (summaries unchanged)
+ok   T10 768 dark stepsAcrossResize resizing to 375px closes the step that was only open because it was just added
+ok   T10 768 dark stepsAcrossResize the choice made by hand at 375px (opening Trim all) holds back at 768px, with every summary unchanged
+ok   T10 768 dark stepsAcrossResize across resizes: no horizontal overflow and no page errors
+ok   T10 768 dark stepError a step with a shown validation error is open, its error is announced and its invalid fields point at it
+ok   T10 768 dark stepError fixing the error does not close the step the user is editing
+ok   T10 768 dark stepError a step the user closes with an error showing stays closed, the error and its description stay
+ok   T10 768 dark stepError and one tap brings the fields back
+ok   T10 768 dark stepError the erroring step stays reachable after resizing to 375px
+ok   T10 768 dark stepError step error: no horizontal overflow, every target at least 44x44, no page errors
+ok   T10 1024 light files finished rows are expanded by default (1024px is over 600px)
+ok   T10 1024 light files expanded rows are at most 176px, not counting a result note, and show the waveform and the switch
+ok   T10 1024 light files files: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 1024 light files a manual toggle on one row leaves the other rows alone
+ok   T10 1024 light files after resizing to 375px the toggled row keeps its choice and the untouched rows follow the viewport
+ok   T10 1024 light files after resizing to 375px the finished rows fit (collapsed at most 64px) with no horizontal overflow
+ok   T10 1024 light files a row collapsed by the viewport while showing the Original switches to the Result
+ok   T10 1024 light files back at 1024px the toggled row still keeps its choice and the untouched rows follow again
+ok   T10 1024 light files files: no page errors
+ok   T10 1024 light steps a newly added Trim all step opens, as before
+ok   T10 1024 light steps a newly added Gain step opens and closes the Trim all step, as before
+ok   T10 1024 light steps steps: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 1024 light steps tapping Trim all opens it with its fields and keeps its summary
+ok   T10 1024 light steps tapping it again closes it
+ok   T10 1024 light steps steps: no page errors
+ok   T10 1024 light stepsAcrossResize resizing to 375px keeps every step's values (summaries unchanged)
+ok   T10 1024 light stepsAcrossResize resizing to 375px closes the step that was only open because it was just added
+ok   T10 1024 light stepsAcrossResize the choice made by hand at 375px (opening Trim all) holds back at 1024px, with every summary unchanged
+ok   T10 1024 light stepsAcrossResize across resizes: no horizontal overflow and no page errors
+ok   T10 1024 light stepError a step with a shown validation error is open, its error is announced and its invalid fields point at it
+ok   T10 1024 light stepError fixing the error does not close the step the user is editing
+ok   T10 1024 light stepError a step the user closes with an error showing stays closed, the error and its description stay
+ok   T10 1024 light stepError and one tap brings the fields back
+ok   T10 1024 light stepError the erroring step stays reachable after resizing to 375px
+ok   T10 1024 light stepError step error: no horizontal overflow, every target at least 44x44, no page errors
+ok   T10 1024 dark files finished rows are expanded by default (1024px is over 600px)
+ok   T10 1024 dark files expanded rows are at most 176px, not counting a result note, and show the waveform and the switch
+ok   T10 1024 dark files files: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 1024 dark files a manual toggle on one row leaves the other rows alone
+ok   T10 1024 dark files after resizing to 375px the toggled row keeps its choice and the untouched rows follow the viewport
+ok   T10 1024 dark files after resizing to 375px the finished rows fit (collapsed at most 64px) with no horizontal overflow
+ok   T10 1024 dark files a row collapsed by the viewport while showing the Original switches to the Result
+ok   T10 1024 dark files back at 1024px the toggled row still keeps its choice and the untouched rows follow again
+ok   T10 1024 dark files files: no page errors
+ok   T10 1024 dark steps a newly added Trim all step opens, as before
+ok   T10 1024 dark steps a newly added Gain step opens and closes the Trim all step, as before
+ok   T10 1024 dark steps steps: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 1024 dark steps tapping Trim all opens it with its fields and keeps its summary
+ok   T10 1024 dark steps tapping it again closes it
+ok   T10 1024 dark steps steps: no page errors
+ok   T10 1024 dark stepsAcrossResize resizing to 375px keeps every step's values (summaries unchanged)
+ok   T10 1024 dark stepsAcrossResize resizing to 375px closes the step that was only open because it was just added
+ok   T10 1024 dark stepsAcrossResize the choice made by hand at 375px (opening Trim all) holds back at 1024px, with every summary unchanged
+ok   T10 1024 dark stepsAcrossResize across resizes: no horizontal overflow and no page errors
+ok   T10 1024 dark stepError a step with a shown validation error is open, its error is announced and its invalid fields point at it
+ok   T10 1024 dark stepError fixing the error does not close the step the user is editing
+ok   T10 1024 dark stepError a step the user closes with an error showing stays closed, the error and its description stay
+ok   T10 1024 dark stepError and one tap brings the fields back
+ok   T10 1024 dark stepError the erroring step stays reachable after resizing to 375px
+ok   T10 1024 dark stepError step error: no horizontal overflow, every target at least 44x44, no page errors
+ok   T10 1440 light files finished rows are expanded by default (1440px is over 600px)
+ok   T10 1440 light files expanded rows are at most 176px, not counting a result note, and show the waveform and the switch
+ok   T10 1440 light files files: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 1440 light files a manual toggle on one row leaves the other rows alone
+ok   T10 1440 light files after resizing to 375px the toggled row keeps its choice and the untouched rows follow the viewport
+ok   T10 1440 light files after resizing to 375px the finished rows fit (collapsed at most 64px) with no horizontal overflow
+ok   T10 1440 light files a row collapsed by the viewport while showing the Original switches to the Result
+ok   T10 1440 light files back at 1440px the toggled row still keeps its choice and the untouched rows follow again
+ok   T10 1440 light files files: no page errors
+ok   T10 1440 light steps a newly added Trim all step opens, as before
+ok   T10 1440 light steps a newly added Gain step opens and closes the Trim all step, as before
+ok   T10 1440 light steps steps: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 1440 light steps tapping Trim all opens it with its fields and keeps its summary
+ok   T10 1440 light steps tapping it again closes it
+ok   T10 1440 light steps steps: no page errors
+ok   T10 1440 light stepsAcrossResize resizing to 375px keeps every step's values (summaries unchanged)
+ok   T10 1440 light stepsAcrossResize resizing to 375px closes the step that was only open because it was just added
+ok   T10 1440 light stepsAcrossResize the choice made by hand at 375px (opening Trim all) holds back at 1440px, with every summary unchanged
+ok   T10 1440 light stepsAcrossResize across resizes: no horizontal overflow and no page errors
+ok   T10 1440 light stepError a step with a shown validation error is open, its error is announced and its invalid fields point at it
+ok   T10 1440 light stepError fixing the error does not close the step the user is editing
+ok   T10 1440 light stepError a step the user closes with an error showing stays closed, the error and its description stay
+ok   T10 1440 light stepError and one tap brings the fields back
+ok   T10 1440 light stepError the erroring step stays reachable after resizing to 375px
+ok   T10 1440 light stepError step error: no horizontal overflow, every target at least 44x44, no page errors
+ok   T10 1440 dark files finished rows are expanded by default (1440px is over 600px)
+ok   T10 1440 dark files expanded rows are at most 176px, not counting a result note, and show the waveform and the switch
+ok   T10 1440 dark files files: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 1440 dark files a manual toggle on one row leaves the other rows alone
+ok   T10 1440 dark files after resizing to 375px the toggled row keeps its choice and the untouched rows follow the viewport
+ok   T10 1440 dark files after resizing to 375px the finished rows fit (collapsed at most 64px) with no horizontal overflow
+ok   T10 1440 dark files a row collapsed by the viewport while showing the Original switches to the Result
+ok   T10 1440 dark files back at 1440px the toggled row still keeps its choice and the untouched rows follow again
+ok   T10 1440 dark files files: no page errors
+ok   T10 1440 dark steps a newly added Trim all step opens, as before
+ok   T10 1440 dark steps a newly added Gain step opens and closes the Trim all step, as before
+ok   T10 1440 dark steps steps: every target is at least 44x44 and nothing overflows horizontally
+ok   T10 1440 dark steps tapping Trim all opens it with its fields and keeps its summary
+ok   T10 1440 dark steps tapping it again closes it
+ok   T10 1440 dark steps steps: no page errors
+ok   T10 1440 dark stepsAcrossResize resizing to 375px keeps every step's values (summaries unchanged)
+ok   T10 1440 dark stepsAcrossResize resizing to 375px closes the step that was only open because it was just added
+ok   T10 1440 dark stepsAcrossResize the choice made by hand at 375px (opening Trim all) holds back at 1440px, with every summary unchanged
+ok   T10 1440 dark stepsAcrossResize across resizes: no horizontal overflow and no page errors
+ok   T10 1440 dark stepError a step with a shown validation error is open, its error is announced and its invalid fields point at it
+ok   T10 1440 dark stepError fixing the error does not close the step the user is editing
+ok   T10 1440 dark stepError a step the user closes with an error showing stays closed, the error and its description stay
+ok   T10 1440 dark stepError and one tap brings the fields back
+ok   T10 1440 dark stepError the erroring step stays reachable after resizing to 375px
+ok   T10 1440 dark stepError step error: no horizontal overflow, every target at least 44x44, no page errors
+note WebKit not run: not installed
