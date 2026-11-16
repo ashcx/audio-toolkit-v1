@@ -1,0 +1,137 @@
+---
+sprint: 30
+name: compact-track-list
+status: in-progress
+tier: L
+detail: full
+depends_on: []
+pr: ""
+---
+
+# Sprint 30 — Compact track list
+
+Planned 2026-11-16 from the user's UI audit of the file list. The user gave the go on 2026-11-16, so it is executing. Sprint 29 (waveform player, PR #41) and the batch performance work (PR #42) are already merged, so there is no open sprint dependency.
+
+## Goal
+
+A finished track takes about a quarter of the vertical space it does today on a phone, with no loss of function and no touch target under 44px. A processed file collapses to one line and expands on tap. An unprocessed or expanded file shows the play button beside its waveform on one row. The panel header spends one 44px row on the title, count and an **Add files** button. Scope is the Files panel only (`FileRow`, `WavePlayer` layout, the panel heading and drop target). The recipe panel, export, trimming rules, peak generation and the audio pipeline do not change.
+
+Measured on the real CSS in a static mock at 375px wide (planning-time prototype, not the app): a finished track is **228px** today (name 44, "▶ Original" row 44, Result head 44, waveform 56, gaps and padding) and **112px** with the inline row. The 3-tier plan below takes a collapsed finished track to about **60px**. The waveform is 273px wide at 375px and 218px at 320px today, and 199px and 144px beside the Trim button.
+
+## Entry criteria
+
+- [ ] Branch from current `main` (`3c6ae13` or later). Record the base SHA in the Log.
+- [ ] Dependencies available: `npm ci` (or an existing `node_modules` for the same lockfile). Google Chrome installed for the Playwright `channel: 'chrome'` drivers. WebKit is **not installed** on the planning machine (`~/Library/Caches/ms-playwright` is absent). Run `npx playwright install webkit` for the T7 WebKit pass, and if it cannot be installed, T7 and the Exit criteria say "WebKit not run" and nothing claims WebKit.
+- [ ] Baseline recorded at the base head, output saved to `docs/sprint-evidence/sprint-30/baseline.txt`. Drivers differ in how they get a server, so use these exact forms (all verified at `3c6ae13`):
+  - `npm run typecheck` → exit 0. `npm test` → 231 pass. `npm run build` → exit 0.
+  - `node scripts/sprint-29-check.mjs` → `PASS: 57 checks` (starts its own server). `node scripts/keyboard-check.mjs` → `55 assertions passed, 0 failed` (starts its own server).
+  - `intake-check` and `sprint-25-check` need a server and default to different ports. Start one with `npx vite preview --host 127.0.0.1 --port 4173 --strictPort` after the build, then run `APP_URL=http://127.0.0.1:4173/audio-toolkit-v1/ ENGINES=chromium node scripts/intake-check.mjs` and the same for `scripts/sprint-25-check.mjs` → both print `PASS`. Without `ENGINES=chromium`, `intake-check` also launches WebKit.
+  - Below, "the drivers" means exactly these five commands. Two more drivers assert on the same markup: `scripts/ui-states-check.mjs` (touch targets, contrast, axe, `.file-result` labels, `.wave-label` in previews) and `scripts/workspace-check.mjs` (focus returns to `input[type=file]`). Record each one's command form and baseline at Entry, and if one cannot run at the base head, record why. T7 runs them too.
+- [ ] Real-app baseline measurements at 375×812 and 320×700 (finished-row height, first-row offset, waveform width, empty-state height) saved by `node scripts/sprint-30-check.mjs --baseline`. T1's **first commit adds only that script** and the measurements are taken from the unmodified base `dist/` before any source edit. Later Accept rows use the saved numbers, not the mock numbers.
+
+## Depends on
+
+Nothing open. It builds on the merged waveform player (`src/wave-player.tsx`, `todo/sprint-29-waveform-trimming.md`, Option B "compact player, expands to trim") and keeps its decisions: the trim lines, scrub behaviour, the one-row-at-a-time editor with a 130px track, and 44px targets.
+
+Permissions are those in `todo/orchestration-plan.md`: working branch and PR to `main`, no merge, no deploy.
+
+## Tasks
+
+Run in order. T1 and T2 are independent of T3–T6. T4 needs T3. T5 needs T3 and T4. T6 needs T5. One commit per task, with the tests and the drivers named in that task's Files green at that commit, not only at T7. Any driver that reads a selector or string a task changes is listed in that task's Files and migrated in the same commit.
+
+- [ ] **S30-T1 — Add files lives in the panel heading** (route: feature)
+  - Files: `src/main.tsx`, `src/style.css`, `scripts/sprint-30-check.mjs` (create), `scripts/intake-check.mjs`, `scripts/keyboard-check.mjs` (may write, they select `.dropzone`); `src/copy.ts` (read only)
+  - Shape: the whole `.files-panel` is the drop target, so the drag handlers move from the `<label class="dropzone">` to the section. **Exactly one `<input type="file">` exists in the DOM at all times** (20 drivers use `locator('input[type=file]')` and strict mode fails on two). It lives in the 44px "Add files" label in `.panel-heading`, beside the count, in both the empty and listed states, and stays the focus target (`picker` in `src/main.tsx`; `workspace-check` and `sprint-25-check` expect focus there after a removal or Clear all). The large dashed box renders only while the list is empty. It is a non-input element (a `.dropzone` button that calls `picker.current.click()`), so `intake-check`'s tap on `.dropzone` still opens the chooser. On a coarse pointer it drops the "or drop audio or video" line. `scripts/workspace-check.mjs` and `scripts/sprint-25-check.mjs` are read for the focus assertions.
+  - Commits: first commit adds `scripts/sprint-30-check.mjs` with `--baseline` only and records the base measurements (see Entry). The second commit makes the change.
+  - Accept: **Given** at least one file is listed at 375×812, **when** the panel renders, **then** no dashed drop box is shown, an "Add files" button at least 44px tall is in the heading row beside the count, and the first file row starts within 80px of the panel top (135px today). **Given** a file is dragged over the panel, listed or empty, **when** it enters, **then** the panel shows the active border, and **when** it is dropped the file is added. **Given** an empty list with a coarse pointer, **then** the drop hint is hidden and the empty box is at most 140px tall (220px today). **Given** keyboard focus on the button, **then** a visible focus ring shows.
+  - Verify: `npm run build && node scripts/sprint-30-check.mjs --task T1` → exit 0, every T1 line `ok`; then the `intake-check` and `keyboard-check` driver commands from Entry → both pass. Live check: tap the heading button in the 375px emulation, choose `tests/fixtures/tone.wav`, and capture before and after.
+  - Evidence: `docs/sprint-evidence/sprint-30/t1.txt`, `docs/sprint-evidence/sprint-30/captures/t1-375.png`
+
+- [ ] **S30-T2 — Compact row chrome and one-line names** (route: refactoring)
+  - Files: `src/style.css`, `src/file-row.tsx` (class names and the name span), `scripts/sprint-30-check.mjs`; `scripts/keyboard-check.mjs`, `scripts/intake-check.mjs` (they read `.file-name` `firstChild.textContent`, which becomes the span. The text is the same, so re-run them and edit only if they fail)
+  - Shape: at 800px and below, the panel padding is 12px, row padding is 8px with 4px gaps, and `.file-list` has no `max-height` or inner scroll, so the page scrolls. Above 800px the list keeps its inner scroll but drops `scrollbar-gutter: stable`. The filename text sits in its own `<span class="file-name-text">` inside `.file-name`, set to one ellipsised line with the full name in `title`. The meta `<small>` below it may wrap when the row is expanded. The header (name, Preview, download, remove) stays one row.
+  - Accept: **Given** a file named with 60 or more characters at 320×700 (a name block is 62–83px today), **when** the row renders with the Preview, download and Remove buttons present, **then** `.file-name-text` renders at most 22px tall (one line), the page has no horizontal overflow, and every button is at least 44×44. **Given** 8 files at 375px, **when** the page scrolls, **then** the document scrolls and `.file-list` computes `overflow-y: visible`. **Given** the desktop layout at 1440px, **then** the list still scrolls inside the panel at its max height.
+  - Verify: `npm run build && node scripts/sprint-30-check.mjs --task T2` → exit 0, every T2 line `ok`; `node scripts/sprint-29-check.mjs` → `PASS: 57 checks`.
+  - Evidence: `docs/sprint-evidence/sprint-30/t2.txt`
+
+- [ ] **S30-T3 — Play button, waveform and Trim share one row** (route: refactoring)
+  - Files: `src/wave-player.tsx`, `src/style.css`, `src/copy.ts` (labels only), `scripts/sprint-29-check.mjs`, `scripts/sprint-25-check.mjs`, `scripts/sprint-30-check.mjs` (may write). The two older drivers assert the visible "Result" label, `.wave-label` and `.wave-time`, which this task removes. Migrate each such assertion to the new structure and list every one in the Log with the contract it now checks. Do not delete one without a replacement.
+  - Shape: `WavePlayer` takes `layout: "row" | "labelled"`. `row` (the file's own player) renders one grid `[play 44px | track 1fr | Trim auto]` with `column-gap: 4px` and the track's margin set to 0 in the non-edit state (today it is `6px 22px`). The Trim button measures 58px wide. Together these give a 199px waveform at 375px and 144px at 320px; with an 8px gap it would be 136px at 320px and fail. `row` has no visible label and no readout (T4 moves the readout). The label stays as an `aria-label`. `labelled` (the before and after preview players, which have no meta line) keeps today's head row with label and readout. In edit mode the `row` layout returns to a stacked head row above the 130px track with the 22px handle gutter, so the sprint-29 trim geometry is unchanged. The playhead dot no longer protrudes above the track.
+  - Accept: **Given** a ready file at 375×812, **when** it renders, **then** the play button, waveform and Trim button share one 44px band, the waveform is at least 190px wide, and the player block is at most 52px tall. **Given** 320×700, **then** the waveform is at least 140px wide with no horizontal overflow. **Given** the Trim button is pressed, **then** only that row grows to the 130px editor, handles are not clipped, and Done folds it back. **Given** the preview before and after players, **then** each still shows its label and `00:00 / 00:10` style readout.
+  - Verify: `npm run build && node scripts/sprint-30-check.mjs --task T3` → exit 0, every T3 line `ok`; `node scripts/sprint-29-check.mjs` → `PASS` and the `sprint-25-check` driver command → `PASS`, with every migrated assertion listed in the Log. The `.wave-time` and `.wave-label` assertions move to the `labelled` preview players or the T4 readout, and the pass count may change only by assertions listed there.
+  - Evidence: `docs/sprint-evidence/sprint-30/t3.txt`, `docs/sprint-evidence/sprint-30/captures/t3-375.png`, `docs/sprint-evidence/sprint-30/captures/t3-320.png`
+
+- [ ] **S30-T4 — Show the duration once, as a live position in the file line** (route: refactoring)
+  - Files: `src/file-row.tsx`, `src/wave-player.tsx`, `src/file-summary.ts`, `tests/workspace-layout.test.mjs`, `tests/trim-overrides.test.mjs`, `tests/step-summary.test.mjs` (all three call `fileMetadata`; only the no-trim cases should change), `src/copy.ts`, `scripts/sprint-29-check.mjs`, `scripts/sprint-25-check.mjs`
+  - Shape: the file row owns one `<span class="file-position">` in the meta line. It shows the total only (`mm:ss`, as the line does today) whenever no `row` player is mounted for the file: an unplayable source with no playable result, an open or running preview (the source player is hidden then), or a file still being read. It shows `00:00 / mm:ss` once a `row` player is mounted, so a duration is always visible and never appears twice. The `row` player writes `mm:ss / mm:ss` into it imperatively from its existing paint loop (a `readoutTarget` ref prop), so there is no extra render per frame. `fileMetadata` changes to one stated contract: `primary` becomes optional. With no trim or a whole-file range it returns `{}`. With a trim range it still returns `{ primary: <kept duration>, secondary: "<start> to <end>" }`. The row prints the position, then `primary` and `secondary` when present. `tests/workspace-layout.test.mjs` is updated to these exact objects.
+  - Accept: **Given** a 03:15 file with no trim, **when** the row renders, **then** `03:15` appears once in the row's visible text and the line reads `00:00 / 03:15`. **Given** a finished file, **then** the position and total are read from `.file-position` (the old `.file-result .wave-time` `/ 00:16` assertions in `sprint-29-check` move there). **When** it plays, **then** the position advances in that line and the player row has no readout. **Given** a Trim all range, **then** the kept duration and the `from to to` range remain visible after the position. **Given** the preview players, **then** they keep their own readout. **Given** a screen reader, **then** the live position is `aria-hidden` and the slider's `aria-valuetext` is unchanged.
+  - Verify: `npm test` → pass (the updated `fileMetadata` cases return `{}` for no trim and a whole-file range, and the unchanged objects for a real range); `npm run build && node scripts/sprint-30-check.mjs --task T4` → exit 0, every T4 line `ok`; `sprint-29-check` and `sprint-25-check` driver commands → `PASS`, migrated assertions listed in the Log.
+  - Evidence: `docs/sprint-evidence/sprint-30/t4.txt`
+
+- [ ] **S30-T5 — One player per file, with an Original and Result switch that keeps the position** (route: feature, strongest)
+  - Files: `src/file-row.tsx`, `src/wave-player.tsx`, `src/view-position.ts` (create), `tests/view-position.test.mjs` (create), `src/style.css`, `src/copy.ts`, `scripts/sprint-30-check.mjs`, `scripts/sprint-25-check.mjs`, `scripts/sprint-29-check.mjs` (they assert a separate `.file-player audio` and `.file-result audio`, which no longer both exist; the surviving contracts are: the Result view's `<audio>` `src` equals the download `href`, the Original view's `src` is the source object URL, and exactly one `<audio>` per file row); `src/batch.ts`, `src/planner.ts` (read only)
+  - Shape: `type View = "original" | "result"`. A finished file shows one `WavePlayer`, not the Original details row plus a Result player. A two-option switch (radio group, 44px targets) selects the view. `carryPosition({ from, to, time, trimStart, resultDuration })` is a pure function: original to result is `clamp(time - trimStart, 0, resultDuration)`; result to original is `time + trimStart`. `trimStart` comes from the job's frozen `spec.plan.snapshot.trim?.start ?? 0`, never the current draft, so an older result maps by the settings it was made with. A file with no export shows only the Original and no switch. A file whose source cannot play but whose result can (a `.wav` with an opaque MIME type does this) shows the Result alone with no switch, because the Original has no audio to carry a position from. Pressing Trim while in the Result view switches to Original, then enters edit. Peaks stay cached per `File`, so switching does not recompute them.
+  - Accept: **Given** a finished 20s file with no trim playing the Original at 10s, **when** Result is chosen, **then** playback continues from within 0.25s of 10s. **Given** a result exported with trim start 5s and the Original at 12s, **then** Result resumes at about 7s, and back to Original it resumes at about 12s. **Given** playback was paused, **then** switching leaves it paused at the mapped time. **Given** the switch, **then** exactly one `<audio>` in the row is playing and `pauseOthers` still stops other rows. **Given** a result from older settings with a different trim start than the current draft, **then** the mapping uses the job's start. **Given** an unplayable result format, **then** the switch is hidden and the existing "download it to listen" note shows.
+  - Verify: `node --experimental-strip-types --test tests/view-position.test.mjs` → pass, covering both directions, clamping, zero trim and a zero-length result; `npm run build && node scripts/sprint-30-check.mjs --task T5` → exit 0, every T5 line `ok`. Live check: play the Original of a 20s tone fixture to 10s, switch, read `audio.currentTime` (within 0.25s) and `paused` for the playing and paused cases.
+  - Evidence: `docs/sprint-evidence/sprint-30/t5.txt`
+
+- [ ] **S30-T6 — Finished files collapse to one line and expand on tap** (route: feature)
+  - Files: `src/file-row.tsx`, `src/wave-player.tsx`, `src/style.css`, `src/copy.ts`, `scripts/sprint-30-check.mjs`, `scripts/sprint-29-check.mjs`, `scripts/sprint-25-check.mjs` (migrate any assertion that reads the waveform or `.wave-*` nodes of a finished row; a collapsed row keeps `.file-position` and the audio, so duration checks read `.file-position`)
+  - Shape: per-row `expanded` state, not persisted. Default expanded for files with no export and for waiting, running, cancelling, failed and cancelled files, and when a preview is open or the row is being trimmed. Default collapsed once an export is done. Collapsed row: `[play | name and live position | download | remove]` on one line with a 2px progress line along the bottom. The play button controls the Result. The `WavePlayer` stays mounted so its `<audio>` (preload metadata, which supplies the total for `.file-position`) keeps working, but its track and switch are not rendered, so no peaks are generated. In the collapsed state the meta line is `position / total` only on one ellipsised line, and the kept duration and trim range show when expanded. When expanded, the layout is header, player row, then a 44px switch row, and the result note sits below. The name area is a button with `aria-expanded` that toggles. Starting Trim always expands the row.
+  - Accept: **Given** 3 finished files at 375×812 and again at 320×700, one of them with a Trim all range set and a 60-character name, **when** the exports complete, **then** each row is at most 64px tall and shows play, name, position, download and remove. **Given** one row's name area is tapped, **then** only that row grows to show the waveform, switch and Trim, `aria-expanded` is `true`, and tapping again collapses it. **Given** a collapsed row, **when** play is pressed, **then** the Result plays, the progress line advances and other rows pause. **Given** a running or failed row, **then** it stays expanded with its status and Retry or Cancel. **Given** a row playing in the collapsed state, **when** it is expanded and collapsed again, **then** playback continues without a restart (the `WavePlayer` and its `<audio>` are never unmounted by the toggle). **Given** keyboard use, **then** the name button is reachable in tab order, Enter and Space toggle it, and focus stays on it after toggling.
+  - Verify: `npm run build && node scripts/sprint-30-check.mjs --task T6` → exit 0, every T6 line `ok`. Live check: export the three `tests/fixtures` audio files, capture the collapsed list, expand one, and record the heights.
+  - Evidence: `docs/sprint-evidence/sprint-30/t6.txt`, `docs/sprint-evidence/sprint-30/captures/t6-375-collapsed.png`, `docs/sprint-evidence/sprint-30/captures/t6-375-expanded.png`
+
+- [ ] **S30-T7 — Cross-engine regression sweep and measured before and after** (route: investigation)
+  - Files: `scripts/sprint-30-check.mjs`, `docs/sprint-evidence/sprint-30/measurements.md` (create); `scripts/sprint-29-check.mjs`, `scripts/sprint-25-check.mjs`, `scripts/intake-check.mjs`, `scripts/keyboard-check.mjs`, `scripts/ui-states-check.mjs`, `scripts/workspace-check.mjs` (migrate only with a Log entry)
+  - Shape: run the whole sprint-30 check in Chromium and WebKit, light and dark, at 320×700, 375×812 and 1440×900, with a reduced-motion pass. Write the before and after table from the real app: finished-row height, first-row offset, empty-state height, waveform width, and rows per 812px screen.
+  - Accept: **Given** the baseline numbers from Entry, **when** the sweep runs on the finished code, **then** a finished collapsed row is at most 64px and a finished expanded row at most 176px (not counting a result note) at 375px, an unprocessed row at most 120px, and the first-row offset at most 80px, each recorded beside its baseline. **Given** the five drivers from Entry plus `ui-states-check` and `workspace-check`, **then** all pass, and every assertion that was migrated or replaced in T1–T6 is listed in the Log with the contract it now checks. No assertion is removed without a replacement.
+  - Verify: `npm run typecheck && npm test && npm run build` → exit 0; `ENGINES=chromium,webkit node scripts/sprint-30-check.mjs` → `PASS` with zero failures (or `ENGINES=chromium` with "WebKit not run" recorded when WebKit cannot be installed); the five driver commands from Entry, `ui-states-check` and `workspace-check` → all pass.
+  - Evidence: `docs/sprint-evidence/sprint-30/measurements.md`, `docs/sprint-evidence/sprint-30/checks.txt`
+
+## Exit criteria
+
+- [ ] Every task ticked with evidence, and the Log has an entry for each.
+- [ ] Checks: `npm run typecheck && npm test && npm run build` → pass, exact result recorded in `docs/sprint-evidence/sprint-30/checks.txt`.
+- [ ] Real surface driven in a browser at 320, 375 and 1440px in light and dark, in Chromium and WebKit (or Chromium with "WebKit not run" recorded), and captures saved. Real iOS Safari and Android are not claimed; the user does device acceptance.
+- [ ] Contracts preserved: the sprint-29 trim contract (handles only in edit mode, one row edited at a time, a custom range never edits another file), scrubbing stays in step with playback, every target is at least 44px, and no recipe, export or pipeline file is changed. Verified by `node scripts/sprint-29-check.mjs` → `PASS` and `git diff --stat` showing only the Files named above.
+- [ ] deslop and no-comments passed on the diff.
+- [ ] Interrogate completed, `docs/sprint-evidence/sprint-30/interrogate.md` saved with a verdict.
+- [ ] Swarm live lanes passed at the code-ready head, covering the A/B position carry, the collapse default per job state, and the drop target on touch and mouse.
+- [ ] PR opened ready against `main`, CI observed at the head with `gh pr checks` (the `CI` workflow runs `npm test` and `npm run build`), and the URL recorded here and in `TODO.md`. Do not merge.
+
+## Out of scope
+
+- The recipe panel, the export bar and the settings dialog.
+- The trim rules, Trim all, peak generation, the audio pipeline and any worker.
+- Remembering which rows are expanded across reloads, swipe to delete and an overflow menu for Remove.
+- A batch waveform, new formats, new copy beyond the labels these controls need.
+- Real-device acceptance.
+
+## References
+
+- User audit and screenshot, 2026-11-16, with the correction that "put the play button next to the waveform" is about saving a row, not the waveform inset.
+- `src/file-row.tsx`, `src/wave-player.tsx`, `src/style.css`, `src/main.tsx` (panel heading and drop target), `src/file-summary.ts`, `tests/workspace-layout.test.mjs`.
+- `todo/sprint-29-waveform-trimming.md` (Option B decisions), `todo/orchestration-plan.md` (permissions).
+- Layout prototype: a static page using this repo's `src/style.css` with the proposed overrides, measured in the browser pane. Before: row 228px, waveform 273px (375px) and 218px (320px). After: row 112px, waveform 199px and 144px.
+- Drivers: `scripts/lib/harness.mjs`, `scripts/lib/engines.mjs`.
+
+## Log
+
+### 2026-11-16 — Planning
+
+Base `3c6ae13` (origin/main). Baselines run in a worktree at that SHA with `node_modules` linked from a sibling worktree: `npm run typecheck` exit 0, `npm test` 231 pass, `npm run build` exit 0, `node scripts/sprint-29-check.mjs` `PASS: 57 checks`. Tier L because it changes user-facing interaction in a shared component.
+
+Decisions and defaults applied (also in `todo/attention.md`):
+
+- The audit's "move Download beside the Result" is dropped. Download stays in the header so a collapsed row keeps it.
+- The audit's "move Preview out of the header" is replaced by one-line ellipsised names (T2). Preview stays in the header.
+- Remove stays a visible 44px button. No overflow menu.
+- The live position replaces the static duration in the meta line (T4). The preview players keep their own readout.
+- Finished rows default to collapsed, and running, failed and previewing rows stay expanded (T6).
+- Switching Original and Result maps the position through the job's frozen trim start (T5). Results made with the copy plan can be off by a codec frame, and the tolerance is 0.25s.
+- One sprint, 7 tasks, one commit each. If the PR is too large to review, split T5 and T6 into a follow-up sprint stacked on this one.
+
+### 2026-11-16 — Independent plan review
+
+Two Sonnet adversaries tried to make a task unexecutable, one on acceptance and Verify claims, one on file and symbol claims, contracts and order. Both ran probes against the base tree. Every finding that held was fixed in this file. Verified and fixed: `intake-check` and `sprint-25-check` need a running server and `ENGINES=chromium` here (WebKit is not installed); the older drivers assert the two-player structure, `.wave-time` and the visible Result label, so T3–T6 now list and migrate them; `fileMetadata` had two contradictory contracts and three test files call it; one `<input type=file>` must exist because 20 drivers use that locator; unplayable-source cases for T4 and T5; collapsed rows keep the player mounted; the baseline script is added before any source edit; the waveform width only holds with a 4px column gap and zero track margin; the 41px name-block threshold became a one-line filename span. Quoted baseline numbers were confirmed (finished row 228px, waveform 273px and 218px, empty box 220px). Two small corrections: the first row is 135px below the panel top and the box with files is 70px. Not run: `ui-states-check` and `workspace-check` baselines (recorded at Entry).
