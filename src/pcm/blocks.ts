@@ -7,7 +7,7 @@ export const BLOCK_FRAMES = 4096;
 // direction; a phase sweep read up to 0.64 dB above it. Loudness-mode ceiling
 // decisions keep this margin. A peak-mode target aims at the requested dBTP
 // directly. Reported peaks stay the measured value, not a padded one.
-export const TRUE_PEAK_CEILING_GUARD_DB = 1.0;
+const TRUE_PEAK_CEILING_GUARD_DB = 1.0;
 export type PcmBlock = Readonly<{
   origin: number;
   offset: number;
@@ -21,7 +21,7 @@ export interface PcmCheckpoint {
   seal(): Promise<PcmReplay>;
   discard(): Promise<void>;
 }
-export type NormalizeStep = Extract<Recipe["steps"][number], { kind: "normalize" }>;
+type NormalizeStep = Extract<Recipe["steps"][number], { kind: "normalize" }>;
 export type NormalizationReport = Readonly<{
   mode: "loudness" | "peak";
   measuredLufs: number | null;
@@ -32,7 +32,7 @@ export type NormalizationReport = Readonly<{
   limited: boolean;
   limitedByCeiling: boolean;
 }>;
-export type PcmContext = Readonly<{
+type PcmContext = Readonly<{
   signal: AbortSignal;
   checkpoint: () => Promise<PcmCheckpoint>;
   onNormalizationLimit?: () => void;

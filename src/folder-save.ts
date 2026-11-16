@@ -1,8 +1,8 @@
 import { copy } from "./copy.ts";
 import { UserFacingError, failure, failureOf, messageFor, type ErrorCode, type Failure } from "./errors.ts";
 /** `code` is the catalogue entry behind `message`, or null for the per-file sentences that name the file. */
-export type FailedItem = Readonly<{ name: string; code: ErrorCode | null; message: string }>;
-export type FolderReport = Readonly<{
+type FailedItem = Readonly<{ name: string; code: ErrorCode | null; message: string }>;
+type FolderReport = Readonly<{
   folder: string;
   saved: readonly string[];
   failed: readonly FailedItem[];

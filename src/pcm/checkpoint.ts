@@ -3,7 +3,7 @@ import type { StorageClient } from "./storage-client";
 const HEADER_BYTES = 32;
 const READ_WINDOW_BYTES = 4 * 1024 * 1024;
 /** Short recordings stay in memory, longer ones spill to storage so memory stays bounded. */
-export const CHECKPOINT_MEMORY_BYTES = 128 * 1024 * 1024;
+const CHECKPOINT_MEMORY_BYTES = 128 * 1024 * 1024;
 async function* replay(file: File): PcmStream {
   let window = new Uint8Array(0),
     windowStart = 0;

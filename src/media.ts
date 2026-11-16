@@ -26,7 +26,7 @@ export type AudioMetadata = {
   hasVideo: boolean;
   presentation: Mp3Presentation | null;
 };
-export type InspectionResult =
+type InspectionResult =
   | { kind: "ready"; metadata: AudioMetadata }
   | ({ kind: "failed" } & Failure);
 export type Inspection =

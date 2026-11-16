@@ -108,7 +108,7 @@ const MEGABYTE = 1_000_000;
 const percent = (completed: number, total: number) =>
   total > 0 ? Math.max(0, Math.min(100, Math.floor((completed / total) * 100))) : 0;
 
-export type FolderOutcome = Readonly<{ saved: number; failed: number; folder: string; cancelled: boolean }>;
+type FolderOutcome = Readonly<{ saved: number; failed: number; folder: string; cancelled: boolean }>;
 type LoudnessNotes = Readonly<{ achievedLufs: number | null }>;
 
 export const copy = {

@@ -1,7 +1,7 @@
 import type { ErrorCode } from "./errors.ts";
 import type { Recipe } from "./recipe";
 
-export type EncodedExport = Exclude<Recipe["export"], { format: "original" }>;
+type EncodedExport = Exclude<Recipe["export"], { format: "original" }>;
 const DESCRIPTORS = {
   mp3: { extension: "mp3", mime: "audio/mpeg" },
   m4a: { extension: "m4a", mime: "audio/mp4" },
