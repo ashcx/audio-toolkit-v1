@@ -1,0 +1,142 @@
+{
+  "320": {
+    "light": {
+      "filesPanel3Finished": 260,
+      "finishedRows": [
+        61,
+        61,
+        56
+      ],
+      "stepsPanelTrimAndGain": 274
+    },
+    "dark": {
+      "filesPanel3Finished": 260,
+      "finishedRows": [
+        61,
+        61,
+        56
+      ],
+      "stepsPanelTrimAndGain": 274
+    }
+  },
+  "375": {
+    "light": {
+      "filesPanel3Finished": 260,
+      "finishedRows": [
+        61,
+        61,
+        56
+      ],
+      "stepsPanelTrimAndGain": 274
+    },
+    "dark": {
+      "filesPanel3Finished": 260,
+      "finishedRows": [
+        61,
+        61,
+        56
+      ],
+      "stepsPanelTrimAndGain": 274
+    }
+  },
+  "600": {
+    "light": {
+      "filesPanel3Finished": 260,
+      "finishedRows": [
+        61,
+        61,
+        56
+      ],
+      "stepsPanelTrimAndGain": 274
+    },
+    "dark": {
+      "filesPanel3Finished": 260,
+      "finishedRows": [
+        61,
+        61,
+        56
+      ],
+      "stepsPanelTrimAndGain": 274
+    }
+  },
+  "601": {
+    "light": {
+      "filesPanel3Finished": 578,
+      "finishedRows": [
+        167,
+        167,
+        162
+      ],
+      "stepsPanelTrimAndGain": 517
+    },
+    "dark": {
+      "filesPanel3Finished": 578,
+      "finishedRows": [
+        167,
+        167,
+        162
+      ],
+      "stepsPanelTrimAndGain": 517
+    }
+  },
+  "768": {
+    "light": {
+      "filesPanel3Finished": 578,
+      "finishedRows": [
+        167,
+        167,
+        162
+      ],
+      "stepsPanelTrimAndGain": 517
+    },
+    "dark": {
+      "filesPanel3Finished": 578,
+      "finishedRows": [
+        167,
+        167,
+        162
+      ],
+      "stepsPanelTrimAndGain": 517
+    }
+  },
+  "1024": {
+    "light": {
+      "filesPanel3Finished": 586,
+      "finishedRows": [
+        167,
+        167,
+        162
+      ],
+      "stepsPanelTrimAndGain": 517
+    },
+    "dark": {
+      "filesPanel3Finished": 586,
+      "finishedRows": [
+        167,
+        167,
+        162
+      ],
+      "stepsPanelTrimAndGain": 517
+    }
+  },
+  "1440": {
+    "light": {
+      "filesPanel3Finished": 586,
+      "finishedRows": [
+        167,
+        167,
+        162
+      ],
+      "stepsPanelTrimAndGain": 517
+    },
+    "dark": {
+      "filesPanel3Finished": 586,
+      "finishedRows": [
+        167,
+        167,
+        162
+      ],
+      "stepsPanelTrimAndGain": 517
+    }
+  }
+}

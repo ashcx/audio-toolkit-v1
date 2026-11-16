@@ -128,10 +128,14 @@ const dragFile = (page, selector, type) => page.evaluateHandle(() => {
 }).then(async data => { await page.locator(selector).dispatchEvent(type, { dataTransfer: data }); await data.dispose(); });
 
 
-const open = async row => {
+const MOBILE_MAX_WIDTH = 600;
+const isMobile = viewport => viewport.width <= MOBILE_MAX_WIDTH;
+const setRow = async (row, expanded) => {
   const toggle = row.locator('.file-toggle');
-  if (await toggle.count() && await toggle.getAttribute('aria-expanded') === 'false') { await toggle.click(); await row.page().waitForTimeout(350); }
+  if (await toggle.count() && (await toggle.getAttribute('aria-expanded') === 'true') !== expanded) { await toggle.click(); await row.page().waitForTimeout(350); }
 };
+const open = row => setRow(row, true);
+const collapse = row => setRow(row, false);
 const rowAt = (page, index) => page.locator('li[data-file-id]').nth(index);
 const belowToggle = row => row.evaluate(li => {
   const toggle = li.querySelector('.view-switch');
@@ -160,7 +164,12 @@ const switchView = (row, optionLabel) => row.evaluate((li, wanted) => new Promis
 }), optionLabel);
 const baselineRow = name => JSON.parse(baselineJson).viewports[name]?.finishedRow;
 const near = (a, b, tolerance = 0.25) => Math.abs(a - b) <= tolerance;
+const openStep = async (page, kind) => {
+  const toggle = page.locator(`[data-step-kind=${kind}] .step-toggle`);
+  if (await toggle.getAttribute('aria-expanded') === 'false') await toggle.click();
+};
 const setTrimAll = async (page, start, end) => {
+  await openStep(page, 'trim');
   await page.getByLabel(copy.trim.startField(copy.trim.prefix), { exact: true }).fill(String(start));
   await page.getByLabel(copy.trim.endField(copy.trim.prefix), { exact: true }).fill(String(end));
   await page.waitForTimeout(300);
@@ -391,6 +400,7 @@ const noPlaceholderSwitches = async ({ browser, app, check, viewport, scheme }) 
       if (trim) { await page.getByLabel('Add step').selectOption('trim'); await setTrimAll(page, 5, 15); }
       await exportAll(page, 1);
       const row = rowAt(page, 0);
+      await collapse(row);
       const total = trim ? '00:10' : '00:20';
       await page.evaluate(() => {
         window.__samples = [];
@@ -442,6 +452,7 @@ const forcedColourProgress = async ({ browser, app, check, viewport, scheme }) =
   await addFiles(page, [fixture('tone-20.wav', 20)]);
   await exportAll(page, 1);
   const row = rowAt(page, 0);
+  await collapse(row);
   const normal = await progressColours(page);
   await page.emulateMedia({ forcedColors: 'active' });
   await page.waitForTimeout(150);
@@ -601,6 +612,7 @@ const T9 = {
     await addFiles(page, [{ name: 'loud.wav', mimeType: 'audio/wav', buffer: wav(6, 44100, 0.95) }]);
     await page.getByRole('combobox', { name: 'Format', exact: true }).selectOption('wav');
     await page.getByLabel('Add step', { exact: true }).selectOption('gain');
+    await openStep(page, 'gain');
     await page.getByRole('slider', { name: copy.slider(copy.gain.label) }).press('End');
     await exportAll(page, 1);
     const row = rowAt(page, 0);
@@ -609,7 +621,7 @@ const T9 = {
     const facts = await lastVisible(row);
     check(`${label} clipping note: shown once, above the player, and nothing renders under the toggle`, await row.locator('.file-name .file-note', { hasText: copy.result.clipped }).count() === 1 && facts.notes.length === 1 && facts.notes.every(Boolean) && facts.anchor === 'view-switch' && facts.stray.length === 0 && facts.results === 0, JSON.stringify(facts));
     check(`${label} clipping note: it sits directly under the meta line`, await row.evaluate(li => li.querySelector('.file-meta').nextElementSibling === li.querySelector('.file-name .file-note') && li.querySelector('.file-note') !== null));
-    await row.locator('.file-toggle').click();
+    await collapse(row);
     await quiet(page);
     check(`${label} a collapsed row hides the clipping note`, await row.locator('.file-name .file-note').count() === 0);
     check(`${label} clipping row: every target is at least 44px, no overflow, no page errors`, (await targetsUnder44(page)).length === 0 && await noOverflow(page) <= 0 && errors.length === 0, errors.join('; '));
@@ -678,6 +690,192 @@ const T9 = {
 
 const guarded = async (check, label, run) => {
   try { await run(); } catch (error) { check(`${label} ran to the end`, false, String(error.message).split('\n')[0]); }
+};
+
+const T10_VIEWPORTS = [
+  { name: '320', width: 320, height: 700 },
+  { name: '375', width: 375, height: 812 },
+  { name: '600', width: 600, height: 900 },
+  { name: '601', width: 601, height: 900 },
+  { name: '768', width: 768, height: 1024 },
+  { name: '1024', width: 1024, height: 768 },
+  { name: '1440', width: 1440, height: 900 },
+];
+const T10_SCHEMES = ['light', 'dark'];
+const T10_CASES = ['files', 'steps', 'stepsAcrossResize', 'stepError'];
+const otherSide = viewport => {
+  const width = viewport.width === 600 ? 601 : viewport.width === 601 ? 600 : isMobile(viewport) ? 768 : 375;
+  return { width, height: viewport.height };
+};
+const responsiveHeights = {};
+const recordHeights = (viewport, scheme, data) => { Object.assign(((responsiveHeights[viewport.name] ??= {})[scheme] ??= {}), data); };
+
+const rowStates = page => page.locator('li[data-file-id]').evaluateAll(list => list.map(li => ({
+  expanded: li.querySelector('.file-toggle')?.getAttribute('aria-expanded') ?? null,
+  collapsed: li.hasAttribute('data-collapsed'),
+  height: li.getBoundingClientRect().height,
+  result: li.querySelector('.file-result')?.getBoundingClientRect().height ?? 0,
+  tracks: li.querySelectorAll('.wave-track').length,
+  switches: li.querySelectorAll('.view-switch').length,
+  src: li.querySelector('audio')?.src ?? null,
+  href: li.querySelector('a[download]')?.href ?? null,
+})));
+const expectOpen = (rows, wanted) => rows.length === wanted.length && rows.every((row, index) => row.expanded === String(wanted[index]) && row.collapsed === !wanted[index]);
+const panelHeight = (page, selector) => page.locator(selector).evaluate(element => element.getBoundingClientRect().height);
+const stepFacts = (page, kind) => page.locator(`[data-step-kind=${kind}]`).evaluate(article => {
+  const toggle = article.querySelector('.step-toggle'), summary = toggle.querySelector('small');
+  const fields = [...article.querySelectorAll('.step-settings input, .step-settings select')].filter(field => field.getClientRects().length);
+  return {
+    expanded: toggle.getAttribute('aria-expanded'), hidden: article.querySelector('.step-settings').hidden, fields: fields.length,
+    summary: summary.textContent.trim(), summaryShown: summary.getClientRects().length > 0 && summary.getBoundingClientRect().height > 0,
+    values: fields.map(field => field.value),
+  };
+});
+const stepTargets = page => page.evaluate(() => [...document.querySelectorAll('.recipe-panel button, .recipe-panel select, .recipe-panel summary, .recipe-panel input:not([type=file]), .recipe-panel [role=slider]')]
+  .filter(element => element.getClientRects().length && getComputedStyle(element).visibility !== 'hidden')
+  .map(element => { const box = element.getBoundingClientRect(); return { target: `${element.tagName.toLowerCase()}.${element.className.toString().split(' ')[0]} ${(element.getAttribute('aria-label') ?? element.textContent).trim().slice(0, 24)}`, width: Math.round(box.width * 10) / 10, height: Math.round(box.height * 10) / 10 }; })
+  .filter(target => target.width < 43.5 || target.height < 43.5));
+const tap = (page, kind) => page.locator(`[data-step-kind=${kind}] .step-toggle`).click();
+const resize = async (page, size) => { await page.setViewportSize(size); await page.waitForTimeout(500); };
+
+async function threeFinishedPlain(page) {
+  await addFiles(page, THREE());
+  await page.getByLabel('Add step').selectOption('trim');
+  await setTrimAll(page, 2, 10);
+  await exportAll(page, 3);
+  await page.waitForTimeout(500);
+}
+
+const T10Cases = {
+  async files({ browser, app, check, viewport, scheme, label }) {
+    const { context, page, errors } = await openApp(browser, app, viewport, { scheme });
+    await threeFinishedPlain(page);
+    const mobile = isMobile(viewport);
+    const rows = await rowStates(page);
+    check(`${label} finished rows are ${mobile ? 'collapsed' : 'expanded'} by default (${viewport.width}px is ${mobile ? 'at most' : 'over'} 600px)`, expectOpen(rows, [!mobile, !mobile, !mobile]), JSON.stringify(rows.map(row => [row.expanded, row.collapsed])));
+    check(`${label} ${mobile ? 'collapsed rows are at most 64px' : 'expanded rows are at most 176px, not counting a result note, and show the waveform and the switch'}`, mobile ? rows.every(row => row.height <= 64 && row.tracks === 0) : rows.every(row => row.height - row.result <= 176 && row.tracks >= 1 && row.switches === 1), JSON.stringify(rows.map(row => [row.height, row.tracks, row.switches])));
+    check(`${label} files: every target is at least 44x44 and nothing overflows horizontally`, (await smallTargets(page)).length === 0 && (await noOverflow(page)) <= 0, JSON.stringify(await smallTargets(page)));
+    const filesHeight = await panelHeight(page, '.files-panel');
+    recordHeights(viewport, scheme, { filesPanel3Finished: Math.round(filesHeight), finishedRows: rows.map(row => Math.round(row.height)) });
+
+    const away = otherSide(viewport), awayMobile = isMobile(away), home = !mobile;
+    if (home) await rowAt(page, 2).getByRole('radio', { name: /^Original/ }).check();
+    await setRow(rowAt(page, 0), mobile);
+    await page.waitForTimeout(400);
+    const manual = await rowStates(page);
+    check(`${label} a manual toggle on one row leaves the other rows alone`, expectOpen(manual, [!home, home, home]), JSON.stringify(manual.map(row => row.expanded)));
+    await resize(page, away);
+    const moved = await rowStates(page);
+    check(`${label} after resizing to ${away.width}px the toggled row keeps its choice and the untouched rows follow the viewport`, expectOpen(moved, [!home, !awayMobile, !awayMobile]), JSON.stringify(moved.map(row => row.expanded)));
+    check(`${label} after resizing to ${away.width}px the finished rows fit (${awayMobile ? 'collapsed at most 64px' : 'expanded at most 176px'}) with no horizontal overflow`, moved.every((row, index) => (index === 0 ? !home : !awayMobile) ? row.height - row.result <= 176 : row.height <= 64) && (await noOverflow(page)) <= 0, JSON.stringify(moved.map(row => row.height)));
+    if (home) {
+      check(`${label} a row collapsed by the viewport while showing the Original switches to the Result`, moved[2].collapsed && moved[2].src === moved[2].href, JSON.stringify({ collapsed: moved[2].collapsed, src: moved[2].src, href: moved[2].href }));
+    }
+    await resize(page, { width: viewport.width, height: viewport.height });
+    const back = await rowStates(page);
+    check(`${label} back at ${viewport.width}px the toggled row still keeps its choice and the untouched rows follow again`, expectOpen(back, [!home, home, home]), JSON.stringify(back.map(row => row.expanded)));
+    check(`${label} files: no page errors`, errors.length === 0, errors.join('; '));
+    await context.close();
+  },
+
+  async steps({ browser, app, check, viewport, scheme, label }) {
+    const { context, page, errors } = await openApp(browser, app, viewport, { scheme });
+    await addFiles(page, [fixture('tone-20.wav', 20)]);
+    const mobile = isMobile(viewport);
+    await page.getByLabel('Add step').selectOption('trim');
+    await page.waitForTimeout(300);
+    const trim = await stepFacts(page, 'trim');
+    if (mobile) check(`${label} a newly added Trim all step is closed, its summary shows and no field is shown`, trim.expanded === 'false' && trim.hidden && trim.fields === 0 && trim.summaryShown && trim.summary !== '', JSON.stringify(trim));
+    else check(`${label} a newly added Trim all step opens, as before`, trim.expanded === 'true' && !trim.hidden && trim.fields >= 2, JSON.stringify(trim));
+    await page.getByLabel('Add step').selectOption('gain');
+    await page.waitForTimeout(300);
+    const trimAfter = await stepFacts(page, 'trim'), gain = await stepFacts(page, 'gain');
+    if (mobile) check(`${label} a newly added Gain step is closed too, and both summaries show their values`, trimAfter.expanded === 'false' && gain.expanded === 'false' && gain.hidden && gain.fields === 0 && gain.summaryShown && gain.summary !== '' && trimAfter.summaryShown && trimAfter.summary !== '', JSON.stringify({ trimAfter, gain }));
+    else check(`${label} a newly added Gain step opens and closes the Trim all step, as before`, gain.expanded === 'true' && gain.fields >= 1 && trimAfter.expanded === 'false' && trimAfter.fields === 0, JSON.stringify({ trimAfter, gain }));
+    const stepsHeight = await panelHeight(page, '.recipe-panel');
+    recordHeights(viewport, scheme, { stepsPanelTrimAndGain: Math.round(stepsHeight) });
+    check(`${label} steps: every target is at least 44x44 and nothing overflows horizontally`, (await stepTargets(page)).length === 0 && (await noOverflow(page)) <= 0, JSON.stringify(await stepTargets(page)));
+
+    await tap(page, 'trim');
+    await page.waitForTimeout(250);
+    const opened = await stepFacts(page, 'trim'), gainWhileTrimOpen = await stepFacts(page, 'gain');
+    check(`${label} tapping Trim all opens it with its fields and keeps its summary`, opened.expanded === 'true' && !opened.hidden && opened.fields >= 2 && opened.summary === trimAfter.summary && gainWhileTrimOpen.expanded === 'false', JSON.stringify({ opened, gainWhileTrimOpen }));
+    await tap(page, 'trim');
+    await page.waitForTimeout(250);
+    const closed = await stepFacts(page, 'trim');
+    check(`${label} tapping it again closes it`, closed.expanded === 'false' && closed.hidden && closed.fields === 0 && closed.summary === trimAfter.summary, JSON.stringify(closed));
+    check(`${label} steps: no page errors`, errors.length === 0, errors.join('; '));
+    await context.close();
+  },
+
+  async stepsAcrossResize({ browser, app, check, viewport, scheme, label }) {
+    const { context, page, errors } = await openApp(browser, app, viewport, { scheme });
+    await addFiles(page, [fixture('tone-20.wav', 20)]);
+    const mobile = isMobile(viewport), away = otherSide(viewport);
+    await page.getByLabel('Add step').selectOption('trim');
+    await page.getByLabel('Add step').selectOption('gain');
+    if (mobile) { await setTrimAll(page, 2, 10); }
+    else { await page.getByRole('slider', { name: copy.slider(copy.gain.label) }).press('End'); }
+    await page.waitForTimeout(300);
+    const before = { trim: await stepFacts(page, 'trim'), gain: await stepFacts(page, 'gain') };
+    await resize(page, away);
+    const moved = { trim: await stepFacts(page, 'trim'), gain: await stepFacts(page, 'gain') };
+    check(`${label} resizing to ${away.width}px keeps every step's values (summaries unchanged)`, moved.trim.summary === before.trim.summary && moved.gain.summary === before.gain.summary, JSON.stringify({ before: [before.trim.summary, before.gain.summary], moved: [moved.trim.summary, moved.gain.summary] }));
+    if (mobile) check(`${label} a step the user opened stays open after resizing to ${away.width}px, with its values`, moved.trim.expanded === 'true' && moved.trim.values.join() === before.trim.values.join() && moved.gain.expanded === 'false', JSON.stringify({ before: before.trim.values, moved }));
+    else check(`${label} resizing to ${away.width}px closes the step that was only open because it was just added`, moved.gain.expanded === 'false' && moved.trim.expanded === 'false' && moved.gain.fields === 0 && moved.trim.fields === 0, JSON.stringify(moved));
+    await tap(page, 'trim');
+    await page.waitForTimeout(250);
+    await resize(page, { width: viewport.width, height: viewport.height });
+    const home = { trim: await stepFacts(page, 'trim'), gain: await stepFacts(page, 'gain') };
+    check(`${label} the choice made by hand at ${away.width}px (${mobile ? 'closing' : 'opening'} Trim all) holds back at ${viewport.width}px, with every summary unchanged`, mobile
+      ? home.trim.expanded === 'false' && home.trim.summary === before.trim.summary && home.gain.summary === before.gain.summary
+      : home.trim.expanded === 'true' && home.gain.expanded === 'false' && home.trim.summary === before.trim.summary && home.gain.summary === before.gain.summary, JSON.stringify({ before: [before.trim.summary, before.gain.summary], home }));
+    check(`${label} across resizes: no horizontal overflow and no page errors`, (await noOverflow(page)) <= 0 && errors.length === 0, errors.join('; '));
+    await context.close();
+  },
+
+  async stepError({ browser, app, check, viewport, scheme, label }) {
+    const { context, page, errors } = await openApp(browser, app, viewport, { scheme });
+    await addFiles(page, [fixture('tone-20.wav', 20)]);
+    const mobile = isMobile(viewport);
+    await page.getByLabel('Add step').selectOption('trim');
+    await openStep(page, 'trim');
+    await page.getByLabel(copy.trim.startField(copy.trim.prefix), { exact: true }).fill('10');
+    await page.getByLabel(copy.trim.endField(copy.trim.prefix), { exact: true }).fill('5');
+    await page.waitForTimeout(400);
+    const reach = () => page.locator('[data-step-kind=trim]').evaluate(article => {
+      const toggle = article.querySelector('.step-toggle'), error = article.querySelector('.validation-error');
+      const invalid = [...article.querySelectorAll('.step-settings input')].filter(input => input.getAttribute('aria-invalid') === 'true' && input.getClientRects().length);
+      return { expanded: toggle.getAttribute('aria-expanded'), errorId: error?.id ?? null, errorShown: !!error && error.getClientRects().length > 0, toggleDescribes: toggle.getAttribute('aria-describedby'), invalid: invalid.length, fieldsDescribe: invalid.every(input => input.getAttribute('aria-describedby') === error?.id), text: error?.textContent ?? '' };
+    });
+    const shown = await reach();
+    check(`${label} a step with a shown validation error is open, its error is announced and its invalid fields point at it`, shown.expanded === 'true' && shown.errorShown && shown.errorId !== null && shown.toggleDescribes === shown.errorId && shown.invalid >= 1 && shown.fieldsDescribe, JSON.stringify(shown));
+    await page.getByLabel(copy.trim.endField(copy.trim.prefix), { exact: true }).fill('20');
+    await page.waitForTimeout(400);
+    const fixed = await reach();
+    check(`${label} fixing the error does not close the step the user is editing`, fixed.expanded === 'true' && !fixed.errorShown, JSON.stringify(fixed));
+    await page.getByLabel(copy.trim.endField(copy.trim.prefix), { exact: true }).fill('5');
+    await page.waitForTimeout(400);
+    await tap(page, 'trim');
+    await page.waitForTimeout(250);
+    const folded = await reach();
+    check(`${label} a step the user closes with an error showing stays closed, the error and its description stay`, folded.expanded === 'false' && folded.errorShown && folded.toggleDescribes === folded.errorId, JSON.stringify(folded));
+    await tap(page, 'trim');
+    await page.waitForTimeout(250);
+    check(`${label} and one tap brings the fields back`, (await reach()).expanded === 'true' && (await reach()).invalid >= 1);
+    if (mobile) {
+      await page.getByLabel('Add step').selectOption('gain');
+      await page.waitForTimeout(250);
+      const gain = await stepFacts(page, 'gain');
+      check(`${label} a step added beside an erroring open step is still closed on mobile`, gain.expanded === 'false' && (await reach()).expanded === 'true', JSON.stringify(gain));
+    }
+    const away = otherSide(viewport);
+    await resize(page, away);
+    const moved = await reach();
+    check(`${label} the erroring step stays reachable after resizing to ${away.width}px`, moved.errorShown && moved.toggleDescribes === moved.errorId && moved.expanded === 'true', JSON.stringify(moved));
+    check(`${label} step error: no horizontal overflow, every target at least 44x44, no page errors`, (await noOverflow(page)) <= 0 && (await stepTargets(page)).length === 0 && errors.length === 0, `${errors.join('; ')} ${JSON.stringify(await stepTargets(page))}`);
+    await context.close();
+  },
 };
 
 const tasks = {
@@ -923,6 +1121,7 @@ const tasks = {
         const { context, page, errors } = await openApp(browser, app, viewport);
         await addFiles(page, [fixture('tone-20.wav', 20)]);
         await page.getByLabel('Add step').selectOption('trim');
+        await openStep(page, 'trim');
         await page.getByLabel(copy.trim.startField(copy.trim.prefix), { exact: true }).fill('2');
         await page.getByLabel(copy.trim.endField(copy.trim.prefix), { exact: true }).fill('18');
         await page.waitForTimeout(400);
@@ -987,7 +1186,7 @@ const tasks = {
         await context.close();
       }
       if (viewport.name === '375') {
-        const { context, page } = await openApp(browser, app, viewport);
+        const { context, page } = await openApp(browser, app, viewport, { init: delayedSource(1500) });
         await addFiles(page, ['tests/fixtures/tone.aac']);
         const unknown = page.locator('li[data-file-id]').first();
         check(`${label} unavailable duration stays a distinct message in the file line`, await unknown.locator('.file-position').innerText() === copy.trim.unknownDuration, await unknown.innerText());
@@ -1177,8 +1376,16 @@ const tasks = {
         await page.getByLabel('Add step').selectOption('trim');
         await setTrimAll(page, 2, 10);
         await exportAll(page, 3);
-        const peaksAtDone = await page.evaluate(() => window.__peakWorkers);
         await page.waitForTimeout(900);
+        const mobile = isMobile(viewport);
+        const asFirstShown = await rowFacts(page);
+        note(`${label} measured: rows as first shown ${asFirstShown.map(row => `${Math.round(row.height)}px`).join(', ')}, ${mobile ? 'collapsed' : 'expanded'} by default`);
+        if (mobile) check(`${label} finished rows are collapsed by default at most 64px`, asFirstShown.length === 3 && asFirstShown.every(row => row.collapsed && row.expanded === 'false' && row.height <= 64), JSON.stringify(asFirstShown.map(row => [row.height, row.expanded])));
+        else check(`${label} finished rows are expanded by default at most 176px, with the waveform, switch and Trim`, asFirstShown.length === 3 && asFirstShown.every(row => !row.collapsed && row.expanded === 'true' && row.track >= 2 && row.switches === 1 && row.trims === 1 && row.height <= 176), JSON.stringify(asFirstShown.map(row => [row.height, row.expanded, row.track])));
+        for (let index = 0; index < 3; index++) await collapse(rowAt(page, index));
+        await page.waitForTimeout(500);
+        const peaksAtDone = await page.evaluate(() => window.__peakWorkers);
+        await page.waitForTimeout(400);
         const collapsed = await rowFacts(page);
         note(`${label} measured: collapsed rows ${collapsed.map(row => `${Math.round(row.height)}px`).join(', ')} (baseline finished row ${baselineRow(viewport.name)}px)`);
         check(`${label} 3 finished files, one with Trim all and a 60-character name: each row is at most 64px`, collapsed.length === 3 && collapsed.every(row => row.height <= 64), JSON.stringify(collapsed.map(row => row.height)));
@@ -1232,8 +1439,7 @@ const tasks = {
         check(`${label} collapsed play pauses the other rows`, playingNow === 1, playingNow);
         await first.locator('.wave-play').click();
 
-        await first.locator('.file-toggle').click();
-        await page.waitForTimeout(400);
+        await open(first);
         await first.getByRole('button', { name: copy.wave.trimLabel('tone-20.wav') }).click();
         await page.waitForTimeout(400);
         const trimming = await first.evaluate(li => ({ handles: li.querySelectorAll('.wave-handle').length, toggle: li.querySelectorAll('.file-toggle').length, collapsed: li.hasAttribute('data-collapsed') }));
@@ -1260,7 +1466,8 @@ const tasks = {
         await page.waitForFunction(() => document.querySelectorAll('li[data-job-state=done]').length === 2, null, { timeout: 90000 });
         await page.waitForTimeout(500);
         const settled = await rowFacts(page);
-        check(`${label} the two finished rows collapse once done`, settled.filter(row => row.collapsed).length === 2 && settled.filter(row => row.collapsed).every(row => row.height <= 64), JSON.stringify(settled.map(row => [row.collapsed, row.height])));
+        const finishedRows = settled.filter(row => row.expanded !== null);
+        check(`${label} the two finished rows ${isMobile(viewport) ? 'collapse' : 'expand'} once done`, finishedRows.length === 2 && finishedRows.every(row => isMobile(viewport) ? row.collapsed && row.height <= 64 : !row.collapsed && row.expanded === 'true' && row.height <= 176), JSON.stringify(settled.map(row => [row.collapsed, row.height, row.expanded])));
         check(`${label} running and cancelled rows: no page errors`, errors.length === 0, errors.join('; '));
         await context.close();
       }
@@ -1290,8 +1497,8 @@ const tasks = {
         const rows = await rowFacts(page);
         note(`${label} measured: the three tests/fixtures audio files export to collapsed rows of ${rows.map(row => `${Math.round(row.height)}px`).join(', ')}`);
         check(`${label} the three fixture files export to collapsed rows of at most 64px`, rows.length === 3 && rows.every(row => row.height <= 64 && row.collapsed && row.oneLine), JSON.stringify(rows.map(row => row.height)));
-        await rowAt(page, 1).locator('.file-toggle').click();
-        await page.waitForTimeout(450);
+        await open(rowAt(page, 1));
+        await page.waitForTimeout(100);
         const mixed = await rowFacts(page);
         note(`${label} measured: with the second fixture expanded the rows are ${mixed.map(row => `${Math.round(row.height)}px`).join(', ')}`);
         if (viewport.name === '375') await shot(page, 't6-375-fixtures-expanded');
@@ -1309,7 +1516,7 @@ const tasks = {
       { name: 'light, reduced motion', scheme: 'light', reducedMotion: 'reduce' },
       { name: 'light, touch', scheme: 'light', touch: true, maxWidth: 768 },
     ];
-    for (const viewport of VIEWPORTS) {
+    for (const viewport of VIEWPORTS.filter(item => !flagValue('--viewport') || item.name === flagValue('--viewport'))) {
       for (const pass of passes) {
         if (pass.maxWidth && viewport.width > pass.maxWidth) continue;
         const label = `T7 ${viewport.name} ${pass.name}`;
@@ -1322,14 +1529,16 @@ const tasks = {
         check(`${label} unprocessed: first row starts within 80px of the panel top`, unprocessed.firstRowOffset <= 80, unprocessed.firstRowOffset);
         check(`${label} unprocessed: every interactive target is at least 44x44`, unprocessed.small.length === 0, JSON.stringify(unprocessed.small));
         check(`${label} unprocessed: no horizontal overflow`, unprocessed.overflow <= 0, unprocessed.overflow);
-        check(`${label} finished: each collapsed row is at most 64px`, finished.rows.length === 3 && finished.rows.every(row => row.height <= 64), JSON.stringify(finished.rows.map(row => row.height)));
+        const mobile = isMobile(viewport);
+        const defaults = await page.locator('li[data-file-id] .file-toggle').evaluateAll(list => list.map(toggle => toggle.getAttribute('aria-expanded')));
+        check(`${label} finished: every row starts ${mobile ? 'collapsed' : 'expanded'} (aria-expanded ${!mobile})`, defaults.length === 3 && defaults.every(value => value === String(!mobile)), JSON.stringify(defaults));
+        check(`${label} finished: ${mobile ? 'each row starts collapsed at most 64px' : 'each row starts expanded at most 176px, not counting a result note'}`, finished.rows.length === 3 && finished.rows.every(row => mobile ? row.height <= 64 : row.height - row.resultHeight <= 176), JSON.stringify(finished.rows.map(row => [row.height, row.resultHeight])));
         check(`${label} finished: first row starts within 80px of the panel top`, finished.firstRowOffset <= 80, finished.firstRowOffset);
         check(`${label} finished: every interactive target is at least 44x44`, finished.small.length === 0, JSON.stringify(finished.small));
         check(`${label} finished: no horizontal overflow`, finished.overflow <= 0, finished.overflow);
-        note(`${label} measured: collapsed rows ${finished.rows.map(row => `${Math.round(row.height)}px`).join(', ')}, list ${Math.round(finished.listHeight)}px`);
+        note(`${label} measured: rows as first shown (${mobile ? 'collapsed' : 'expanded'}) ${finished.rows.map(row => `${Math.round(row.height)}px`).join(', ')}, list ${Math.round(finished.listHeight)}px`);
 
-        const toggles = page.locator('li[data-file-id] .file-toggle');
-        for (let index = 0; index < 3; index++) { await toggles.nth(index).click(); await settle(); }
+        for (let index = 0; index < 3; index++) { await open(rowAt(page, index)); await settle(); }
         const expanded = { ...await listFacts(page), small: await smallTargets(page) };
         check(`${label} expanded: each finished row is at most 176px, not counting a result note`, expanded.rows.every(row => row.height - row.resultHeight <= 176), JSON.stringify(expanded.rows.map(row => [row.height, row.resultHeight])));
         check(`${label} expanded: every interactive target is at least 44x44`, expanded.small.length === 0, JSON.stringify(expanded.small));
@@ -1349,12 +1558,23 @@ const tasks = {
           const motion = await page.evaluate(() => ({ animations: document.getAnimations().length, trackTransition: getComputedStyle(document.querySelector('.wave-track')).transitionDuration, buttonTransition: getComputedStyle(document.querySelector('button')).transitionDuration }));
           check(`${label} reduced motion: no running animation and no transition`, motion.animations === 0 && /^0s(, 0s)*$/.test(motion.trackTransition) && /^0s(, 0s)*$/.test(motion.buttonTransition), JSON.stringify(motion));
         }
-        for (let index = 0; index < 3; index++) { await toggles.nth(index).click(); await settle(); }
+        for (let index = 0; index < 3; index++) { await collapse(rowAt(page, index)); await settle(); }
         const folded = await listFacts(page);
         check(`${label} collapsing every row returns each to at most 64px`, folded.rows.every(row => row.height <= 64), JSON.stringify(folded.rows.map(row => row.height)));
         check(`${label} no page errors`, errors.length === 0, errors.join('; '));
-        record(viewport.name, pass.name, { empty: result.empty, unprocessed: unprocessed.rows.map(row => row.height), unprocessedWithPreview: result.unprocessedWithPreview.rows.map(row => row.height), unprocessedFirstRowOffset: unprocessed.firstRowOffset, finished: finished.rows.map(row => row.height), finishedFirstRowOffset: finished.firstRowOffset, finishedListHeight: finished.listHeight, expanded: expanded.rows.map(row => row.height), expandedListHeight: expanded.listHeight, waveWidth: expanded.waveWidth });
+        record(viewport.name, pass.name, { empty: result.empty, unprocessed: unprocessed.rows.map(row => row.height), unprocessedWithPreview: result.unprocessedWithPreview.rows.map(row => row.height), unprocessedFirstRowOffset: unprocessed.firstRowOffset, finished: finished.rows.map(row => row.height), collapsed: folded.rows.map(row => row.height), finishedFirstRowOffset: finished.firstRowOffset, finishedListHeight: finished.listHeight, expanded: expanded.rows.map(row => row.height), expandedListHeight: expanded.listHeight, waveWidth: expanded.waveWidth });
         await context.close();
+      }
+    }
+    note('WebKit not run: not installed');
+  },
+  async T10({ browser, app, check, note }) {
+    for (const viewport of T10_VIEWPORTS.filter(item => !flagValue('--viewport') || item.name === flagValue('--viewport'))) {
+      for (const scheme of T10_SCHEMES.filter(item => !flagValue('--scheme') || item === flagValue('--scheme'))) {
+        for (const name of T10_CASES.filter(item => !flagValue('--case') || item === flagValue('--case'))) {
+          const label = `T10 ${viewport.name} ${scheme} ${name}`;
+          await guarded(check, label, () => T10Cases[name]({ browser, app, check, viewport, scheme, label }));
+        }
       }
     }
     note('WebKit not run: not installed');
@@ -1405,6 +1625,34 @@ async function runThree(browser, app) {
   console.log(JSON.stringify(out, null, 2));
 }
 
+async function runHeights(browser, app) {
+  for (const viewport of T10_VIEWPORTS) {
+    for (const name of ['files', 'steps']) {
+      try { await T10Cases[name]({ browser, app, check: () => true, viewport, scheme: 'light', label: `heights ${viewport.name} ${name}` }); }
+      catch (error) { console.log(`heights ${viewport.name} ${name} failed: ${String(error.message).split('\n')[0]}`); }
+    }
+  }
+}
+
+async function runResponsiveShots(browser, app, label) {
+  const before = label === 'before';
+  const named = (kind, width, scheme) => `responsive-${kind}${before ? '-before' : ''}-${width}-${scheme}`;
+  for (const [width, scheme] of before ? [['375', 'dark']] : [['375', 'dark'], ['768', 'light'], ['1440', 'light']]) {
+    const viewport = VIEWPORTS.find(item => item.name === width);
+    const { context, page } = await openApp(browser, app, viewport, { scheme });
+    await addFiles(page, THREE());
+    await exportAll(page, 3);
+    await page.waitForTimeout(600);
+    await page.locator('.files-panel').screenshot({ path: `${root}/captures/${named('files', width, scheme)}.png` });
+    await page.getByLabel('Add step').selectOption('trim');
+    await page.getByLabel('Add step').selectOption('gain');
+    await page.waitForTimeout(500);
+    await page.locator('.recipe-panel').screenshot({ path: `${root}/captures/${named('steps', width, scheme)}.png` });
+    if (width === '375') await page.screenshot({ path: `${root}/captures/${named('page', width, scheme)}.png`, fullPage: true });
+    await context.close();
+  }
+}
+
 async function runShots(browser, app, which) {
   const viewportOf = name => VIEWPORTS.find(viewport => viewport.name === name);
   const finished = async (name, scheme, file, { expand = false, expandedFile } = {}) => {
@@ -1413,7 +1661,7 @@ async function runShots(browser, app, which) {
     await page.waitForTimeout(400);
     if (file) await shot(page, file);
     if (expand) {
-      await rowAt(page, 1).locator('.file-toggle').click();
+      await open(rowAt(page, 1));
       await page.waitForTimeout(500);
       if (expandedFile) await shot(page, expandedFile);
     }
@@ -1431,8 +1679,8 @@ async function runShots(browser, app, which) {
   }
   {
     const { context, page } = await finished('375', 'light', null);
-    await rowAt(page, 0).locator('.file-toggle').click();
-    await page.waitForTimeout(450);
+    await open(rowAt(page, 0));
+    await page.waitForTimeout(100);
     await rowAt(page, 0).getByRole('button', { name: copy.wave.trimLabel('tone-20.wav') }).click();
     await page.waitForTimeout(450);
     await shot(page, 'edit-mode-375');
@@ -1482,6 +1730,7 @@ async function runFollowupRows(browser, app) {
     await addFiles(page, [{ name: 'loud.wav', mimeType: 'audio/wav', buffer: wav(6, 44100, 0.95) }]);
     await page.getByRole('combobox', { name: 'Format', exact: true }).selectOption('wav');
     await page.getByLabel('Add step', { exact: true }).selectOption('gain');
+    await openStep(page, 'gain');
     await page.getByRole('slider', { name: copy.slider(copy.gain.label) }).press('End');
     await exportAll(page, 1);
     await open(rowAt(page, 0));
@@ -1532,7 +1781,7 @@ async function writeTable() {
   const sum = list => list.reduce((total, value) => total + value, 0), tallest = list => Math.max(...list);
   const measures = [
     ['Finished row as first shown (tallest of 3)', was => tallest(was.finished), now => tallest(now.finished)],
-    ['Collapsed finished row (tallest of 3)', () => null, now => tallest(now.finished)],
+    ['Collapsed finished row (tallest of 3)', () => null, now => tallest(now.collapsed)],
     ['Expanded finished row (tallest of 3)', was => tallest(was.finished), now => tallest(now.expanded)],
     ['Unprocessed row, no steps and no Preview (tallest of 3)', was => tallest(was.unprocessed), now => tallest(now.unprocessed)],
     ['Unprocessed row with a Trim all step and Preview (tallest of 3)', was => tallest(was.unprocessedWithPreview), now => tallest(now.unprocessedWithPreview)],
@@ -1553,17 +1802,21 @@ async function writeTable() {
 const shotsFlag = args.indexOf('--shots');
 const shotsWhich = shotsFlag >= 0 ? args[shotsFlag + 1] : null;
 const three = args.includes('--three');
+const heightsLabel = flagValue('--heights');
+const responsiveShots = flagValue('--responsive-shots');
 if (args.includes('--table')) { await writeTable(); process.exit(0); }
 const app = await startApp();
 const { check, note, lines, failures } = reporter();
 const wanted = engines();
-const selected = baseline || three || shotsWhich ? [] : only ? [only] : Object.keys(tasks);
+const selected = baseline || three || shotsWhich || heightsLabel || responsiveShots ? [] : only ? [only] : Object.keys(tasks);
 try {
   for (const [name, type] of wanted) {
     const browser = await type.launch({ ...launchOptions(name), args: ['--autoplay-policy=no-user-gesture-required'] });
     try {
       if (baseline) await runBaseline(app, browser);
       if (three) await runThree(browser, app);
+      if (heightsLabel) await runHeights(browser, app);
+      if (responsiveShots) await runResponsiveShots(browser, app, responsiveShots);
       if (shotsWhich === 'followup') { await runFollowupRows(browser, app); await runFollowupShots(browser, app); }
       else if (shotsWhich) await runShots(browser, app, shotsWhich);
       for (const id of selected) await tasks[id]({ browser, app, check, note, record });
@@ -1571,6 +1824,8 @@ try {
   }
 } finally { await app.close(); }
 if (selected.includes('T7')) await writeFile(`${root}/measurements.json`, `${JSON.stringify({ engines: wanted.map(([name]) => name), viewports: measured }, null, 2)}\n`);
+if (heightsLabel) await writeFile(`${root}/responsive-heights-${heightsLabel}.json`, `${JSON.stringify(responsiveHeights, null, 2)}\n`);
+if (selected.includes('T10')) await writeFile(`${root}/responsive-heights-now.json`, `${JSON.stringify(responsiveHeights, null, 2)}\n`);
 if (only) await writeFile(`${root}/${only.toLowerCase()}.txt`, `${lines.map(line => `${line.note ? 'note' : line.ok ? 'ok  ' : 'FAIL'} ${line.name}${line.detail ? ` -- ${line.detail}` : ''}`).join('\n')}\n`);
-if (!baseline && !three && !shotsWhich) console.log(failures.length ? `FAIL: ${failures.length} of ${lines.filter(line => !line.note).length}` : `PASS: ${lines.filter(line => !line.note).length} checks`);
+if (!baseline && !three && !shotsWhich && !heightsLabel && !responsiveShots) console.log(failures.length ? `FAIL: ${failures.length} of ${lines.filter(line => !line.note).length}` : `PASS: ${lines.filter(line => !line.note).length} checks`);
 process.exit(failures.length ? 1 : 0);

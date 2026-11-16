@@ -1,0 +1,79 @@
+{
+  "320": {
+    "light": {
+      "filesPanel3Finished": 260,
+      "finishedRows": [
+        61,
+        61,
+        56
+      ],
+      "stepsPanelTrimAndGain": 517
+    }
+  },
+  "375": {
+    "light": {
+      "filesPanel3Finished": 260,
+      "finishedRows": [
+        61,
+        61,
+        56
+      ],
+      "stepsPanelTrimAndGain": 517
+    }
+  },
+  "600": {
+    "light": {
+      "filesPanel3Finished": 260,
+      "finishedRows": [
+        61,
+        61,
+        56
+      ],
+      "stepsPanelTrimAndGain": 517
+    }
+  },
+  "601": {
+    "light": {
+      "filesPanel3Finished": 260,
+      "finishedRows": [
+        61,
+        61,
+        56
+      ],
+      "stepsPanelTrimAndGain": 517
+    }
+  },
+  "768": {
+    "light": {
+      "filesPanel3Finished": 260,
+      "finishedRows": [
+        61,
+        61,
+        56
+      ],
+      "stepsPanelTrimAndGain": 517
+    }
+  },
+  "1024": {
+    "light": {
+      "filesPanel3Finished": 268,
+      "finishedRows": [
+        61,
+        61,
+        56
+      ],
+      "stepsPanelTrimAndGain": 517
+    }
+  },
+  "1440": {
+    "light": {
+      "filesPanel3Finished": 268,
+      "finishedRows": [
+        61,
+        61,
+        56
+      ],
+      "stepsPanelTrimAndGain": 517
+    }
+  }
+}

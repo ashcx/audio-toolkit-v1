@@ -13,6 +13,7 @@ import { resultNote } from "./result-note";
 import { previewCutSeconds } from "./preview-plan";
 import { WavePlayer, type TrimEdit } from "./wave-player";
 import { retarget, shownView, viewsOf, type Carry, type View } from "./view-position";
+import { useMobile } from "./use-mobile";
 const canPlay = (mime: string) => mime !== "" && document.createElement("audio").canPlayType(mime) !== "";
 type PlayableResult = Readonly<{ url: string; file: File; label: string; duration: number | null }>;
 function useViewCarry(view: View | null, trimStart: number, onPick: (view: View) => void) {
@@ -146,16 +147,22 @@ export function FileRow({
   const exportedPlayable = exported?.kind === "done" && canPlay(exported.output.mime);
   const resultUrl = exported?.kind === "done" ? exported.url : null;
   const [picked, setPicked] = useState<{ result: string | null; view: View } | null>(null);
-  const [opened, setOpened] = useState<string | null>(null);
+  const mobile = useMobile();
+  const [manual, setManual] = useState<{ result: string | null; open: boolean } | null>(null);
   const views = viewsOf({ original: entry.inspection.kind === "ready" && !preview && canPlay(entry.file.type), result: exportedPlayable });
   const shown = shownView(views, picked?.result === resultUrl ? picked.view : null, editing);
   const { audio, choose } = useViewCarry(shown, job?.spec.plan.snapshot.trim?.start ?? 0, view => setPicked({ result: resultUrl, view }));
   const collapsible = exported?.kind === "done" && !preview && !editing;
-  const expanded = !collapsible || opened === resultUrl;
+  const expanded = !collapsible || (manual?.result === resultUrl ? manual.open : !mobile);
   const toggleExpanded = () => {
     if (expanded && shown === "original" && views.includes("result")) choose("result");
-    setOpened(expanded ? null : resultUrl);
+    setManual({ result: resultUrl, open: !expanded });
   };
+  const wasExpanded = useRef(expanded);
+  useLayoutEffect(() => {
+    if (wasExpanded.current && !expanded && shown === "original" && views.includes("result")) choose("result");
+    wasExpanded.current = expanded;
+  });
   const position = useRef<HTMLSpanElement>(null);
   const positionLive = shown !== null;
   const resultDuration = job?.spec.plan.snapshot.trim?.duration ?? job?.spec.plan.snapshot.source.duration ?? null;
@@ -245,7 +252,7 @@ export function FileRow({
           draft: unfixable ? { start: null, end: null } : draft ?? { start: null, end: null },
           custom: override !== undefined,
           follows: trim !== undefined,
-          editing, locked: trimLocked, onToggle: () => { setOpened(resultUrl); onEdit(); }, onChange: onOverride,
+          editing, locked: trimLocked, onToggle: () => { setManual({ result: resultUrl, open: true }); onEdit(); }, onChange: onOverride,
         }} />}
       {entry.inspection.kind === "ready" && !preview && !shown && <div class="file-player"><small class="file-note">{copy.files.sourceUnplayable}</small></div>}
       {preview && <div class="file-preview" data-preview-state={preview.kind}>
