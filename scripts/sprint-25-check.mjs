@@ -87,7 +87,7 @@ const download = row('tone.wav').locator('a[download]');
 await download.waitFor({ timeout: 60000 });
 await page.waitForTimeout(300);
 const result = await row('tone.wav').locator('.file-result').innerText();
-if (withoutTimes(result) !== copy.result.label) throw new Error('a finished export shows only its label and player: ' + JSON.stringify(result));
+if (withoutTimes(result) !== '') throw new Error('a finished export shows only its player: ' + JSON.stringify(result));
 if (!(await row('tone.wav').locator('audio').count())) throw new Error('export player missing');
 const status = await page.locator('.run-status').innerText();
 if (status.trim() !== '') throw new Error('no standing export status after completion: ' + JSON.stringify(status));
@@ -230,7 +230,7 @@ await copyPage.waitForFunction(() => document.querySelector('li[data-inspection=
 await copyPage.getByRole('button', { name: 'Export', exact: true }).click();
 await copyPage.locator('li[data-job-state=done] a[download]').waitFor({ timeout: 60000 });
 const copyText = await copyPage.locator('.file-result').innerText();
-if (withoutTimes(copyText) !== copy.result.label) throw new Error('a kept original shows only its label and player: ' + JSON.stringify(copyText));
+if (withoutTimes(copyText) !== '') throw new Error('a kept original shows only its player: ' + JSON.stringify(copyText));
 await copyPage.screenshot({ path: `${root}/captures/09-stream-copy.png`, fullPage: true });
 await copyPage.close();
 await writeFile(`${root}/result.json`, JSON.stringify({ errors, metaText, trimmed, previewText, result, status, actions, previous, storageAfterClear, copyText }, null, 2) + '\n');

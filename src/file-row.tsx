@@ -19,7 +19,7 @@ function SourcePlayer({ entry, metadata, collapsed, paused, trim }: { entry: Fil
   });
   useLayoutEffect(() => () => URL.revokeObjectURL(url), [url]);
   const player = playable
-    ? <WavePlayer src={url} source={{ file: entry.file, metadata }} label={copy.files.original} name={entry.file.name}
+    ? <WavePlayer layout="row" src={url} source={{ file: entry.file, metadata }} label={copy.files.original} name={entry.file.name}
       duration={metadata.duration} preload="none" paused={paused} trim={trim} />
     : <small class="file-note">{copy.files.sourceUnplayable}</small>;
   return collapsed
@@ -181,9 +181,9 @@ export function FileRow({
         {preview.kind === "ready" ? <>
           <small>{copy.preview.heading(cutSeconds)}</small>
           {preview.estimate && <small>{copy.preview.estimate}</small>}
-          <WavePlayer src={preview.original} source={{ url: preview.original }} label={copy.preview.before} name={entry.file.name}
+          <WavePlayer layout="labelled" src={preview.original} source={{ url: preview.original }} label={copy.preview.before} name={entry.file.name}
             duration={preview.range.end - preview.range.start} preload="metadata" paused={busy} />
-          <WavePlayer src={preview.processed} source={{ url: preview.processed }} label={copy.preview.after} name={entry.file.name}
+          <WavePlayer layout="labelled" src={preview.processed} source={{ url: preview.processed }} label={copy.preview.after} name={entry.file.name}
             duration={preview.range.end - preview.range.start} preload="metadata" paused={busy} />
           <button type="button" onClick={onClearPreview}>{copy.preview.close}</button>
         </> : preview.kind === "running" ? <>
@@ -211,8 +211,9 @@ export function FileRow({
             </>
           ) : (
             <>
+              {previousSettings && exportedPlayable && <small>{resultLabel}</small>}
               {exportedPlayable
-                ? <WavePlayer src={exported.url} source={{ file: exported.output.file }} label={resultLabel} name={entry.file.name}
+                ? <WavePlayer layout="row" src={exported.url} source={{ file: exported.output.file }} label={resultLabel} name={entry.file.name}
                   duration={null} preload="metadata" paused={busy} />
                 : <><small>{resultLabel}</small><small class="file-note">{copy.files.resultUnplayable}</small></>}
               {note && <small>{note}</small>}

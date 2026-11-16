@@ -263,6 +263,78 @@ const tasks = {
     }
     note('WebKit not run: not installed');
   },
+
+  async T3({ browser, app, check, note }) {
+    const band = (page, scope) => page.locator(scope).evaluate(player => {
+      const box = selector => { const element = player.querySelector(selector); if (!element) return null; const r = element.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, width: r.width, height: r.height }; };
+      const play = box('.wave-play'), track = box('.wave-track'), trim = box('.wave-trim'), own = player.getBoundingClientRect();
+      const parts = [play, track, trim].filter(Boolean);
+      return {
+        sameBand: parts.every(part => Math.abs(part.top - parts[0].top) < 1.5 && Math.abs(part.bottom - parts[0].bottom) < 1.5),
+        order: play.right <= track.left + 0.5 && (!trim || track.right <= trim.left + 0.5),
+        bandHeight: Math.max(...parts.map(part => part.height)), height: own.height, waveWidth: track.width,
+        labels: player.querySelectorAll('.wave-label, .wave-time').length,
+        playLabel: player.querySelector('.wave-play').getAttribute('aria-label'),
+      };
+    });
+    for (const viewport of VIEWPORTS) {
+      const label = `T3 ${viewport.name}`;
+      const minimum = viewport.width >= 375 ? 190 : 140;
+      const { context, page, errors } = await openApp(browser, app, viewport);
+      await addFiles(page, [fixture('tone-20.wav', 20), fixture('tone-b.wav', 12)]);
+      await page.waitForTimeout(400);
+      const first = 'li[data-file-id]:nth-child(1) .file-player .wave-player';
+      const ready = await band(page, first);
+      check(`${label} ready file: play, waveform and Trim share one 44px band`, ready.sameBand && ready.order && ready.bandHeight <= 44.5, JSON.stringify(ready));
+      check(`${label} ready file: player block at most 52px tall`, ready.height <= 52, ready.height);
+      check(`${label} ready file: waveform at least ${minimum}px wide`, ready.waveWidth >= minimum, ready.waveWidth);
+      check(`${label} ready file: no visible label or readout, the label is spoken`, ready.labels === 0 && ready.playLabel === copy.wave.play(copy.files.original, 'tone-20.wav'), JSON.stringify(ready));
+      check(`${label} ready file: no horizontal overflow`, (await metrics(page)).overflow <= 0);
+      note(`${label} measured: player ${ready.height}px tall, waveform ${ready.waveWidth}px wide beside Trim (baseline unprocessed waveform ${viewport.width === 320 ? 218 : viewport.width === 375 ? 273 : viewport.width === 768 ? 666 : viewport.width === 1024 ? 402 : 514}px)`);
+      if (viewport.name === '375') await shot(page, 't3-375-ready');
+
+      await page.locator('li[data-file-id]:nth-child(1)').getByRole('button', { name: copy.wave.trimLabel('tone-20.wav') }).click();
+      await page.waitForTimeout(500);
+      const editing = await page.evaluate(() => {
+        const rows = [...document.querySelectorAll('li[data-file-id]')], list = document.querySelector('.file-list').getBoundingClientRect();
+        const track = row => Math.round(row.querySelector('.wave-track').getBoundingClientRect().height);
+        const handles = [...rows[0].querySelectorAll('.wave-handle')].map(handle => { const r = handle.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom }; });
+        const trackBox = rows[0].querySelector('.wave-track').getBoundingClientRect();
+        const done = rows[0].querySelector('.wave-trim').getBoundingClientRect(), play = rows[0].querySelector('.wave-play').getBoundingClientRect();
+        return {
+          editTrack: track(rows[0]), otherTrack: track(rows[1]), handles: handles.length,
+          clipped: handles.filter(handle => handle.left < list.left - 1 || handle.right > list.right + 1 || handle.left < 0 || handle.right > innerWidth || handle.top < trackBox.top - 8 || handle.bottom > trackBox.bottom + 8).length,
+          stacked: play.bottom <= trackBox.top && done.bottom <= trackBox.top, overflow: document.documentElement.scrollWidth - innerWidth,
+        };
+      });
+      check(`${label} Trim grows only that row to the 130px editor`, editing.editTrack === 130 && editing.otherTrack === 44, JSON.stringify(editing));
+      check(`${label} editing: two handles, none clipped, head row stacked above the track`, editing.handles === 2 && editing.clipped === 0 && editing.stacked, JSON.stringify(editing));
+      check(`${label} editing: no horizontal overflow`, editing.overflow <= 0, editing.overflow);
+      await page.locator('li[data-file-id]:nth-child(1)').getByRole('button', { name: copy.wave.doneLabel('tone-20.wav') }).click();
+      await page.waitForTimeout(500);
+      const folded = await band(page, first);
+      check(`${label} Done folds the row back to the one-row band`, folded.sameBand && folded.bandHeight <= 44.5 && folded.height <= 52, JSON.stringify(folded));
+
+      await exportAll(page, 2);
+      const finished = await band(page, 'li[data-file-id]:nth-child(1) .file-result .wave-player');
+      check(`${label} finished file: the result player is one 44px row, waveform at least ${minimum}px, no visible label`, finished.sameBand && finished.bandHeight <= 44.5 && finished.height <= 52 && finished.waveWidth >= minimum && finished.labels === 0 && finished.playLabel === copy.wave.play(copy.result.label, 'tone-20.wav'), JSON.stringify(finished));
+      if (viewport.name === '375' || viewport.name === '320') await shot(page, `t3-${viewport.name}`);
+      await page.getByLabel('Add step').selectOption('gain');
+      await page.waitForFunction(() => document.querySelector('.file-actions button:not(.icon-button)'), null, { timeout: 10000 });
+      check(`${label} an older result still says so in visible text and in the player label`, await page.locator('li[data-file-id]:nth-child(1) .file-result').innerText() === copy.result.olderLabel && (await band(page, 'li[data-file-id]:nth-child(1) .file-result .wave-player')).playLabel === copy.wave.play(copy.result.olderLabel, 'tone-20.wav'));
+      await page.locator('li[data-file-id]:nth-child(1)').getByRole('button', { name: /^Preview/ }).click();
+      await page.locator('[data-preview-state=ready]').waitFor({ timeout: 60000 });
+      await page.waitForTimeout(400);
+      const preview = await page.evaluate(() => {
+        const players = [...document.querySelectorAll('.file-preview .wave-player')];
+        return players.map(player => ({ layout: player.dataset.layout, label: player.querySelector('.wave-label')?.textContent, time: player.querySelector('.wave-time')?.textContent }));
+      });
+      check(`${label} preview players keep their label and a 00:00 / 00:10 style readout`, preview.length === 2 && preview[0].layout === 'labelled' && preview[0].label === copy.preview.before && preview[1].label === copy.preview.after && preview.every(player => /^\d\d:\d\d \/ \d\d:\d\d$/.test(player.time ?? '')), JSON.stringify(preview));
+      check(`${label} no page errors`, errors.length === 0, errors.join('; '));
+      await context.close();
+    }
+    note('WebKit not run: not installed');
+  },
 };
 
 const app = await startApp();

@@ -198,12 +198,13 @@ const trackPoint = async (page, rowName, fraction, y = 0.5) => {
   await page.getByRole('button', { name: 'Export', exact: true }).click();
   await page.waitForFunction(() => document.querySelectorAll('li[data-job-state=done]').length === 2, null, { timeout: 60000 });
   await page.waitForTimeout(500);
-  const results = await page.locator('.file-result .wave-time').allInnerTexts();
-  check('29 export honours each file range (Trim all 2 to 18 s gives 16 s, the custom file is shorter)', /\/ 00:16$/.test(results[0]) && /\/ 00:0[5-9]$/.test(results[1]), JSON.stringify(results));
-  const resultLabels = await page.locator('.file-result').evaluateAll(list => list.map(node => node.querySelector('.wave-label').textContent));
-  check('the exported waveform is labelled as the result, not the original', resultLabels.every(label => label === copy.result.label), JSON.stringify(resultLabels));
+  await page.waitForFunction(() => [...document.querySelectorAll('.file-result audio')].every(audio => Number.isFinite(audio.duration)), null, { timeout: 15000 });
+  const lengths = await page.locator('.file-result audio').evaluateAll(list => list.map(audio => audio.duration));
+  check('29 export honours each file range (Trim all 2 to 18 s gives 16 s, the custom file is shorter)', Math.abs(lengths[0] - 16) < 0.1 && lengths[1] >= 5 && lengths[1] < 10, JSON.stringify(lengths));
+  const resultPlays = await Promise.all([a, b].map(name => row(page, name).locator('.file-result .wave-play').getAttribute('aria-label')));
+  check('the exported waveform is labelled as the result, not the original', resultPlays.every((label, index) => label === copy.wave.play(copy.result.label, [a, b][index])), JSON.stringify(resultPlays));
   await drawn(page, a, 0).catch(() => {});
-  check('plain result rows still say only their label and player', withoutTimes(await page.locator('.file-result').first().innerText()) === copy.result.label);
+  check('plain result rows show only the player, with no visible label or time', withoutTimes(await page.locator('.file-result').first().innerText()) === '' && await page.locator('.file-result .wave-label, .file-result .wave-time').count() === 0);
   await shot(page, '05-exported-dark');
   await context.close();
 }

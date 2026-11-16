@@ -73,7 +73,8 @@ function drawWave(g: CanvasRenderingContext2D, width: number, height: number, to
 }
 const wholeFile = (range: Readonly<{ start: number; end: number }>, total: number) => range.start < 1e-6 && range.end > total - 1e-6;
 let fieldCount = 0;
-export function WavePlayer({ src, source, label, name, duration, preload, paused, trim }: {
+export function WavePlayer({ layout, src, source, label, name, duration, preload, paused, trim }: {
+  layout: "row" | "labelled";
   src: string; source: PeakSource; label: string; name: string;
   /** Known length in seconds, or null when only the file itself can tell. */
   duration: number | null; preload: "none" | "metadata";
@@ -240,13 +241,15 @@ export function WavePlayer({ src, source, label, name, duration, preload, paused
     trim.onChange(changeTrimHandle(trim.draft, total, which, next));
   };
   const playing = playback !== "idle";
-  return <div class="wave-player" ref={root} data-editing={trim?.editing ? "" : undefined} data-playback={playback}>
+  return <div class="wave-player" ref={root} data-layout={layout} data-editing={trim?.editing ? "" : undefined} data-playback={playback}>
     <div class="wave-head">
       <button type="button" class="wave-play" aria-label={(playing ? copy.wave.pause : copy.wave.play)(label, name)} onClick={toggle}>
         <svg viewBox="0 0 16 16" aria-hidden="true">{playing ? <path d="M3.5 2.5h3v11h-3zM9.5 2.5h3v11h-3z" /> : <path d="M4 2.5v11l9-5.5z" />}</svg>
       </button>
-      <span class="wave-label">{label}</span>
-      <span class="wave-time" ref={readout} aria-hidden="true" />
+      {layout === "labelled" && <>
+        <span class="wave-label">{label}</span>
+        <span class="wave-time" ref={readout} aria-hidden="true" />
+      </>}
       {trim && <button type="button" class="wave-trim" disabled={trim.locked && !trim.editing}
         aria-label={trim.editing ? copy.wave.doneLabel(name) : copy.wave.trimLabel(name)} onClick={trim.onToggle}>{trim.editing ? copy.wave.done : copy.wave.trim}</button>}
     </div>
