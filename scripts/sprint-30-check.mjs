@@ -712,7 +712,7 @@ const tasks = {
         await page.getByLabel(copy.trim.endField(copy.trim.prefix), { exact: true }).fill('18');
         await page.waitForTimeout(400);
         const meta = await page.locator('li[data-file-id] .file-name small').first().innerText();
-        check(`${label} Trim all: the kept duration and the range follow the position`, meta === '00:00 / 00:20 · 00:16 · 00:02 to 00:18', meta);
+        check(`${label} Trim all: the line reads the position and total, then the kept length`, meta === '00:00 / 00:20 · Trimmed to 00:16', meta);
         if (viewport.name === '375') {
           await page.getByLabel('Add step').selectOption('gain');
           await page.getByRole('button', { name: /^Preview/ }).click();
@@ -739,15 +739,15 @@ const tasks = {
         const oneLine = () => meta.evaluate(node => node.getBoundingClientRect().height <= parseFloat(getComputedStyle(node).lineHeight) * 1.5);
         await page.waitForFunction(() => document.querySelector('.file-position').textContent === '00:00 / 00:08');
         const result = await meta.innerText();
-        check(`${label} trimmed finished row, Result view: the kept duration is not repeated, the line reads position, then range`, result === '00:00 / 00:08 · 00:02 to 00:10' && repeated(result) === 0, result);
+        check(`${label} trimmed finished row, Result view: the kept length is shown once, the line reads position / total · Trimmed`, result === '00:00 / 00:08 · Trimmed' && repeated(result) === 0, result);
         if (viewport.name === '375') check(`${label} trimmed finished row, Result view: the meta line fits on one line`, await oneLine());
         await row.getByLabel('Original', { exact: true }).check();
         await page.waitForFunction(() => document.querySelector('.file-position').textContent === '00:00 / 00:20');
         const original = await meta.innerText();
-        check(`${label} trimmed finished row, Original view: position and whole-file total, then kept duration and range`, original === '00:00 / 00:20 · 00:08 · 00:02 to 00:10' && repeated(original) === 0, original);
+        check(`${label} trimmed finished row, Original view: position and whole-file total, then Trimmed to the kept length`, original === '00:00 / 00:20 · Trimmed to 00:08' && repeated(original) === 0, original);
         await row.getByRole('radio', { name: /^Result/ }).check();
         await page.waitForFunction(() => document.querySelector('.file-position').textContent === '00:00 / 00:08');
-        check(`${label} trimmed finished row: back in the Result view the kept duration is omitted again`, await meta.innerText() === '00:00 / 00:08 · 00:02 to 00:10');
+        check(`${label} trimmed finished row: back in the Result view the line reads Trimmed again`, await meta.innerText() === '00:00 / 00:08 · Trimmed');
         check(`${label} trimmed finished row: no page errors`, errors.length === 0, errors.join('; '));
         await context.close();
       }

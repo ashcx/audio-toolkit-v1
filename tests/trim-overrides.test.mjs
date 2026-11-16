@@ -81,7 +81,7 @@ test('the exported audio is cut where the file range says, ahead of later steps'
 test('the preview and the file summary use the range that file will export',()=>{
  const entry=file(100),own=ready(snapshotForFile(recipe([trimStep(0,50)]),entry,{start:20,end:60}));
  assert.deepEqual(previewPlans(own).range,{start:20,end:35});
- assert.deepEqual(fileMetadata(entry,own.trim),{primary:'00:40',secondary:'00:20 to 01:00'});
+ assert.deepEqual(fileMetadata(entry,own.trim),{trimmed:true,kept:'00:40'});
 });
 test('a file range that stops stream copy is seen by the automatic export format',()=>{
  const video={...file(10),inspection:{kind:'ready',metadata:{...metadata(10),codec:'aac',hasVideo:true}}};

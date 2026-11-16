@@ -21,11 +21,11 @@ for(const [name,type] of engines()){
   const two=page.locator('.file-list li').filter({has:page.getByRole('button',{name:'Remove two.wav',exact:true})});
   await page.getByLabel('Add step',{exact:true}).selectOption('trim');
   await page.getByLabel(copy.trim.startField(copy.trim.prefix),{exact:true}).fill('0.25');await page.getByLabel(copy.trim.endField(copy.trim.prefix),{exact:true}).fill('1.5');
-  assert.match(await one.innerText(),/00:0\d · 00:00 to 00:0\d/);
-  assert.match(await two.innerText(),/00:0\d · 00:00 to 00:0\d/);
+  assert.match(await one.innerText(),/Trimmed to 00:0\d/);
+  assert.match(await two.innerText(),/Trimmed to 00:0\d/);
   assert.equal(await page.getByText(/Custom/).count(),0);
   await page.getByLabel(copy.trim.endField(copy.trim.prefix),{exact:true}).fill('10');
-  await page.waitForFunction(()=>[...document.querySelectorAll('.file-list li')].every(entry=>entry.textContent.includes('00:00 to 00:02')));
+  await page.waitForFunction(()=>[...document.querySelectorAll('.file-list li')].every(entry=>/Trimmed to 00:0[12]/.test(entry.textContent)));
   // Clearing the end lets resolveTrim clamp per file, so a start past a 2 s file fails there.
   await page.getByLabel(copy.trim.endField(copy.trim.prefix),{exact:true}).fill('');
   await page.getByLabel(copy.trim.startField(copy.trim.prefix),{exact:true}).fill('3');

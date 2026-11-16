@@ -60,7 +60,7 @@ await page.getByLabel(copy.trim.startField(copy.trim.prefix),{exact:true}).fill(
 await page.getByLabel(copy.trim.endField(copy.trim.prefix),{exact:true}).fill('1');
 await page.waitForTimeout(300);
 const trimmed = await row('tone.wav').innerText();
-if (!/00:01 · 00:00 to 00:01/.test(trimmed)) throw new Error('trim metadata mismatch: ' + trimmed);
+if (!/ \/ 00:02 · Trimmed to 00:01/.test(trimmed)) throw new Error('trim metadata mismatch: ' + trimmed);
 if (!(await page.getByLabel('Trim tone.wav').count())) throw new Error('per-file waveform trim button missing');
 await page.getByLabel('Add step').selectOption('gain');
 await page.waitForTimeout(300);
