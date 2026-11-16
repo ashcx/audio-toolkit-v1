@@ -11,7 +11,7 @@ const baseline = args.includes('--baseline');
 const taskFlag = args.indexOf('--task');
 const only = taskFlag >= 0 ? args[taskFlag + 1] : null;
 
-export const VIEWPORTS = [
+const VIEWPORTS = [
   { name: '320', width: 320, height: 700 },
   { name: '375', width: 375, height: 812 },
   { name: '768', width: 768, height: 1024 },
@@ -20,8 +20,7 @@ export const VIEWPORTS = [
 ];
 const LONG_NAME = 'field-recording-with-a-very-long-descriptive-name-take-7.wav';
 
-/** A stereo tone with a burst envelope so peaks have shape. Duration and sample rate are exact. */
-export function wav(seconds, rate = 44100) {
+function wav(seconds, rate = 44100) {
   const frames = rate * seconds, bytes = Buffer.alloc(44 + frames * 4);
   bytes.write('RIFF'); bytes.writeUInt32LE(bytes.length - 8, 4); bytes.write('WAVEfmt ', 8);
   bytes.writeUInt32LE(16, 16); bytes.writeUInt16LE(1, 20); bytes.writeUInt16LE(2, 22);
@@ -34,10 +33,10 @@ export function wav(seconds, rate = 44100) {
   }
   return bytes;
 }
-export const fixture = (name, seconds) => ({ name, mimeType: 'audio/wav', buffer: wav(seconds) });
-export const FIXTURE_PATHS = ['tests/fixtures/tone.wav', 'tests/fixtures/tone.mp3', 'tests/fixtures/tone.flac'];
+const fixture = (name, seconds) => ({ name, mimeType: 'audio/wav', buffer: wav(seconds) });
+const FIXTURE_PATHS = ['tests/fixtures/tone.wav', 'tests/fixtures/tone.mp3', 'tests/fixtures/tone.flac'];
 
-export async function openApp(browser, app, viewport, { scheme = 'light', touch = false, reducedMotion = 'no-preference' } = {}) {
+async function openApp(browser, app, viewport, { scheme = 'light', touch = false, reducedMotion = 'no-preference' } = {}) {
   const context = await browser.newContext({
     viewport: { width: viewport.width, height: viewport.height }, colorScheme: scheme, reducedMotion,
     ...(touch ? { hasTouch: true, isMobile: true } : {}),
@@ -50,7 +49,7 @@ export async function openApp(browser, app, viewport, { scheme = 'light', touch 
   return { context, page, errors };
 }
 
-export const addFiles = async (page, files, count) => {
+const addFiles = async (page, files, count) => {
   await page.locator('input[type=file]').setInputFiles(files);
   await page.waitForFunction(n => {
     const rows = [...document.querySelectorAll('li[data-inspection]')];
@@ -58,14 +57,13 @@ export const addFiles = async (page, files, count) => {
   }, count ?? files.length, { timeout: 30000 });
 };
 
-export const exportAll = async (page, count) => {
+const exportAll = async (page, count) => {
   await page.getByRole('button', { name: 'Export', exact: true }).click();
   await page.waitForFunction(n => document.querySelectorAll('li[data-job-state=done]').length === n, count, { timeout: 90000 });
   await page.waitForTimeout(300);
 };
 
-/** Layout numbers of the Files panel as the page renders them. */
-export const metrics = page => page.evaluate(() => {
+const metrics = page => page.evaluate(() => {
   const panel = document.querySelector('.files-panel').getBoundingClientRect();
   const box = element => { const r = element.getBoundingClientRect(); return { width: r.width, height: r.height, top: r.top - panel.top }; };
   const rows = [...document.querySelectorAll('.file-list li')].map(li => ({ id: li.dataset.fileId, state: li.dataset.jobState ?? 'none', ...box(li) }));
