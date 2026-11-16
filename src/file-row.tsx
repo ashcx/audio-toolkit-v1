@@ -179,7 +179,7 @@ export function FileRow({
               <span class="file-position" ref={position} aria-hidden={positionLive ? "true" : undefined}>
                 {positionLive ? `${formatTime(0)} / ${totalText}` : totalText}
               </span>
-              {expanded && metadata.primary && ` · ${metadata.primary}`}{expanded && metadata.secondary && ` · ${metadata.secondary}`}
+              {expanded && metadata.primary && !(shown === "result" && !previousSettings) && ` · ${metadata.primary}`}{expanded && metadata.secondary && ` · ${metadata.secondary}`}
             </>
             : entry.inspection.kind === "reading" ? copy.files.reading
               : entry.inspection.kind === "waiting" ? copy.files.waiting : ""}

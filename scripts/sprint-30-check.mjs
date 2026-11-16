@@ -447,6 +447,30 @@ const tasks = {
         check(`${label} Trim all: no page errors`, errors.length === 0, errors.join('; '));
         await context.close();
       }
+      if (viewport.name === '375' || viewport.name === '1440') {
+        const { context, page, errors } = await openApp(browser, app, viewport);
+        await addFiles(page, [fixture('tone-20.wav', 20)]);
+        await page.getByLabel('Add step').selectOption('trim');
+        await setTrimAll(page, 2, 10);
+        await exportAll(page, 1);
+        const row = rowAt(page, 0), meta = row.locator('.file-name small').first();
+        await open(row);
+        const repeated = text => { const times = text.match(/\d\d:\d\d/g) ?? []; return times.length - new Set(times).size; };
+        const oneLine = () => meta.evaluate(node => node.getBoundingClientRect().height <= parseFloat(getComputedStyle(node).lineHeight) * 1.5);
+        await page.waitForFunction(() => document.querySelector('.file-position').textContent === '00:00 / 00:08');
+        const result = await meta.innerText();
+        check(`${label} trimmed finished row, Result view: the kept duration is not repeated, the line reads position, then range`, result === '00:00 / 00:08 · 00:02 to 00:10' && repeated(result) === 0, result);
+        if (viewport.name === '375') check(`${label} trimmed finished row, Result view: the meta line fits on one line`, await oneLine());
+        await row.getByLabel('Original', { exact: true }).check();
+        await page.waitForFunction(() => document.querySelector('.file-position').textContent === '00:00 / 00:20');
+        const original = await meta.innerText();
+        check(`${label} trimmed finished row, Original view: position and whole-file total, then kept duration and range`, original === '00:00 / 00:20 · 00:08 · 00:02 to 00:10' && repeated(original) === 0, original);
+        await row.getByLabel('Result', { exact: true }).check();
+        await page.waitForFunction(() => document.querySelector('.file-position').textContent === '00:00 / 00:08');
+        check(`${label} trimmed finished row: back in the Result view the kept duration is omitted again`, await meta.innerText() === '00:00 / 00:08 · 00:02 to 00:10');
+        check(`${label} trimmed finished row: no page errors`, errors.length === 0, errors.join('; '));
+        await context.close();
+      }
       {
         const { context, page, errors } = await openApp(browser, app, viewport);
         await addFiles(page, [{ name: 'opaque.wav', mimeType: 'application/octet-stream', buffer: wav(12) }, fixture('tone-b.wav', 12)]);
