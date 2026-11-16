@@ -9,7 +9,7 @@ export type ArchiveState =
   | Readonly<{ kind: "ready"; url: string; output: StoredOutput }>
   | Readonly<{ kind: "failed" } & Failure>
   | Readonly<{ kind: "cleanup"; attempts: number } & Failure>;
-export type ArchiveBuilder = (files: readonly File[], signal: AbortSignal, progress: (value: ZipProgress) => void) => Promise<StoredOutput>;
+type ArchiveBuilder = (files: readonly File[], signal: AbortSignal, progress: (value: ZipProgress) => void) => Promise<StoredOutput>;
 const SHOWN_ZIP_CODES: readonly ErrorCode[] = ["names-unsafe", "storage-private-mode", "storage-full"];
 function zipFailure(error: unknown): Failure {
   return SHOWN_ZIP_CODES.includes(errorCode(error, "zip-failed")) ? failureOf(error) : failureOf(new UserFacingError("zip-failed", String(error)));

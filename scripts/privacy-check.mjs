@@ -2,7 +2,7 @@ import {saveAction} from './browser-controls.mjs';
 import {engines,launchOptions} from './lib/engines.mjs';
 import {loadCopy} from './lib/harness.mjs';
 const copy=await loadCopy();
-import {chromium,webkit} from 'playwright';import {mkdir,writeFile} from 'node:fs/promises';import assert from 'node:assert/strict';
+import {mkdir,writeFile} from 'node:fs/promises';import assert from 'node:assert/strict';
 const root=process.env.PRIVACY_EVIDENCE_DIR??'.artifacts/privacy-check';await mkdir(root,{recursive:true});const app=process.env.APP_URL??'http://127.0.0.1:4184/audio-toolkit-v1/';const base=new URL(app),records=[];
 for(const[engine,type]of engines()){
  const context=await type.launchPersistentContext(`${root}/${engine}-profile`,{...launchOptions(engine),headless:true});

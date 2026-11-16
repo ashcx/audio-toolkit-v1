@@ -1,5 +1,4 @@
 import {installStorageFaults} from './lib/storage-faults.mjs';
-import {chromium,webkit} from 'playwright';
 import {engines,launchOptions} from './lib/engines.mjs';
 import {loadCopy} from './lib/harness.mjs';
 const copy=await loadCopy();

@@ -1,12 +1,3 @@
-export function formatClock(seconds: number): string {
-  if (!Number.isFinite(seconds) || seconds < 0) return "";
-  const rounded = Number(seconds.toFixed(6));
-  const whole = Math.floor(rounded);
-  const fraction = (rounded - whole).toFixed(6).slice(1).replace(/0+$/, "").replace(/\.$/, "");
-  const minutes = Math.floor(whole / 60);
-  const clock = `${minutes < 60 ? minutes : `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, "0")}`}:${String(whole % 60).padStart(2, "0")}`;
-  return clock + fraction;
-}
 export function formatTime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return "";
   const whole = Math.round(seconds);

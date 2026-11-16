@@ -4,7 +4,7 @@ import { analyzePeaks } from "./peaks-client";
 import type { Peaks } from "./peaks";
 /** A File is read directly. A URL is an output the page only holds a link to, so its bytes are fetched first. */
 export type PeakSource = {file: File; metadata?: AudioMetadata} | {url: string};
-export type PeaksState = {kind:"pending"} | {kind:"ready";peaks:Peaks} | {kind:"failed"};
+type PeaksState = {kind:"pending"} | {kind:"ready";peaks:Peaks} | {kind:"failed"};
 const measured = new WeakMap<File, Peaks>();
 // One waveform at a time, so peak work never stacks up behind itself or beside an export.
 let tail: Promise<unknown> = Promise.resolve();

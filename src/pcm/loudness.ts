@@ -1,9 +1,9 @@
 import { UserFacingError } from "../errors.ts";
-export type BiquadCoefficients = Readonly<{
+type BiquadCoefficients = Readonly<{
   b: readonly [number, number, number];
   a: readonly [number, number, number];
 }>;
-export type KWeighting = Readonly<{
+type KWeighting = Readonly<{
   shelf: BiquadCoefficients;
   highPass: BiquadCoefficients;
 }>;

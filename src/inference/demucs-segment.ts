@@ -98,7 +98,7 @@ export function demucsWaveforms(outReal: Float32Array, outImag: Float32Array, ou
 }
 
 type Tensor = { data: Float32Array; dims: number[] };
-export type DemucsRun = (feeds: Record<"spec_real" | "spec_imag" | "audio", Tensor & { type: "float32" }>) => Promise<Record<string, Tensor | undefined>>;
+type DemucsRun = (feeds: Record<"spec_real" | "spec_imag" | "audio", Tensor & { type: "float32" }>) => Promise<Record<string, Tensor | undefined>>;
 
 function output(outputs: Record<string, Tensor | undefined>, name: string, dims: number[]) {
   const value = outputs[name];

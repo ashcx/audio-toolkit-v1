@@ -1,8 +1,8 @@
 import { copy } from "./copy.ts";
 export const LOUDNESS_MIN = -30;
 export const LOUDNESS_MAX = -8;
-export const LOUDNESS_STEP = 0.5;
-export type LoudnessMark = Readonly<{
+const LOUDNESS_STEP = 0.5;
+type LoudnessMark = Readonly<{
   value: number;
   label: string;
   kind: "delivery" | "playback" | "limit";
@@ -29,7 +29,7 @@ const MAGNET_ZONE = 0.025;
 const clamp = (value: number, min: number, max: number) =>
   Math.max(min, Math.min(max, value));
 
-export function quantizeLufs(value: number): number {
+function quantizeLufs(value: number): number {
   return clamp(Math.round(value / LOUDNESS_STEP) * LOUDNESS_STEP, LOUDNESS_MIN, LOUDNESS_MAX);
 }
 

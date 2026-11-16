@@ -1,8 +1,8 @@
 import { copy } from "./copy.ts";
 import { UserFacingError, failure, failureOf, messageFor, type ErrorCode, type Failure } from "./errors.ts";
 /** `code` is the catalogue entry behind `message`, or null for the per-file sentences that name the file. */
-export type FailedItem = Readonly<{ name: string; code: ErrorCode | null; message: string }>;
-export type FolderReport = Readonly<{
+type FailedItem = Readonly<{ name: string; code: ErrorCode | null; message: string }>;
+type FolderReport = Readonly<{
   folder: string;
   saved: readonly string[];
   failed: readonly FailedItem[];
@@ -26,7 +26,6 @@ function blockedCode(error: unknown): "folder-blocked" | "folder-no-space" | nul
   if (namedError(error, "QuotaExceededError")) return "folder-no-space";
   return null;
 }
-/** The one sentence for a file that did not make it into the folder. */
 function itemFailure(error: unknown, name: string, cancelled: boolean, partial: boolean): FailedItem {
   const unfinished = { name, code: null, message: copy.delivery.folderUnfinished(name) };
   if (partial) return unfinished;

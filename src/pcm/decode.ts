@@ -9,7 +9,7 @@ import {
 } from "mediabunny";
 import type { AudioMetadata } from "../media";
 import { BLOCK_FRAMES, type PcmBlock, type PcmStream } from "./blocks.ts";
-export type DecodeStats = { passes: number; maxDecodedFrames: number };
+type DecodeStats = { passes: number; maxDecodedFrames: number };
 export async function* decodePcm(
   file: File,
   metadata: Readonly<AudioMetadata>,

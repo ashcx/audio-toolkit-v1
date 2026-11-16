@@ -2,7 +2,6 @@ import {setAppearance} from './browser-controls.mjs';
 import {engines,launchOptions} from './lib/engines.mjs';
 import {loadCopy} from './lib/harness.mjs';
 import assert from 'node:assert/strict';
-import {chromium,webkit} from 'playwright';
 import {writeFile,mkdir} from 'node:fs/promises';
 const copy=await loadCopy();
 const appUrl=process.env.APP_URL??'http://127.0.0.1:4173/audio-toolkit-v1/';

@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { formatClock,parseClock } from '../src/format.ts';
+import { parseClock } from '../src/format.ts';
 import { trimHandles,changeTrimHandle } from '../src/trim-control.ts';
 import { resolveTrim } from '../src/recipe.ts';
 import { measureLevels,combineLevels,levelDb } from '../src/levels.ts';
 import { LOUDNESS_MARKS,LOUDNESS_MAX,LOUDNESS_MIN,positionForLufs,lufsForPosition,lufsFromPosition,stepLufs } from '../src/loudness-rail.ts';
-test('clock fields keep human-readable times and distinct sample-sized boundaries',()=>{
- for(const [value,text] of [[0,'0:00'],[542.609,'9:02.609'],[619.439,'10:19.439'],[3601.125,'1:00:01.125'],[1.0001,'0:01.0001'],[1.0002,'0:01.0002']]){assert.equal(formatClock(value),text);assert(Math.abs(parseClock(text)-value)<1e-9);}
+test('clock parsing keeps human-readable times and distinct sample-sized boundaries',()=>{
+ for(const [value,text] of [[0,'0:00'],[542.609,'9:02.609'],[619.439,'10:19.439'],[3601.125,'1:00:01.125'],[1.0001,'0:01.0001'],[1.0002,'0:01.0002']]){assert(Math.abs(parseClock(text)-value)<1e-9);}
 });
 test('clock parsing accepts seconds and rejects malformed clock fields',()=>{
  assert.equal(parseClock('542.609'),542.609);assert.equal(parseClock(''),null);assert.equal(parseClock('1:02:03'),3723);
@@ -91,6 +91,5 @@ test('compact time labels round only their display and carry across minute bound
  const {formatTime,formatTrimTime}=await import('../src/format.ts');
  for(const [value,summary,trim] of [[0,'00:00','00:00'],[542.609,'09:03','09:02.6'],[59.96,'01:00','01:00'],[3601.125,'60:01','60:01.1'],[1.0001,'00:01','00:01']]){
   assert.equal(formatTime(value),summary);assert.equal(formatTrimTime(value),trim);
-  assert(Math.abs(parseClock(formatClock(value))-value)<1e-9);
  }
 });

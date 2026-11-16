@@ -54,7 +54,6 @@ await page.getByRole('dialog').getByText('Light', { exact: true }).click();
 await page.getByRole('button', { name: 'Close', exact: true }).click();
 await page.setViewportSize({ width: 1440, height: 1200 });
 await page.waitForTimeout(300);
-// Trim all
 await page.getByLabel('Add step').selectOption('trim');
 await page.waitForTimeout(200);
 await page.getByLabel(copy.trim.startField(copy.trim.prefix),{exact:true}).fill('0');
@@ -66,7 +65,6 @@ if (!(await page.getByLabel('Trim tone.wav').count())) throw new Error('per-file
 await page.getByLabel('Add step').selectOption('gain');
 await page.waitForTimeout(300);
 if (!(await row('tone.wav').getByRole('button', { name: 'Preview tone.wav' }).count())) throw new Error('Preview missing after recipe step');
-// Preview
 await row('tone.wav').getByRole('button', { name: 'Preview tone.wav' }).click();
 await page.locator('[data-preview-state=ready]').waitFor({ timeout: 60000 });
 await page.waitForTimeout(300);
@@ -83,7 +81,6 @@ await page.screenshot({ path: `${root}/captures/03-preview-desktop.png`, fullPag
 await row('tone.wav').getByRole('button', { name: 'Close preview' }).click();
 await page.waitForTimeout(300);
 if (!(await row('tone.wav').locator('.file-player').count())) throw new Error('original player did not return');
-// Export
 await page.getByRole('button', { name: 'Export', exact: true }).click();
 const download = row('tone.wav').locator('a[download]');
 await download.waitFor({ timeout: 60000 });
@@ -127,7 +124,6 @@ await page.getByRole('dialog').getByText('Light', { exact: true }).click();
 await page.getByRole('button', { name: 'Close', exact: true }).click();
 await page.setViewportSize({ width: 1440, height: 1200 });
 await page.waitForTimeout(300);
-// Edit recipe -> previous export
 await page.getByRole('slider', { name: 'Gain (dB) slider' }).evaluate(el => { el.value = '-3'; el.dispatchEvent(new Event('input', { bubbles: true })); });
 await page.waitForTimeout(500);
 const previous = await row('tone.wav').innerText();
@@ -139,7 +135,6 @@ if (previousPlay !== copy.wave.play(copy.result.olderLabel, 'tone.wav')) throw n
 if (await row('tone.wav').getByRole('radio', { name: copy.result.olderLabel, exact: true }).count() !== 1) throw new Error('the Result option lost its older-settings name');
 if (!(await row('tone.wav').getByRole('button', { name: 'Preview tone.wav' }).count())) throw new Error('Preview missing after recipe edit');
 await page.screenshot({ path: `${root}/captures/05-previous-export.png`, fullPage: true });
-// Clear all
 const clearButton = page.getByRole('button', { name: 'Clear all', exact: true });
 await clearButton.focus();
 await clearButton.press('Enter');
@@ -152,7 +147,6 @@ if (storageAfterClear !== 0) throw new Error('temp outputs remain after Clear al
 const focusedAfterClear = await page.evaluate(() => document.activeElement?.matches('input[type=file]'));
 if (!focusedAfterClear) throw new Error('focus after Clear all did not land on the file picker');
 await page.screenshot({ path: `${root}/captures/06-cleared.png`, fullPage: true });
-// Clear all keeps an automatic stream-copy choice visible.
 const autoPage = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
 await autoPage.goto(url); await autoPage.waitForTimeout(400);
 await autoPage.locator('input[type=file]').setInputFiles(['tests/fixtures/video.mkv']);
@@ -164,14 +158,12 @@ await autoPage.waitForFunction(() => document.querySelectorAll('li[data-file-id]
 if (await autoFormat.inputValue() !== 'original') throw new Error('auto export preference lost after Clear all');
 await autoPage.screenshot({ path: `${root}/captures/06b-auto-format-cleared.png`, fullPage: true });
 await autoPage.close();
-// Unsupported source playback
 const wavBytes = readFileSync('tests/fixtures/tone.wav');
 await page.locator('input[type=file]').setInputFiles([{ name: 'opaque.wav', mimeType: 'application/octet-stream', buffer: wavBytes }]);
 await page.waitForFunction(() => document.querySelector('li[data-inspection=ready]'), null, { timeout: 30000 });
 const opaque = await page.locator('li[data-inspection=ready]').innerText();
 if (!opaque.includes(copy.files.sourceUnplayable)) throw new Error('unsupported playback note missing: ' + opaque);
 if (await page.locator('li[data-inspection=ready] audio').count()) throw new Error('broken player rendered for unsupported source');
-// Clear all during processing
 await page.getByRole('button', { name: 'Remove opaque.wav' }).click();
 await page.locator('input[type=file]').setInputFiles([longPath]);
 await page.waitForFunction(() => document.querySelector('li[data-inspection=ready]'), null, { timeout: 60000 });
@@ -182,7 +174,6 @@ await page.getByRole('button', { name: 'Clear all', exact: true }).click();
 await page.waitForFunction(() => document.querySelectorAll('li[data-file-id]').length === 0, null, { timeout: 60000 });
 await page.waitForFunction(async () => { const d = await (await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1', { create: true }); for await (const _ of d.values()) return false; return true; }, null, { timeout: 60000 });
 if (await page.getByRole('article', { name: /Gain/ }).count() === 0) throw new Error('recipe lost after clear during work');
-// Cancel a preview on a long excerpt
 await page.locator('input[type=file]').setInputFiles([longPath]);
 await page.waitForFunction(() => document.querySelector('li[data-inspection=ready]'), null, { timeout: 60000 });
 const trimToggle = page.locator('[data-step-kind=trim] .step-toggle');
@@ -194,14 +185,12 @@ await page.getByRole('button', { name: 'Cancel preview' }).click({ timeout: 1500
 await page.waitForFunction(() => !document.querySelector('.file-preview'), null, { timeout: 30000 });
 if (await storageCount() !== 0) throw new Error('preview cancel left a temporary output');
 await page.screenshot({ path: `${root}/captures/03b-preview-cancelled.png`, fullPage: true });
-// Clear all while a preview is running
 await page.getByRole('button', { name: /^Preview .*sprint-25-long\.wav$/ }).click();
 await page.getByRole('button', { name: 'Cancel preview' }).waitFor({ timeout: 15000 });
 await page.getByRole('button', { name: 'Clear all', exact: true }).click();
 await page.waitForFunction(() => document.querySelectorAll('li[data-file-id]').length === 0, null, { timeout: 60000 });
 await page.waitForFunction(async () => { const d = await (await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1', { create: true }); for await (const _ of d.values()) return false; return true; }, null, { timeout: 60000 });
 if (await page.getByRole('article', { name: /Normalize/ }).count() === 0) throw new Error('recipe lost after clear during preview');
-// Cleanup failure keeps a retry path
 const cleanupPage = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
 await cleanupPage.goto(url); await cleanupPage.waitForTimeout(400);
 await cleanupPage.locator('input[type=file]').setInputFiles(['tests/fixtures/tone.wav']);
@@ -225,7 +214,6 @@ await cleanupPage.evaluate(() => { window.__busy = false; });
 await cleanupPage.getByRole('button', { name: copy.actions['try-again'], exact: true }).click();
 await cleanupPage.waitForFunction(async () => { const d = await (await navigator.storage.getDirectory()).getDirectoryHandle('audio-toolkit-v1', { create: true }); for await (const _ of d.values()) return false; return true; }, null, { timeout: 60000 });
 await cleanupPage.close();
-// Long error and narrow dark
 await page.locator('input[type=file]').setInputFiles([{ name: 'very-long-recording-name-'.repeat(8) + '.wav', mimeType: 'audio/wav', buffer: Buffer.from('not audio') }]);
 await page.waitForFunction(() => document.querySelector('li[data-inspection=failed]'), null, { timeout: 30000 });
 await page.setViewportSize({ width: 320, height: 800 });
