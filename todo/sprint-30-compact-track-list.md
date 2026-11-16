@@ -5,7 +5,7 @@ status: in-progress
 tier: L
 detail: full
 depends_on: []
-pr: ""
+pr: "https://github.com/ashcx/audio-toolkit-v1/pull/43"
 ---
 
 # Sprint 30 — Compact track list
@@ -114,6 +114,7 @@ Run in order. T1 and T2 are independent of T3–T6. T4 needs T3. T5 needs T3 and
 - `src/file-row.tsx`, `src/wave-player.tsx`, `src/style.css`, `src/main.tsx` (panel heading and drop target), `src/file-summary.ts`, `tests/workspace-layout.test.mjs`.
 - `todo/sprint-29-waveform-trimming.md` (Option B decisions), `todo/orchestration-plan.md` (permissions).
 - Layout prototype: a static page using this repo's `src/style.css` with the proposed overrides, measured in the browser pane. Before: row 228px, waveform 273px (375px) and 218px (320px). After: row 112px, waveform 199px and 144px.
+- PR: [ashcx/audio-toolkit-v1#43](https://github.com/ashcx/audio-toolkit-v1/pull/43), opened ready against `main`, not merged. CI was pending when it opened and is not yet recorded.
 - Drivers: `scripts/lib/harness.mjs`, `scripts/lib/engines.mjs`.
 
 ## Log

@@ -41,7 +41,7 @@ Planned 2026-11-16. The user gave the go the same day. See [attention](todo/atte
 
 | Sprint | Outcome | Status |
 | --- | --- | --- |
-| 30 | [Compact the track list: Add files in the heading, play beside the waveform, one player with an Original and Result switch, finished tracks collapse](todo/sprint-30-compact-track-list.md) | in-progress |
+| 30 | [Compact the track list: Add files in the heading, play beside the waveform, one player with an Original and Result switch, finished tracks collapse](todo/sprint-30-compact-track-list.md), [PR #43](https://github.com/ashcx/audio-toolkit-v1/pull/43) | in-progress |
 
 ## Sprint sequence
 
