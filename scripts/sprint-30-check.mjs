@@ -594,6 +594,159 @@ const tasks = {
     }
     note('WebKit not run: not installed');
   },
+
+  async T6({ browser, app, check, note }) {
+    const POSITION = /^\d\d:\d\d \/ \d\d:\d\d$/;
+    const peakCounter = () => { window.__peakWorkers = 0; const Native = window.Worker; window.Worker = class extends Native { constructor(url, options) { super(url, options); if (String(url).includes('peaks-worker')) window.__peakWorkers++; } }; };
+    const rowFacts = page => page.locator('li[data-file-id]').evaluateAll(list => list.map(li => {
+      const box = selector => { const element = li.querySelector(selector); if (!element || !element.getClientRects().length) return null; const r = element.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, width: r.width, height: r.height }; };
+      const own = li.getBoundingClientRect(), centre = element => element ? (element.top + element.bottom) / 2 - own.top : null;
+      const parts = { play: box('.wave-play'), name: box('.file-name-text'), position: box('.file-position'), download: box('.download-button'), remove: box('[data-remove-file]') };
+      return {
+        height: own.height, expanded: li.querySelector('.file-toggle')?.getAttribute('aria-expanded') ?? null, collapsed: li.hasAttribute('data-collapsed'),
+        parts: Object.fromEntries(Object.entries(parts).map(([name, part]) => [name, part ? Math.round(part.width) : null])),
+        oneLine: Object.values(parts).every(Boolean) && Object.values(parts).every(part => Math.abs(centre(part) - own.height / 2) <= 24) && parts.play.right <= parts.name.left + 0.5 && parts.name.right <= parts.download.left + 0.5 && parts.download.right <= parts.remove.left + 0.5,
+        position: li.querySelector('.file-position')?.textContent ?? null,
+        track: li.querySelectorAll('.wave-track, canvas').length, switches: li.querySelectorAll('.view-switch').length, trims: li.querySelectorAll('.wave-trim').length,
+        progress: box('.wave-progress')?.height ?? null, audios: li.querySelectorAll('audio').length,
+        toggle: box('.file-toggle') ? { width: box('.file-toggle').width, height: box('.file-toggle').height } : null,
+      };
+    }));
+    for (const viewport of VIEWPORTS) {
+      const label = `T6 ${viewport.name}`;
+      {
+        const { context, page, errors } = await openApp(browser, app, viewport);
+        await page.addInitScript(peakCounter);
+        await page.reload();
+        await page.getByRole('heading', { name: copy.app.title }).waitFor();
+        await addFiles(page, [fixture('tone-20.wav', 20), fixture(LONG_NAME, 12), fixture('tone-b.wav', 12)]);
+        await page.getByLabel('Add step').selectOption('trim');
+        await setTrimAll(page, 2, 10);
+        await exportAll(page, 3);
+        const peaksAtDone = await page.evaluate(() => window.__peakWorkers);
+        await page.waitForTimeout(900);
+        const collapsed = await rowFacts(page);
+        note(`${label} measured: collapsed rows ${collapsed.map(row => `${Math.round(row.height)}px`).join(', ')} (baseline finished row ${baselineRow(viewport.name)}px)`);
+        check(`${label} 3 finished files, one with Trim all and a 60-character name: each row is at most 64px`, collapsed.length === 3 && collapsed.every(row => row.height <= 64), JSON.stringify(collapsed.map(row => row.height)));
+        check(`${label} collapsed rows show play, name, position, download and remove on one line`, collapsed.every(row => row.oneLine && POSITION.test(row.position ?? '') && row.collapsed && row.expanded === 'false'), JSON.stringify(collapsed.map(row => ({ oneLine: row.oneLine, parts: row.parts, position: row.position }))));
+        check(`${label} collapsed rows keep the audio and a 2px progress line, with no waveform, switch or Trim`, collapsed.every(row => row.audios === 1 && row.progress === 2 && row.track === 0 && row.switches === 0 && row.trims === 0), JSON.stringify(collapsed.map(row => ({ audios: row.audios, progress: row.progress, track: row.track }))));
+        check(`${label} collapsed rows start no peak analysis after the export`, await page.evaluate(() => window.__peakWorkers) === peaksAtDone, `${peaksAtDone} then ${await page.evaluate(() => window.__peakWorkers)}`);
+        check(`${label} the name area is at least 44px in both directions`, collapsed.every(row => row.toggle && row.toggle.width >= 44 && row.toggle.height >= 44), JSON.stringify(collapsed.map(row => row.toggle)));
+        if (viewport.name === '375' || viewport.name === '320') await shot(page, `t6-${viewport.name}-collapsed`);
+
+        const second = rowAt(page, 1), toggle = second.locator('.file-toggle');
+        await toggle.click();
+        await page.waitForTimeout(450);
+        const expanded = await rowFacts(page);
+        note(`${label} measured: expanded row ${Math.round(expanded[1].height)}px`);
+        check(`${label} tapping one name grows only that row to the waveform, switch and Trim, aria-expanded true`, expanded[1].expanded === 'true' && expanded[1].track >= 2 && expanded[1].switches === 1 && expanded[1].trims === 1 && expanded[0].height <= 64 && expanded[2].height <= 64 && expanded[0].expanded === 'false', JSON.stringify(expanded.map(row => [row.height, row.expanded, row.track, row.switches])));
+        check(`${label} an expanded finished row is at most 176px`, expanded[1].height <= 176, expanded[1].height);
+        if (viewport.name === '375') await shot(page, 't6-375-expanded');
+        await toggle.click();
+        await page.waitForTimeout(450);
+        check(`${label} tapping again collapses it`, await toggle.getAttribute('aria-expanded') === 'false' && (await rowFacts(page))[1].height <= 64);
+
+        await page.locator('.add-files input').focus();
+        let reached = false;
+        for (let press = 0; press < 14 && !reached; press++) {
+          await page.keyboard.press('Tab');
+          reached = await page.evaluate(() => document.activeElement?.classList.contains('file-toggle') && document.activeElement.closest('li') === document.querySelector('li[data-file-id]'));
+        }
+        check(`${label} keyboard: the first name button is reachable by Tab`, reached);
+        await page.keyboard.press('Enter');
+        const afterEnter = await page.evaluate(() => ({ expanded: document.activeElement.getAttribute('aria-expanded'), focused: document.activeElement.classList.contains('file-toggle') }));
+        await page.keyboard.press('Space');
+        const afterSpace = await page.evaluate(() => ({ expanded: document.activeElement.getAttribute('aria-expanded'), focused: document.activeElement.classList.contains('file-toggle') }));
+        check(`${label} keyboard: Enter expands and Space collapses, focus stays on the name button`, afterEnter.expanded === 'true' && afterEnter.focused && afterSpace.expanded === 'false' && afterSpace.focused, JSON.stringify({ afterEnter, afterSpace }));
+
+        const third = rowAt(page, 2), first = rowAt(page, 0);
+        await third.locator('.wave-play').click();
+        await page.waitForFunction(() => !document.querySelectorAll('li[data-file-id] .file-position')[2].textContent.startsWith('00:00 /'), null, { timeout: 8000 });
+        const playing = await third.evaluate(li => ({ position: li.querySelector('.file-position').textContent, progress: li.querySelector('.wave-progress i').style.transform, src: li.querySelector('audio').src, href: li.querySelector('a[download]').href }));
+        check(`${label} collapsed play: the Result plays, the position and the progress line advance`, POSITION.test(playing.position) && !playing.position.startsWith('00:00 /') && /scaleX\((0\.\d+|1)\)/.test(playing.progress) && playing.progress !== 'scaleX(0)' && playing.src === playing.href, JSON.stringify(playing));
+        await third.evaluate(li => { window.__audio = li.querySelector('audio'); window.__before = window.__audio.currentTime; });
+        await third.locator('.file-toggle').click();
+        await page.waitForTimeout(450);
+        const whileExpanded = await third.evaluate(li => ({ same: li.querySelector('audio') === window.__audio, paused: window.__audio.paused, advanced: window.__audio.currentTime >= window.__before, expanded: li.querySelector('.file-toggle').getAttribute('aria-expanded') }));
+        await third.locator('.file-toggle').click();
+        await page.waitForTimeout(450);
+        const whileCollapsed = await third.evaluate(li => ({ same: li.querySelector('audio') === window.__audio, paused: window.__audio.paused, advanced: window.__audio.currentTime >= window.__before, expanded: li.querySelector('.file-toggle').getAttribute('aria-expanded'), ended: window.__audio.ended }));
+        check(`${label} expanding and collapsing a playing row keeps the same audio element playing without a restart`, whileExpanded.same && !whileExpanded.paused && whileExpanded.advanced && whileExpanded.expanded === 'true' && whileCollapsed.same && (!whileCollapsed.paused || whileCollapsed.ended) && whileCollapsed.advanced && whileCollapsed.expanded === 'false', JSON.stringify({ whileExpanded, whileCollapsed }));
+        await first.locator('.wave-play').click();
+        await page.waitForTimeout(600);
+        const playingNow = await page.locator('audio').evaluateAll(list => list.filter(audio => !audio.paused).length);
+        check(`${label} collapsed play pauses the other rows`, playingNow === 1, playingNow);
+        await first.locator('.wave-play').click();
+
+        await first.locator('.file-toggle').click();
+        await page.waitForTimeout(400);
+        await first.getByRole('button', { name: copy.wave.trimLabel('tone-20.wav') }).click();
+        await page.waitForTimeout(400);
+        const trimming = await first.evaluate(li => ({ handles: li.querySelectorAll('.wave-handle').length, toggle: li.querySelectorAll('.file-toggle').length, collapsed: li.hasAttribute('data-collapsed') }));
+        check(`${label} starting Trim expands the row`, trimming.handles === 2 && !trimming.collapsed, JSON.stringify(trimming));
+        await first.getByRole('button', { name: copy.wave.doneLabel('tone-20.wav') }).click();
+        await page.waitForTimeout(400);
+        check(`${label} Done leaves the row expanded`, await first.locator('.file-toggle').getAttribute('aria-expanded') === 'true');
+        check(`${label} no horizontal overflow, no page errors`, (await metrics(page)).overflow <= 0 && errors.length === 0, errors.join('; '));
+        await context.close();
+      }
+      if (viewport.name === '375' || viewport.name === '1440') {
+        const { context, page, errors } = await openApp(browser, app, viewport);
+        await addFiles(page, [fixture('long-a.wav', 90), fixture('long-b.wav', 90), fixture('long-c.wav', 90)]);
+        await page.getByRole('button', { name: 'Export', exact: true }).click();
+        await page.waitForSelector('li[data-job-state=waiting], li[data-job-state=running]', { timeout: 20000 });
+        const live = await page.locator('li[data-file-id]').evaluateAll(list => list.map(li => ({ state: li.dataset.jobState, toggle: li.querySelectorAll('.file-toggle').length, collapsed: li.hasAttribute('data-collapsed'), status: li.querySelector('.file-result')?.textContent ?? '' })));
+        check(`${label} waiting and running rows stay expanded with their status`, live.every(row => row.state === 'done' || (row.toggle === 0 && !row.collapsed && row.status !== '')), JSON.stringify(live));
+        const lastName = 'long-c.wav';
+        const cancel = page.getByRole('button', { name: copy.files.cancelLabel(lastName) });
+        if (await cancel.count()) await cancel.click();
+        await page.waitForSelector('li[data-job-state=cancelled]', { timeout: 20000 });
+        const cancelled = await page.locator('li[data-job-state=cancelled]').evaluate(li => ({ toggle: li.querySelectorAll('.file-toggle').length, collapsed: li.hasAttribute('data-collapsed'), text: li.querySelector('.file-result').textContent, retry: !!li.querySelector('.file-result button') }));
+        check(`${label} a cancelled row stays expanded with its status and Retry`, cancelled.toggle === 0 && !cancelled.collapsed && cancelled.text.includes(copy.files.cancelled) && cancelled.retry, JSON.stringify(cancelled));
+        await page.waitForFunction(() => document.querySelectorAll('li[data-job-state=done]').length === 2, null, { timeout: 90000 });
+        await page.waitForTimeout(500);
+        const settled = await rowFacts(page);
+        check(`${label} the two finished rows collapse once done`, settled.filter(row => row.collapsed).length === 2 && settled.filter(row => row.collapsed).every(row => row.height <= 64), JSON.stringify(settled.map(row => [row.collapsed, row.height])));
+        check(`${label} running and cancelled rows: no page errors`, errors.length === 0, errors.join('; '));
+        await context.close();
+      }
+      if (viewport.name === '375') {
+        const { context, page, errors } = await openApp(browser, app, viewport);
+        await addFiles(page, [fixture('tone-20.wav', 20)]);
+        await page.getByLabel('Add step').selectOption('trim');
+        await setTrimAll(page, 2, 10);
+        await exportAll(page, 1);
+        await page.getByLabel('Add step').selectOption('gain');
+        const row = rowAt(page, 0);
+        const before = await rowFacts(page);
+        check(`${label} an older-settings result collapses with Preview folded away and its older line kept`, before[0].collapsed && await row.locator('.file-actions button:not(.icon-button)').count() === 0 && await row.locator('.file-result').innerText() === copy.result.olderLabel, JSON.stringify(before[0]));
+        await open(row);
+        await row.getByRole('button', { name: /^Preview/ }).click();
+        await page.locator('[data-preview-state=ready]').waitFor({ timeout: 60000 });
+        await page.waitForTimeout(400);
+        const previewing = await row.evaluate(li => ({ toggle: li.querySelectorAll('.file-toggle').length, collapsed: li.hasAttribute('data-collapsed'), players: li.querySelectorAll('.file-preview .wave-player').length, audios: li.querySelectorAll('audio').length }));
+        check(`${label} an open preview keeps the row expanded`, previewing.players === 2 && !previewing.collapsed && previewing.toggle === 0, JSON.stringify(previewing));
+        check(`${label} older-settings preview: no page errors`, errors.length === 0, errors.join('; '));
+        await context.close();
+      }
+      if (viewport.name === '375' || viewport.name === '320') {
+        const { context, page, errors } = await openApp(browser, app, viewport);
+        await addFiles(page, FIXTURE_PATHS);
+        await exportAll(page, 3);
+        const rows = await rowFacts(page);
+        note(`${label} measured: the three tests/fixtures audio files export to collapsed rows of ${rows.map(row => `${Math.round(row.height)}px`).join(', ')}`);
+        check(`${label} the three fixture files export to collapsed rows of at most 64px`, rows.length === 3 && rows.every(row => row.height <= 64 && row.collapsed && row.oneLine), JSON.stringify(rows.map(row => row.height)));
+        await rowAt(page, 1).locator('.file-toggle').click();
+        await page.waitForTimeout(450);
+        const mixed = await rowFacts(page);
+        note(`${label} measured: with the second fixture expanded the rows are ${mixed.map(row => `${Math.round(row.height)}px`).join(', ')}`);
+        if (viewport.name === '375') await shot(page, 't6-375-fixtures-expanded');
+        check(`${label} fixtures: no page errors`, errors.length === 0, errors.join('; '));
+        await context.close();
+      }
+    }
+    note('WebKit not run: not installed');
+  },
 };
 
 const app = await startApp();

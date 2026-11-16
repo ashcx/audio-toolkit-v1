@@ -68,13 +68,22 @@ p { margin: 0; }
 .dropzone > span, .dropzone > small { pointer-events: none; }
 .dropzone small { color: var(--muted-strong); }
 .file-list { list-style: none; margin: 12px 0 0; padding: 0; }
-.file-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; border-bottom: 1px solid var(--border); padding: 8px 0; }
+.file-list li { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; border-bottom: 1px solid var(--border); padding: 8px 0; }
 .file-list li:last-child { border-bottom: 0; padding-bottom: 4px; }
-.file-name { min-width: 0; flex: 1; font: var(--type-value); overflow-wrap: anywhere; }
+.file-name { position: relative; min-width: 0; min-height: 44px; flex: 1; font: var(--type-value); overflow-wrap: anywhere; }
+.file-name:has(.file-toggle) { padding-right: 24px; }
+.file-toggle { position: absolute; inset: 0; width: 100%; min-height: 0; padding: 0; border: 0; border-radius: 8px; background: transparent; }
+.file-toggle::after { content: ""; position: absolute; right: 8px; top: 50%; width: 7px; height: 7px; border-right: 2px solid var(--muted-strong); border-bottom: 2px solid var(--muted-strong); transform: translateY(-70%) rotate(45deg); }
+.file-toggle[aria-expanded="true"]::after { transform: translateY(-30%) rotate(-135deg); }
+li[data-collapsed] .file-meta { margin-top: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+li[data-collapsed] :is(.file-player, .wave-player, .wave-head) { display: contents; }
+li[data-collapsed] .wave-play { order: -1; }
+.wave-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--border); }
+.wave-progress i { display: block; height: 100%; background: var(--accent); transform: scaleX(0); transform-origin: left; }
 .file-name-text { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .file-name small { display: block; margin-top: 2px; color: var(--muted-strong); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .file-actions { display: flex; gap: 2px; align-items: center; }
-.icon-button { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 8px; border-color: transparent; background: transparent; color: var(--text); font-size: 20px; text-decoration: none; }
+.icon-button { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 8px; border-color: transparent; background: transparent; color: var(--text); font-size: 20px; line-height: 1; text-decoration: none; }
 .file-actions > button:not(.icon-button) { border: 0; background: transparent; }
 .file-player { flex-basis: 100%; min-width: 0; display: grid; gap: 2px; }
 .file-player small { color: var(--muted-strong); }
