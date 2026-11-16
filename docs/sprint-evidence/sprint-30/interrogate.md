@@ -55,3 +55,21 @@ The user reviewed the findings and decided they are fine for this PR. None is fi
 ## Verdict
 
 **Gate incomplete.** Lanes A to D ran on the code-ready head and found four low issues, all reproduced and all accepted by the user as open. Lane E, the regression lane, did not complete. This is not a claim of full independent review. The sprint stays `in-progress` and the swarm box stays unticked. The PR is for the user to review, and it is not merged.
+
+## Resolved
+
+The four open issues were fixed afterwards by a fresh owner on head `caef2b5`, one commit each, each with a check that failed on the old code and passes now. All checks are in `scripts/sprint-30-check.mjs` section T8 (`ENGINES=chromium node scripts/sprint-30-check.mjs --task T8`, `--issue N` for one issue). Chromium only, WebKit not run.
+
+| Issue | Commit | Proving check |
+| --- | --- | --- |
+| 1. Unknown duration shows no live position | `e9b00b7` | T8 "unknown duration": the line is the unknown text until the length is known, then equals the slider position and total while playing, after pause, seek and end, for tone.aac with and without a mime type. Unplayable source and a file still being read keep the static text. |
+| 2. A very fast double switch loses the position | `4000f67` | T8 "rapid switches": source load delayed 300ms, 0, 1 and 4ms gaps, 2, 3, 4 and 11 switches, 5 repetitions each, with and without a trim, playing and paused. Unit tests for the pure `retarget` in `tests/view-position.test.mjs`. |
+| 3. `--:--` flash when collapsing from Original | `fba619c` | T8 "no --:--": a requestAnimationFrame sampler of `.file-position` through expand, switches and collapse in both directions, with and without a trim, with the source load delayed 300ms and no waveform. No sample contains `--:--` and the result total shows from the first frame. |
+| 4. Collapsed progress line invisible in forced colors | `6dbd580` | T8 "collapsed progress line": with forced colors active at 320, 375 and 1440, light and dark, the track and the fill differ, the fill differs from Canvas, the fill width follows playback, and the normal-mode colors are unchanged. Screenshots `captures/t8-forced-colors-*.png`. |
+
+Details that matter:
+
+- Issue 1: Chrome loads the metadata of a blob source even with `preload="none"`, so the unknown text now lasts only until `loadedmetadata`. `intake-check` asserted the unknown text on a row that can already have measured the file, so that assertion now accepts the unknown text or the live total. The strict unknown-text check moved to T8, where the source load is delayed.
+- Issue 3 also changes what shows while the length is unknown: the line reads `Duration unknown`, never `--:--`.
+- Issue 4 in the Chromium forced-colors emulation: light track `rgb(96, 0, 0)` with fill `rgba(5, 0, 73, 0.8)`, dark track `rgb(63, 242, 63)` with fill `rgba(26, 235, 255, 0.8)`. In the light emulation the two are both dark and differ mainly in hue, so they read as distinct but not high contrast.
+- Still open and unchanged: lane E (regression against trunk) did not run, and the not-run list above (WebKit, iOS Safari, Android, `axe`, real OS drag and drop, a result with a genuinely different duration, Retry from a failed export).

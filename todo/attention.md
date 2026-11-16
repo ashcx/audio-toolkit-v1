@@ -7,7 +7,7 @@ What needs the user. Newest first.
 Built and in a PR for your review. Not merged. The gate is incomplete.
 
 - Lane E, the regression comparison against the base build, did not finish, so exported file bytes and the recipe and Export panels were not compared trunk against head.
-- Four low issues are open and accepted: no live position for a playable file of unknown duration, a lost position on a 1ms double switch, a brief `--:--` when collapsing from Original, and an invisible collapsed progress line in forced-colors mode.
+- The four low issues are fixed, one commit each, with a check that failed before: no live position for a playable file of unknown duration (`e9b00b7`), a lost position on a rapid double switch (`4000f67`), a brief `--:--` when collapsing from Original (`fba619c`), and an invisible collapsed progress line in forced-colors mode (`6dbd580`). Checks are the T8 section of `scripts/sprint-30-check.mjs`. One older assertion in `intake-check` was migrated (see the sprint Log).
 - Not run: WebKit, iOS Safari, Android, `axe`, real OS drag and drop.
 - Details and the process issues faced: `docs/sprint-evidence/sprint-30/interrogate.md`.
 

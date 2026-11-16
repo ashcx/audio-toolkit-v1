@@ -1,0 +1,413 @@
+ok   T8 320 light collapsed progress line (forced colors): the track and the fill compute to different colors
+ok   T8 320 light collapsed progress line (forced colors): the fill differs from Canvas
+ok   T8 320 light collapsed progress line (forced colors): the progress fill width follows playback
+ok   T8 320 light collapsed progress line (normal mode): the track and fill colors are the ones from before the forced-colors rule, also after leaving forced colors
+ok   T8 320 light collapsed progress line (normal mode): the line is still 2px
+ok   T8 320 light collapsed progress line: no page errors
+ok   T8 320 dark collapsed progress line (forced colors): the track and the fill compute to different colors
+ok   T8 320 dark collapsed progress line (forced colors): the fill differs from Canvas
+ok   T8 320 dark collapsed progress line (forced colors): the progress fill width follows playback
+ok   T8 320 dark collapsed progress line (normal mode): the track and fill colors are the ones from before the forced-colors rule, also after leaving forced colors
+ok   T8 320 dark collapsed progress line (normal mode): the line is still 2px
+ok   T8 320 dark collapsed progress line: no page errors
+ok   T8 375 light unknown duration (audio/aac): before it plays the line is Duration unknown until the length is known, then the live total
+ok   T8 375 light unknown duration (audio/aac): once the player measures the length the line shows the live position and total
+ok   T8 375 light unknown duration (audio/aac): while playing the line equals the slider position and total
+ok   T8 375 light unknown duration (audio/aac): after pause the line holds the paused position
+ok   T8 375 light unknown duration (audio/aac): after a seek the line shows the new position
+ok   T8 375 light unknown duration (audio/aac): after the end the line shows the end position
+ok   T8 375 light unknown duration (audio/aac): no page errors
+ok   T8 375 light unknown duration (empty mime): before it plays the line is Duration unknown until the length is known, then the live total
+ok   T8 375 light unknown duration (empty mime): once the player measures the length the line shows the live position and total
+ok   T8 375 light unknown duration (empty mime): while playing the line equals the slider position and total
+ok   T8 375 light unknown duration (empty mime): after pause the line holds the paused position
+ok   T8 375 light unknown duration (empty mime): after a seek the line shows the new position
+ok   T8 375 light unknown duration (empty mime): after the end the line shows the end position
+ok   T8 375 light unknown duration (empty mime): no page errors
+ok   T8 375 light unknown duration (metadata not loaded yet): the line is exactly Duration unknown
+ok   T8 375 light unknown duration (metadata not loaded yet): loadedmetadata turns the line into the live position and total
+ok   T8 375 light unknown duration (unplayable source): the line stays the static total with no player
+ok   T8 375 light unknown duration (still being read): the file was seen unread and showed no position line
+ok   T8 375 light rapid switches (no trim, paused): the source load is delayed 300ms, so the pending window is open
+ok   T8 375 light rapid switches (no trim, paused): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, paused): no page errors
+ok   T8 375 light rapid switches (no trim, playing): the source load is delayed 300ms, so the pending window is open
+ok   T8 375 light rapid switches (no trim, playing): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (no trim, playing): no page errors
+ok   T8 375 light rapid switches (trim 5 to 15, paused): the source load is delayed 300ms, so the pending window is open
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, paused): no page errors
+ok   T8 375 light rapid switches (trim 5 to 15, playing): the source load is delayed 300ms, so the pending window is open
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 light rapid switches (trim 5 to 15, playing): no page errors
+ok   T8 375 light no --:-- (no trim): sampled every animation frame through 7 view changes (172 samples)
+ok   T8 375 light no --:-- (no trim): no sample of .file-position contains --:--
+ok   T8 375 light no --:-- (no trim): from the first frame of "collapse from original" the line already shows the result total 00:20
+ok   T8 375 light no --:-- (no trim): from the first frame of "original to result" the line already shows the result total 00:20
+ok   T8 375 light no --:-- (no trim): no page errors
+ok   T8 375 light no --:-- (no trim, source load delayed 300ms, no waveform): sampled every animation frame through 7 view changes (341 samples)
+ok   T8 375 light no --:-- (no trim, source load delayed 300ms, no waveform): no sample of .file-position contains --:--
+ok   T8 375 light no --:-- (no trim, source load delayed 300ms, no waveform): from the first frame of "collapse from original" the line already shows the result total 00:20
+ok   T8 375 light no --:-- (no trim, source load delayed 300ms, no waveform): from the first frame of "original to result" the line already shows the result total 00:20
+ok   T8 375 light no --:-- (no trim, source load delayed 300ms, no waveform): no page errors
+ok   T8 375 light no --:-- (trim 5 to 15): sampled every animation frame through 7 view changes (173 samples)
+ok   T8 375 light no --:-- (trim 5 to 15): no sample of .file-position contains --:--
+ok   T8 375 light no --:-- (trim 5 to 15): from the first frame of "collapse from original" the line already shows the result total 00:10
+ok   T8 375 light no --:-- (trim 5 to 15): from the first frame of "original to result" the line already shows the result total 00:10
+ok   T8 375 light no --:-- (trim 5 to 15): no page errors
+ok   T8 375 light no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): sampled every animation frame through 7 view changes (341 samples)
+ok   T8 375 light no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): no sample of .file-position contains --:--
+ok   T8 375 light no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): from the first frame of "collapse from original" the line already shows the result total 00:10
+ok   T8 375 light no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): from the first frame of "original to result" the line already shows the result total 00:10
+ok   T8 375 light no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): no page errors
+ok   T8 375 light collapsed progress line (forced colors): the track and the fill compute to different colors
+ok   T8 375 light collapsed progress line (forced colors): the fill differs from Canvas
+ok   T8 375 light collapsed progress line (forced colors): the progress fill width follows playback
+ok   T8 375 light collapsed progress line (normal mode): the track and fill colors are the ones from before the forced-colors rule, also after leaving forced colors
+ok   T8 375 light collapsed progress line (normal mode): the line is still 2px
+ok   T8 375 light collapsed progress line: no page errors
+ok   T8 375 dark unknown duration (audio/aac): before it plays the line is Duration unknown until the length is known, then the live total
+ok   T8 375 dark unknown duration (audio/aac): once the player measures the length the line shows the live position and total
+ok   T8 375 dark unknown duration (audio/aac): while playing the line equals the slider position and total
+ok   T8 375 dark unknown duration (audio/aac): after pause the line holds the paused position
+ok   T8 375 dark unknown duration (audio/aac): after a seek the line shows the new position
+ok   T8 375 dark unknown duration (audio/aac): after the end the line shows the end position
+ok   T8 375 dark unknown duration (audio/aac): no page errors
+ok   T8 375 dark unknown duration (empty mime): before it plays the line is Duration unknown until the length is known, then the live total
+ok   T8 375 dark unknown duration (empty mime): once the player measures the length the line shows the live position and total
+ok   T8 375 dark unknown duration (empty mime): while playing the line equals the slider position and total
+ok   T8 375 dark unknown duration (empty mime): after pause the line holds the paused position
+ok   T8 375 dark unknown duration (empty mime): after a seek the line shows the new position
+ok   T8 375 dark unknown duration (empty mime): after the end the line shows the end position
+ok   T8 375 dark unknown duration (empty mime): no page errors
+ok   T8 375 dark unknown duration (metadata not loaded yet): the line is exactly Duration unknown
+ok   T8 375 dark unknown duration (metadata not loaded yet): loadedmetadata turns the line into the live position and total
+ok   T8 375 dark unknown duration (unplayable source): the line stays the static total with no player
+ok   T8 375 dark unknown duration (still being read): the file was seen unread and showed no position line
+ok   T8 375 dark rapid switches (no trim, paused): the source load is delayed 300ms, so the pending window is open
+ok   T8 375 dark rapid switches (no trim, paused): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, paused): no page errors
+ok   T8 375 dark rapid switches (no trim, playing): the source load is delayed 300ms, so the pending window is open
+ok   T8 375 dark rapid switches (no trim, playing): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (no trim, playing): no page errors
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): the source load is delayed 300ms, so the pending window is open
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, paused): no page errors
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): the source load is delayed 300ms, so the pending window is open
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 375 dark rapid switches (trim 5 to 15, playing): no page errors
+ok   T8 375 dark no --:-- (no trim): sampled every animation frame through 7 view changes (172 samples)
+ok   T8 375 dark no --:-- (no trim): no sample of .file-position contains --:--
+ok   T8 375 dark no --:-- (no trim): from the first frame of "collapse from original" the line already shows the result total 00:20
+ok   T8 375 dark no --:-- (no trim): from the first frame of "original to result" the line already shows the result total 00:20
+ok   T8 375 dark no --:-- (no trim): no page errors
+ok   T8 375 dark no --:-- (no trim, source load delayed 300ms, no waveform): sampled every animation frame through 7 view changes (340 samples)
+ok   T8 375 dark no --:-- (no trim, source load delayed 300ms, no waveform): no sample of .file-position contains --:--
+ok   T8 375 dark no --:-- (no trim, source load delayed 300ms, no waveform): from the first frame of "collapse from original" the line already shows the result total 00:20
+ok   T8 375 dark no --:-- (no trim, source load delayed 300ms, no waveform): from the first frame of "original to result" the line already shows the result total 00:20
+ok   T8 375 dark no --:-- (no trim, source load delayed 300ms, no waveform): no page errors
+ok   T8 375 dark no --:-- (trim 5 to 15): sampled every animation frame through 7 view changes (172 samples)
+ok   T8 375 dark no --:-- (trim 5 to 15): no sample of .file-position contains --:--
+ok   T8 375 dark no --:-- (trim 5 to 15): from the first frame of "collapse from original" the line already shows the result total 00:10
+ok   T8 375 dark no --:-- (trim 5 to 15): from the first frame of "original to result" the line already shows the result total 00:10
+ok   T8 375 dark no --:-- (trim 5 to 15): no page errors
+ok   T8 375 dark no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): sampled every animation frame through 7 view changes (340 samples)
+ok   T8 375 dark no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): no sample of .file-position contains --:--
+ok   T8 375 dark no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): from the first frame of "collapse from original" the line already shows the result total 00:10
+ok   T8 375 dark no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): from the first frame of "original to result" the line already shows the result total 00:10
+ok   T8 375 dark no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): no page errors
+ok   T8 375 dark collapsed progress line (forced colors): the track and the fill compute to different colors
+ok   T8 375 dark collapsed progress line (forced colors): the fill differs from Canvas
+ok   T8 375 dark collapsed progress line (forced colors): the progress fill width follows playback
+ok   T8 375 dark collapsed progress line (normal mode): the track and fill colors are the ones from before the forced-colors rule, also after leaving forced colors
+ok   T8 375 dark collapsed progress line (normal mode): the line is still 2px
+ok   T8 375 dark collapsed progress line: no page errors
+ok   T8 1440 light unknown duration (audio/aac): before it plays the line is Duration unknown until the length is known, then the live total
+ok   T8 1440 light unknown duration (audio/aac): once the player measures the length the line shows the live position and total
+ok   T8 1440 light unknown duration (audio/aac): while playing the line equals the slider position and total
+ok   T8 1440 light unknown duration (audio/aac): after pause the line holds the paused position
+ok   T8 1440 light unknown duration (audio/aac): after a seek the line shows the new position
+ok   T8 1440 light unknown duration (audio/aac): after the end the line shows the end position
+ok   T8 1440 light unknown duration (audio/aac): no page errors
+ok   T8 1440 light unknown duration (empty mime): before it plays the line is Duration unknown until the length is known, then the live total
+ok   T8 1440 light unknown duration (empty mime): once the player measures the length the line shows the live position and total
+ok   T8 1440 light unknown duration (empty mime): while playing the line equals the slider position and total
+ok   T8 1440 light unknown duration (empty mime): after pause the line holds the paused position
+ok   T8 1440 light unknown duration (empty mime): after a seek the line shows the new position
+ok   T8 1440 light unknown duration (empty mime): after the end the line shows the end position
+ok   T8 1440 light unknown duration (empty mime): no page errors
+ok   T8 1440 light unknown duration (metadata not loaded yet): the line is exactly Duration unknown
+ok   T8 1440 light unknown duration (metadata not loaded yet): loadedmetadata turns the line into the live position and total
+ok   T8 1440 light unknown duration (unplayable source): the line stays the static total with no player
+ok   T8 1440 light unknown duration (still being read): the file was seen unread and showed no position line
+ok   T8 1440 light rapid switches (no trim, paused): the source load is delayed 300ms, so the pending window is open
+ok   T8 1440 light rapid switches (no trim, paused): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, paused): no page errors
+ok   T8 1440 light rapid switches (no trim, playing): the source load is delayed 300ms, so the pending window is open
+ok   T8 1440 light rapid switches (no trim, playing): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (no trim, playing): no page errors
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): the source load is delayed 300ms, so the pending window is open
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, paused): no page errors
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): the source load is delayed 300ms, so the pending window is open
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 light rapid switches (trim 5 to 15, playing): no page errors
+ok   T8 1440 light no --:-- (no trim): sampled every animation frame through 7 view changes (172 samples)
+ok   T8 1440 light no --:-- (no trim): no sample of .file-position contains --:--
+ok   T8 1440 light no --:-- (no trim): from the first frame of "collapse from original" the line already shows the result total 00:20
+ok   T8 1440 light no --:-- (no trim): from the first frame of "original to result" the line already shows the result total 00:20
+ok   T8 1440 light no --:-- (no trim): no page errors
+ok   T8 1440 light no --:-- (no trim, source load delayed 300ms, no waveform): sampled every animation frame through 7 view changes (339 samples)
+ok   T8 1440 light no --:-- (no trim, source load delayed 300ms, no waveform): no sample of .file-position contains --:--
+ok   T8 1440 light no --:-- (no trim, source load delayed 300ms, no waveform): from the first frame of "collapse from original" the line already shows the result total 00:20
+ok   T8 1440 light no --:-- (no trim, source load delayed 300ms, no waveform): from the first frame of "original to result" the line already shows the result total 00:20
+ok   T8 1440 light no --:-- (no trim, source load delayed 300ms, no waveform): no page errors
+ok   T8 1440 light no --:-- (trim 5 to 15): sampled every animation frame through 7 view changes (173 samples)
+ok   T8 1440 light no --:-- (trim 5 to 15): no sample of .file-position contains --:--
+ok   T8 1440 light no --:-- (trim 5 to 15): from the first frame of "collapse from original" the line already shows the result total 00:10
+ok   T8 1440 light no --:-- (trim 5 to 15): from the first frame of "original to result" the line already shows the result total 00:10
+ok   T8 1440 light no --:-- (trim 5 to 15): no page errors
+ok   T8 1440 light no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): sampled every animation frame through 7 view changes (339 samples)
+ok   T8 1440 light no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): no sample of .file-position contains --:--
+ok   T8 1440 light no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): from the first frame of "collapse from original" the line already shows the result total 00:10
+ok   T8 1440 light no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): from the first frame of "original to result" the line already shows the result total 00:10
+ok   T8 1440 light no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): no page errors
+ok   T8 1440 light collapsed progress line (forced colors): the track and the fill compute to different colors
+ok   T8 1440 light collapsed progress line (forced colors): the fill differs from Canvas
+ok   T8 1440 light collapsed progress line (forced colors): the progress fill width follows playback
+ok   T8 1440 light collapsed progress line (normal mode): the track and fill colors are the ones from before the forced-colors rule, also after leaving forced colors
+ok   T8 1440 light collapsed progress line (normal mode): the line is still 2px
+ok   T8 1440 light collapsed progress line: no page errors
+ok   T8 1440 dark unknown duration (audio/aac): before it plays the line is Duration unknown until the length is known, then the live total
+ok   T8 1440 dark unknown duration (audio/aac): once the player measures the length the line shows the live position and total
+ok   T8 1440 dark unknown duration (audio/aac): while playing the line equals the slider position and total
+ok   T8 1440 dark unknown duration (audio/aac): after pause the line holds the paused position
+ok   T8 1440 dark unknown duration (audio/aac): after a seek the line shows the new position
+ok   T8 1440 dark unknown duration (audio/aac): after the end the line shows the end position
+ok   T8 1440 dark unknown duration (audio/aac): no page errors
+ok   T8 1440 dark unknown duration (empty mime): before it plays the line is Duration unknown until the length is known, then the live total
+ok   T8 1440 dark unknown duration (empty mime): once the player measures the length the line shows the live position and total
+ok   T8 1440 dark unknown duration (empty mime): while playing the line equals the slider position and total
+ok   T8 1440 dark unknown duration (empty mime): after pause the line holds the paused position
+ok   T8 1440 dark unknown duration (empty mime): after a seek the line shows the new position
+ok   T8 1440 dark unknown duration (empty mime): after the end the line shows the end position
+ok   T8 1440 dark unknown duration (empty mime): no page errors
+ok   T8 1440 dark unknown duration (metadata not loaded yet): the line is exactly Duration unknown
+ok   T8 1440 dark unknown duration (metadata not loaded yet): loadedmetadata turns the line into the live position and total
+ok   T8 1440 dark unknown duration (unplayable source): the line stays the static total with no player
+ok   T8 1440 dark unknown duration (still being read): the file was seen unread and showed no position line
+ok   T8 1440 dark rapid switches (no trim, paused): the source load is delayed 300ms, so the pending window is open
+ok   T8 1440 dark rapid switches (no trim, paused): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, paused): no page errors
+ok   T8 1440 dark rapid switches (no trim, playing): the source load is delayed 300ms, so the pending window is open
+ok   T8 1440 dark rapid switches (no trim, playing): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (no trim, playing): no page errors
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): the source load is delayed 300ms, so the pending window is open
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, paused): no page errors
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): the source load is delayed 300ms, so the pending window is open
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 2 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 2 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 2 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 3 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 3 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 3 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 4 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 4 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 4 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 11 switches at 0ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 11 switches at 1ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): 11 switches at 4ms keep the position, view and play state in 5 of 5 repetitions
+ok   T8 1440 dark rapid switches (trim 5 to 15, playing): no page errors
+ok   T8 1440 dark no --:-- (no trim): sampled every animation frame through 7 view changes (172 samples)
+ok   T8 1440 dark no --:-- (no trim): no sample of .file-position contains --:--
+ok   T8 1440 dark no --:-- (no trim): from the first frame of "collapse from original" the line already shows the result total 00:20
+ok   T8 1440 dark no --:-- (no trim): from the first frame of "original to result" the line already shows the result total 00:20
+ok   T8 1440 dark no --:-- (no trim): no page errors
+ok   T8 1440 dark no --:-- (no trim, source load delayed 300ms, no waveform): sampled every animation frame through 7 view changes (339 samples)
+ok   T8 1440 dark no --:-- (no trim, source load delayed 300ms, no waveform): no sample of .file-position contains --:--
+ok   T8 1440 dark no --:-- (no trim, source load delayed 300ms, no waveform): from the first frame of "collapse from original" the line already shows the result total 00:20
+ok   T8 1440 dark no --:-- (no trim, source load delayed 300ms, no waveform): from the first frame of "original to result" the line already shows the result total 00:20
+ok   T8 1440 dark no --:-- (no trim, source load delayed 300ms, no waveform): no page errors
+ok   T8 1440 dark no --:-- (trim 5 to 15): sampled every animation frame through 7 view changes (172 samples)
+ok   T8 1440 dark no --:-- (trim 5 to 15): no sample of .file-position contains --:--
+ok   T8 1440 dark no --:-- (trim 5 to 15): from the first frame of "collapse from original" the line already shows the result total 00:10
+ok   T8 1440 dark no --:-- (trim 5 to 15): from the first frame of "original to result" the line already shows the result total 00:10
+ok   T8 1440 dark no --:-- (trim 5 to 15): no page errors
+ok   T8 1440 dark no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): sampled every animation frame through 7 view changes (339 samples)
+ok   T8 1440 dark no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): no sample of .file-position contains --:--
+ok   T8 1440 dark no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): from the first frame of "collapse from original" the line already shows the result total 00:10
+ok   T8 1440 dark no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): from the first frame of "original to result" the line already shows the result total 00:10
+ok   T8 1440 dark no --:-- (trim 5 to 15, source load delayed 300ms, no waveform): no page errors
+ok   T8 1440 dark collapsed progress line (forced colors): the track and the fill compute to different colors
+ok   T8 1440 dark collapsed progress line (forced colors): the fill differs from Canvas
+ok   T8 1440 dark collapsed progress line (forced colors): the progress fill width follows playback
+ok   T8 1440 dark collapsed progress line (normal mode): the track and fill colors are the ones from before the forced-colors rule, also after leaving forced colors
+ok   T8 1440 dark collapsed progress line (normal mode): the line is still 2px
+ok   T8 1440 dark collapsed progress line: no page errors
+note WebKit not run: not installed
