@@ -24,7 +24,7 @@ const VIEWPORTS = [
 ];
 const LONG_NAME = 'field-recording-with-a-very-long-descriptive-name-take-7.wav';
 
-function wav(seconds, rate = 44100) {
+function wav(seconds, rate = 44100, amplitude = 0.6) {
   const frames = rate * seconds, bytes = Buffer.alloc(44 + frames * 4);
   bytes.write('RIFF'); bytes.writeUInt32LE(bytes.length - 8, 4); bytes.write('WAVEfmt ', 8);
   bytes.writeUInt32LE(16, 16); bytes.writeUInt16LE(1, 20); bytes.writeUInt16LE(2, 22);
@@ -32,7 +32,7 @@ function wav(seconds, rate = 44100) {
   bytes.writeUInt16LE(16, 34); bytes.write('data', 36); bytes.writeUInt32LE(frames * 4, 40);
   for (let frame = 0; frame < frames; frame++) {
     const t = frame / rate, burst = 0.35 + 0.65 * Math.max(0, Math.sin((2 * Math.PI * t) / 3));
-    const value = Math.round(0.6 * burst * Math.sin(2 * Math.PI * 330 * t) * 32767);
+    const value = Math.round(amplitude * burst * Math.sin(2 * Math.PI * 330 * t) * 32767);
     bytes.writeInt16LE(value, 44 + frame * 4); bytes.writeInt16LE(value, 46 + frame * 4);
   }
   return bytes;
@@ -463,6 +463,226 @@ const forcedColourProgress = async ({ browser, app, check, viewport, scheme }) =
   check(`${label} (normal mode): the line is still 2px`, after.height === 2 && normal.height === 2);
   check(`${label}: no page errors`, errors.length === 0, errors.join('; '));
   await context.close();
+};
+
+const T9_VIEWPORTS = VIEWPORTS.filter(viewport => ['320', '375', '768', '1440'].includes(viewport.name));
+const T9_SCHEMES = ['light', 'dark'];
+const T9_CASES = ['plainAndOlder', 'trimmed', 'clipping', 'unplayable', 'exportPane'];
+const BUTTON_SELECTOR = 'button, summary.button, a.button, a.icon-button';
+const TARGET_SELECTOR = 'button, a[href], select, summary, input:not([type=file]), [role=slider], label:has(input), .view-track';
+
+const linkScan = page => page.evaluate(() => {
+  const underlined = [...document.querySelectorAll('body *')]
+    .filter(element => element.id !== 'settings-title' && getComputedStyle(element).textDecorationLine.includes('underline'))
+    .map(element => `${element.tagName.toLowerCase()}.${element.className} ${element.textContent.trim().slice(0, 24)}`);
+  const plainAnchors = [...document.querySelectorAll('a[href]')]
+    .filter(anchor => !anchor.classList.contains('button') && !anchor.classList.contains('icon-button') && !anchor.classList.contains('brand'))
+    .map(anchor => anchor.textContent.trim().slice(0, 24));
+  return { underlined, plainAnchors, textButtons: document.querySelectorAll('.text-button').length };
+});
+
+const buttonLook = (page, scope) => page.evaluate(({ scope, selector }) => {
+  const reference = getComputedStyle(document.querySelector('.run-actions-group .primary')).minHeight;
+  return [...document.querySelectorAll(scope)].flatMap(root => [...root.querySelectorAll(selector)])
+    .filter(element => element.getClientRects().length)
+    .map(element => {
+      const style = getComputedStyle(element), box = element.getBoundingClientRect();
+      const colour = style.borderTopColor;
+      return {
+        name: `${element.tagName.toLowerCase()} ${(element.getAttribute('aria-label') ?? element.textContent).trim().slice(0, 24)}`,
+        border: parseFloat(style.borderTopWidth) >= 1 && style.borderTopStyle !== 'none' && colour !== 'rgba(0, 0, 0, 0)' && colour !== 'transparent',
+        minHeight: style.minHeight, reference, height: Math.round(box.height * 10) / 10, decoration: style.textDecorationLine,
+      };
+    });
+}, { scope, selector: BUTTON_SELECTOR });
+
+const targetsUnder44 = page => page.evaluate(selector => [...document.querySelectorAll('.files-panel, .export-panel')]
+  .flatMap(root => [...root.querySelectorAll(selector)])
+  .filter(element => element.getClientRects().length && getComputedStyle(element).visibility !== 'hidden')
+  .map(element => { const box = element.getBoundingClientRect(); return { target: `${element.tagName.toLowerCase()}.${element.className.toString().split(' ')[0]} ${(element.getAttribute('aria-label') ?? element.textContent).trim().slice(0, 24)}`, width: Math.round(box.width * 10) / 10, height: Math.round(box.height * 10) / 10 }; })
+  .filter(target => target.width < 43.5 || target.height < 43.5), TARGET_SELECTOR);
+
+const metaOf = row => row.evaluate(li => {
+  const meta = li.querySelector('.file-meta'), text = meta.textContent.replace(/\s+/g, ' ').trim();
+  const range = document.createRange(); range.selectNodeContents(meta);
+  const lines = new Set([...range.getClientRects()].map(box => Math.round(box.top))).size;
+  return { text, times: text.match(/\d\d:\d\d/g) ?? [], lines };
+});
+const noRepeat = facts => new Set(facts.times).size === facts.times.length;
+
+const lastVisible = row => row.evaluate(li => {
+  const anchor = li.querySelector('.view-switch') ?? li.querySelector('.file-player');
+  const bottom = anchor.getBoundingClientRect().bottom;
+  const stray = [...li.querySelectorAll('*')]
+    .filter(element => !anchor.contains(element) && !element.contains(anchor) && !element.closest('.sr-only') && element.tagName !== 'AUDIO'
+      && element.getClientRects().length && getComputedStyle(element).visibility !== 'hidden' && element.getBoundingClientRect().bottom > bottom + 0.5)
+    .map(element => `${element.tagName.toLowerCase()}.${element.className}`);
+  const notes = [...li.querySelectorAll('.file-name .file-note')].map(note => note.getBoundingClientRect().bottom <= li.querySelector('.file-player').getBoundingClientRect().top + 0.5);
+  return { anchor: anchor.className, stray, notes, results: li.querySelectorAll('.file-result').length };
+});
+
+const quiet = async page => { await page.waitForTimeout(350); };
+const noOverflow = page => page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+
+const T9 = {
+  async source({ check }) {
+    const texts = await Promise.all(['src/main.tsx', 'src/wave-player.tsx', 'src/recipe-editor.tsx', 'src/file-row.tsx', 'src/style.css', 'index.html'].map(file => readFile(file, 'utf8')));
+    check('T9 no .text-button class is left in the sources or the stylesheet', texts.every(text => !text.includes('text-button')));
+  },
+  async plainAndOlder({ browser, app, check, viewport, scheme, label }) {
+    const { context, page, errors } = await openApp(browser, app, viewport, { scheme });
+    await addFiles(page, [fixture('tone-20.wav', 20)]);
+    const row = rowAt(page, 0);
+    const none = await metaOf(row);
+    check(`${label} a file with no trim reads only the position and total`, none.text === '00:00 / 00:20' && none.lines === 1, JSON.stringify(none));
+    await exportAll(page, 1);
+    await open(row);
+    await quiet(page);
+    const result = await metaOf(row);
+    check(`${label} Result view of an untrimmed file reads only the position and total`, result.text === '00:00 / 00:20', JSON.stringify(result));
+    check(`${label} expanded finished row: the toggle row is the last visible element`, (await lastVisible(row)).anchor === 'view-switch' && (await lastVisible(row)).stray.length === 0, JSON.stringify(await lastVisible(row)));
+    check(`${label} expanded finished row: the toggle has a track and its hit area is at least 44px`, await row.evaluate(li => { const track = li.querySelector('.view-track'); return !!track && track.getBoundingClientRect().height >= 44 && track.getBoundingClientRect().width >= 44; }));
+    check(`${label} expanded finished row: the toggle, labels and every other target are at least 44px`, (await targetsUnder44(page)).length === 0, JSON.stringify(await targetsUnder44(page)));
+    await page.getByLabel('Add step', { exact: true }).selectOption('gain');
+    await quiet(page);
+    const older = await lastVisible(row);
+    check(`${label} older settings: nothing renders under the toggle and no visible older text`, older.anchor === 'view-switch' && older.stray.length === 0 && older.results === 0 && !(await row.innerText()).includes('older'), JSON.stringify(older));
+    check(`${label} older settings: the Result option and the download link keep the older name`, await olderOnlyForAssistiveTech(row, 'tone-20.wav'));
+    check(`${label} older settings: the Result option also carries the older title`, await row.evaluate(li => li.querySelector('.view-switch label[title]')?.title) === copy.result.olderLabel);
+    await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    const scan = await linkScan(page);
+    check(`${label} no underlined text or link-styled anchor anywhere, settings dialog included`, scan.underlined.length === 0 && scan.plainAnchors.length === 0 && scan.textButtons === 0, JSON.stringify(scan));
+    const notices = await page.evaluate(() => { const anchor = document.querySelector('.settings-dialog a'); const style = getComputedStyle(anchor); return { cls: anchor.className, border: parseFloat(style.borderTopWidth), height: anchor.getBoundingClientRect().height, decoration: style.textDecorationLine }; });
+    check(`${label} the third-party notices link is a bordered 44px button-looking link`, notices.cls.split(' ').includes('button') && notices.border >= 1 && notices.height >= 44 && notices.decoration === 'none', JSON.stringify(notices));
+    await page.getByRole('button', { name: 'Close', exact: true }).click();
+    check(`${label} no horizontal overflow, no page errors`, await noOverflow(page) <= 0 && errors.length === 0, errors.join('; '));
+    await context.close();
+  },
+  async trimmed({ browser, app, check, viewport, scheme, label }) {
+    const { context, page, errors } = await openApp(browser, app, viewport, { scheme });
+    await addFiles(page, [fixture('tone-20.wav', 20)]);
+    await page.getByLabel('Add step').selectOption('trim');
+    await setTrimAll(page, 2, 10);
+    const row = rowAt(page, 0);
+    const before = await metaOf(row);
+    check(`${label} an unexported trimmed file reads position / total · Trimmed to the kept length`, before.text === '00:00 / 00:20 · Trimmed to 00:08' && noRepeat(before), JSON.stringify(before));
+    await exportAll(page, 1);
+    await open(row);
+    await quiet(page);
+    const result = await metaOf(row);
+    check(`${label} Result view of a trimmed file reads position / kept length · Trimmed, on one line`, result.text === '00:00 / 00:08 · Trimmed' && noRepeat(result) && result.lines === 1, JSON.stringify(result));
+    await row.getByLabel('Original', { exact: true }).check();
+    await quiet(page);
+    const original = await metaOf(row);
+    check(`${label} Original view of a trimmed file reads position / total · Trimmed to the kept length`, original.text.replace(/^\d\d:\d\d/, '00:00') === '00:00 / 00:20 · Trimmed to 00:08' && noRepeat(original) && (viewport.width < 375 || original.lines === 1), JSON.stringify(original));
+    await seekAndPlay(row, 2);
+    await row.locator('.wave-play').click();
+    await until(page, () => document.querySelector('.file-position').textContent.startsWith('00:02') || document.querySelector('.file-position').textContent.startsWith('00:03'), null, 6000);
+    await row.locator('.wave-play').click();
+    const playing = await metaOf(row);
+    check(`${label} the live position stays in the Original line, still ending in Trimmed to 00:08`, /^00:0[2-4] \/ 00:20 · Trimmed to 00:08$/.test(playing.text), JSON.stringify(playing));
+    await row.getByLabel('Result', { exact: true }).check();
+    await quiet(page);
+    check(`${label} back in the Result view the line reads Trimmed again`, (await metaOf(row)).text.replace(/^\d\d:\d\d/, '00:00') === '00:00 / 00:08 · Trimmed', JSON.stringify(await metaOf(row)));
+    check(`${label} trimmed row: the toggle row is the last visible element`, (await lastVisible(row)).anchor === 'view-switch' && (await lastVisible(row)).stray.length === 0, JSON.stringify(await lastVisible(row)));
+    await row.getByRole('button', { name: copy.wave.trimLabel('tone-20.wav') }).click();
+    await quiet(page);
+    await page.getByLabel(copy.trim.startField('tone-20.wav'), { exact: true }).fill('3');
+    await row.getByRole('button', { name: copy.wave.doneLabel('tone-20.wav') }).click();
+    await quiet(page);
+    const reset = await buttonLook(page, '.wave-status');
+    check(`${label} Reset to Trim all is a bordered button at least 44px tall`, reset.length === 1 && reset.every(item => item.border && item.height >= 44 && item.decoration === 'none'), JSON.stringify(reset));
+    check(`${label} no underlined text and no .text-button in the row`, (await linkScan(page)).underlined.length === 0 && (await linkScan(page)).textButtons === 0, JSON.stringify(await linkScan(page)));
+    check(`${label} every target is at least 44px`, (await targetsUnder44(page)).length === 0, JSON.stringify(await targetsUnder44(page)));
+    check(`${label} no horizontal overflow, no page errors`, await noOverflow(page) <= 0 && errors.length === 0, errors.join('; '));
+    if (viewport.name === '375') await shot(page, `t9-reset-${scheme}`);
+    await context.close();
+  },
+  async clipping({ browser, app, check, viewport, scheme, label }) {
+    const { context, page, errors } = await openApp(browser, app, viewport, { scheme });
+    await addFiles(page, [{ name: 'loud.wav', mimeType: 'audio/wav', buffer: wav(6, 44100, 0.95) }]);
+    await page.getByRole('combobox', { name: 'Format', exact: true }).selectOption('wav');
+    await page.getByLabel('Add step', { exact: true }).selectOption('gain');
+    await page.getByRole('slider', { name: copy.slider(copy.gain.label) }).press('End');
+    await exportAll(page, 1);
+    const row = rowAt(page, 0);
+    await open(row);
+    await quiet(page);
+    const facts = await lastVisible(row);
+    check(`${label} clipping note: shown once, above the player, and nothing renders under the toggle`, await row.locator('.file-name .file-note', { hasText: copy.result.clipped }).count() === 1 && facts.notes.length === 1 && facts.notes.every(Boolean) && facts.anchor === 'view-switch' && facts.stray.length === 0 && facts.results === 0, JSON.stringify(facts));
+    check(`${label} clipping note: it sits directly under the meta line`, await row.evaluate(li => li.querySelector('.file-meta').nextElementSibling === li.querySelector('.file-name .file-note') && li.querySelector('.file-note') !== null));
+    await row.locator('.file-toggle').click();
+    await quiet(page);
+    check(`${label} a collapsed row hides the clipping note`, await row.locator('.file-name .file-note').count() === 0);
+    check(`${label} clipping row: every target is at least 44px, no overflow, no page errors`, (await targetsUnder44(page)).length === 0 && await noOverflow(page) <= 0 && errors.length === 0, errors.join('; '));
+    if (viewport.name === '375') { await row.locator('.file-toggle').click(); await quiet(page); await shot(page, `t9-note-${scheme}`); }
+    await context.close();
+  },
+  async unplayable({ browser, app, check, viewport, scheme, label }) {
+    const stub = () => { const native = HTMLMediaElement.prototype.canPlayType; HTMLMediaElement.prototype.canPlayType = function (type) { return /mpeg|mp3/.test(type) ? '' : native.call(this, type); }; };
+    const { context, page, errors } = await openApp(browser, app, viewport, { scheme, init: [stub] });
+    await addFiles(page, [fixture('tone-b.wav', 12)]);
+    await page.getByRole('combobox', { name: 'Format', exact: true }).selectOption('mp3');
+    await exportAll(page, 1);
+    const row = rowAt(page, 0);
+    await open(row);
+    await quiet(page);
+    const facts = await lastVisible(row);
+    check(`${label} a result that cannot play: the note is above the player, no toggle, nothing under the player`, await row.locator('.view-switch').count() === 0 && facts.anchor === 'file-player' && facts.stray.length === 0 && facts.notes.length === 1 && facts.notes.every(Boolean) && facts.results === 0 && (await row.evaluate(li => li.querySelector('.file-name .file-note')?.textContent ?? '')).includes(copy.files.resultUnplayable), JSON.stringify(facts));
+    check(`${label} a result that cannot play: every target is at least 44px, no overflow, no page errors`, (await targetsUnder44(page)).length === 0 && await noOverflow(page) <= 0 && errors.length === 0, errors.join('; '));
+    await context.close();
+  },
+  async exportPane({ browser, app, check, viewport, scheme, label }) {
+    const { context, page, errors } = await openApp(browser, app, viewport, { scheme });
+    const idle = async name => {
+      const looks = await buttonLook(page, '.export-panel');
+      check(`${label} ${name}: every Export pane button has a border and the same 44px minimum`, looks.length > 0 && looks.every(item => item.border && item.minHeight === item.reference && item.minHeight === '44px' && item.height >= 44), JSON.stringify(looks.filter(item => !(item.border && item.minHeight === item.reference && item.height >= 44))));
+      const scan = await linkScan(page);
+      check(`${label} ${name}: no underlined text, no link-styled anchor, no .text-button`, scan.underlined.length === 0 && scan.plainAnchors.length === 0 && scan.textButtons === 0, JSON.stringify(scan));
+      check(`${label} ${name}: every target is at least 44px and no horizontal overflow`, (await targetsUnder44(page)).length === 0 && await noOverflow(page) <= 0, JSON.stringify(await targetsUnder44(page)));
+    };
+    await addFiles(page, [fixture('long-a.wav', 90), fixture('long-b.wav', 90), fixture('long-c.wav', 90)]);
+    await idle('idle');
+    const disabled = await page.getByRole('button', { name: copy.export.clearAll, exact: true }).evaluate(button => {
+      button.disabled = true;
+      const style = getComputedStyle(button), panel = getComputedStyle(document.querySelector('.export-panel'));
+      const out = { opacity: Number(style.opacity), border: parseFloat(style.borderTopWidth), borderColour: style.borderTopColor, background: style.backgroundColor, panel: panel.backgroundColor, decoration: style.textDecorationLine };
+      button.disabled = false;
+      return out;
+    });
+    check(`${label} a disabled Clear all still looks like a button: a visible border and a fill that differs from the panel`, disabled.border >= 1 && disabled.opacity >= 0.5 && disabled.background !== disabled.panel && disabled.borderColour !== 'rgba(0, 0, 0, 0)' && disabled.decoration === 'none', JSON.stringify(disabled));
+    await page.getByRole('button', { name: 'Export', exact: true }).click();
+    const cancelAll = page.getByRole('button', { name: copy.export.cancelAll, exact: true });
+    await cancelAll.waitFor({ timeout: 20000 });
+    await page.waitForSelector('li[data-job-state=running]', { timeout: 20000 });
+    await idle('processing');
+    const group = await page.locator('.run-actions-group').evaluate(element => [...element.children].map(child => (child.getAttribute('aria-label') ?? child.textContent).trim()));
+    check(`${label} processing: Cancel all sits in the action row beside Clear all and Export`, group.includes(copy.export.clearAll) && group.includes(copy.export.cancelAll) && group.includes(copy.export.exportButton), JSON.stringify(group));
+    const status = await page.locator('.run-status').evaluate(element => ({ buttons: element.querySelectorAll('button, a').length, text: element.textContent.trim() }));
+    check(`${label} processing: the status area holds plain progress text and no control`, status.buttons === 0 && status.text.includes('Exporting'), JSON.stringify(status));
+    if (['375', '1440'].includes(viewport.name)) await page.locator('.export-panel').screenshot({ path: `${root}/captures/t9-processing-${viewport.name}-${scheme}.png` });
+    await cancelAll.click();
+    await page.waitForFunction(() => !document.querySelector('li[data-job-state=running], li[data-job-state=waiting], li[data-job-state=cancelling]'), null, { timeout: 60000 });
+    await page.getByRole('button', { name: copy.export.clearAll, exact: true }).click();
+    await page.waitForFunction(() => !document.querySelector('li[data-file-id]'), null, { timeout: 30000 });
+    await page.route('**/htdemucs_fp16.onnx', route => route.abort('failed'));
+    await addFiles(page, [fixture('tone-20.wav', 20)]);
+    await page.getByLabel('Add step', { exact: true }).selectOption('isolation');
+    await page.getByRole('combobox', { name: 'Format', exact: true }).selectOption('wav');
+    await page.getByRole('button', { name: 'Export', exact: true }).click();
+    await page.locator('[data-job-state=failed]').waitFor({ timeout: 60000 });
+    await quiet(page);
+    await idle('failed');
+    const retryGroup = await page.locator('.run-actions-group').evaluate(element => [...element.children].map(child => (child.getAttribute('aria-label') ?? child.textContent).trim()));
+    check(`${label} failed: Retry failed sits in the action row beside Clear all and Export`, retryGroup.includes(copy.export.retryFailed) && retryGroup.includes(copy.export.clearAll) && retryGroup.includes(copy.export.exportButton), JSON.stringify(retryGroup));
+    if (['375', '1440'].includes(viewport.name)) await page.locator('.export-panel').screenshot({ path: `${root}/captures/t9-failed-${viewport.name}-${scheme}.png` });
+    check(`${label} export pane: no page errors`, errors.length === 0, errors.join('; '));
+    await context.close();
+  },
+};
+
+const guarded = async (check, label, run) => {
+  try { await run(); } catch (error) { check(`${label} ran to the end`, false, String(error.message).split('\n')[0]); }
 };
 
 const tasks = {
@@ -1140,6 +1360,18 @@ const tasks = {
         check(`${label} no page errors`, errors.length === 0, errors.join('; '));
         record(viewport.name, pass.name, { empty: result.empty, unprocessed: unprocessed.rows.map(row => row.height), unprocessedWithPreview: result.unprocessedWithPreview.rows.map(row => row.height), unprocessedFirstRowOffset: unprocessed.firstRowOffset, finished: finished.rows.map(row => row.height), finishedFirstRowOffset: finished.firstRowOffset, finishedListHeight: finished.listHeight, expanded: expanded.rows.map(row => row.height), expandedListHeight: expanded.listHeight, waveWidth: expanded.waveWidth });
         await context.close();
+      }
+    }
+    note('WebKit not run: not installed');
+  },
+  async T9({ browser, app, check, note }) {
+    await T9.source({ check });
+    for (const viewport of T9_VIEWPORTS.filter(item => !flagValue('--viewport') || item.name === flagValue('--viewport'))) {
+      for (const scheme of T9_SCHEMES.filter(item => !flagValue('--scheme') || item === flagValue('--scheme'))) {
+        for (const name of T9_CASES.filter(item => !flagValue('--case') || item === flagValue('--case'))) {
+          const label = `T9 ${viewport.name} ${scheme} ${name}`;
+          await guarded(check, label, () => T9[name]({ browser, app, check, viewport, scheme, label }));
+        }
       }
     }
     note('WebKit not run: not installed');
