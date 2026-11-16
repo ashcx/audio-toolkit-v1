@@ -1,0 +1,330 @@
+ok   T9 no .text-button class is left in the sources or the stylesheet
+ok   T9 320 light plainAndOlder a file with no trim reads only the position and total
+ok   T9 320 light plainAndOlder Result view of an untrimmed file reads only the position and total
+ok   T9 320 light plainAndOlder expanded finished row: the toggle row is the last visible element
+ok   T9 320 light plainAndOlder expanded finished row: the toggle has a track and its hit area is at least 44px
+ok   T9 320 light plainAndOlder expanded finished row: the toggle, labels and every other target are at least 44px
+ok   T9 320 light plainAndOlder older settings: nothing renders under the toggle and no visible older text
+ok   T9 320 light plainAndOlder older settings: the Result option and the download link keep the older name
+ok   T9 320 light plainAndOlder older settings: the Result option also carries the older title
+ok   T9 320 light plainAndOlder no underlined text or link-styled anchor anywhere, settings dialog included
+ok   T9 320 light plainAndOlder the third-party notices link is a bordered 44px button-looking link
+ok   T9 320 light plainAndOlder no horizontal overflow, no page errors
+ok   T9 320 light trimmed an unexported trimmed file reads position / total · Trimmed to the kept length
+ok   T9 320 light trimmed Result view of a trimmed file reads position / kept length · Trimmed, on one line
+ok   T9 320 light trimmed Original view of a trimmed file reads position / total · Trimmed to the kept length
+ok   T9 320 light trimmed the live position stays in the Original line, still ending in Trimmed to 00:08
+ok   T9 320 light trimmed back in the Result view the line reads Trimmed again
+ok   T9 320 light trimmed trimmed row: the toggle row is the last visible element
+ok   T9 320 light trimmed Reset to Trim all is a bordered button at least 44px tall
+ok   T9 320 light trimmed no underlined text and no .text-button in the row
+ok   T9 320 light trimmed every target is at least 44px
+ok   T9 320 light trimmed no horizontal overflow, no page errors
+ok   T9 320 light clipping clipping note: shown once, above the player, and nothing renders under the toggle
+ok   T9 320 light clipping clipping note: it sits directly under the meta line
+ok   T9 320 light clipping a collapsed row hides the clipping note
+ok   T9 320 light clipping clipping row: every target is at least 44px, no overflow, no page errors
+ok   T9 320 light unplayable a result that cannot play: the note is above the player, no toggle, nothing under the player
+ok   T9 320 light unplayable a result that cannot play: every target is at least 44px, no overflow, no page errors
+ok   T9 320 light exportPane idle: every Export pane button has a border and the same 44px minimum
+ok   T9 320 light exportPane idle: no underlined text, no link-styled anchor, no .text-button
+ok   T9 320 light exportPane idle: every target is at least 44px and no horizontal overflow
+ok   T9 320 light exportPane a disabled Clear all still looks like a button: a visible border and a fill that differs from the panel
+ok   T9 320 light exportPane processing: every Export pane button has a border and the same 44px minimum
+ok   T9 320 light exportPane processing: no underlined text, no link-styled anchor, no .text-button
+ok   T9 320 light exportPane processing: every target is at least 44px and no horizontal overflow
+ok   T9 320 light exportPane processing: Cancel all sits in the action row beside Clear all and Export
+ok   T9 320 light exportPane processing: the status area holds plain progress text and no control
+ok   T9 320 light exportPane failed: every Export pane button has a border and the same 44px minimum
+ok   T9 320 light exportPane failed: no underlined text, no link-styled anchor, no .text-button
+ok   T9 320 light exportPane failed: every target is at least 44px and no horizontal overflow
+ok   T9 320 light exportPane failed: Retry failed sits in the action row beside Clear all and Export
+ok   T9 320 light exportPane export pane: no page errors
+ok   T9 320 dark plainAndOlder a file with no trim reads only the position and total
+ok   T9 320 dark plainAndOlder Result view of an untrimmed file reads only the position and total
+ok   T9 320 dark plainAndOlder expanded finished row: the toggle row is the last visible element
+ok   T9 320 dark plainAndOlder expanded finished row: the toggle has a track and its hit area is at least 44px
+ok   T9 320 dark plainAndOlder expanded finished row: the toggle, labels and every other target are at least 44px
+ok   T9 320 dark plainAndOlder older settings: nothing renders under the toggle and no visible older text
+ok   T9 320 dark plainAndOlder older settings: the Result option and the download link keep the older name
+ok   T9 320 dark plainAndOlder older settings: the Result option also carries the older title
+ok   T9 320 dark plainAndOlder no underlined text or link-styled anchor anywhere, settings dialog included
+ok   T9 320 dark plainAndOlder the third-party notices link is a bordered 44px button-looking link
+ok   T9 320 dark plainAndOlder no horizontal overflow, no page errors
+ok   T9 320 dark trimmed an unexported trimmed file reads position / total · Trimmed to the kept length
+ok   T9 320 dark trimmed Result view of a trimmed file reads position / kept length · Trimmed, on one line
+ok   T9 320 dark trimmed Original view of a trimmed file reads position / total · Trimmed to the kept length
+ok   T9 320 dark trimmed the live position stays in the Original line, still ending in Trimmed to 00:08
+ok   T9 320 dark trimmed back in the Result view the line reads Trimmed again
+ok   T9 320 dark trimmed trimmed row: the toggle row is the last visible element
+ok   T9 320 dark trimmed Reset to Trim all is a bordered button at least 44px tall
+ok   T9 320 dark trimmed no underlined text and no .text-button in the row
+ok   T9 320 dark trimmed every target is at least 44px
+ok   T9 320 dark trimmed no horizontal overflow, no page errors
+ok   T9 320 dark clipping clipping note: shown once, above the player, and nothing renders under the toggle
+ok   T9 320 dark clipping clipping note: it sits directly under the meta line
+ok   T9 320 dark clipping a collapsed row hides the clipping note
+ok   T9 320 dark clipping clipping row: every target is at least 44px, no overflow, no page errors
+ok   T9 320 dark unplayable a result that cannot play: the note is above the player, no toggle, nothing under the player
+ok   T9 320 dark unplayable a result that cannot play: every target is at least 44px, no overflow, no page errors
+ok   T9 320 dark exportPane idle: every Export pane button has a border and the same 44px minimum
+ok   T9 320 dark exportPane idle: no underlined text, no link-styled anchor, no .text-button
+ok   T9 320 dark exportPane idle: every target is at least 44px and no horizontal overflow
+ok   T9 320 dark exportPane a disabled Clear all still looks like a button: a visible border and a fill that differs from the panel
+ok   T9 320 dark exportPane processing: every Export pane button has a border and the same 44px minimum
+ok   T9 320 dark exportPane processing: no underlined text, no link-styled anchor, no .text-button
+ok   T9 320 dark exportPane processing: every target is at least 44px and no horizontal overflow
+ok   T9 320 dark exportPane processing: Cancel all sits in the action row beside Clear all and Export
+ok   T9 320 dark exportPane processing: the status area holds plain progress text and no control
+ok   T9 320 dark exportPane failed: every Export pane button has a border and the same 44px minimum
+ok   T9 320 dark exportPane failed: no underlined text, no link-styled anchor, no .text-button
+ok   T9 320 dark exportPane failed: every target is at least 44px and no horizontal overflow
+ok   T9 320 dark exportPane failed: Retry failed sits in the action row beside Clear all and Export
+ok   T9 320 dark exportPane export pane: no page errors
+ok   T9 375 light plainAndOlder a file with no trim reads only the position and total
+ok   T9 375 light plainAndOlder Result view of an untrimmed file reads only the position and total
+ok   T9 375 light plainAndOlder expanded finished row: the toggle row is the last visible element
+ok   T9 375 light plainAndOlder expanded finished row: the toggle has a track and its hit area is at least 44px
+ok   T9 375 light plainAndOlder expanded finished row: the toggle, labels and every other target are at least 44px
+ok   T9 375 light plainAndOlder older settings: nothing renders under the toggle and no visible older text
+ok   T9 375 light plainAndOlder older settings: the Result option and the download link keep the older name
+ok   T9 375 light plainAndOlder older settings: the Result option also carries the older title
+ok   T9 375 light plainAndOlder no underlined text or link-styled anchor anywhere, settings dialog included
+ok   T9 375 light plainAndOlder the third-party notices link is a bordered 44px button-looking link
+ok   T9 375 light plainAndOlder no horizontal overflow, no page errors
+ok   T9 375 light trimmed an unexported trimmed file reads position / total · Trimmed to the kept length
+ok   T9 375 light trimmed Result view of a trimmed file reads position / kept length · Trimmed, on one line
+ok   T9 375 light trimmed Original view of a trimmed file reads position / total · Trimmed to the kept length
+ok   T9 375 light trimmed the live position stays in the Original line, still ending in Trimmed to 00:08
+ok   T9 375 light trimmed back in the Result view the line reads Trimmed again
+ok   T9 375 light trimmed trimmed row: the toggle row is the last visible element
+ok   T9 375 light trimmed Reset to Trim all is a bordered button at least 44px tall
+ok   T9 375 light trimmed no underlined text and no .text-button in the row
+ok   T9 375 light trimmed every target is at least 44px
+ok   T9 375 light trimmed no horizontal overflow, no page errors
+ok   T9 375 light clipping clipping note: shown once, above the player, and nothing renders under the toggle
+ok   T9 375 light clipping clipping note: it sits directly under the meta line
+ok   T9 375 light clipping a collapsed row hides the clipping note
+ok   T9 375 light clipping clipping row: every target is at least 44px, no overflow, no page errors
+ok   T9 375 light unplayable a result that cannot play: the note is above the player, no toggle, nothing under the player
+ok   T9 375 light unplayable a result that cannot play: every target is at least 44px, no overflow, no page errors
+ok   T9 375 light exportPane idle: every Export pane button has a border and the same 44px minimum
+ok   T9 375 light exportPane idle: no underlined text, no link-styled anchor, no .text-button
+ok   T9 375 light exportPane idle: every target is at least 44px and no horizontal overflow
+ok   T9 375 light exportPane a disabled Clear all still looks like a button: a visible border and a fill that differs from the panel
+ok   T9 375 light exportPane processing: every Export pane button has a border and the same 44px minimum
+ok   T9 375 light exportPane processing: no underlined text, no link-styled anchor, no .text-button
+ok   T9 375 light exportPane processing: every target is at least 44px and no horizontal overflow
+ok   T9 375 light exportPane processing: Cancel all sits in the action row beside Clear all and Export
+ok   T9 375 light exportPane processing: the status area holds plain progress text and no control
+ok   T9 375 light exportPane failed: every Export pane button has a border and the same 44px minimum
+ok   T9 375 light exportPane failed: no underlined text, no link-styled anchor, no .text-button
+ok   T9 375 light exportPane failed: every target is at least 44px and no horizontal overflow
+ok   T9 375 light exportPane failed: Retry failed sits in the action row beside Clear all and Export
+ok   T9 375 light exportPane export pane: no page errors
+ok   T9 375 dark plainAndOlder a file with no trim reads only the position and total
+ok   T9 375 dark plainAndOlder Result view of an untrimmed file reads only the position and total
+ok   T9 375 dark plainAndOlder expanded finished row: the toggle row is the last visible element
+ok   T9 375 dark plainAndOlder expanded finished row: the toggle has a track and its hit area is at least 44px
+ok   T9 375 dark plainAndOlder expanded finished row: the toggle, labels and every other target are at least 44px
+ok   T9 375 dark plainAndOlder older settings: nothing renders under the toggle and no visible older text
+ok   T9 375 dark plainAndOlder older settings: the Result option and the download link keep the older name
+ok   T9 375 dark plainAndOlder older settings: the Result option also carries the older title
+ok   T9 375 dark plainAndOlder no underlined text or link-styled anchor anywhere, settings dialog included
+ok   T9 375 dark plainAndOlder the third-party notices link is a bordered 44px button-looking link
+ok   T9 375 dark plainAndOlder no horizontal overflow, no page errors
+ok   T9 375 dark trimmed an unexported trimmed file reads position / total · Trimmed to the kept length
+ok   T9 375 dark trimmed Result view of a trimmed file reads position / kept length · Trimmed, on one line
+ok   T9 375 dark trimmed Original view of a trimmed file reads position / total · Trimmed to the kept length
+ok   T9 375 dark trimmed the live position stays in the Original line, still ending in Trimmed to 00:08
+ok   T9 375 dark trimmed back in the Result view the line reads Trimmed again
+ok   T9 375 dark trimmed trimmed row: the toggle row is the last visible element
+ok   T9 375 dark trimmed Reset to Trim all is a bordered button at least 44px tall
+ok   T9 375 dark trimmed no underlined text and no .text-button in the row
+ok   T9 375 dark trimmed every target is at least 44px
+ok   T9 375 dark trimmed no horizontal overflow, no page errors
+ok   T9 375 dark clipping clipping note: shown once, above the player, and nothing renders under the toggle
+ok   T9 375 dark clipping clipping note: it sits directly under the meta line
+ok   T9 375 dark clipping a collapsed row hides the clipping note
+ok   T9 375 dark clipping clipping row: every target is at least 44px, no overflow, no page errors
+ok   T9 375 dark unplayable a result that cannot play: the note is above the player, no toggle, nothing under the player
+ok   T9 375 dark unplayable a result that cannot play: every target is at least 44px, no overflow, no page errors
+ok   T9 375 dark exportPane idle: every Export pane button has a border and the same 44px minimum
+ok   T9 375 dark exportPane idle: no underlined text, no link-styled anchor, no .text-button
+ok   T9 375 dark exportPane idle: every target is at least 44px and no horizontal overflow
+ok   T9 375 dark exportPane a disabled Clear all still looks like a button: a visible border and a fill that differs from the panel
+ok   T9 375 dark exportPane processing: every Export pane button has a border and the same 44px minimum
+ok   T9 375 dark exportPane processing: no underlined text, no link-styled anchor, no .text-button
+ok   T9 375 dark exportPane processing: every target is at least 44px and no horizontal overflow
+ok   T9 375 dark exportPane processing: Cancel all sits in the action row beside Clear all and Export
+ok   T9 375 dark exportPane processing: the status area holds plain progress text and no control
+ok   T9 375 dark exportPane failed: every Export pane button has a border and the same 44px minimum
+ok   T9 375 dark exportPane failed: no underlined text, no link-styled anchor, no .text-button
+ok   T9 375 dark exportPane failed: every target is at least 44px and no horizontal overflow
+ok   T9 375 dark exportPane failed: Retry failed sits in the action row beside Clear all and Export
+ok   T9 375 dark exportPane export pane: no page errors
+ok   T9 768 light plainAndOlder a file with no trim reads only the position and total
+ok   T9 768 light plainAndOlder Result view of an untrimmed file reads only the position and total
+ok   T9 768 light plainAndOlder expanded finished row: the toggle row is the last visible element
+ok   T9 768 light plainAndOlder expanded finished row: the toggle has a track and its hit area is at least 44px
+ok   T9 768 light plainAndOlder expanded finished row: the toggle, labels and every other target are at least 44px
+ok   T9 768 light plainAndOlder older settings: nothing renders under the toggle and no visible older text
+ok   T9 768 light plainAndOlder older settings: the Result option and the download link keep the older name
+ok   T9 768 light plainAndOlder older settings: the Result option also carries the older title
+ok   T9 768 light plainAndOlder no underlined text or link-styled anchor anywhere, settings dialog included
+ok   T9 768 light plainAndOlder the third-party notices link is a bordered 44px button-looking link
+ok   T9 768 light plainAndOlder no horizontal overflow, no page errors
+ok   T9 768 light trimmed an unexported trimmed file reads position / total · Trimmed to the kept length
+ok   T9 768 light trimmed Result view of a trimmed file reads position / kept length · Trimmed, on one line
+ok   T9 768 light trimmed Original view of a trimmed file reads position / total · Trimmed to the kept length
+ok   T9 768 light trimmed the live position stays in the Original line, still ending in Trimmed to 00:08
+ok   T9 768 light trimmed back in the Result view the line reads Trimmed again
+ok   T9 768 light trimmed trimmed row: the toggle row is the last visible element
+ok   T9 768 light trimmed Reset to Trim all is a bordered button at least 44px tall
+ok   T9 768 light trimmed no underlined text and no .text-button in the row
+ok   T9 768 light trimmed every target is at least 44px
+ok   T9 768 light trimmed no horizontal overflow, no page errors
+ok   T9 768 light clipping clipping note: shown once, above the player, and nothing renders under the toggle
+ok   T9 768 light clipping clipping note: it sits directly under the meta line
+ok   T9 768 light clipping a collapsed row hides the clipping note
+ok   T9 768 light clipping clipping row: every target is at least 44px, no overflow, no page errors
+ok   T9 768 light unplayable a result that cannot play: the note is above the player, no toggle, nothing under the player
+ok   T9 768 light unplayable a result that cannot play: every target is at least 44px, no overflow, no page errors
+ok   T9 768 light exportPane idle: every Export pane button has a border and the same 44px minimum
+ok   T9 768 light exportPane idle: no underlined text, no link-styled anchor, no .text-button
+ok   T9 768 light exportPane idle: every target is at least 44px and no horizontal overflow
+ok   T9 768 light exportPane a disabled Clear all still looks like a button: a visible border and a fill that differs from the panel
+ok   T9 768 light exportPane processing: every Export pane button has a border and the same 44px minimum
+ok   T9 768 light exportPane processing: no underlined text, no link-styled anchor, no .text-button
+ok   T9 768 light exportPane processing: every target is at least 44px and no horizontal overflow
+ok   T9 768 light exportPane processing: Cancel all sits in the action row beside Clear all and Export
+ok   T9 768 light exportPane processing: the status area holds plain progress text and no control
+ok   T9 768 light exportPane failed: every Export pane button has a border and the same 44px minimum
+ok   T9 768 light exportPane failed: no underlined text, no link-styled anchor, no .text-button
+ok   T9 768 light exportPane failed: every target is at least 44px and no horizontal overflow
+ok   T9 768 light exportPane failed: Retry failed sits in the action row beside Clear all and Export
+ok   T9 768 light exportPane export pane: no page errors
+ok   T9 768 dark plainAndOlder a file with no trim reads only the position and total
+ok   T9 768 dark plainAndOlder Result view of an untrimmed file reads only the position and total
+ok   T9 768 dark plainAndOlder expanded finished row: the toggle row is the last visible element
+ok   T9 768 dark plainAndOlder expanded finished row: the toggle has a track and its hit area is at least 44px
+ok   T9 768 dark plainAndOlder expanded finished row: the toggle, labels and every other target are at least 44px
+ok   T9 768 dark plainAndOlder older settings: nothing renders under the toggle and no visible older text
+ok   T9 768 dark plainAndOlder older settings: the Result option and the download link keep the older name
+ok   T9 768 dark plainAndOlder older settings: the Result option also carries the older title
+ok   T9 768 dark plainAndOlder no underlined text or link-styled anchor anywhere, settings dialog included
+ok   T9 768 dark plainAndOlder the third-party notices link is a bordered 44px button-looking link
+ok   T9 768 dark plainAndOlder no horizontal overflow, no page errors
+ok   T9 768 dark trimmed an unexported trimmed file reads position / total · Trimmed to the kept length
+ok   T9 768 dark trimmed Result view of a trimmed file reads position / kept length · Trimmed, on one line
+ok   T9 768 dark trimmed Original view of a trimmed file reads position / total · Trimmed to the kept length
+ok   T9 768 dark trimmed the live position stays in the Original line, still ending in Trimmed to 00:08
+ok   T9 768 dark trimmed back in the Result view the line reads Trimmed again
+ok   T9 768 dark trimmed trimmed row: the toggle row is the last visible element
+ok   T9 768 dark trimmed Reset to Trim all is a bordered button at least 44px tall
+ok   T9 768 dark trimmed no underlined text and no .text-button in the row
+ok   T9 768 dark trimmed every target is at least 44px
+ok   T9 768 dark trimmed no horizontal overflow, no page errors
+ok   T9 768 dark clipping clipping note: shown once, above the player, and nothing renders under the toggle
+ok   T9 768 dark clipping clipping note: it sits directly under the meta line
+ok   T9 768 dark clipping a collapsed row hides the clipping note
+ok   T9 768 dark clipping clipping row: every target is at least 44px, no overflow, no page errors
+ok   T9 768 dark unplayable a result that cannot play: the note is above the player, no toggle, nothing under the player
+ok   T9 768 dark unplayable a result that cannot play: every target is at least 44px, no overflow, no page errors
+ok   T9 768 dark exportPane idle: every Export pane button has a border and the same 44px minimum
+ok   T9 768 dark exportPane idle: no underlined text, no link-styled anchor, no .text-button
+ok   T9 768 dark exportPane idle: every target is at least 44px and no horizontal overflow
+ok   T9 768 dark exportPane a disabled Clear all still looks like a button: a visible border and a fill that differs from the panel
+ok   T9 768 dark exportPane processing: every Export pane button has a border and the same 44px minimum
+ok   T9 768 dark exportPane processing: no underlined text, no link-styled anchor, no .text-button
+ok   T9 768 dark exportPane processing: every target is at least 44px and no horizontal overflow
+ok   T9 768 dark exportPane processing: Cancel all sits in the action row beside Clear all and Export
+ok   T9 768 dark exportPane processing: the status area holds plain progress text and no control
+ok   T9 768 dark exportPane failed: every Export pane button has a border and the same 44px minimum
+ok   T9 768 dark exportPane failed: no underlined text, no link-styled anchor, no .text-button
+ok   T9 768 dark exportPane failed: every target is at least 44px and no horizontal overflow
+ok   T9 768 dark exportPane failed: Retry failed sits in the action row beside Clear all and Export
+ok   T9 768 dark exportPane export pane: no page errors
+ok   T9 1440 light plainAndOlder a file with no trim reads only the position and total
+ok   T9 1440 light plainAndOlder Result view of an untrimmed file reads only the position and total
+ok   T9 1440 light plainAndOlder expanded finished row: the toggle row is the last visible element
+ok   T9 1440 light plainAndOlder expanded finished row: the toggle has a track and its hit area is at least 44px
+ok   T9 1440 light plainAndOlder expanded finished row: the toggle, labels and every other target are at least 44px
+ok   T9 1440 light plainAndOlder older settings: nothing renders under the toggle and no visible older text
+ok   T9 1440 light plainAndOlder older settings: the Result option and the download link keep the older name
+ok   T9 1440 light plainAndOlder older settings: the Result option also carries the older title
+ok   T9 1440 light plainAndOlder no underlined text or link-styled anchor anywhere, settings dialog included
+ok   T9 1440 light plainAndOlder the third-party notices link is a bordered 44px button-looking link
+ok   T9 1440 light plainAndOlder no horizontal overflow, no page errors
+ok   T9 1440 light trimmed an unexported trimmed file reads position / total · Trimmed to the kept length
+ok   T9 1440 light trimmed Result view of a trimmed file reads position / kept length · Trimmed, on one line
+ok   T9 1440 light trimmed Original view of a trimmed file reads position / total · Trimmed to the kept length
+ok   T9 1440 light trimmed the live position stays in the Original line, still ending in Trimmed to 00:08
+ok   T9 1440 light trimmed back in the Result view the line reads Trimmed again
+ok   T9 1440 light trimmed trimmed row: the toggle row is the last visible element
+ok   T9 1440 light trimmed Reset to Trim all is a bordered button at least 44px tall
+ok   T9 1440 light trimmed no underlined text and no .text-button in the row
+ok   T9 1440 light trimmed every target is at least 44px
+ok   T9 1440 light trimmed no horizontal overflow, no page errors
+ok   T9 1440 light clipping clipping note: shown once, above the player, and nothing renders under the toggle
+ok   T9 1440 light clipping clipping note: it sits directly under the meta line
+ok   T9 1440 light clipping a collapsed row hides the clipping note
+ok   T9 1440 light clipping clipping row: every target is at least 44px, no overflow, no page errors
+ok   T9 1440 light unplayable a result that cannot play: the note is above the player, no toggle, nothing under the player
+ok   T9 1440 light unplayable a result that cannot play: every target is at least 44px, no overflow, no page errors
+ok   T9 1440 light exportPane idle: every Export pane button has a border and the same 44px minimum
+ok   T9 1440 light exportPane idle: no underlined text, no link-styled anchor, no .text-button
+ok   T9 1440 light exportPane idle: every target is at least 44px and no horizontal overflow
+ok   T9 1440 light exportPane a disabled Clear all still looks like a button: a visible border and a fill that differs from the panel
+ok   T9 1440 light exportPane processing: every Export pane button has a border and the same 44px minimum
+ok   T9 1440 light exportPane processing: no underlined text, no link-styled anchor, no .text-button
+ok   T9 1440 light exportPane processing: every target is at least 44px and no horizontal overflow
+ok   T9 1440 light exportPane processing: Cancel all sits in the action row beside Clear all and Export
+ok   T9 1440 light exportPane processing: the status area holds plain progress text and no control
+ok   T9 1440 light exportPane failed: every Export pane button has a border and the same 44px minimum
+ok   T9 1440 light exportPane failed: no underlined text, no link-styled anchor, no .text-button
+ok   T9 1440 light exportPane failed: every target is at least 44px and no horizontal overflow
+ok   T9 1440 light exportPane failed: Retry failed sits in the action row beside Clear all and Export
+ok   T9 1440 light exportPane export pane: no page errors
+ok   T9 1440 dark plainAndOlder a file with no trim reads only the position and total
+ok   T9 1440 dark plainAndOlder Result view of an untrimmed file reads only the position and total
+ok   T9 1440 dark plainAndOlder expanded finished row: the toggle row is the last visible element
+ok   T9 1440 dark plainAndOlder expanded finished row: the toggle has a track and its hit area is at least 44px
+ok   T9 1440 dark plainAndOlder expanded finished row: the toggle, labels and every other target are at least 44px
+ok   T9 1440 dark plainAndOlder older settings: nothing renders under the toggle and no visible older text
+ok   T9 1440 dark plainAndOlder older settings: the Result option and the download link keep the older name
+ok   T9 1440 dark plainAndOlder older settings: the Result option also carries the older title
+ok   T9 1440 dark plainAndOlder no underlined text or link-styled anchor anywhere, settings dialog included
+ok   T9 1440 dark plainAndOlder the third-party notices link is a bordered 44px button-looking link
+ok   T9 1440 dark plainAndOlder no horizontal overflow, no page errors
+ok   T9 1440 dark trimmed an unexported trimmed file reads position / total · Trimmed to the kept length
+ok   T9 1440 dark trimmed Result view of a trimmed file reads position / kept length · Trimmed, on one line
+ok   T9 1440 dark trimmed Original view of a trimmed file reads position / total · Trimmed to the kept length
+ok   T9 1440 dark trimmed the live position stays in the Original line, still ending in Trimmed to 00:08
+ok   T9 1440 dark trimmed back in the Result view the line reads Trimmed again
+ok   T9 1440 dark trimmed trimmed row: the toggle row is the last visible element
+ok   T9 1440 dark trimmed Reset to Trim all is a bordered button at least 44px tall
+ok   T9 1440 dark trimmed no underlined text and no .text-button in the row
+ok   T9 1440 dark trimmed every target is at least 44px
+ok   T9 1440 dark trimmed no horizontal overflow, no page errors
+ok   T9 1440 dark clipping clipping note: shown once, above the player, and nothing renders under the toggle
+ok   T9 1440 dark clipping clipping note: it sits directly under the meta line
+ok   T9 1440 dark clipping a collapsed row hides the clipping note
+ok   T9 1440 dark clipping clipping row: every target is at least 44px, no overflow, no page errors
+ok   T9 1440 dark unplayable a result that cannot play: the note is above the player, no toggle, nothing under the player
+ok   T9 1440 dark unplayable a result that cannot play: every target is at least 44px, no overflow, no page errors
+ok   T9 1440 dark exportPane idle: every Export pane button has a border and the same 44px minimum
+ok   T9 1440 dark exportPane idle: no underlined text, no link-styled anchor, no .text-button
+ok   T9 1440 dark exportPane idle: every target is at least 44px and no horizontal overflow
+ok   T9 1440 dark exportPane a disabled Clear all still looks like a button: a visible border and a fill that differs from the panel
+ok   T9 1440 dark exportPane processing: every Export pane button has a border and the same 44px minimum
+ok   T9 1440 dark exportPane processing: no underlined text, no link-styled anchor, no .text-button
+ok   T9 1440 dark exportPane processing: every target is at least 44px and no horizontal overflow
+ok   T9 1440 dark exportPane processing: Cancel all sits in the action row beside Clear all and Export
+ok   T9 1440 dark exportPane processing: the status area holds plain progress text and no control
+ok   T9 1440 dark exportPane failed: every Export pane button has a border and the same 44px minimum
+ok   T9 1440 dark exportPane failed: no underlined text, no link-styled anchor, no .text-button
+ok   T9 1440 dark exportPane failed: every target is at least 44px and no horizontal overflow
+ok   T9 1440 dark exportPane failed: Retry failed sits in the action row beside Clear all and Export
+ok   T9 1440 dark exportPane export pane: no page errors
+note WebKit not run: not installed

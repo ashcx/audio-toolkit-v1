@@ -595,7 +595,6 @@ const T9 = {
     check(`${label} no underlined text and no .text-button in the row`, (await linkScan(page)).underlined.length === 0 && (await linkScan(page)).textButtons === 0, JSON.stringify(await linkScan(page)));
     check(`${label} every target is at least 44px`, (await targetsUnder44(page)).length === 0, JSON.stringify(await targetsUnder44(page)));
     check(`${label} no horizontal overflow, no page errors`, await noOverflow(page) <= 0 && errors.length === 0, errors.join('; '));
-    if (viewport.name === '375') await shot(page, `t9-reset-${scheme}`);
     await context.close();
   },
   async clipping({ browser, app, check, viewport, scheme, label }) {
@@ -615,7 +614,6 @@ const T9 = {
     await quiet(page);
     check(`${label} a collapsed row hides the clipping note`, await row.locator('.file-name .file-note').count() === 0);
     check(`${label} clipping row: every target is at least 44px, no overflow, no page errors`, (await targetsUnder44(page)).length === 0 && await noOverflow(page) <= 0 && errors.length === 0, errors.join('; '));
-    if (viewport.name === '375') { await row.locator('.file-toggle').click(); await quiet(page); await shot(page, `t9-note-${scheme}`); }
     await context.close();
   },
   async unplayable({ browser, app, check, viewport, scheme, label }) {
@@ -660,7 +658,6 @@ const T9 = {
     check(`${label} processing: Cancel all sits in the action row beside Clear all and Export`, group.includes(copy.export.clearAll) && group.includes(copy.export.cancelAll) && group.includes(copy.export.exportButton), JSON.stringify(group));
     const status = await page.locator('.run-status').evaluate(element => ({ buttons: element.querySelectorAll('button, a').length, text: element.textContent.trim() }));
     check(`${label} processing: the status area holds plain progress text and no control`, status.buttons === 0 && status.text.includes('Exporting'), JSON.stringify(status));
-    if (['375', '1440'].includes(viewport.name)) await page.locator('.export-panel').screenshot({ path: `${root}/captures/t9-processing-${viewport.name}-${scheme}.png` });
     await cancelAll.click();
     await page.waitForFunction(() => !document.querySelector('li[data-job-state=running], li[data-job-state=waiting], li[data-job-state=cancelling]'), null, { timeout: 60000 });
     await page.getByRole('button', { name: copy.export.clearAll, exact: true }).click();
@@ -675,7 +672,6 @@ const T9 = {
     await idle('failed');
     const retryGroup = await page.locator('.run-actions-group').evaluate(element => [...element.children].map(child => (child.getAttribute('aria-label') ?? child.textContent).trim()));
     check(`${label} failed: Retry failed sits in the action row beside Clear all and Export`, retryGroup.includes(copy.export.retryFailed) && retryGroup.includes(copy.export.clearAll) && retryGroup.includes(copy.export.exportButton), JSON.stringify(retryGroup));
-    if (['375', '1440'].includes(viewport.name)) await page.locator('.export-panel').screenshot({ path: `${root}/captures/t9-failed-${viewport.name}-${scheme}.png` });
     check(`${label} export pane: no page errors`, errors.length === 0, errors.join('; '));
     await context.close();
   },
@@ -1453,6 +1449,49 @@ async function runShots(browser, app, which) {
   }
 }
 
+async function runFollowupRows(browser, app) {
+  const dir = process.env.SHOTS_DIR ?? `${root}/captures`;
+  await mkdir(dir, { recursive: true });
+  const viewport = VIEWPORTS.find(item => item.name === '375');
+  for (const scheme of ['dark', 'light']) {
+    const { context, page } = await openApp(browser, app, viewport, { scheme });
+    await addFiles(page, [fixture('Takedown - HUNTR_X.mp3.wav', 20)]);
+    await page.getByLabel('Add step').selectOption('trim');
+    await setTrimAll(page, 2, 10);
+    await exportAll(page, 1);
+    const row = rowAt(page, 0), panel = page.locator('.files-panel');
+    await open(row);
+    await page.waitForTimeout(400);
+    await panel.screenshot({ path: `${dir}/followup-row-375-${scheme}.png` });
+    await row.getByRole('radio', { name: /^Original/ }).check();
+    await page.waitForTimeout(500);
+    await panel.screenshot({ path: `${dir}/followup-row-original-375-${scheme}.png` });
+    await page.getByLabel('Add step').selectOption('gain');
+    await row.getByRole('radio', { name: /^Result/ }).check();
+    await page.waitForTimeout(500);
+    await panel.screenshot({ path: `${dir}/followup-row-older-375-${scheme}.png` });
+    await row.getByRole('button', { name: copy.wave.trimLabel('Takedown - HUNTR_X.mp3.wav') }).click();
+    await page.waitForTimeout(400);
+    await page.getByLabel(copy.trim.startField('Takedown - HUNTR_X.mp3.wav'), { exact: true }).fill('3');
+    await row.getByRole('button', { name: copy.wave.doneLabel('Takedown - HUNTR_X.mp3.wav') }).click();
+    await page.waitForTimeout(500);
+    await panel.screenshot({ path: `${dir}/followup-trim-reset-375-${scheme}.png` });
+    await context.close();
+  }
+  {
+    const { context, page } = await openApp(browser, app, viewport, { scheme: 'dark' });
+    await addFiles(page, [{ name: 'loud.wav', mimeType: 'audio/wav', buffer: wav(6, 44100, 0.95) }]);
+    await page.getByRole('combobox', { name: 'Format', exact: true }).selectOption('wav');
+    await page.getByLabel('Add step', { exact: true }).selectOption('gain');
+    await page.getByRole('slider', { name: copy.slider(copy.gain.label) }).press('End');
+    await exportAll(page, 1);
+    await open(rowAt(page, 0));
+    await page.waitForTimeout(400);
+    await page.locator('.files-panel').screenshot({ path: `${dir}/followup-row-note-375-dark.png` });
+    await context.close();
+  }
+}
+
 async function runFollowupShots(browser, app) {
   const dir = process.env.SHOTS_DIR ?? `${root}/captures`;
   await mkdir(dir, { recursive: true });
@@ -1470,7 +1509,6 @@ async function runFollowupShots(browser, app) {
       await page.waitForSelector('li[data-job-state=running]');
       await take(page, `processing-${stem}`);
       await page.getByRole('button', { name: copy.export.clearAll, exact: true }).click();
-      await take(page, `clearing-${stem}`);
       await page.waitForFunction(() => !document.querySelector('li[data-file-id]'), null, { timeout: 30000 });
       await context.close();
     }
@@ -1527,7 +1565,7 @@ try {
     try {
       if (baseline) await runBaseline(app, browser);
       if (three) await runThree(browser, app);
-      if (shotsWhich === 'followup') await runFollowupShots(browser, app);
+      if (shotsWhich === 'followup') { await runFollowupRows(browser, app); await runFollowupShots(browser, app); }
       else if (shotsWhich) await runShots(browser, app, shotsWhich);
       for (const id of selected) await tasks[id]({ browser, app, check, note, record });
     } finally { await browser.close(); }
