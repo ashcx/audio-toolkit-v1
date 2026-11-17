@@ -193,6 +193,13 @@ function App() {
           href="https://ashcx.github.io/tools/"
           aria-label={copy.app.backToTools}
         >
+          <img
+            class="brand-mark"
+            src={`${import.meta.env.BASE_URL}app-icon.svg`}
+            alt=""
+            width="42"
+            height="42"
+          />
           <h1>{copy.app.title}</h1>
         </a>
         <button ref={settingsButton} type="button" onClick={() => settings.current?.showModal()}>{copy.settings.open}</button>
