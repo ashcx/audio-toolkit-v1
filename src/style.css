@@ -44,7 +44,8 @@ button:disabled { opacity: .4; cursor: default; }
 .button.primary { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
 .app { width: min(calc(100% - 48px), 1200px); margin: auto; padding: 24px 0 40px; }
 .header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
-.brand { min-height: 44px; display: flex; align-items: center; text-decoration: none; }
+.brand { min-height: 44px; display: flex; align-items: center; gap: 12px; min-width: 0; text-decoration: none; }
+.brand-mark { display: block; flex: none; width: 42px; height: 42px; border-radius: 10px; box-shadow: 0 5px 14px rgba(168, 56, 24, .22); }
 h1 { font: var(--type-title); letter-spacing: -.5px; margin: 0; }
 h2 { font: var(--type-heading); letter-spacing: -.3px; margin: 0; }
 h3 { font: var(--type-step); margin: 0; }
